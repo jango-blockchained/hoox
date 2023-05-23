@@ -26,7 +26,7 @@ def handle_alert(alert, user_creds):
 
         send_to_telegram(user_creds.user, f"Order executed: {order}")
 
-        send_to_home_assistant('switch.living_room', 'turn_on')
+        send_to_home_assistant('light.led_strip_whiteboard', 'turn_on')
     except Exception as e:
         print(f"An error occurred: {e}")
         order_failed(user_creds.user, str(e))
