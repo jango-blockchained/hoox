@@ -2,8 +2,8 @@ import frappe
 from frappe import _
 import telegram
 
-def get_user_credentials(api_key):
-    user_creds = frappe.get_doc('ExchangeCredentials', {'api_key': api_key})
+def get_user_credentials(secret_hash):
+    user_creds = frappe.get_doc('Exchange Credentials', secret_hash)
     return user_creds
 
 def send_to_telegram(user, message):

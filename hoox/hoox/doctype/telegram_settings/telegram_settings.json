@@ -1,23 +1,39 @@
 {
-    "name": "TelegramSettings",
-    "doctype": "DocType",
-    "is_single": 1,
-    "is_submittable": 0,
-    "istable": 0,
-    "fields": [
-        {
-            "fieldname": "bot_token",
-            "fieldtype": "Password",
-            "label": "Bot Token"
-        }
-    ],
-    "permissions": [
-        {
-            "role": "System Manager",
-            "read": 1,
-            "write": 1,
-            "create": 1,
-            "delete": 1
-        }
-    ]
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-05-24 06:14:47.416144",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "bot_token"
+ ],
+ "fields": [
+  {
+   "fieldname": "bot_token",
+   "fieldtype": "Password",
+   "label": "Bot Token"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2023-05-24 06:16:03.325815",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "Telegram Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
 }
