@@ -6,18 +6,31 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "enabled",
+  "section_break_w6w1u",
   "bot_token"
  ],
  "fields": [
   {
+   "description": "Get your Telegram Bot Token from @BotFather ",
    "fieldname": "bot_token",
    "fieldtype": "Password",
    "label": "Bot Token"
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "section_break_w6w1u",
+   "fieldtype": "Section Break"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2023-05-24 06:16:03.325815",
+ "modified": "2023-05-26 17:53:48.018736",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Telegram Settings",

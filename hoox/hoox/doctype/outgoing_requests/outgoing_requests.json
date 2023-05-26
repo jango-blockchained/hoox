@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-05-26 16:57:07.986848",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "parent_trade",
+  "method",
+  "url",
+  "params",
+  "timestamp"
+ ],
+ "fields": [
+  {
+   "fieldname": "parent_trade",
+   "fieldtype": "Link",
+   "label": "Parent Trade",
+   "options": "Trades"
+  },
+  {
+   "fieldname": "method",
+   "fieldtype": "Data",
+   "label": "Method"
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "URL"
+  },
+  {
+   "fieldname": "params",
+   "fieldtype": "Long Text",
+   "label": "Parameter"
+  },
+  {
+   "fieldname": "timestamp",
+   "fieldtype": "Datetime",
+   "label": "Timestamp"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-05-26 17:30:28.567152",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "Outgoing Requests",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

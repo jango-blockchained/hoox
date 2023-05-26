@@ -1,0 +1,164 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-05-26 16:51:18.530808",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "state",
+  "column_break_kabux",
+  "user",
+  "column_break_bgfrp",
+  "secret_hash",
+  "section_break_x1p1w",
+  "action",
+  "order_type",
+  "column_break_265fg",
+  "symbol",
+  "column_break_ssgjg",
+  "quantity",
+  "column_break_nvtyr",
+  "price",
+  "section_break_prlsy",
+  "exchange",
+  "column_break_h5gh3",
+  "time",
+  "section_break_athv6",
+  "outgoing_requests"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "default": "buy",
+   "fieldname": "action",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Action",
+   "options": "buy\nsell\nclose",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "symbol",
+   "fieldtype": "Data",
+   "label": "Symbol"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "label": "Price"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "label": "Quantity"
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Datetime",
+   "label": "Time"
+  },
+  {
+   "default": "pending",
+   "fieldname": "state",
+   "fieldtype": "Select",
+   "label": "State",
+   "options": "pending\nfail\nretry\nsuccess"
+  },
+  {
+   "fieldname": "outgoing_requests",
+   "fieldtype": "Table",
+   "label": "Outgoing Requests",
+   "options": "Outgoing Requests"
+  },
+  {
+   "fieldname": "order_type",
+   "fieldtype": "Data",
+   "label": "Order Type"
+  },
+  {
+   "fetch_from": "User.name",
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "fetch_from": "Exchange Credentials.name",
+   "fieldname": "secret_hash",
+   "fieldtype": "Link",
+   "label": "Secret Hash",
+   "options": "Exchange Credentials"
+  },
+  {
+   "fieldname": "column_break_kabux",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bgfrp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_x1p1w",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_265fg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ssgjg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_nvtyr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_prlsy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "exchange",
+   "fieldtype": "Data",
+   "label": "Exchange"
+  },
+  {
+   "fieldname": "column_break_h5gh3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_athv6",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-05-26 17:58:30.176840",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "Trades",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
