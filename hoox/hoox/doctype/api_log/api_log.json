@@ -1,0 +1,58 @@
+{
+    "creation": "2023-05-26 12:00:00.000000",
+    "doctype": "DocType",
+    "idx": 0,
+    "is_submittable": 0,
+    "modified": "2023-05-26 12:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Hoox",
+    "name": "API Log",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "read": 1,
+            "role": "System Manager",
+            "write": 1
+        }
+    ],
+    "fields": [
+        {
+            "fieldname": "request_time",
+            "fieldtype": "Datetime",
+            "label": "Request Time"
+        },
+        {
+            "fieldname": "api_url",
+            "fieldtype": "Data",
+            "label": "API URL"
+        },
+        {
+            "fieldname": "api_method",
+            "fieldtype": "Data",
+            "label": "API Method"
+        },
+        {
+            "fieldname": "request_data",
+            "fieldtype": "Code",
+            "label": "Request Data"
+        },
+        {
+            "fieldname": "response_data",
+            "fieldtype": "Code",
+            "label": "Response Data"
+        },
+        {
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "label": "Status",
+            "options": "Success\nFailure"
+        },
+        {
+            "fieldname": "error_message",
+            "fieldtype": "Text",
+            "label": "Error Message"
+        }
+    ]
+}

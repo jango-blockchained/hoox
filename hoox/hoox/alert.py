@@ -1,10 +1,10 @@
 import frappe
 import json
-import requests
+import time
 import logging
 from .exchange import execute_order
 from .user import get_user_credentials, send_to_telegram, order_failed
-# from .home_assistant import send_to_home_assistant
+from frappe import DoesNotExistError, ValidationError
 
 logging.basicConfig(filename='alerts.log', level=logging.INFO)
 
@@ -17,66 +17,72 @@ def hoox():
         if user_creds.enabled:
             handle_alert(request_data, user_creds)
         else:
-            # The token is invalid, so we return an error response
-            return {"error": "Invalid Secret Hash"}
+            raise ValidationError("Invalid Secret Hash")
+    except (DoesNotExistError, ValidationError) as e:
+        logging.error(f"An error occurred in hoox: {str(e)}")
+        frappe.throw(str(e), frappe.AuthenticationError)
     except Exception as e:
-        # Catch any other exceptions and return an error response
-        return {"error": str(e)}
+        logging.error(f"An unexpected error occurred in hoox: {str(e)}")
+        frappe.throw("An unexpected error occurred", frappe.AuthenticationError)
 
 
-def handle_alert(request_data, user_creds):
+def handle_alert(request_data, user_creds, is_retry=False):
     try:
         # Logging
         logging.info(f"Incoming request from TradingView: {request_data}")
 
-        # Create a new Trade doc
-        trade = frappe.get_doc({
-            "doctype": "Trade",
-            "user": user_creds.user,
-            "secret_hash": request_data.get("secret_hash"),
-            "action": request_data.get("action"),
-            "exchange": user_creds.exchange,
-            "symbol": request_data.get("symbol"),
-            "price": request_data.get("price"),
-            "quantity": request_data.get("quantity"),
-            "order_type": request_data.get("order_type")
-        })
-        trade.insert(ignore_permissions=True)
+        if not is_retry: 
+            # Create a new Trade doc
+            trade = frappe.get_doc({
+                "doctype": "Trades",
+                "user": user_creds.user,
+                "secret_hash": request_data.get("secret_hash"),
+                "action": request_data.get("action"),
+                "exchange": user_creds.exchange,
+                "symbol": request_data.get("symbol"),
+                "price": request_data.get("price"),
+                "quantity": request_data.get("quantity"),
+                "market_type": request_data.get("market_type")
+            })
+            trade.insert(ignore_permissions=True)
 
-            # Call to the exchange
+        # Call to the exchange
         exchange_response = execute_order(
             request_data.get("action"),
             user_creds.exchange,
             request_data.get("symbol"),
             request_data.get("price"),
             request_data.get("quantity"),
-            request_data.get("order_type"),
+            request_data.get("market_type"),
             user_creds)
+        
         send_to_telegram(user_creds.user, f"Order executed: {exchange_response}")
-        # send_to_home_assistant('light.led_strip_whiteboard', 'turn_on')
         logging.info(f"Outgoing request to Exchange: {request_data}")
         logging.info(f"Exchange response: {exchange_response}")
-        # Append to the 'OutgoingRequest' child table
-        trade.append("outgoing_requests", {
-            "doctype": "Outgoing Requests",
-            "request_data": request_data,
-            "exchange_response": exchange_response
-        })
-        trade.save()
+
+        if not is_retry:
+            # Append to the 'OutgoingRequest' child table only on first attempt
+            trade.append("outgoing_requests", {
+                "doctype": "Outgoing Requests",
+                "api_method": request_data.get('action'),
+                "api_url": user_creds.exchange,
+                "params": json.dumps(request_data),
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+            })
+            trade.save()
 
     except Exception as e:
         print(f"An error occurred: {e}")
         order_failed(user_creds.user, str(e))
         retry(request_data, user_creds)
 
-
 def retry(request_data, user_creds):
-    for i in range(3):  # Retry 3 times
+    for i in range(5):  # Retry 3 times
         try:
-            handle_alert(request_data, user_creds)
+            handle_alert(request_data, user_creds, is_retry=True)
             break
         except Exception as e:
-            sleep(1)  # Wait for 1 second before retrying
-            if i == 2:  # If this was the last attempt
+            time.sleep(5)
+            if i == 4:
                 order_failed(user_creds.user, str(e))
 

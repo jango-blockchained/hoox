@@ -10,6 +10,7 @@
   "method",
   "url",
   "params",
+  "response",
   "timestamp"
  ],
  "fields": [
@@ -38,12 +39,17 @@
    "fieldname": "timestamp",
    "fieldtype": "Datetime",
    "label": "Timestamp"
+  },
+  {
+   "fieldname": "response",
+   "fieldtype": "Long Text",
+   "label": "Response"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-05-26 17:30:28.567152",
+ "modified": "2023-05-26 20:35:22.368159",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Outgoing Requests",
