@@ -1,5 +1,6 @@
 import ccxt
 import frappe
+import json
 
 def create_api_log(api_url, api_method, request_data, status, error_message=None, response_data=None):
     doc = frappe.get_doc({
@@ -61,7 +62,7 @@ def execute_order(action, exchange_id, symbol, price, amount, order_type, user_c
 
         return order
     except AttributeError:
-        return f"Exchange {exchange_id} not found in ccxt."
+        return f"Exchange {exchange_id} not found in CCXT."
     except ccxt.NetworkError as e:
         request_data = {
             "action": action,

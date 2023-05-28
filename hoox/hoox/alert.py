@@ -14,35 +14,42 @@ def hoox():
         request_data = json.loads(frappe.request.data)
         secret_hash = request_data.get('secret_hash')
         user_creds = get_user_credentials(secret_hash)
-        # --
-        if request_data.get('action') in ['buy', 'sell', 'close']:
-            if user_creds.enabled:
-                handle_alert(request_data, user_creds)
-            else:
-                raise ValidationError("Invalid Secret Hash")
-        # --
-        if telegram in request_data:
-            send_to_telegram(user_creds.user, request_data.get('telegram'))
-        # --
-        if haas in request_data:
-            send_to_haas(request_data.get('haas'))
-    # --
+        process_request(request_data, user_creds)
     except (DoesNotExistError, ValidationError) as e:
         logging.error(f"An error occurred in hoox: {str(e)}")
         frappe.throw(str(e), frappe.AuthenticationError)
-    # --
     except Exception as e:
         logging.error(f"An unexpected error occurred in hoox: {str(e)}")
         frappe.throw("An unexpected error occurred", frappe.AuthenticationError)
 
+def process_request(request_data, user_creds):
+    process_trade_action(request_data, user_creds)
+    process_telegram(request_data, user_creds)
+    process_haas(request_data, user_creds)
+
+def process_trade_action(request_data, user_creds):
+    if request_data.get('action') in ['buy', 'sell', 'close']:
+        if user_creds.enabled:
+            handle_alert(request_data, user_creds)
+        else:
+            raise ValidationError("Invalid Secret Hash")
+
+def process_telegram(request_data, user_creds):
+    telegram = request_data.get('telegram')
+    if telegram and telegram.get('message'):
+        toId = telegram.get('chat_id') or telegram.get('group_id')
+        send_to_telegram(user_creds.user, telegram.get('message'), toId)
+
+def process_haas(request_data, user_creds):
+    haas = request_data.get('haas')
+    if haas and haas.get('entity_id'):
+        data = haas.get('data') or {}
+        send_to_haas(haas.get('entity_id'), haas.get('service'), haas.get('data'))
 
 def handle_alert(request_data, user_creds, is_retry=False):
     try:
-        # Logging
         logging.info(f"Incoming request from TradingView: {request_data}")
-        # --
         if not is_retry: 
-            # Create a new Trade doc
             trade = frappe.get_doc({
                 "doctype": "Trades",
                 "user": user_creds.user,
@@ -61,7 +68,6 @@ def handle_alert(request_data, user_creds, is_retry=False):
                 'state': ['!=', 'Success']
             })
 
-        # Call to the exchange
         exchange_response = execute_order(
             request_data.get("action"),
             user_creds.exchange,
@@ -92,7 +98,7 @@ def handle_alert(request_data, user_creds, is_retry=False):
         retry(request_data, user_creds)
 
 def retry(request_data, user_creds):
-    for i in range(5):  # Retry 3 times
+    for i in range(5):  # Retry 5 times
         try:
             handle_alert(request_data, user_creds, is_retry=True)
             break
@@ -100,4 +106,3 @@ def retry(request_data, user_creds):
             time.sleep(5)
             if i == 4:
                 order_failed(user_creds.user, str(e))
-
