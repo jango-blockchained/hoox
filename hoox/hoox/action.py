@@ -102,6 +102,20 @@ def sync_exchanges():
     print(f"Exchanges synced successfully.")
 
 
+@frappe.whitelist()
+def delete_exchanges():
+    if frappe.db.count('CCXT Exchanges') == 0:
+        frappe.msgprint(f"No exchanges found in database.")
+        print(f"No exchanges found in database.")
+        return
+    docs = frappe.get_all('CCXT Exchanges')
+    for doc in docs:
+        frappe.delete_doc('CCXT Exchanges', doc.name)
+    frappe.msgprint(f"Exchanges deleted successfully.")
+    print(f"Exchanges deleted successfully.")
+
+
+
 # def get_balance(exchange_id, user_creds):
 #     pass
 

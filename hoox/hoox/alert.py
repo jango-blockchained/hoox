@@ -2,7 +2,7 @@ import frappe
 import json
 import time
 import logging
-from .exchange import execute_order
+from .action import execute_order
 from .user import get_user_credentials, send_to_telegram, order_failed
 from frappe import DoesNotExistError, ValidationError
 

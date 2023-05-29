@@ -3,20 +3,34 @@
   {
    "action": "hoox.hoox.exchange.sync_exchanges",
    "action_type": "Server Action",
+   "group": "CCXT",
    "label": "Sync Exchanges"
+  },
+  {
+   "action": "hoox.hoox.exchange.delete_exchanges",
+   "action_type": "Server Action",
+   "group": "CCXT",
+   "label": "Delete Exchanges"
   }
  ],
  "allow_import": 1,
+ "autoname": "field:exchange_id",
  "creation": "2023-05-28 21:58:58.973116",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "exchange_id",
+  "name1",
   "exchange_name",
+  "column_break_0jazi",
+  "exchange_id",
+  "section_break_wuj7a",
+  "settings",
   "precision_mode",
   "rate_limit",
+  "section_break_3bszp",
   "testnet",
+  "section_break_1fknw",
   "has"
  ],
  "fields": [
@@ -27,8 +41,10 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Exchange ID",
+   "read_only": 1,
    "reqd": 1,
-   "search_index": 1
+   "search_index": 1,
+   "unique": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -37,6 +53,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Exchange Name",
+   "read_only": 1,
    "reqd": 1,
    "search_index": 1
   },
@@ -45,14 +62,16 @@
    "fieldname": "precision_mode",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Precision Mode"
+   "label": "Precision Mode",
+   "read_only": 1
   },
   {
    "allow_in_quick_entry": 1,
    "fieldname": "rate_limit",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Rate Limit"
+   "label": "Rate Limit",
+   "read_only": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -61,17 +80,46 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Testnet"
+   "label": "Testnet",
+   "read_only": 1
   },
   {
    "fieldname": "has",
    "fieldtype": "Long Text",
    "in_global_search": 1,
-   "label": "Features"
+   "label": "Features",
+   "read_only": 1
+  },
+  {
+   "fieldname": "name1",
+   "fieldtype": "Heading",
+   "label": "Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_0jazi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_wuj7a",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "settings",
+   "fieldtype": "Heading",
+   "label": "Settings"
+  },
+  {
+   "fieldname": "section_break_3bszp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_1fknw",
+   "fieldtype": "Section Break"
   }
  ],
  "links": [],
- "modified": "2023-05-29 22:01:52.805944",
+ "modified": "2023-05-29 23:19:02.812776",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "CCXT Exchanges",
@@ -95,5 +143,6 @@
  "quick_entry": 1,
  "show_name_in_global_search": 1,
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "title_field": "exchange_name"
 }
