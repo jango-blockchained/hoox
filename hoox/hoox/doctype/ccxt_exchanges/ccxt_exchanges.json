@@ -7,9 +7,6 @@
   }
  ],
  "allow_import": 1,
- "allow_rename": 1,
- "autoname": "exchange_id",
- "beta": 1,
  "creation": "2023-05-28 21:58:58.973116",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -74,16 +71,29 @@
   }
  ],
  "links": [],
- "modified": "2023-05-29 21:03:34.724479",
+ "modified": "2023-05-29 22:01:52.805944",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "CCXT Exchanges",
  "name_case": "UPPER CASE",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  }
+ ],
  "quick_entry": 1,
  "show_name_in_global_search": 1,
  "sort_field": "modified",
- "sort_order": "DESC",
- "title_field": "exchange_id"
+ "sort_order": "DESC"
 }
