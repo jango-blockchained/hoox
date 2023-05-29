@@ -62,12 +62,26 @@
   }
  ],
  "links": [],
- "modified": "2023-05-29 21:03:59.261790",
+ "modified": "2023-05-29 22:16:44.757253",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "API Log",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  }
+ ],
  "sort_field": "modified",
  "sort_order": "DESC"
 }
