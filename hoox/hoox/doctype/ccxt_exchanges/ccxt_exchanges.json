@@ -1,0 +1,89 @@
+{
+ "actions": [
+  {
+   "action": "hoox.hoox.exchange.sync_exchanges",
+   "action_type": "Server Action",
+   "label": "Sync Exchanges"
+  }
+ ],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "exchange_id",
+ "beta": 1,
+ "creation": "2023-05-28 21:58:58.973116",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "exchange_id",
+  "exchange_name",
+  "precision_mode",
+  "rate_limit",
+  "testnet",
+  "has"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "exchange_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Exchange ID",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "exchange_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Exchange Name",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "precision_mode",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Precision Mode"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "rate_limit",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Rate Limit"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "0",
+   "fieldname": "testnet",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Testnet"
+  },
+  {
+   "fieldname": "has",
+   "fieldtype": "Long Text",
+   "in_global_search": 1,
+   "label": "Features"
+  }
+ ],
+ "links": [],
+ "modified": "2023-05-29 19:02:49.643921",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "CCXT Exchanges",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "exchange_id"
+}

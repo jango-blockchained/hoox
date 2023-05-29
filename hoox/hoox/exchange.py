@@ -79,3 +79,77 @@ def execute_order(action, exchange_id, symbol, price, amount, order_type, user_c
         return f"An exchange error occurred: {str(e)}"
     except Exception as e:
         return f"An error occurred: {str(e)}"
+
+@frappe.whitelist()
+def sync_exchanges():
+    # Get list of exchanges
+    for exchange_id in ccxt.exchanges:
+        if hasattr(ccxt, exchange_id):
+            exchange_class = getattr(ccxt, exchange_id)
+            exchange = exchange_class()  # create an instance of the exchange class
+            # Create a new exchange document in Frappe
+            frappe.get_doc({
+                'doctype': 'CCXT Exchanges',
+                'exchange_id': exchange.id,
+                'exchange_name': exchange.name,
+                'precision_mode': exchange.precisionMode,
+                'rate_limit': exchange.rateLimit,
+                'testnet': 1 if exchange.urls.get('test') is not None else 0,
+                'has': json.dumps(exchange.has)
+            }).insert(ignore_permissions=True)
+        else:
+            print(f"Exchange '{exchange_id}' is not found in ccxt module.")
+    print(f"Exchanges synced successfully.")
+
+
+# def get_balance(exchange_id, user_creds):
+#     pass
+
+# def get_order_book(exchange_id, symbol):
+#     pass
+
+# def get_ticker(exchange_id, symbol):
+#     pass
+
+# def get_ohlcv(exchange_id, symbol):
+#     pass
+
+# def get_trades(exchange_id, symbol):
+#     pass
+
+# def get_open_orders(exchange_id, symbol):
+#     pass
+
+# def get_closed_orders(exchange_id, symbol):
+#     pass
+
+# def get_order(exchange_id, symbol, order_id):
+#     pass
+
+# def get_deposit_address(exchange_id, symbol):
+#     pass
+
+# def get_deposit_history(exchange_id, symbol):
+#     pass
+
+# def get_withdrawal_history(exchange_id, symbol):
+#     pass
+
+# def get_withdrawal_fee(exchange_id, symbol):
+#     pass
+
+# def get_withdrawal_limits(exchange_id, symbol):
+#     pass
+
+# def get_withdrawal_status(exchange_id, symbol):
+#     pass
+
+# def get_withdrawal_address(exchange_id, symbol):
+#     pass
+
+# def get_withdrawal_fees(exchange_id, symbol):
+#     pass
+
+# def get_withdrawal_limits(exchange_id, symbol):
+#     pass
+

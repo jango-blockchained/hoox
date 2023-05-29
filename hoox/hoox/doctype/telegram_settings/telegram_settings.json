@@ -30,23 +30,12 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2023-05-26 18:57:01.318563",
+ "modified": "2023-05-29 19:04:39.213107",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Telegram Settings",
  "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "print": 1,
-   "read": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
+ "permissions": [],
  "sort_field": "modified",
  "sort_order": "DESC"
 }
