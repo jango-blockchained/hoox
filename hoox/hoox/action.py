@@ -1,6 +1,9 @@
 import ccxt
 import frappe
 import json
+import logging
+logging.basicConfig(filename='alerts.action.log', level=logging.DEBUG)
+
 
 def create_api_log(api_url, api_method, request_data, status, error_message=None, response_data=None):
     doc = frappe.get_doc({

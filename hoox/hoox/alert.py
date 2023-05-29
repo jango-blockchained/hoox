@@ -6,7 +6,7 @@ from .action import execute_order
 from .user import get_user_credentials, send_to_telegram, order_failed
 from frappe import DoesNotExistError, ValidationError
 
-logging.basicConfig(filename='alerts.log', level=logging.INFO)
+logging.basicConfig(filename='alerts.log', level=logging.DEBUG)
 
 @frappe.whitelist(allow_guest=True)
 def hoox():
@@ -50,6 +50,7 @@ def handle_alert(request_data, user_creds, is_retry=False):
     try:
         logging.info(f"Incoming request from TradingView: {request_data}")
         if not is_retry: 
+            exchange_selected
             trade = frappe.get_doc({
                 "doctype": "Trades",
                 "user": user_creds.user,
