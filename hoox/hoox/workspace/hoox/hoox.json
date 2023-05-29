@@ -2,7 +2,7 @@
  "category": "Domains",
  "charts": [],
  "creation": "2023-05-23 11:17:39.197890",
- "developer_mode_only": 1,
+ "developer_mode_only": 0,
  "disable_user_customization": 0,
  "docstatus": 0,
  "doctype": "Workspace",
@@ -13,7 +13,7 @@
  "is_standard": 1,
  "label": "Hoox",
  "links": [],
- "modified": "2023-05-23 12:20:40.039125",
+ "modified": "2023-05-29 21:06:59.157742",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -22,10 +22,34 @@
  "pin_to_top": 0,
  "shortcuts": [
   {
+   "doc_view": "List",
+   "label": "Trades",
+   "link_to": "Trades",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Exchange Credentials",
+   "link_to": "Exchange Credentials",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "CCXT Exchanges",
+   "link_to": "CCXT Exchanges",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Telegram Settings",
+   "link_to": "Telegram Settings",
+   "type": "DocType"
+  },
+  {
    "color": "#761ACB",
    "doc_view": "List",
-   "label": "g5g",
-   "link_to": "Dependent Task",
+   "label": "API Log",
+   "link_to": "API Log",
    "type": "DocType"
   }
  ]
