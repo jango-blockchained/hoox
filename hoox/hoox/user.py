@@ -13,8 +13,8 @@ def get_haas_credentials(user):
     return haas_creds if haas_creds.enabled else None
 
 def send_to_telegram(user, message):
-    bot_token = frappe.db.get_single_value('Telegram Settings', 'bot_token')
-    chat_id = frappe.db.get_value('Telegram User', {'user': user}, 'telegram_user_id')
+    bot_token = frappe.db.get_single_value('Hoox Settings', 'telegram_bot_token')
+    chat_id = frappe.db.get_value('Telegram Credentials', {'user': user}, 'telegram_user_id')
     
     if bot_token and chat_id:
         bot = telegram.Bot(token=bot_token)

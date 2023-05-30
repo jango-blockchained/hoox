@@ -80,12 +80,11 @@ def handle_alert(request_data, user_creds, is_retry=False):
                
         trade.append("outgoing_requests", {
             "doctype": "Outgoing Requests",
-            "parent_trade": trade.name,
             "method": request_data.get('action'),
             "url": user_creds.exchange,
             "params": json.dumps(request_data),
             "response": exchange_response,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+            "timestamp": (datetime.utcnow() + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S")
         })
         trade.save()
 
