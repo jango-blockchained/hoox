@@ -103,10 +103,11 @@
    "type": "Link"
   }
  ],
- "modified": "2023-05-30 23:00:04.772323",
+ "modified": "2023-05-31 00:43:00.070984",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
+ "onboarding": "HOOX Onboarding",
  "owner": "Administrator",
  "pin_to_bottom": 0,
  "pin_to_top": 0,

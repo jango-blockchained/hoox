@@ -43,7 +43,6 @@
    "label": "Exchange ID",
    "read_only": 1,
    "reqd": 1,
-   "search_index": 1,
    "unique": 1
   },
   {
@@ -118,8 +117,9 @@
    "fieldtype": "Section Break"
   }
  ],
+ "in_create": 1,
  "links": [],
- "modified": "2023-05-29 23:19:02.812776",
+ "modified": "2023-05-31 00:45:21.879095",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "CCXT Exchanges",
