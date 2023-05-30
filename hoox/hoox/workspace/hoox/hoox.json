@@ -12,8 +12,98 @@
  "is_default": 0,
  "is_standard": 1,
  "label": "Hoox",
- "links": [],
- "modified": "2023-05-29 21:06:59.157742",
+ "links": [
+  {
+   "hidden": 0,
+   "icon": "user",
+   "is_query_report": 0,
+   "label": "Credentials",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Exchange Credentials",
+   "link_to": "Exchange Credentials",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Telegram Credentials",
+   "link_to": "Telegram Credentials",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "HomeAssistant Credentials",
+   "link_to": "HomeAssistant Credentials",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "icon": "tools",
+   "is_query_report": 0,
+   "label": "Gateway",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Trades",
+   "link_to": "Trades",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "CCXT Exchanges",
+   "link_to": "CCXT Exchanges",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "API Log",
+   "link_to": "API Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Hoox Settings",
+   "link_to": "Hoox Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2023-05-30 23:00:04.772323",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -29,20 +119,8 @@
   },
   {
    "doc_view": "List",
-   "label": "Exchange Credentials",
-   "link_to": "Exchange Credentials",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
    "label": "CCXT Exchanges",
    "link_to": "CCXT Exchanges",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "label": "Telegram Settings",
-   "link_to": "Telegram Settings",
    "type": "DocType"
   },
   {
@@ -50,6 +128,30 @@
    "doc_view": "List",
    "label": "API Log",
    "link_to": "API Log",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Exchange Credentials",
+   "link_to": "Exchange Credentials",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "HomeAssistant Credentials",
+   "link_to": "HomeAssistant Credentials",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Telegram Credentials",
+   "link_to": "Telegram Credentials",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Hoox Settings",
+   "link_to": "Hoox Settings",
    "type": "DocType"
   }
  ]

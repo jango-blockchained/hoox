@@ -1,0 +1,38 @@
+{
+ "allow_roles": [
+  {
+   "role": "All"
+  }
+ ],
+ "creation": "2023-05-31 00:40:11.585995",
+ "docstatus": 0,
+ "doctype": "Module Onboarding",
+ "documentation_url": "https://github.com/jango-blockchained/hoox/docs",
+ "idx": 0,
+ "is_complete": 0,
+ "modified": "2023-05-31 00:40:11.585995",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "HOOX Onboarding",
+ "owner": "Administrator",
+ "steps": [
+  {
+   "step": "Get available exchanges."
+  },
+  {
+   "step": "Add Telegram Credentials"
+  },
+  {
+   "step": "Add HomeAssistant Credentials"
+  },
+  {
+   "step": "Add Exchange Credentials"
+  },
+  {
+   "step": "Update HOOX Settings"
+  }
+ ],
+ "subtitle": "Be the trade with you.",
+ "success_message": "You are done! ",
+ "title": "HOOX Onboarding"
+}

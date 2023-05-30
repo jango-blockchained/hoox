@@ -2,6 +2,7 @@ import ccxt
 import frappe
 import json
 import logging
+import webbrowser
 logging.basicConfig(filename='alerts.action.log', level=logging.DEBUG)
 
 
@@ -121,7 +122,10 @@ def delete_exchanges():
     frappe.msgprint(f"Exchanges deleted successfully.")
     print(f"Exchanges deleted successfully.")
 
-
+def open_telegram_chat(bot_username):
+    bot_username = bot_username.strip('@')
+    url = f"https://t.me/{bot_username}"
+    webbrowser.open_new_tab(url)
 
 # def get_balance(exchange_id, user_creds):
 #     pass
