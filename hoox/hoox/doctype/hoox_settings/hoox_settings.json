@@ -6,6 +6,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "telegram_settings",
   "enabled",
   "section_break_w6w1u",
   "bot_token"
@@ -26,14 +27,19 @@
   {
    "fieldname": "section_break_w6w1u",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "telegram_settings",
+   "fieldtype": "Heading",
+   "label": "Telegram Settings"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2023-05-29 22:17:18.111083",
+ "modified": "2023-05-30 22:24:12.372710",
  "modified_by": "Administrator",
  "module": "Hoox",
- "name": "Telegram Settings",
+ "name": "Hoox Settings",
  "owner": "Administrator",
  "permissions": [
   {

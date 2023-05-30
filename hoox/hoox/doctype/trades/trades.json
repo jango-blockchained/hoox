@@ -2,6 +2,7 @@
  "actions": [],
  "allow_events_in_timeline": 1,
  "allow_rename": 1,
+ "autoname": "HOOX-TRADE.######",
  "beta": 1,
  "creation": "2023-05-26 16:51:18.530808",
  "doctype": "DocType",
@@ -166,7 +167,7 @@
   }
  ],
  "links": [],
- "modified": "2023-05-29 23:43:05.369599",
+ "modified": "2023-05-29 23:50:30.512116",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trades",

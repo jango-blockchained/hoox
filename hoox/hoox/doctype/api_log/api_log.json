@@ -16,7 +16,7 @@
  "fields": [
   {
    "fieldname": "request_time",
-   "fieldtype": "Datetime",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Request Time"
   },
@@ -51,7 +51,7 @@
   },
   {
    "fieldname": "error_message",
-   "fieldtype": "Text",
+   "fieldtype": "Code",
    "label": "Error Message"
   },
   {
@@ -62,7 +62,7 @@
   }
  ],
  "links": [],
- "modified": "2023-05-29 22:16:44.757253",
+ "modified": "2023-05-30 22:15:30.741217",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "API Log",

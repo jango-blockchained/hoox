@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestTelegramSettings(unittest.TestCase):
+class TestHooxSettings(unittest.TestCase):
 	pass

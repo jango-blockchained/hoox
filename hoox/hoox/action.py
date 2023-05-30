@@ -6,17 +6,21 @@ logging.basicConfig(filename='alerts.action.log', level=logging.DEBUG)
 
 
 def create_api_log(api_url, api_method, request_data, status, error_message=None, response_data=None):
-    doc = frappe.get_doc({
-        "doctype": "API Log",
-        "request_time": frappe.utils.now(),
-        "api_url": api_url,
-        "api_method": api_method,
-        "request_data": request_data,
-        "status": status,
-        "error_message": error_message,
-        "response_data": response_data,
-    })
-    doc.insert(ignore_permissions=True)
+    try:
+        doc = frappe.get_doc({
+            "doctype": "API Log",
+            "request_time": frappe.utils.now(),
+            "api_url": api_url,
+            "api_method": api_method,
+            "request_data": request_data,
+            "status": status,
+            "error_message": error_message,
+            "response_data": response_data,
+        })
+        doc.insert(ignore_permissions=True)
+    except Exception as e:
+        print(f"Error while creating API Log: {e}")
+
 
 def execute_order(action, exchange_id, symbol, price, amount, order_type, user_creds):
     try:
