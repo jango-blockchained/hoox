@@ -118,6 +118,11 @@ def delete_exchanges():
         return
     docs = frappe.get_all('CCXT Exchanges')
     for doc in docs:
+        links = frappe.get_linked_docs_count('CCXT Exchanges', doc.name)
+        if links > 0:
+            frappe.msgprint(f"Exchange '{doc.exchange_name}' has {links} linked documents. Skipping deletion.")
+            print(f"Exchange '{doc.exchange_name}' has {links} linked documents. Skipping deletion.")
+            continue
         frappe.delete_doc('CCXT Exchanges', doc.name)
     frappe.msgprint(f"Exchanges deleted successfully.")
     print(f"Exchanges deleted successfully.")

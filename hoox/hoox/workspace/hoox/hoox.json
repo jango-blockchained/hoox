@@ -43,8 +43,8 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "HomeAssistant Credentials",
-   "link_to": "HomeAssistant Credentials",
+   "label": "Homeassistant Credentials",
+   "link_to": "Homeassistant Credentials",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -103,7 +103,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-05-31 00:43:00.070984",
+ "modified": "2023-05-31 01:12:28.228240",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -139,8 +139,8 @@
   },
   {
    "doc_view": "List",
-   "label": "HomeAssistant Credentials",
-   "link_to": "HomeAssistant Credentials",
+   "label": "Homeassistant Credentials",
+   "link_to": "Homeassistant Credentials",
    "type": "DocType"
   },
   {

@@ -119,11 +119,10 @@
  ],
  "in_create": 1,
  "links": [],
- "modified": "2023-05-31 00:45:21.879095",
+ "modified": "2023-05-31 01:10:03.562544",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "CCXT Exchanges",
- "name_case": "UPPER CASE",
  "owner": "Administrator",
  "permissions": [
   {

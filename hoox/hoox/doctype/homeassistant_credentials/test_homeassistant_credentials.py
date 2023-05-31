@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestHomeAssistantCredentials(unittest.TestCase):
+class TestHomeassistantCredentials(unittest.TestCase):
 	pass

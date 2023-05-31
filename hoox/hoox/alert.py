@@ -3,10 +3,10 @@ import json
 import time
 import logging
 from .action import execute_order
-from .user import get_user_credentials, send_to_telegram, order_failed
+from .user import get_user_credentials, get_telegram_credentials, get_haas_credentials, send_to_telegram, send_to_haas, order_failed
 from frappe import DoesNotExistError, ValidationError
 
-logging.basicConfig(filename='alerts.log', level=logging.DEBUG)
+logging.basicConfig(filename='/home/prod/frappe-bench/logs/alerts.log', level=logging.DEBUG)
 
 @frappe.whitelist(allow_guest=True)
 def hoox():
@@ -16,10 +16,10 @@ def hoox():
         user_creds = get_user_credentials(secret_hash)
         process_request(request_data, user_creds)
     except (DoesNotExistError, ValidationError) as e:
-        logging.error(f"An error occurred in hoox: {str(e)}")
+        logging.error(f"An error occurred in HOOX: {str(e)}")
         frappe.throw(str(e), frappe.AuthenticationError)
     except Exception as e:
-        logging.error(f"An unexpected error occurred in hoox: {str(e)}")
+        logging.error(f"An unexpected error occurred in HOOX: {str(e)}")
         frappe.throw("An unexpected error occurred", frappe.AuthenticationError)
 
 def process_request(request_data, user_creds):
@@ -28,11 +28,18 @@ def process_request(request_data, user_creds):
     process_haas(request_data, user_creds)
 
 def process_trade_action(request_data, user_creds):
-    if request_data.get('action') in ['buy', 'sell', 'close']:
-        if user_creds.enabled:
+    required_fields = ['action', 'symbol', 'order_type', 'secret_hash', 'quantity']
+
+    if all(field in request_data for field in required_fields):
+        if request_data['order_type'] == 'limit' and 'price' not in request_data:
+            raise ValidationError("Price field is required for 'limit' order type.")
+        elif user_creds.enabled:
             handle_alert(request_data, user_creds)
         else:
             raise ValidationError("Invalid Secret Hash")
+    else:
+        raise ValidationError("Missing required fields.")
+
 
 def process_telegram(request_data, user_creds):
     telegram = request_data.get('telegram')
@@ -42,15 +49,14 @@ def process_telegram(request_data, user_creds):
 
 def process_haas(request_data, user_creds):
     haas = request_data.get('haas')
-    if haas and haas.get('entity_id'):
+    if haas and haas.get('entity_id') and haas.get('service'):
         data = haas.get('data') or {}
-        send_to_haas(haas.get('entity_id'), haas.get('service'), haas.get('data'))
+        send_to_haas(haas.get('entity_id'), haas.get('service'), data)
 
 def handle_alert(request_data, user_creds, is_retry=False):
     try:
         logging.info(f"Incoming request from TradingView: {request_data}")
         if not is_retry: 
-            exchange_selected
             trade = frappe.get_doc({
                 "doctype": "Trades",
                 "user": user_creds.user,
@@ -60,7 +66,7 @@ def handle_alert(request_data, user_creds, is_retry=False):
                 "symbol": request_data.get("symbol"),
                 "price": request_data.get("price"),
                 "quantity": request_data.get("quantity"),
-                "market_type": request_data.get("market_type")
+                "market_type": request_data.get("market_type") or "futures"
             })
             trade.insert(ignore_permissions=True)
         else:
