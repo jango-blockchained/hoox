@@ -51,8 +51,12 @@ def execute_order(
             {
                 "apiKey": user_creds.api_key,
                 "secret": user_creds.api_secret,
+                "options": {"defaultType": market_type},
             }
         )
+
+        if leverage > 1:
+            exchange.set_leverage(leverage)
 
         if user_creds.testnet:
             if "test" in exchange.urls:

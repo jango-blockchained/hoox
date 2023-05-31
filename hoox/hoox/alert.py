@@ -85,7 +85,11 @@ def process_haas(request_data, exchange_creds):
 def handle_alert(request_data, exchange_creds, is_retry=False):
     try:
         if not is_retry:
-            frappe.msgprint(f"Incoming request from TradingView: {request_data}")
+            msg = f"Incoming request from TradingView: {request_data}"
+            frappe.msgprint(msg)
+            frappe.publish_realtime(
+                event="hoox_alert", message=msg, user=frappe.session.user
+            )
             trade = frappe.get_doc(
                 {
                     "doctype": "Trades",

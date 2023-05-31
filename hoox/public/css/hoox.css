@@ -1,0 +1,11 @@
+.list-row-container[data-name="buy"] {
+    background-color: #49b30c;
+}
+
+.list-row-container[data-name="sell"] {
+    background-color: #ff0156;
+}
+
+.list-row-container[data-name="close"] {
+    background-color: #8c00ff;
+}

@@ -25,7 +25,7 @@
   },
   {
    "fieldname": "params",
-   "fieldtype": "Long Text",
+   "fieldtype": "Code",
    "label": "Parameter"
   },
   {
@@ -35,13 +35,13 @@
   },
   {
    "fieldname": "response",
-   "fieldtype": "Long Text",
+   "fieldtype": "Code",
    "label": "Response"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2023-05-30 22:19:12.902586",
+ "modified": "2023-05-31 16:28:53.901959",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Outgoing Requests",
