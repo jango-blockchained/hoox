@@ -16,6 +16,7 @@ from frappe.utils import now_datetime, add_to_date
 from frappe.utils.background_jobs import enqueue
 
 
+@frappe.whitelist(allow_guest=True)
 def update_status(doctype, docname):
     doc = frappe.get_doc(doctype, docname)
 
@@ -26,11 +27,11 @@ def update_status(doctype, docname):
     # then don't update the status to 'Failure'
     if time_difference.total_seconds() < 30 and doc.status != "Success":
         return
+
     elif time_difference.total_seconds() > 30 and doc.status != "Success":
         doc.status = "Failure"
         doc.save()
         frappe.db.commit()
-        pass
 
 
 @frappe.whitelist(allow_guest=True)
@@ -97,7 +98,7 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
                     "secret_hash": request_data.get("secret_hash"),
                     "action": request_data.get("action"),
                     "order_type": request_data.get("order_type") or "market",
-                    "market_type": request_data.get("market_type") or "futures",
+                    "market_type": request_data.get("market_type") or "future",
                     "exchange": exchange_creds.exchange,
                     "symbol": request_data.get("symbol"),
                     "price": request_data.get("price"),
@@ -109,14 +110,13 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
                 }
             )
             trade.insert(ignore_permissions=True)
-            frappe.msgprint(f"Tardename: {trade.name}")
-            frappe.enqueue(
+            frappe.msgprint(f"Tradename: {trade.name}")
+            enqueue(
                 update_status,
-                queue="default",
-                timeout=120,
+                queue="long",
+                timeout=90,
                 is_async=True,
                 now=False,
-                enqueue_after_commit=False,
                 job_name="Update Trade Status",
                 doctype="Trades",
                 docname=trade.name,
@@ -140,7 +140,7 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
             request_data.get("price"),
             request_data.get("quantity"),
             request_data.get("order_type") or "market",
-            request_data.get("market_type") or "futures",
+            request_data.get("market_type") or "future",
             request_data.get("leverage") or 1,
             exchange_creds,
         )
