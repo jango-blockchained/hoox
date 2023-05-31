@@ -3,7 +3,7 @@ import json
 import time
 from .action import execute_order
 from .user import get_exchange_credentials, get_telegram_credentials, get_haas_credentials, send_to_telegram, send_to_haas, order_failed
-from frappe import DoesNotExistError, ValidationError, log
+from frappe import DoesNotExistError, ValidationError, _
 from datetime import datetime, timedelta
 
 @frappe.whitelist(allow_guest=True)
@@ -14,10 +14,10 @@ def hoox():
         exchange_creds = get_exchange_credentials(secret_hash)
         process_request(request_data, exchange_creds)
     except (DoesNotExistError, ValidationError) as e:
-        log.error(f"An error occurred in HOOX: {str(e)}")
+        # log.error(f"An error occurred in HOOX: {str(e)}")
         frappe.throw(str(e), frappe.AuthenticationError)
     except Exception as e:
-        log.error(f"An unexpected error occurred in HOOX: {str(e)}")
+        # log.error(f"An unexpected error occurred in HOOX: {str(e)}")
         frappe.throw("An unexpected error occurred", frappe.AuthenticationError)
 
 def process_request(request_data, exchange_creds):
@@ -67,7 +67,7 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
                 "leverage": request_data.get("leverage") or 1,
             })
             trade.insert(ignore_permissions=True)
-        else if is_retry:
+        else:
             trade = frappe.get_last_doc('Trades', {
                 'secret_hash': request_data.get('secret_hash'),
                 'state': ['!=', 'Success']
