@@ -1,0 +1,22 @@
+{
+ "action": "Update Settings",
+ "action_label": "Update Settings",
+ "creation": "2023-05-31 00:37:29.849342",
+ "description": "Update Settings to your needs.",
+ "docstatus": 0,
+ "doctype": "Onboarding Step",
+ "field": "telegram_bot_token",
+ "idx": 0,
+ "is_complete": 0,
+ "is_single": 1,
+ "is_skipped": 0,
+ "modified": "2023-05-31 00:40:02.496016",
+ "modified_by": "Administrator",
+ "name": "Update HOOX Settings",
+ "owner": "Administrator",
+ "reference_document": "Hoox Settings",
+ "show_form_tour": 0,
+ "show_full_form": 0,
+ "title": "Update HOOX Settings",
+ "validate_action": 0
+}

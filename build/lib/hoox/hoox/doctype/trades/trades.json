@@ -1,0 +1,223 @@
+{
+ "actions": [],
+ "allow_events_in_timeline": 1,
+ "allow_rename": 1,
+ "autoname": "HOOX-TRADE-.#######",
+ "creation": "2023-05-26 16:51:18.530808",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "status",
+  "column_break_kabux",
+  "user",
+  "column_break_bgfrp",
+  "secret_hash",
+  "section_break_x1p1w",
+  "exchange",
+  "column_break_h5gh3",
+  "time",
+  "section_break_athv6",
+  "action",
+  "order_type",
+  "symbol",
+  "column_break_265fg",
+  "quantity",
+  "filled",
+  "column_break_ssgjg",
+  "price",
+  "exec_price",
+  "section_break_prlsy",
+  "outgoing_requests",
+  "leverage"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "default": "buy",
+   "fieldname": "action",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Action",
+   "options": "buy\nsell\nclose",
+   "read_only": 1,
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "symbol",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Symbol",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Estimated Price",
+   "read_only": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantity",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "outgoing_requests",
+   "fieldtype": "Table",
+   "label": "Outgoing Requests",
+   "options": "Outgoing Requests",
+   "read_only": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "market",
+   "fieldname": "order_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Order Type",
+   "options": "limit\nmarket",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fetch_from": "User.name",
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "User",
+   "options": "User",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "Exchange Credentials.name",
+   "fieldname": "secret_hash",
+   "fieldtype": "Link",
+   "label": "Secret Hash",
+   "options": "Exchange Credentials",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_kabux",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bgfrp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_x1p1w",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_265fg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ssgjg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_prlsy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "exchange_name",
+   "fieldname": "exchange",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Exchange",
+   "options": "CCXT Exchanges",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_h5gh3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_athv6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "filled",
+   "fieldtype": "Data",
+   "label": "Filled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "exec_price",
+   "fieldtype": "Data",
+   "label": "Executing Price",
+   "read_only": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "1",
+   "fieldname": "leverage",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Leverage",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "default": "Processing",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "status",
+   "options": "Processing\nFailed\nSuccessful",
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "in_create": 1,
+ "links": [],
+ "modified": "2023-05-31 21:12:30.425342",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "Trades",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
