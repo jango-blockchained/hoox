@@ -1,9 +1,12 @@
-import ccxt
+import ccxtpro as ccxt
 import frappe
 import json
-import time
+import logging
+import asyncio
 from frappe import _
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def get_linked_documents(doctype, docname):
@@ -20,7 +23,6 @@ def create_api_log(
         doc = frappe.get_doc(
             {
                 "doctype": "API Log",
-                "request_time": frappe.utils.now(),
                 "api_url": api_url,
                 "api_method": api_method,
                 "request_data": request_data,
@@ -34,7 +36,7 @@ def create_api_log(
         print(f"Error while creating API Log: {e}")
 
 
-def execute_order(
+async def execute_order(
     action,
     exchange_id,
     symbol,
@@ -46,12 +48,13 @@ def execute_order(
     user_creds,
 ):
     try:
-        exchange_class = getattr(ccxt, exchange_id)
+        exchange_class = getattr(ccxtpro.async_support, exchange_id)
         exchange = exchange_class(
             {
                 "apiKey": user_creds.api_key,
                 "secret": user_creds.api_secret,
-                "options": {"defaultType": market_type},
+                "enableRateLimit": True,
+                "asyncio_loop": asyncio.get_event_loop(),
             }
         )
 
@@ -65,7 +68,7 @@ def execute_order(
                 raise ValueError(f"Exchange {exchange_id} does not have a testnet.")
 
         # Rate limiting
-        time.sleep(exchange.rateLimit / 1000)
+        exchange.enable_rate_limit = True
 
         if action not in ["buy", "sell", "close"]:
             raise ValueError(f"Invalid action: {action}")
@@ -73,18 +76,19 @@ def execute_order(
         order = None
         if action == "buy":
             if order_type == "limit":
-                order = exchange.create_limit_buy_order(symbol, amount, price)
+                order = await exchange.create_limit_buy_order(symbol, amount, price)
             elif order_type == "market":
-                order = exchange.create_market_buy_order(symbol, amount)
+                order = await exchange.create_market_buy_order(symbol, amount)
         elif action == "sell":
             if order_type == "limit":
-                order = exchange.create_limit_sell_order(symbol, amount, price)
+                order = await exchange.create_limit_sell_order(symbol, amount, price)
             elif order_type == "market":
-                order = exchange.create_market_sell_order(symbol, amount)
+                order = await exchange.create_market_sell_order(symbol, amount)
         elif action == "close":
-            all_orders = exchange.fetch_open_orders(symbol)
-            for order in all_orders:
-                exchange.cancel_order(order["id"])
+            all_orders = await exchange.fetch_open_orders(symbol)
+            order = "All orders cancelled."
+            for sorder in all_orders:
+                await exchange.cancel_order(sorder["id"])
 
         request_data = {
             "action": action,
@@ -96,34 +100,46 @@ def execute_order(
             "market_type": market_type,
             "leverage": leverage,
         }
+
+        response_data = {"order": order}
+
+        create_api_log(
+            api_url="execute_order",
+            api_method=action,
+            request_data=request_data,
+            status="Success",
+            response_data=response_data,
+        )
 
         return order
     except AttributeError:
-        return f"Exchange {exchange_id} not found in CCXT. {user_creds.api_key}:{user_creds.api_secret}"
-    except ccxt.NetworkError as e:
-        request_data = {
-            "action": action,
-            "exchange_id": exchange_id,
-            "symbol": symbol,
-            "price": price,
-            "amount": amount,
-            "order_type": order_type,
-            "market_type": market_type,
-            "leverage": leverage,
-        }
-        return f"A networking error occurred: {str(e)}"
-    except ccxt.ExchangeError as e:
-        return f"An exchange error occurred: {str(e)}"
-    except Exception as e:
-        return f"An error occurred: {str(e)}"
+        error_message = f"Exchange {exchange_id} not found in CCXT Pro. {user_creds.api_key}:{user_creds.api_secret}"
+        create_api_log(
+            api_url="execute_order",
+            api_method=action,
+            request_data=request_data,
+            status="Error",
+            error_message=error_message,
+        )
+        raise Exception(error_message)
+    except ccxtpro.BaseError as e:
+        error_message = f"An error occurred: {str(e)}"
+        create_api_log(
+            api_url="execute_order",
+            api_method=action,
+            request_data=request_data,
+            status="Error",
+            error_message=error_message,
+        )
+        raise Exception(error_message)
 
 
 @frappe.whitelist()
 def sync_exchanges():
     # Get list of exchanges
-    for exchange_id in ccxt.exchanges:
-        if hasattr(ccxt, exchange_id):
-            exchange_class = getattr(ccxt, exchange_id)
+    for exchange_id in ccxtpro.exchanges:
+        if hasattr(ccxtpro, exchange_id):
+            exchange_class = getattr(ccxtpro.async_support, exchange_id)
             exchange = exchange_class()  # create an instance of the exchange class
 
             # Check if the exchange document already exists
@@ -152,7 +168,7 @@ def sync_exchanges():
                 new_doc.insert(ignore_permissions=True)
 
         else:
-            print(f"Exchange '{exchange_id}' is not found in ccxt module.")
+            print(f"Exchange '{exchange_id}' is not found in ccxtpro module.")
 
     print(f"Exchanges synced successfully.")
 
@@ -178,55 +194,3 @@ def delete_exchanges():
         frappe.delete_doc("CCXT Exchanges", doc.name)
     frappe.msgprint(f"Exchanges deleted successfully.")
     print(f"Exchanges deleted successfully.")
-
-
-# def get_balance(exchange_id, user_creds):
-#     pass
-
-# def get_order_book(exchange_id, symbol):
-#     pass
-
-# def get_ticker(exchange_id, symbol):
-#     pass
-
-# def get_ohlcv(exchange_id, symbol):
-#     pass
-
-# def get_trades(exchange_id, symbol):
-#     pass
-
-# def get_open_orders(exchange_id, symbol):
-#     pass
-
-# def get_closed_orders(exchange_id, symbol):
-#     pass
-
-# def get_order(exchange_id, symbol, order_id):
-#     pass
-
-# def get_deposit_address(exchange_id, symbol):
-#     pass
-
-# def get_deposit_history(exchange_id, symbol):
-#     pass
-
-# def get_withdrawal_history(exchange_id, symbol):
-#     pass
-
-# def get_withdrawal_fee(exchange_id, symbol):
-#     pass
-
-# def get_withdrawal_limits(exchange_id, symbol):
-#     pass
-
-# def get_withdrawal_status(exchange_id, symbol):
-#     pass
-
-# def get_withdrawal_address(exchange_id, symbol):
-#     pass
-
-# def get_withdrawal_fees(exchange_id, symbol):
-#     pass
-
-# def get_withdrawal_limits(exchange_id, symbol):
-#     pass

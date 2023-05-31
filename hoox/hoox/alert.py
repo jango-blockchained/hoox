@@ -89,7 +89,7 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
             msg = f"Incoming request from TradingView: {request_data}"
             frappe.msgprint(msg)
             frappe.publish_realtime(
-                event="hoox_alert", message=msg, user=frappe.session.user
+                event="hoox_alert", message=msg, user=exchange_creds.user
             )
             trade = frappe.get_doc(
                 {
@@ -104,9 +104,6 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
                     "price": request_data.get("price"),
                     "quantity": request_data.get("quantity"),
                     "leverage": request_data.get("leverage") or 1,
-                    "time": (datetime.utcnow() + timedelta(hours=2)).strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    ),
                 }
             )
             trade.insert(ignore_permissions=True)
@@ -132,18 +129,20 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
                     "status": ["!=", "Success"],
                 },
             )
-
-        exchange_response = execute_order(
-            request_data.get("action"),
-            exchange_creds.exchange,
-            request_data.get("symbol"),
-            request_data.get("price"),
-            request_data.get("quantity"),
-            request_data.get("order_type") or "market",
-            request_data.get("market_type") or "future",
-            request_data.get("leverage") or 1,
-            exchange_creds,
-        )
+        try:
+            exchange_response = execute_order(
+                request_data.get("action"),
+                exchange_creds.exchange,
+                request_data.get("symbol"),
+                request_data.get("price"),
+                request_data.get("quantity"),
+                request_data.get("order_type") or "market",
+                request_data.get("market_type") or "future",
+                request_data.get("leverage") or 1,
+                exchange_creds,
+            )
+        except Exception as e:
+            raise e
 
         trade.append(
             "outgoing_requests",
@@ -153,9 +152,6 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
                 "url": exchange_creds.exchange,
                 "params": json.dumps(request_data),
                 "response": exchange_response,
-                "timestamp": (datetime.utcnow() + timedelta(hours=2)).strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                ),
             },
         )
         trade.save()
@@ -167,15 +163,27 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
     except Exception as e:
         print(f"An error occurred: {e}")
         order_failed(exchange_creds.user, str(e))
-        retry(request_data, exchange_creds)
+        # retry(request_data, exchange_creds)
+
+
+def retry(request_data, exchange_creds):
+    for i in range(5):  # Retry 5 times
+        try:
+            print(f"Retry No.: # {i+1}")
+            handle_alert(request_data, exchange_creds, is_retry=True)
+            break
+        except Exception as e:
+            if i == 4:
+                order_failed(exchange_creds.user, str(e))
+            time.sleep(5)
 
 
 def retry(request_data, exchange_creds):
     for i in range(5):  # Retry 5 times
         try:
             handle_alert(request_data, exchange_creds, is_retry=True)
-            break
+            break  # if handle_alert is successful, break the loop
         except Exception as e:
-            if i == 4:
+            if i == 4:  # if this is the 5th error, stop retrying and log the failure
                 order_failed(exchange_creds.user, str(e))
             time.sleep(5)

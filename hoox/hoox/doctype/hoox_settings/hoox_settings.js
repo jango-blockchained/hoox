@@ -1,10 +1,7 @@
-frappe.ui.form.on('HooxSettings', {
+frappe.ui.form.on('Hoox Settings', {
     refresh: function(frm) {
-        if (!frm.is_new()) {
-            frm.add_custom_button(__('Open in New Tab'), function() {
-                var url = '/app/your_doctype/' + frm.docname;
-                window.open(url, '_blank');
-            });
-        }
+        frm.add_custom_button(__('Get Telegram Bot Token'), function() {
+            window.open('https://t.me/BotFather', '_blank');
+        });
     }
 });
