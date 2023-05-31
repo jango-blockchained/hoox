@@ -2,15 +2,20 @@ import frappe
 from frappe import _
 import telegram
 
-def get_user_credentials(secret_hash):
-    user_creds = frappe.get_doc('Exchange Credentials', secret_hash)
-    if not user_creds:
+def get_exchange_credentials(secret_hash):
+    exchange_creds = frappe.get_doc('Exchange Credentials', secret_hash)
+    if not exchange_creds:
         raise Exception(f"No exchange credentials found for secret hash {secret_hash}")
-    return user_creds if user_creds.enabled else None
+    return exchange_creds if exchange_creds.enabled else None
 
 def get_telegram_credentials(user):
     telegram_creds = frappe.get_doc("Telegram Credentials", {"user": user})
     return telegram_creds if telegram_creds.enabled else None
+
+def get_haas_credentials(user):
+    haas_creds = frappe.get_doc("HomeAssistant Credentials", {"user": user})
+    return haas_creds if haas_creds.enabled else None
+
 
 def send_to_telegram(user, message, toId=None):
     settings = frappe.db.get_doc('Hoox Settings')
@@ -24,10 +29,6 @@ def send_to_telegram(user, message, toId=None):
     #     frappe.throw(_("Telegram settings under HOOX Settings are not correctly configured."))
     else:
         return None
-
-def get_haas_credentials(user):
-    haas_creds = frappe.get_doc("HomeAssistant Credentials", {"user": user})
-    return haas_creds if haas_creds.enabled else None
 
 def send_to_haas(user, entity_id, service, data):
     # Get Home Assistant credentials for the user from the DocType

@@ -21,12 +21,13 @@
   "section_break_athv6",
   "action",
   "order_type",
-  "column_break_265fg",
   "symbol",
-  "column_break_ssgjg",
+  "column_break_265fg",
   "quantity",
-  "column_break_nvtyr",
+  "filled",
+  "column_break_ssgjg",
   "price",
+  "exec_price",
   "section_break_prlsy",
   "outgoing_requests"
  ],
@@ -58,7 +59,7 @@
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Price"
+   "label": "Estimated Price"
   },
   {
    "allow_in_quick_entry": 1,
@@ -142,10 +143,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "column_break_nvtyr",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "section_break_prlsy",
    "fieldtype": "Section Break"
   },
@@ -164,10 +161,20 @@
   {
    "fieldname": "section_break_athv6",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "filled",
+   "fieldtype": "Data",
+   "label": "Filled"
+  },
+  {
+   "fieldname": "exec_price",
+   "fieldtype": "Data",
+   "label": "Executing Price"
   }
  ],
  "links": [],
- "modified": "2023-05-29 23:50:30.512116",
+ "modified": "2023-05-31 03:36:58.302978",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trades",

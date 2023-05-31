@@ -1,9 +1,16 @@
 frappe.listview_settings['Trades'] = {
-    // add_fields: ['exchange', 'symbol', 'action', 'amount', 'price', 'fee', 'total', 'timestamp'],
+    add_fields: ['exchange', 'action', 'symbol', 'quantity', 'price', 'exec_price', 'fee', 'total', 'timestamp'],
     onload: function (listview) {
 		listview.page.add_menu_item('Delete Trades', function () {
 			frappe.call({
-				method: 'hoox.hoox.action.delete_trades'
+				method: 'hoox.hoox.action.delete_trades',
+				callback: function (r) {
+					if (r.message) {
+						frappe.msgprint(r.message);
+					}
+				},
+				freeze: true,
+				freeze_message: 'Deleting Trades...'
 			});
 		});
 	}

@@ -5,4 +5,5 @@ frappe.ui.form.on('Trades', {
 	// refresh: function(frm) {
 
 	// }
+
 });
