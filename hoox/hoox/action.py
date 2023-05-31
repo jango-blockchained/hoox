@@ -1,8 +1,8 @@
 import ccxt
 import frappe
 import json
+import time
 from frappe import _
-
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
 
 
@@ -34,7 +34,17 @@ def create_api_log(
         print(f"Error while creating API Log: {e}")
 
 
-def execute_order(action, exchange_id, symbol, price, amount, order_type, user_creds):
+def execute_order(
+    action,
+    exchange_id,
+    symbol,
+    price,
+    amount,
+    order_type,
+    market_type,
+    leverage,
+    user_creds,
+):
     try:
         exchange_class = getattr(ccxt, exchange_id)
         exchange = exchange_class(
@@ -45,11 +55,13 @@ def execute_order(action, exchange_id, symbol, price, amount, order_type, user_c
         )
 
         if user_creds.testnet:
-            # If the exchange has a testnet
             if "test" in exchange.urls:
                 exchange.urls["api"] = exchange.urls["test"]
             else:
                 raise ValueError(f"Exchange {exchange_id} does not have a testnet.")
+
+        # Rate limiting
+        time.sleep(exchange.rateLimit / 1000)
 
         if action not in ["buy", "sell", "close"]:
             raise ValueError(f"Invalid action: {action}")
@@ -77,15 +89,13 @@ def execute_order(action, exchange_id, symbol, price, amount, order_type, user_c
             "price": price,
             "amount": amount,
             "order_type": order_type,
+            "market_type": market_type,
+            "leverage": leverage,
         }
-
-        # create_api_log(
-        #     exchange.urls["api"], action, request_data, "Success", response_data=order
-        # )
 
         return order
     except AttributeError:
-        return f"Exchange {exchange_id} not found in CCXT."
+        return f"Exchange {exchange_id} not found in CCXT. {user_creds.api_key}:{user_creds.api_secret}"
     except ccxt.NetworkError as e:
         request_data = {
             "action": action,
@@ -94,11 +104,9 @@ def execute_order(action, exchange_id, symbol, price, amount, order_type, user_c
             "price": price,
             "amount": amount,
             "order_type": order_type,
+            "market_type": market_type,
+            "leverage": leverage,
         }
-
-        # create_api_log(
-        #     exchange.urls["api"], action, request_data, "Failure", error_message=str(e)
-        # )
         return f"A networking error occurred: {str(e)}"
     except ccxt.ExchangeError as e:
         return f"An exchange error occurred: {str(e)}"
@@ -113,20 +121,35 @@ def sync_exchanges():
         if hasattr(ccxt, exchange_id):
             exchange_class = getattr(ccxt, exchange_id)
             exchange = exchange_class()  # create an instance of the exchange class
-            # Create a new exchange document in Frappe
-            frappe.get_doc(
-                {
-                    "doctype": "CCXT Exchanges",
-                    "exchange_id": exchange.id,
-                    "exchange_name": exchange.name,
-                    "precision_mode": exchange.precisionMode,
-                    "rate_limit": exchange.rateLimit,
-                    "testnet": 1 if exchange.urls.get("test") is not None else 0,
-                    "has": json.dumps(exchange.has),
-                }
-            ).insert(ignore_permissions=True)
+
+            # Check if the exchange document already exists
+            existing_exchange = frappe.db.exists(
+                "CCXT Exchanges", {"exchange_id": exchange.id}
+            )
+
+            doc_data = {
+                "doctype": "CCXT Exchanges",
+                "exchange_id": exchange.id,
+                "exchange_name": exchange.name,
+                "precision_mode": exchange.precisionMode,
+                "rate_limit": exchange.rateLimit,
+                "testnet": 1 if exchange.urls.get("test") is not None else 0,
+                "has": json.dumps(exchange.has),
+            }
+
+            if existing_exchange:
+                # If the document exists, update its properties
+                doc = frappe.get_doc("CCXT Exchanges", {"exchange_id": exchange.id})
+                doc.update(doc_data)
+                doc.save()
+            else:
+                # If the document doesn't exist, create a new one
+                new_doc = frappe.get_doc(doc_data)
+                new_doc.insert(ignore_permissions=True)
+
         else:
             print(f"Exchange '{exchange_id}' is not found in ccxt module.")
+
     print(f"Exchanges synced successfully.")
 
 

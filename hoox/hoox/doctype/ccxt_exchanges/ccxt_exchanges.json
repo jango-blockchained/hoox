@@ -18,7 +18,8 @@
   "section_break_3bszp",
   "testnet",
   "section_break_1fknw",
-  "has"
+  "has",
+  "enabled"
  ],
  "fields": [
   {
@@ -102,11 +103,19 @@
   {
    "fieldname": "section_break_1fknw",
    "fieldtype": "Section Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Enabled"
   }
  ],
  "in_create": 1,
  "links": [],
- "modified": "2023-05-31 06:03:44.813337",
+ "modified": "2023-05-31 14:17:11.562371",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "CCXT Exchanges",

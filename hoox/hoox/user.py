@@ -1,12 +1,19 @@
 import frappe
 from frappe import _
 import telegram
+from frappe.utils.password import get_decrypted_password
 
 
 def get_exchange_credentials(secret_hash):
     exchange_creds = frappe.get_doc("Exchange Credentials", secret_hash)
     if not exchange_creds:
         raise Exception(f"No exchange credentials found for secret hash {secret_hash}")
+    exchange_creds.api_key = get_decrypted_password(
+        "Exchange Credentials", secret_hash, "api_key", False
+    )
+    exchange_creds.api_secret = get_decrypted_password(
+        "Exchange Credentials", secret_hash, "api_secret", False
+    )
     return exchange_creds if exchange_creds.enabled else None
 
 
@@ -23,15 +30,16 @@ def get_haas_credentials(user):
 def send_to_telegram(user, message, toId=None):
     settings = frappe.get_doc("Hoox Settings")
     bot_token = settings.telegram_bot_token if settings.telegram_enabled else None
-    chat_id = toId or frappe.db.get_value(
-        "Telegram Credentials", {"user": user}, "user_id"
+    telegram_creds = frappe.get_doc("Telegram Credentials", {"user": user})
+    chat_id = (
+        toId or telegram_creds.user_id or telegram_creds.group_id
+        if telegram_creds.enabled
+        else None
     )
 
     if bot_token and chat_id:
         bot = telegram.Bot(token=bot_token)
         bot.send_message(chat_id=chat_id, text=message)
-    # else:
-    #     frappe.throw(_("Telegram settings under HOOX Settings are not correctly configured."))
     else:
         return None
 
