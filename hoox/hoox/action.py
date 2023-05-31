@@ -1,4 +1,4 @@
-import ccxtpro as ccxt
+import ccxtpro
 import frappe
 import json
 import logging
