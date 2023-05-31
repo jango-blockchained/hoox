@@ -16,7 +16,7 @@ from frappe.utils import now_datetime, add_to_date
 from frappe.utils.background_jobs import enqueue
 
 
-def update_status(docname, doctype):
+def update_status(doctype, docname):
     doc = frappe.get_doc(doctype, docname)
 
     # Calculate the difference between the current time and the document's creation time
@@ -26,11 +26,11 @@ def update_status(docname, doctype):
     # then don't update the status to 'Failure'
     if time_difference.total_seconds() < 30 and doc.status != "Success":
         return
-
-    if doc.status != "Success":
+    elif time_difference.total_seconds() > 30 and doc.status != "Success":
         doc.status = "Failure"
         doc.save()
         frappe.db.commit()
+        pass
 
 
 @frappe.whitelist(allow_guest=True)
@@ -110,14 +110,16 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
             )
             trade.insert(ignore_permissions=True)
             frappe.msgprint(f"Tardename: {trade.name}")
-            enqueue(
+            frappe.enqueue(
                 update_status,
-                queue="short",
-                timeout=60,
-                job_name="Update Trade Status",
-                docname=trade.name,
-                doctype="Trades",
+                queue="default",
+                timeout=120,
+                is_async=True,
                 now=False,
+                enqueue_after_commit=False,
+                job_name="Update Trade Status",
+                doctype="Trades",
+                docname=trade.name,
             )
         else:
             frappe.msgprint(
