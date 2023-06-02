@@ -16,6 +16,14 @@ from frappe.utils import now_datetime, add_to_date
 from frappe.utils.background_jobs import enqueue
 
 
+class NetworkError(Exception):
+    pass
+
+
+class APIError(Exception):
+    pass
+
+
 @frappe.whitelist(allow_guest=True)
 def update_status(doctype, docname):
     doc = frappe.get_doc(doctype, docname)
@@ -24,12 +32,12 @@ def update_status(doctype, docname):
     time_difference = now_datetime() - doc.creation
 
     # If the time difference is less than 30 seconds and the status is not 'Success',
-    # then don't update the status to 'Failure'
+    # then don't update the status to 'Failed'
     if time_difference.total_seconds() < 30 and doc.status != "Success":
         return
 
     if doc.status != "Success":
-        doc.status = "Failure"
+        doc.status = "Failed"
         doc.save()
         frappe.db.commit()
 
@@ -142,11 +150,11 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
             exchange_creds,
         )
 
-        # Check the response for success or failure
+        # Check the response for success or failed
         if exchange_response.get("order_id"):
             trade.status = "Success"
         else:
-            trade.status = "Failure"
+            trade.status = "Failed"
             # raise Exception("Exchange order failed.")
 
         trade.append(
