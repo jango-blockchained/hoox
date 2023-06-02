@@ -4,8 +4,6 @@ import json
 from frappe import _
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
 
-logging.basicConfig(level=logging.DEBUG)
-
 
 def get_linked_documents(doctype, docname):
     link_info = get_linked_doctypes(doctype)
@@ -30,6 +28,8 @@ def create_api_log(
             }
         )
         doc.insert(ignore_permissions=True)
+        doc.save()
+        frappe.db.commit()
     except Exception as e:
         print(f"Error while creating API Log: {e}")
 
@@ -62,8 +62,8 @@ def execute_order(
 
         # Set testnet
         if user_creds.testnet:
-            if "test" in exchange_info["urls"]:
-                exchange_info["urls"]["api"] = exchange_info["urls"]["test"]
+            if "test" in exchange.urls:
+                exchange.urls["api"] = exchange.urls["test"]
             else:
                 raise ValueError(f"Exchange {exchange_id} does not have a testnet.")
 
@@ -145,6 +145,13 @@ def sync_exchanges():
                 "CCXT Exchanges", {"exchange_id": exchange.id}
             )
 
+            # get logo url
+            logo_url = exchange.urls.get("logo")
+
+            # generate HTML img tag to display the logo
+            logo_html = f'<img src="{logo_url}" alt="{exchange.name} Logo" style="height:50px; width:50px;">'
+
+            # set logo_html field in the doc
             exchange_doc_data = {
                 "doctype": "CCXT Exchanges",
                 "exchange_id": exchange.id,
@@ -153,6 +160,7 @@ def sync_exchanges():
                 "rate_limit": exchange.rateLimit,
                 "testnet": 1 if exchange.urls.get("test") is not None else 0,
                 "has": json.dumps(exchange.has),
+                "logo_html": logo_html,
             }
 
             if exchange_exists:
