@@ -28,7 +28,7 @@ def update_status(doctype, docname):
     if time_difference.total_seconds() < 30 and doc.status != "Success":
         return
 
-    elif time_difference.total_seconds() > 30 and doc.status != "Success":
+    if doc.status != "Success":
         doc.status = "Failure"
         doc.save()
         frappe.db.commit()
@@ -80,7 +80,9 @@ def process_haas(request_data, exchange_creds):
     haas = request_data.get("haas")
     if haas and haas.get("entity_id") and haas.get("service"):
         data = haas.get("data") or {}
-        send_to_haas(haas.get("entity_id"), haas.get("service"), data)
+        send_to_haas(
+            exchange_creds.user, haas.get("entity_id"), haas.get("service"), data
+        )
 
 
 def handle_alert(request_data, exchange_creds, is_retry=False):
@@ -108,9 +110,9 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
             )
             trade.insert(ignore_permissions=True)
             frappe.msgprint(f"Tradename: {trade.name}")
-            enqueue(
+            frappe.enqueue(
                 update_status,
-                queue="long",
+                queue="short",
                 timeout=90,
                 is_async=True,
                 now=False,
@@ -174,16 +176,5 @@ def retry(request_data, exchange_creds):
             break
         except Exception as e:
             if i == 4:
-                order_failed(exchange_creds.user, str(e))
-            time.sleep(5)
-
-
-def retry(request_data, exchange_creds):
-    for i in range(5):  # Retry 5 times
-        try:
-            handle_alert(request_data, exchange_creds, is_retry=True)
-            break  # if handle_alert is successful, break the loop
-        except Exception as e:
-            if i == 4:  # if this is the 5th error, stop retrying and log the failure
                 order_failed(exchange_creds.user, str(e))
             time.sleep(5)

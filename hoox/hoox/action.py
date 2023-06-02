@@ -1,8 +1,6 @@
-import ccxtpro
+import ccxt
 import frappe
 import json
-import logging
-import asyncio
 from frappe import _
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
 
@@ -10,8 +8,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def get_linked_documents(doctype, docname):
-    linkinfo = get_linked_doctypes(doctype)
-    docs = get_linked_docs(doctype, docname, linkinfo)
+    link_info = get_linked_doctypes(doctype)
+    docs = get_linked_docs(doctype, docname, link_info)
     # print(docs)
     return docs
 
@@ -25,8 +23,8 @@ def create_api_log(
                 "doctype": "API Log",
                 "api_url": api_url,
                 "api_method": api_method,
-                "request_data": request_data,
                 "status": status,
+                "request_data": request_data,
                 "error_message": error_message,
                 "response_data": response_data,
             }
@@ -36,7 +34,7 @@ def create_api_log(
         print(f"Error while creating API Log: {e}")
 
 
-async def execute_order(
+def execute_order(
     action,
     exchange_id,
     symbol,
@@ -48,47 +46,46 @@ async def execute_order(
     user_creds,
 ):
     try:
-        exchange_class = getattr(ccxtpro.async_support, exchange_id)
+        # Get exchange
+        exchange_class = getattr(ccxt, exchange_id)
         exchange = exchange_class(
             {
                 "apiKey": user_creds.api_key,
                 "secret": user_creds.api_secret,
                 "enableRateLimit": True,
-                "asyncio_loop": asyncio.get_event_loop(),
             }
         )
 
+        # Set leverage
         if leverage > 1:
             exchange.set_leverage(leverage)
 
+        # Set testnet
         if user_creds.testnet:
-            if "test" in exchange.urls:
-                exchange.urls["api"] = exchange.urls["test"]
+            if "test" in exchange_info["urls"]:
+                exchange_info["urls"]["api"] = exchange_info["urls"]["test"]
             else:
                 raise ValueError(f"Exchange {exchange_id} does not have a testnet.")
 
-        # Rate limiting
-        exchange.enable_rate_limit = True
-
-        if action not in ["buy", "sell", "close"]:
+        # Set
+        if action not in ["buy", "sell", "close", None]:
             raise ValueError(f"Invalid action: {action}")
 
         order = None
         if action == "buy":
             if order_type == "limit":
-                order = await exchange.create_limit_buy_order(symbol, amount, price)
+                order = exchange.create_limit_buy_order(symbol, amount, price)
             elif order_type == "market":
-                order = await exchange.create_market_buy_order(symbol, amount)
+                order = exchange.create_market_buy_order(symbol, amount)
         elif action == "sell":
             if order_type == "limit":
-                order = await exchange.create_limit_sell_order(symbol, amount, price)
+                order = exchange.create_limit_sell_order(symbol, amount, price)
             elif order_type == "market":
-                order = await exchange.create_market_sell_order(symbol, amount)
+                order = exchange.create_market_sell_order(symbol, amount)
         elif action == "close":
-            all_orders = await exchange.fetch_open_orders(symbol)
-            order = "All orders cancelled."
+            all_orders = exchange.fetch_open_orders(symbol)
             for sorder in all_orders:
-                await exchange.cancel_order(sorder["id"])
+                order += exchange.cancel_order(sorder["id"])
 
         request_data = {
             "action": action,
@@ -106,14 +103,15 @@ async def execute_order(
         create_api_log(
             api_url="execute_order",
             api_method=action,
-            request_data=request_data,
+            request_data=json.dumps(request_data),
             status="Success",
-            response_data=response_data,
+            response_data=json.dumps(response_data),
         )
 
         return order
+
     except AttributeError:
-        error_message = f"Exchange {exchange_id} not found in CCXT Pro. {user_creds.api_key}:{user_creds.api_secret}"
+        error_message = f"Exchange {exchange_id} not found in CCXT Pro."
         create_api_log(
             api_url="execute_order",
             api_method=action,
@@ -122,7 +120,7 @@ async def execute_order(
             error_message=error_message,
         )
         raise Exception(error_message)
-    except ccxtpro.BaseError as e:
+    except ccxt.BaseError as e:
         error_message = f"An error occurred: {str(e)}"
         create_api_log(
             api_url="execute_order",
@@ -137,17 +135,17 @@ async def execute_order(
 @frappe.whitelist()
 def sync_exchanges():
     # Get list of exchanges
-    for exchange_id in ccxtpro.exchanges:
-        if hasattr(ccxtpro, exchange_id):
-            exchange_class = getattr(ccxtpro.async_support, exchange_id)
+    for i, exchange_id in enumerate(ccxt.exchanges):
+        if hasattr(ccxt, exchange_id):
+            exchange_class = getattr(ccxt, exchange_id)
             exchange = exchange_class()  # create an instance of the exchange class
 
             # Check if the exchange document already exists
-            existing_exchange = frappe.db.exists(
+            exchange_exists = frappe.db.exists(
                 "CCXT Exchanges", {"exchange_id": exchange.id}
             )
 
-            doc_data = {
+            exchange_doc_data = {
                 "doctype": "CCXT Exchanges",
                 "exchange_id": exchange.id,
                 "exchange_name": exchange.name,
@@ -157,20 +155,22 @@ def sync_exchanges():
                 "has": json.dumps(exchange.has),
             }
 
-            if existing_exchange:
+            if exchange_exists:
                 # If the document exists, update its properties
                 doc = frappe.get_doc("CCXT Exchanges", {"exchange_id": exchange.id})
-                doc.update(doc_data)
+                doc.update(exchange_doc_data)
                 doc.save()
             else:
                 # If the document doesn't exist, create a new one
-                new_doc = frappe.get_doc(doc_data)
+                new_doc = frappe.get_doc(exchange_doc_data)
                 new_doc.insert(ignore_permissions=True)
-
+            return print(
+                f"Synced exchange {exchange.name} - {i+1} of {len(ccxt.exchanges)}"
+            )
         else:
-            print(f"Exchange '{exchange_id}' is not found in ccxtpro module.")
-
-    print(f"Exchanges synced successfully.")
+            return print(f"Exchange '{exchange_id}' is not found in ccxt module.")
+    frappe.db.commit()
+    return print(f"{len(ccxt.exchanges)} exchanges synced successfully.")
 
 
 @frappe.whitelist()
@@ -180,7 +180,7 @@ def delete_exchanges():
         print(f"No exchanges found in database.")
         return
     docs = frappe.get_all("CCXT Exchanges")
-    for doc in docs:
+    for i, doc in enumerate(docs):
         linked_docs = get_linked_documents("CCXT Exchanges", doc.name)
         links = len(linked_docs)
         if links > 0:
@@ -192,5 +192,6 @@ def delete_exchanges():
             )
             continue
         frappe.delete_doc("CCXT Exchanges", doc.name)
+    frappe.db.commit()
     frappe.msgprint(f"Exchanges deleted successfully.")
     print(f"Exchanges deleted successfully.")
