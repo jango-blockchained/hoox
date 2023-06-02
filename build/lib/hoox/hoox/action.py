@@ -1,9 +1,6 @@
 import ccxt
 import frappe
 import json
-import logging
-
-# import asyncio
 from frappe import _
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
 
@@ -37,7 +34,7 @@ def create_api_log(
         print(f"Error while creating API Log: {e}")
 
 
-async def execute_order(
+def execute_order(
     action,
     exchange_id,
     symbol,
@@ -77,18 +74,18 @@ async def execute_order(
         order = None
         if action == "buy":
             if order_type == "limit":
-                order = await exchange.create_limit_buy_order(symbol, amount, price)
+                order = exchange.create_limit_buy_order(symbol, amount, price)
             elif order_type == "market":
-                order = await exchange.create_market_buy_order(symbol, amount)
+                order = exchange.create_market_buy_order(symbol, amount)
         elif action == "sell":
             if order_type == "limit":
-                order = await exchange.create_limit_sell_order(symbol, amount, price)
+                order = exchange.create_limit_sell_order(symbol, amount, price)
             elif order_type == "market":
-                order = await exchange.create_market_sell_order(symbol, amount)
+                order = exchange.create_market_sell_order(symbol, amount)
         elif action == "close":
-            all_orders = await exchange.fetch_open_orders(symbol)
+            all_orders = exchange.fetch_open_orders(symbol)
             for sorder in all_orders:
-                order += await exchange.cancel_order(sorder["id"])
+                order += exchange.cancel_order(sorder["id"])
 
         request_data = {
             "action": action,
@@ -106,12 +103,13 @@ async def execute_order(
         create_api_log(
             api_url="execute_order",
             api_method=action,
-            request_data=request_data,
+            request_data=json.dumps(request_data),
             status="Success",
-            response_data=response_data,
+            response_data=json.dumps(response_data),
         )
 
         return order
+
     except AttributeError:
         error_message = f"Exchange {exchange_id} not found in CCXT Pro."
         create_api_log(
@@ -166,11 +164,13 @@ def sync_exchanges():
                 # If the document doesn't exist, create a new one
                 new_doc = frappe.get_doc(exchange_doc_data)
                 new_doc.insert(ignore_permissions=True)
-            print(f"Synced exchange {exchange.name} - {i+1} of {len(ccxt.exchanges)}")
+            return print(
+                f"Synced exchange {exchange.name} - {i+1} of {len(ccxt.exchanges)}"
+            )
         else:
-            print(f"Exchange '{exchange_id}' is not found in ccxt module.")
+            return print(f"Exchange '{exchange_id}' is not found in ccxt module.")
     frappe.db.commit()
-    print(f"{len(ccxt.exchanges)} exchanges synced successfully.")
+    return print(f"{len(ccxt.exchanges)} exchanges synced successfully.")
 
 
 @frappe.whitelist()

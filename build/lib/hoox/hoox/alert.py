@@ -65,8 +65,6 @@ def process_trade_action(request_data, exchange_creds):
             handle_alert(request_data, exchange_creds)
         else:
             raise ValidationError("Invalid Secret Hash")
-    else:
-        raise ValidationError("Missing required fields.")
 
 
 def process_telegram(request_data, exchange_creds):
@@ -110,7 +108,7 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
             )
             trade.insert(ignore_permissions=True)
             frappe.msgprint(f"Tradename: {trade.name}")
-            frappe.enqueue(
+            enqueue(
                 update_status,
                 queue="short",
                 timeout=90,
@@ -131,20 +129,25 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
                     "status": ["!=", "Success"],
                 },
             )
-        try:
-            exchange_response = execute_order(
-                request_data.get("action"),
-                exchange_creds.exchange,
-                request_data.get("symbol"),
-                request_data.get("price"),
-                request_data.get("quantity"),
-                request_data.get("order_type") or "market",
-                request_data.get("market_type") or "future",
-                request_data.get("leverage") or 1,
-                exchange_creds,
-            )
-        except Exception as e:
-            raise e
+
+        exchange_response = execute_order(
+            request_data.get("action"),
+            exchange_creds.exchange,
+            request_data.get("symbol"),
+            request_data.get("price"),
+            request_data.get("quantity"),
+            request_data.get("order_type") or "market",
+            request_data.get("market_type") or "future",
+            request_data.get("leverage") or 1,
+            exchange_creds,
+        )
+
+        # Check the response for success or failure
+        if exchange_response.get("order_id"):
+            trade.status = "Success"
+        else:
+            trade.status = "Failure"
+            # raise Exception("Exchange order failed.")
 
         trade.append(
             "outgoing_requests",
@@ -153,19 +156,32 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
                 "method": request_data.get("action"),
                 "url": exchange_creds.exchange,
                 "params": json.dumps(request_data),
-                "response": exchange_response,
+                "response": json.dumps(exchange_response),
             },
         )
+
         trade.save()
+        frappe.db.commit()
 
         send_to_telegram(exchange_creds.user, f"Order executed: {exchange_response}")
         # log.info(f"Outgoing request to Exchange: {request_data}")
         # log.info(f"Exchange response: {exchange_response}")
 
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    except NetworkError as e:
+        # Handle network issues specifically
+        print(f"A network error occurred: {e}")
         order_failed(exchange_creds.user, str(e))
-        # retry(request_data, exchange_creds)
+        # Retry here, if appropriate
+    except APIError as e:
+        # Handle API errors specifically
+        print(f"An API error occurred: {e}")
+        order_failed(exchange_creds.user, str(e))
+        # Retry here, if appropriate
+    except Exception as e:
+        # Catch-all for other exceptions
+        print(f"An unexpected error occurred: {e}")
+        order_failed(exchange_creds.user, str(e))
+        # Retry here, if appropriate
 
 
 def retry(request_data, exchange_creds):
