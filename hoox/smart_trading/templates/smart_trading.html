@@ -1,0 +1,103 @@
+{% extends "templates/web.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ title }}</h1>
+
+    <!-- Market Selection -->
+    <div class="form-group">
+        <label for="market">Market:</label>
+        <select id="market" class="form-control">
+            <option value="BTCUSDT">BTCUSDT</option>
+            <option value="ETHUSDT">ETHUSDT</option>
+            <!-- Add more options as needed -->
+        </select>
+    </div>
+
+    <!-- Current Positions -->
+    <h2>Current Positions</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Take Profit</th>
+                <th>Trailing Stop Loss</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>BTCUSDT</td>
+                <td>0.01</td>
+                <td>5000</td>
+                <td>
+                    <input type="number" class="form-control" placeholder="Take Profit">
+                </td>
+                <td>
+                    <input type="number" class="form-control" placeholder="Trailing Stop Loss">
+                </td>
+            </tr>
+            <!-- Add more rows for other positions -->
+        </tbody>
+    </table>
+
+    <!-- Chart Container -->
+    <div id="chart-container"></div>
+
+    <!-- Addable Take Profit or Trailing Stop Loss -->
+    <h2>Addable Take Profit or Trailing Stop Loss</h2>
+    <div class="form-group">
+        <label for="tp_input">Take Profit:</label>
+        <input type="number" id="tp_input" class="form-control" placeholder="Take Profit">
+    </div>
+    <div class="form-group">
+        <label for="tsl_input">Trailing Stop Loss:</label>
+        <input type="number" id="tsl_input" class="form-control" placeholder="Trailing Stop Loss">
+    </div>
+    <button type="button" class="btn btn-primary">Add</button>
+</div>
+
+<!-- Load Frappe Charts and Create Chart -->
+<script src="{{ frappe.get_app_base_url(true) }}/public/js/frappe_charts.js"></script>
+<script>
+    frappe.ready(function () {
+        createChart();
+    });
+
+    function createChart() {
+        // Sample data for the chart
+        var data = {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+            datasets: [
+                {
+                    name: "Profit",
+                    chartType: "bar",
+                    values: [100, 200, 150, 300, 250]
+                },
+                {
+                    name: "Loss",
+                    chartType: "bar",
+                    values: [-50, -100, -200, -150, -100]
+                }
+            ]
+        };
+
+        // Chart configuration
+        var chartConfig = {
+            title: "Profit/Loss",
+            data: data,
+            type: "bar",
+            height: 300,
+            colors: ["#45aaf2", "#f9c851"],
+            tooltipOptions: {
+                formatTooltipX: d => (d + "").toUpperCase(),
+                formatTooltipY: d => d + " USD"
+            }
+        };
+
+        // Create the chart
+        var chart = new frappe.Chart("#chart-container", chartConfig);
+    }
+</script>
+{% endblock %}

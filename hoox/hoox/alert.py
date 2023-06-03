@@ -48,7 +48,9 @@ def hoox(data=None):
         request_data = data or json.loads(frappe.request.data)
         secret_hash = request_data.get("secret_hash")
         exchange_creds = get_exchange_credentials(secret_hash)
-        process_request(request_data, exchange_creds)
+        if exchange_creds and exchange_creds.enabled:
+            send_to_telegram(exchange_creds.user, f"Request received: {request_data}")
+            process_request(request_data, exchange_creds)
     except (DoesNotExistError, ValidationError) as e:
         # log.error(f"An error occurred in HOOX: {str(e)}")
         frappe.throw(str(e), frappe.AuthenticationError)
@@ -119,7 +121,7 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
             enqueue(
                 update_status,
                 queue="short",
-                timeout=90,
+                timeout=900,
                 is_async=True,
                 now=False,
                 job_name="Update Trade Status",
@@ -151,8 +153,10 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
         )
 
         # Check the response for success or failed
-        if exchange_response.get("order_id"):
+        orderId = exchange_response.get("info").get("orderId")
+        if orderId is not None:
             trade.status = "Success"
+            trade.exchange_order_id = orderId
         else:
             trade.status = "Failed"
             # raise Exception("Exchange order failed.")
@@ -165,6 +169,7 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
                 "url": exchange_creds.exchange,
                 "params": json.dumps(request_data),
                 "response": json.dumps(exchange_response),
+                "status": trade.status,
             },
         )
 

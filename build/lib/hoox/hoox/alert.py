@@ -16,6 +16,14 @@ from frappe.utils import now_datetime, add_to_date
 from frappe.utils.background_jobs import enqueue
 
 
+class NetworkError(Exception):
+    pass
+
+
+class APIError(Exception):
+    pass
+
+
 @frappe.whitelist(allow_guest=True)
 def update_status(doctype, docname):
     doc = frappe.get_doc(doctype, docname)
@@ -24,12 +32,12 @@ def update_status(doctype, docname):
     time_difference = now_datetime() - doc.creation
 
     # If the time difference is less than 30 seconds and the status is not 'Success',
-    # then don't update the status to 'Failure'
+    # then don't update the status to 'Failed'
     if time_difference.total_seconds() < 30 and doc.status != "Success":
         return
 
     if doc.status != "Success":
-        doc.status = "Failure"
+        doc.status = "Failed"
         doc.save()
         frappe.db.commit()
 
@@ -40,7 +48,9 @@ def hoox(data=None):
         request_data = data or json.loads(frappe.request.data)
         secret_hash = request_data.get("secret_hash")
         exchange_creds = get_exchange_credentials(secret_hash)
-        process_request(request_data, exchange_creds)
+        if exchange_creds and exchange_creds.enabled:
+            send_to_telegram(exchange_creds.user, f"Request received: {request_data}")
+            process_request(request_data, exchange_creds)
     except (DoesNotExistError, ValidationError) as e:
         # log.error(f"An error occurred in HOOX: {str(e)}")
         frappe.throw(str(e), frappe.AuthenticationError)
@@ -111,7 +121,7 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
             enqueue(
                 update_status,
                 queue="short",
-                timeout=90,
+                timeout=900,
                 is_async=True,
                 now=False,
                 job_name="Update Trade Status",
@@ -142,11 +152,11 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
             exchange_creds,
         )
 
-        # Check the response for success or failure
-        if exchange_response.get("order_id"):
+        # Check the response for success or failed
+        if exchange_response.get("info").get("orderId") is not None:
             trade.status = "Success"
         else:
-            trade.status = "Failure"
+            trade.status = "Failed"
             # raise Exception("Exchange order failed.")
 
         trade.append(
@@ -157,6 +167,7 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
                 "url": exchange_creds.exchange,
                 "params": json.dumps(request_data),
                 "response": json.dumps(exchange_response),
+                "status": trade.status,
             },
         )
 
