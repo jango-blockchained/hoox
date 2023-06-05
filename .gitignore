@@ -4,4 +4,4 @@
 *.swp
 tags
 hoox/docs/current
-build
+/build/
