@@ -1,15 +1,33 @@
 {
  "actions": [],
- "allow_rename": 1,
  "creation": "2023-05-24 06:14:47.416144",
  "doctype": "DocType",
+ "document_type": "Setup",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "telegram_settings",
+  "telegram_bot_token",
   "telegram_enabled",
   "section_break_w6w1u",
-  "telegram_bot_token"
+  "section_break_wmbbc",
+  "retry_stop_after",
+  "retry_enabled",
+  "column_break_r8xg3",
+  "retry_backoff",
+  "column_break_v7rjj",
+  "retry_min",
+  "column_break_q9bfr",
+  "retry_max",
+  "section_break_icgbt",
+  "log_file_count",
+  "log_enabled",
+  "column_break_3awdn",
+  "log_type",
+  "column_break_on7vz",
+  "log_level",
+  "home_assistant_section",
+  "enabled"
  ],
  "fields": [
   {
@@ -18,8 +36,8 @@
   },
   {
    "fieldname": "telegram_settings",
-   "fieldtype": "Heading",
-   "label": "Telegram Settings"
+   "fieldtype": "Section Break",
+   "label": "Telegram"
   },
   {
    "default": "0",
@@ -30,13 +48,113 @@
   {
    "description": "Get your Telegram Bot Token from @BotFather ",
    "fieldname": "telegram_bot_token",
-   "fieldtype": "Data",
+   "fieldtype": "Password",
    "label": "Bot Token"
+  },
+  {
+   "fieldname": "section_break_wmbbc",
+   "fieldtype": "Section Break",
+   "label": "Gateway"
+  },
+  {
+   "default": "5",
+   "fieldname": "retry_stop_after",
+   "fieldtype": "Int",
+   "label": "Retry Stop After "
+  },
+  {
+   "default": "1",
+   "fieldname": "retry_enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "column_break_r8xg3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "retry_backoff",
+   "fieldtype": "Int",
+   "label": "Retry Backoff"
+  },
+  {
+   "fieldname": "column_break_v7rjj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "4",
+   "fieldname": "retry_min",
+   "fieldtype": "Int",
+   "label": "Retry Min.",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_q9bfr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "2",
+   "fieldname": "retry_max",
+   "fieldtype": "Int",
+   "label": "Retry Max.",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "section_break_icgbt",
+   "fieldtype": "Section Break",
+   "label": "Logging"
+  },
+  {
+   "default": "50",
+   "fieldname": "log_file_count",
+   "fieldtype": "Int",
+   "label": "Log File Count",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "log_enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "column_break_3awdn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Personal",
+   "fieldname": "log_type",
+   "fieldtype": "Select",
+   "label": "Log Type",
+   "options": "Global\nPersonal"
+  },
+  {
+   "fieldname": "column_break_on7vz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "INFO",
+   "fieldname": "log_level",
+   "fieldtype": "Select",
+   "label": "Log Level",
+   "options": "DEBUG\nINFO"
+  },
+  {
+   "fieldname": "home_assistant_section",
+   "fieldtype": "Section Break",
+   "label": "Home Assistant"
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2023-05-30 23:09:43.104169",
+ "modified": "2023-06-05 09:59:59.128540",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox Settings",
