@@ -80,7 +80,8 @@ class HooxAPI:
         Logs the execution time of a function if logging is enabled.
         """
 
-        log = get_logger(__name__ + '.timer').setLevel(logging.DEBUG)
+        log = get_logger(__name__ + '.timer')
+        log.setLevel(logging.INFO)
 
         def wrapper(*args, **kwargs):
             """
@@ -91,7 +92,7 @@ class HooxAPI:
             result = func(*args, **kwargs)
             end_time = time.time()
             msg = f"Execution time of {func.__name__}: {end_time - start_time} seconds"
-            log.debug(msg)
+            log.info(msg)
             print(msg)
 
             return result
@@ -273,7 +274,8 @@ def hoox():
 
     frappe.local.response.update({
         "http_status_code": 200,
-        "message": "Success"
+        "message": "Success",
+        "data": json.loads(frappe.request.data)
     })
 
     hapi = HooxAPI()

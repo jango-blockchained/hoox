@@ -1,6 +1,6 @@
 import frappe
 from frappe import _
-
+import telegram
 from frappe.utils.password import get_decrypted_password
 
 
@@ -49,11 +49,12 @@ def send_to_telegram(user, message, settings, toId=None):
     return response
 
 
-def send_to_haas(user, entity_domain, service, data=None):
+def send_to_haas(user, entity_domain, service, payload):
     """
     Sends a request to Home Assistant if there is a "haas" field in the request data.
 
     Incoming << JSON format:
+    {
     {
         "secret_hash": "SECRET_HASH",
         "haas": {
