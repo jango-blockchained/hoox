@@ -1,5 +1,6 @@
 import frappe
 from frappe.utils.logger import get_logger
+import logging
 import json
 import time
 from frappe import _
@@ -18,22 +19,41 @@ class HooxAPI:
     The Hoox class processes incoming requests and handles the required actions.
     """
 
+    # ------------------------------------------------------------
+    # Initialization
+
     def __init__(self):
         """
         Initializes the Hoox object. It fetches Hoox settings and the request data.
         """
 
+        # Get Hoox settings and request data
         self.cfg = frappe.get_single("Hoox Settings")
         self.request_data = json.loads(frappe.request.data)
         self.secret_hash = self.request_data.get("secret_hash")
+
+        if not self.secret_hash:
+            return
+
         self.exchange_creds = get_exchange_credentials(self.secret_hash)
+
+        # Initialize retry counter
         self.retry = 0
+
+        # Initialize logger
         self.log = get_logger(__name__)
-        self.log.set_log_level(self.cfg.log_level)
+        self.log.setLevel(logging.getLevelName(self.cfg.log_level))
+
+        # Set the immediate response
+        # frappe.local.response.update({
+        #     "http_status_code": 200,
+        #     "message": "Success",
+        #     "data": self.request_data
+        # })
 
     # ------------------------------------------------------------
+    # Decorators
 
-    @staticmethod
     def retry_on_exception():
         """
         Returns a retry decorator if retry is enabled in the Hoox settings.
@@ -54,26 +74,31 @@ class HooxAPI:
                 return func
             return no_retry
 
-    @staticmethod
     @frappe.whitelist(allow_guest=True)
     def console_log_execution_time(func):
         """
         Logs the execution time of a function if logging is enabled.
         """
 
+        log = get_logger(__name__ + '.timer').setLevel(logging.DEBUG)
+
         def wrapper(*args, **kwargs):
             """
             Returns the wrapped function with the execution time.
             """
+
             start_time = time.time()
             result = func(*args, **kwargs)
             end_time = time.time()
-            print(
-                f"Execution time of {func.__name__}: {end_time - start_time} seconds")
+            msg = f"Execution time of {func.__name__}: {end_time - start_time} seconds"
+            log.debug(msg)
+            print(msg)
+
             return result
         return wrapper
 
     # ------------------------------------------------------------
+    # Methods
 
     @console_log_execution_time
     def process_trade_action(self):
@@ -106,7 +131,7 @@ class HooxAPI:
         if telegram and telegram.get("message"):
             toId = telegram.get("chat_id") or telegram.get("group_id")
             send_to_telegram(self.exchange_creds.user,
-                             telegram.get("message"), toId)
+                             telegram.get("message"), self.cfg, toId)
 
     @console_log_execution_time
     def process_haas(self):
@@ -169,14 +194,14 @@ class HooxAPI:
             self.retry = 0
 
             send_to_telegram(
-                self.exchange_creds.user, f"Order executed: {exchange_response}"
+                self.exchange_creds.user, f"Order executed: {exchange_response}", self.cfg
             )
 
         except Exception as e:
             self.retry += 1
             send_to_telegram(
                 self.exchange_creds.user,
-                f"Order failed to execute. Retry # {self.retry+1} Exception: {e}",
+                f"Order failed to execute. Retry # {self.retry+1} Exception: {e}", self.cfg
             )
 
         # Update trade document based on retry status
@@ -237,27 +262,31 @@ class HooxAPI:
         return trade
 
 # ------------------------------------------------------------
-
 # Expose the hoox function to the outside world
 
 
-# @console_log_execution_time
 @frappe.whitelist(allow_guest=True)
 def hoox():
     """
     Main entry point for incoming requests. If there are valid exchange credentials and they are enabled, it processes the request.
     """
 
+    frappe.local.response.update({
+        "http_status_code": 200,
+        "message": "Success"
+    })
+
     hapi = HooxAPI()
+
+    response = []
 
     try:
         if hapi.exchange_creds and hapi.exchange_creds.enabled:
-            hapi.process_trade_action()
-            hapi.process_telegram()
-            hapi.process_haas()
-            frappe.utils.logger.info(f"Request data: {hapi.request_data}")
-        return "Success"
+            response.append(hapi.process_trade_action())
+            response.append(hapi.process_telegram())
+            response.append(hapi.process_haas())
+            response.append(hapi.retry)
+            print(response)
 
     except Exception as e:
-        frappe.utils.logger.debug(f"Error: {e}")
-        return "Failed"
+        print(f"Error: {e}")
