@@ -2,6 +2,7 @@ import ccxt
 import frappe
 import json
 from frappe.utils.logger import get_logger
+import logging
 from frappe import _
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
 
@@ -17,7 +18,8 @@ ORDER_TYPE_FUNCS = {
 }
 
 logger = get_logger(__name__)
-logger.setLevel("DEBUG")
+logger_level = logging.getLevelName("DEBUG")
+logger.setLevel(logger_level)
 
 
 def get_linked_documents(doctype, docname):
@@ -31,7 +33,7 @@ def get_linked_documents(doctype, docname):
     return docs
 
 
-def execute_order(action, exchange_id, symbol, price, amount, order_type, market_type, leverage, user_creds):
+def execute_order(action, exchange_id, symbol, price, quantity, order_type, market_type, leverage, user_creds):
     """
     Execute an order on an exchange using CCXT.
     Returns the order object.
@@ -47,7 +49,7 @@ def execute_order(action, exchange_id, symbol, price, amount, order_type, market
         })
 
         # Create order object
-        order = None
+        response = {}
 
         # Set leverage
         if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and leverage > 0 and leverage <= exchange.maxLeverage:
@@ -58,26 +60,32 @@ def execute_order(action, exchange_id, symbol, price, amount, order_type, market
             if "test" in exchange.urls:
                 exchange.urls["api"] = exchange.urls["test"]
             else:
-                log.error(f"Exchange {exchange_id} does not have a testnet.")
+                logger.error(
+                    f"Exchange {exchange_id} does not have a testnet.")
+
+        # Set URL
+        response["url"] = exchange.urls["api"]
 
         # Check action
         if action not in ["buy", "sell", "close", None]:
-            log.error(f"Invalid action: {action}")
+            logger.error(f"Invalid action: {action}")
 
         # Execute order
         if action in ["buy", "sell"]:
             order_func_name = ORDER_TYPE_FUNCS[action].get(order_type)
             if order_func_name:
                 order_func = getattr(exchange, order_func_name)
-                order = order_func(
-                    symbol, amount, price) if order_type == "limit" else order_func(symbol, amount)
+                response["order"] = order_func(
+                    symbol, quantity, price) if order_type == "limit" else order_func(symbol, quantity)
         elif action == "close":
             all_orders = exchange.fetch_open_orders(symbol)
-            order = [exchange.cancel_order(single_order["id"])
-                     for single_order in all_orders]
+            response["order"] = [exchange.cancel_order(order["id"])
+                                 for order in all_orders]
 
+        response["original_data"] = exchange.last_json_response
+        print(response["original_data"])
         # print(order)
-        return order
+        return response
 
     except AttributeError as e:
         logger.error(f"Exchange {exchange_id} not found in CCXT.")
