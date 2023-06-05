@@ -1,0 +1,11 @@
+{
+    "js/hoox.js": [
+        "public/js/hoox.js"
+    ],
+    "js/frappe_charts.js": [
+        "public/js/frappe_charts.js"
+    ],
+    "css/hoox.css": [
+        "public/css/hoox.css"
+    ]
+}

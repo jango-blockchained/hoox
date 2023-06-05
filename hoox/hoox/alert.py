@@ -118,19 +118,9 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
             )
             trade.insert(ignore_permissions=True)
             frappe.msgprint(f"Tradename: {trade.name}")
-            enqueue(
-                update_status,
-                queue="short",
-                timeout=900,
-                is_async=True,
-                now=False,
-                job_name="Update Trade Status",
-                doctype="Trades",
-                docname=trade.name,
-            )
         else:
             frappe.msgprint(
-                f"Retry execution of incoming request from TradingView: {request_data}"
+                f"Retry # {handle_alert.retry}execution of incoming request from TradingView: {request_data}"
             )
             trade = frappe.get_last_doc(
                 "Trades",
@@ -184,21 +174,25 @@ def handle_alert(request_data, exchange_creds, is_retry=False):
         # Handle network issues specifically
         print(f"A network error occurred: {e}")
         order_failed(exchange_creds.user, str(e))
-        # Retry here, if appropriate
+        retry(request_data, exchange_creds)
     except APIError as e:
         # Handle API errors specifically
         print(f"An API error occurred: {e}")
         order_failed(exchange_creds.user, str(e))
-        # Retry here, if appropriate
+        retry(request_data, exchange_creds)
     except Exception as e:
         # Catch-all for other exceptions
         print(f"An unexpected error occurred: {e}")
         order_failed(exchange_creds.user, str(e))
-        # Retry here, if appropriate
+        retry(request_data, exchange_creds)
 
 
 def retry(request_data, exchange_creds):
-    for i in range(5):  # Retry 5 times
+    cfg = frappe.get_single("Hoox Settings")
+    if not cfg or not cfg.retry_enabled:
+        return
+    backoff = cfg.retry_backoff
+    for i in range(cfg.retry_count):
         try:
             print(f"Retry No.: # {i+1}")
             handle_alert(request_data, exchange_creds, is_retry=True)
@@ -206,4 +200,5 @@ def retry(request_data, exchange_creds):
         except Exception as e:
             if i == 4:
                 order_failed(exchange_creds.user, str(e))
-            time.sleep(5)
+            time.sleep(backoff)
+            backoff *= cfg.retry_backoff_multiplier

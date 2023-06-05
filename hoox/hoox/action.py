@@ -56,6 +56,8 @@ def execute_order(
             }
         )
 
+        order = None
+
         # Set leverage
         if leverage > 1:
             exchange.set_leverage(leverage)
@@ -67,11 +69,13 @@ def execute_order(
             else:
                 raise ValueError(f"Exchange {exchange_id} does not have a testnet.")
 
+        # Set exchange URL
+        order["url"] = exchange.urls["api"]
+
         # Set
         if action not in ["buy", "sell", "close", None]:
             raise ValueError(f"Invalid action: {action}")
 
-        order = None
         if action == "buy":
             if order_type == "limit":
                 order = exchange.create_limit_buy_order(symbol, amount, price)
@@ -145,13 +149,7 @@ def sync_exchanges():
                 "CCXT Exchanges", {"exchange_id": exchange.id}
             )
 
-            # get logo url
-            logo_url = exchange.urls.get("logo")
-
-            # generate HTML img tag to display the logo
-            logo_html = f'<img src="{logo_url}" alt="{exchange.name} Logo" style="height:50px; width:50px;">'
-
-            # set logo_html field in the doc
+            # set logo_url field in the doc
             exchange_doc_data = {
                 "doctype": "CCXT Exchanges",
                 "exchange_id": exchange.id,
@@ -160,7 +158,7 @@ def sync_exchanges():
                 "rate_limit": exchange.rateLimit,
                 "testnet": 1 if exchange.urls.get("test") is not None else 0,
                 "has": json.dumps(exchange.has),
-                "logo_html": logo_html,
+                "logo_url": exchange.urls.get("logo"),
             }
 
             if exchange_exists:

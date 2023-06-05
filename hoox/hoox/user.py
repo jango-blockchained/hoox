@@ -69,8 +69,3 @@ def send_to_haas(user, entity_id, service, data=None):
         return response.content
     else:
         return None
-
-
-def order_failed(user, error_message):
-    message = f"Order failed to execute. Error: {error_message}"
-    send_to_telegram(user, message)

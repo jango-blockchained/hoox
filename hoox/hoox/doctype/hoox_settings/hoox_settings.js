@@ -7,7 +7,7 @@ frappe.ui.form.on("Hoox Settings", {
       .css({ "background-color": "#0088cc", color: "#fff" });
     frm
       .add_custom_button(__("Get Chat-ID"), function () {
-        window.open("https://t.me/IDBot", "_blank");
+        window.open("https://t.me/myidbot", "_blank");
       })
       .css({ "background-color": "#0088cc", color: "#fff" });
   },
