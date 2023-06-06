@@ -1,4 +1,4 @@
-import ccxt
+import ccxt.async_support as ccxt
 import frappe
 import json
 from frappe.utils.logger import get_logger
@@ -33,7 +33,7 @@ def get_linked_documents(doctype, docname):
     return docs
 
 
-def execute_order(action, exchange_id, symbol, price, quantity, order_type, market_type, leverage, user_creds):
+async def execute_order(action, exchange_id, symbol, price, quantity, order_type, market_type, leverage, user_creds):
     """
     Execute an order on an exchange using CCXT.
     Returns the order object.
@@ -53,7 +53,7 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
 
         # Set leverage
         if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and leverage > 0 and leverage <= exchange.maxLeverage:
-            exchange.set_leverage(leverage)
+            await exchange.set_leverage(leverage)
 
         # Set testnet
         if user_creds.testnet:
@@ -75,14 +75,14 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
             order_func_name = ORDER_TYPE_FUNCS[action].get(order_type)
             if order_func_name:
                 order_func = getattr(exchange, order_func_name)
-                response["order"] = order_func(
-                    symbol, quantity, price) if order_type == "limit" else order_func(symbol, quantity)
+                response["order"] = await order_func(
+                    symbol, quantity, price) if order_type == "limit" else await order_func(symbol, quantity)
         elif action == "close":
-            all_orders = exchange.fetch_open_orders(symbol)
-            response["order"] = [exchange.cancel_order(order["id"])
+            all_orders = await exchange.fetch_open_orders(symbol)
+            response["order"] = [await exchange.cancel_order(order["id"])
                                  for order in all_orders]
 
-        response["original_data"] = exchange.last_json_response
+        response["original_data"] = await exchange.last_json_response
         print(response["original_data"])
         # print(order)
         return response

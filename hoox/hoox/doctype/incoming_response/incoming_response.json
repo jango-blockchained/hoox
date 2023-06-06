@@ -1,7 +1,7 @@
 {
  "actions": [],
- "autoname": "HOOX-REQ-OUT-.######",
- "creation": "2023-06-06 21:00:32.723576",
+ "autoname": "HOOX-RES-IN-.######",
+ "creation": "2023-06-04 20:44:22.008625",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -11,9 +11,7 @@
   "params",
   "response",
   "timestamp",
-  "status",
-  "published",
-  "route"
+  "status"
  ],
  "fields": [
   {
@@ -53,28 +51,13 @@
    "in_list_view": 1,
    "label": "Status",
    "options": "Processing\nFailed\nSuccess"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "default": "0",
-   "fieldname": "published",
-   "fieldtype": "Check",
-   "in_standard_filter": 1,
-   "label": "Published"
-  },
-  {
-   "fieldname": "route",
-   "fieldtype": "Data",
-   "label": "Route"
   }
  ],
- "has_web_view": 1,
- "is_published_field": "published",
  "links": [],
- "modified": "2023-06-06 21:00:32.723576",
+ "modified": "2023-06-06 00:58:55.079204",
  "modified_by": "Administrator",
  "module": "Hoox",
- "name": "Outgoing Requests",
+ "name": "Incoming Response",
  "name_case": "UPPER CASE",
  "owner": "Administrator",
  "permissions": [
@@ -91,7 +74,6 @@
    "write": 1
   }
  ],
- "route": "hoox/incoming-requests",
  "sort_field": "modified",
  "sort_order": "DESC"
 }

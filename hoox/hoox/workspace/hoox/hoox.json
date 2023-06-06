@@ -101,9 +101,88 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Telegram",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Telegram Bot",
+   "link_to": "Telegram Bot",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Telegram User",
+   "link_to": "Telegram User",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Telegram Message",
+   "link_to": "Telegram Message",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Telegram Message Template",
+   "link_to": "Telegram Message Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Gateway",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Incoming Requests",
+   "link_to": "Incoming Requests",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Outgoing Requests",
+   "link_to": "Outgoing Requests",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Incoming Response",
+   "link_to": "Incoming Response",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2023-05-31 01:12:28.228240",
+ "modified": "2023-06-06 20:57:41.309048",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -133,26 +212,26 @@
   },
   {
    "doc_view": "List",
-   "label": "Exchange Credentials",
-   "link_to": "Exchange Credentials",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "label": "Homeassistant Credentials",
-   "link_to": "Homeassistant Credentials",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "label": "Telegram Credentials",
-   "link_to": "Telegram Credentials",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
    "label": "Hoox Settings",
    "link_to": "Hoox Settings",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Incoming Requests",
+   "link_to": "Incoming Requests",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Outgoing Requests",
+   "link_to": "Outgoing Requests",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Incoming Response",
+   "link_to": "Incoming Response",
    "type": "DocType"
   }
  ]

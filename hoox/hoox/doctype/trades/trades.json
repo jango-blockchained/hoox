@@ -27,9 +27,9 @@
   "column_break_ssgjg",
   "price",
   "exec_price",
+  "leverage",
   "section_break_prlsy",
-  "outgoing_requests",
-  "leverage"
+  "exchange_order_id"
  ],
  "fields": [
   {
@@ -78,13 +78,6 @@
    "fieldtype": "Datetime",
    "in_list_view": 1,
    "label": "Time",
-   "read_only": 1
-  },
-  {
-   "fieldname": "outgoing_requests",
-   "fieldtype": "Table",
-   "label": "Outgoing Requests",
-   "options": "Outgoing Requests",
    "read_only": 1
   },
   {
@@ -189,14 +182,19 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "status",
-   "options": "Processing\nFailed\nSuccessful",
+   "options": "Processing\nFailed\nSuccess",
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "exchange_order_id",
+   "fieldtype": "Data",
+   "label": "Exchange Order ID"
   }
  ],
  "in_create": 1,
  "links": [],
- "modified": "2023-05-31 21:12:30.425342",
+ "modified": "2023-06-06 19:57:27.139640",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trades",

@@ -1,7 +1,7 @@
 {
  "actions": [],
- "autoname": "HOOX-REQ-OUT-.######",
- "creation": "2023-06-06 21:00:32.723576",
+ "autoname": "HOOX-REQ-IN-.######",
+ "creation": "2023-06-06 01:00:13.322650",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -71,10 +71,10 @@
  "has_web_view": 1,
  "is_published_field": "published",
  "links": [],
- "modified": "2023-06-06 21:00:32.723576",
+ "modified": "2023-06-06 01:05:49.974270",
  "modified_by": "Administrator",
  "module": "Hoox",
- "name": "Outgoing Requests",
+ "name": "Incoming Requests",
  "name_case": "UPPER CASE",
  "owner": "Administrator",
  "permissions": [
