@@ -1,4 +1,4 @@
-import ccxt.async_support as ccxt
+import ccxt
 import frappe
 import json
 from frappe.utils.logger import get_logger
@@ -33,7 +33,7 @@ def get_linked_documents(doctype, docname):
     return docs
 
 
-async def execute_order(action, exchange_id, symbol, price, quantity, order_type, market_type, leverage, user_creds):
+def execute_order(action, exchange_id, symbol, price, quantity, order_type, market_type, leverage, user_creds):
     """
     Execute an order on an exchange using CCXT.
     Returns the order object.
@@ -53,7 +53,7 @@ async def execute_order(action, exchange_id, symbol, price, quantity, order_type
 
         # Set leverage
         if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and leverage > 0 and leverage <= exchange.maxLeverage:
-            await exchange.set_leverage(leverage)
+            exchange.set_leverage(leverage)
 
         # Set testnet
         if user_creds.testnet:
@@ -75,14 +75,14 @@ async def execute_order(action, exchange_id, symbol, price, quantity, order_type
             order_func_name = ORDER_TYPE_FUNCS[action].get(order_type)
             if order_func_name:
                 order_func = getattr(exchange, order_func_name)
-                response["order"] = await order_func(
-                    symbol, quantity, price) if order_type == "limit" else await order_func(symbol, quantity)
+                response["order"] = order_func(
+                    symbol, quantity, price) if order_type == "limit" else order_func(symbol, quantity)
         elif action == "close":
-            all_orders = await exchange.fetch_open_orders(symbol)
-            response["order"] = [await exchange.cancel_order(order["id"])
+            all_orders = exchange.fetch_open_orders(symbol)
+            response["order"] = [exchange.cancel_order(order["id"])
                                  for order in all_orders]
 
-        response["original_data"] = await exchange.last_json_response
+        response["original_data"] = exchange.last_json_response
         print(response["original_data"])
         # print(order)
         return response
@@ -139,6 +139,7 @@ def sync_exchanges():
             logger.info(
                 f"Synced exchange {exchange.name} - {current_position} of {amount_exchanges}"
             )
+
         else:
             frappe.msgprint(
                 f"Exchange '{exchange_id}' is not found in ccxt module.")
@@ -147,7 +148,7 @@ def sync_exchanges():
     amount = len(ccxt.exchanges)
     frappe.msgprint(f"{amount} exchanges synced successfully.")
 
-    return True
+    return
 
 
 @frappe.whitelist()
@@ -161,6 +162,7 @@ def delete_exchanges():
         return False
 
     docs = frappe.get_all("CCXT Exchanges")
+    amount = len(docs)
     for i, doc in enumerate(docs):
         linked_docs = get_linked_documents("CCXT Exchanges", doc.name)
         links = len(linked_docs)
@@ -172,7 +174,24 @@ def delete_exchanges():
         frappe.delete_doc("CCXT Exchanges", doc.name)
 
     frappe.db.commit()
-    amount = len(docs)
     frappe.msgprint(f"{amount} exchanges deleted successfully.")
 
-    return True
+    return
+
+
+@frappe.whitelist()
+def add_ip_addresses():
+    # replace with your IP addresses
+    ip_addresses = ["52.89.214.238", "34.212.75.30",
+                    "54.218.53.128", "52.32.178.7"]
+    for i, ip_address in enumerate(ip_addresses, start=1):
+        friendly_name = 'IP Restriction {}'.format(i)
+        # Check if the doc exists
+        if not frappe.db.exists('Alert IP Restriction', {"ip": ip_address}):
+            doc = frappe.new_doc('Alert IP Restriction')
+            doc.friendly_name = friendly_name
+            doc.ip = ip_address
+            doc.insert()
+        frappe.db.commit()
+    frappe.msgprint(f"{len(ip_addresses)} IP addresses added successfully.")
+    return

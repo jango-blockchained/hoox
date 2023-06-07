@@ -22,6 +22,14 @@ class HooxAPI:
     The Hoox class processes incoming requests and handles the required actions.
     """
 
+    exchange_creds = None
+    cfg = None
+    data = None
+    json = None
+    secret_hash = None
+    retry = None
+    log = None
+
     # ------------------------------------------------------------
     # Initialization
 
@@ -44,11 +52,15 @@ class HooxAPI:
         Initializes the Hoox object. It fet ches Hoox settings and the request data.
         """
 
-        # Get Hoox settings and request data
-        self.cfg = frappe.get_single("Hoox Settings")
-        self.cfg.telegram_bot_token = get_decrypted_password(
-            "Hoox Settings", "Hoox Settings", "telegram_bot_token", False
-        )
+        if frappe.local.request.method != "POST":
+            return
+
+        # Validate IP address
+        ip_address = self.get_client_ip()
+        if not self.is_valid_ip(ip_address):
+            return
+
+        # Get request data
         self.data = frappe.request.data
         self.json = json.loads(self.data)
         self.secret_hash = self.json.get("secret_hash")
@@ -60,6 +72,12 @@ class HooxAPI:
 
         # Initialize retry counter
         self.retry = 0
+
+        # Get Hoox settings and request data
+        self.cfg = frappe.get_single("Hoox Settings")
+        self.cfg.telegram_bot_token = get_decrypted_password(
+            "Hoox Settings", "Hoox Settings", "telegram_bot_token", False
+        )
 
         # Initialize logger
         self.log = get_logger(__name__)
@@ -115,7 +133,37 @@ class HooxAPI:
     # ------------------------------------------------------------
     # Methods
 
-    @console_log_execution_time
+    def immediately_response(self):
+        """
+        Immediately returns a response to the incoming request.
+        """
+        frappe.local.response.update({
+            "http_status_code": 200,
+            "message": "Success",
+            "data": self.json
+        })
+        return
+
+    @staticmethod
+    @frappe.whitelist(allow_guest=True)
+    def get_client_ip():
+        """
+        Gets the client IP address from the POST request.
+        """
+        if 'X-Forwarded-For' in frappe.local.request.headers:
+            # the last IP in the X-Forwarded-For header is the original client IP
+            ip_address = frappe.local.request.headers.get(
+                'X-Forwarded-For').split(', ')[-1]
+        else:
+            ip_address = frappe.local.request.remote_addr
+        return ip_address
+
+    def is_valid_ip(self, ip_address):
+        """
+        Checks if the IP address is valid and not blacklisted.
+        """
+        frappe.db.exists('Alert IP Restriction', {'ip': ip_address})
+
     def process_trade_action(self):
         """
         Processes the trade action in the request if all required fields are present and the exchange credentials are valid and enabled.
@@ -136,7 +184,6 @@ class HooxAPI:
             else:
                 self.log.debug("Invalid Secret Hash")
 
-    @console_log_execution_time
     def process_telegram(self):
         """
         Sends a message to Telegram if there is a "telegram" field in the request data.
@@ -148,7 +195,6 @@ class HooxAPI:
             send_to_telegram(self.exchange_creds.user,
                              telegram.get("message"), self.cfg, toId)
 
-    @console_log_execution_time
     def process_haas(self):
         """
         Sends a request to Haas if there is a "haas" field in the request data.
@@ -229,14 +275,6 @@ class HooxAPI:
                         "leverage": leverage,
                         "exchange_order_id": exchange_order_id,
                         "status": status,
-                        "outgoing_requests": [
-                            {
-                                "method": action,
-                                "url": exchange_response.get("url"),
-                                "params": json.dumps(self.json),
-                                "response": json.dumps(exchange_response),
-                                "status": status,
-                            }]
                     }
                 )
                 trade.insert(ignore_permissions=True)
@@ -248,18 +286,29 @@ class HooxAPI:
                         "status": ["!=", "Success"],
                     },
                 )
-                trade.append(
-                    "outgoing_requests",
-                    {
-                        "doctype": "Outgoing Requests",
-                        "method": self.json.get("action"),
-                        "url": exchange_response.get("url"),
-                        "params": json.dumps(self.json),
-                        "response": json.dumps(exchange_response),
-                        "status": status,
-                    },
-                )
-                trade.save()
+                # trade.append(
+                #     "outgoing_requests",
+                #     {
+                #         "doctype": "Outgoing Requests",
+                #         "method": self.json.get("action"),
+                #         "url": exchange_response.get("url"),
+                #         "params": json.dumps(self.json),
+                #         "response": json.dumps(exchange_response),
+                #         "status": status,
+                #     },
+                # )
+                # trade.save()
+
+            outgoing_request = frappe.get_doc({
+                "doctype": "outgoing_requests",
+                "method": action,
+                "url": exchange_response.get("url"),
+                "params": json.dumps(self.json),
+                "response": json.dumps(exchange_response),
+                "status": status,
+                "origin": trade.name
+            })
+            outgoing_request.insert(ignore_permissions=True)
 
             retry_no = self.retry + 1
             self.log.info(
@@ -274,59 +323,9 @@ class HooxAPI:
                 f"Order failed to execute. Retry # {self.retry+1} Exception: {e}", self.cfg
             )
 
+
 # ------------------------------------------------------------
 # Expose the hoox function to the outside world
-
-
-# @frappe.whitelist(allow_guest=True)
-async def async_receive_alert():
-    """
-    Main entry point for incoming requests. If there are valid exchange credentials and they are enabled, it processes the request.
-    """
-
-    async def async_process_trade_action(hapi):
-        hapi.process_trade_action()
-
-    async def async_process_telegram(hapi):
-        hapi.process_telegram()
-
-    async def async_process_haas(hapi):
-        hapi.process_haas()
-
-    hapi = HooxAPI()
-
-    try:
-        if hapi.exchange_creds and hapi.exchange_creds.enabled:
-            await asyncio.gather(
-                async_process_trade_action(hapi),
-                async_process_telegram(hapi),
-                async_process_haas(hapi)
-            )
-
-    except Exception as e:
-        print(f"Error: {e}")
-
-    return
-
-
-def sync_receive_alert():
-    """
-    Main entry point for incoming requests. If there are valid exchange credentials and they are enabled, it processes the request.
-    """
-
-    hapi = HooxAPI()
-
-    try:
-        if hapi.exchange_creds and hapi.exchange_creds.enabled:
-            hapi.process_trade_action()
-            # frappe.enqueue(hapi.process_trade_action, queue='long', timeout=300)
-            frappe.enqueue(hapi.process_telegram, queue='long', timeout=300)
-            frappe.enqueue(hapi.process_haas, queue='long', timeout=300)
-
-    except Exception as e:
-        print(f"Error: {e}")
-
-    return
 
 
 @frappe.whitelist(allow_guest=True)
@@ -334,11 +333,27 @@ def receive_alert():
     """
     Main entry point for incoming requests. If there are valid exchange credentials and they are enabled, it processes the request.
     """
-    frappe.local.response.update({
-        "http_status_code": 200,
-        "message": "Success",
-        "data": json.loads(frappe.request.data)
-    })
 
-    asyncio.run(async_receive_alert())
-    # sync_hoox()
+    hapi = HooxAPI()
+
+    try:
+        if hapi.exchange_creds and hapi.exchange_creds.enabled:
+            hapi.immediately_response()
+            hapi.process_trade_action()
+            hapi.process_telegram()
+            # frappe.enqueue(hapi.process_telegram, queue='short',
+            #                timeout=600, is_async=False, now=True)
+            # frappe.enqueue(hapi.process_haas, queue='short',
+            #                timeout=15, is_async=True)
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+
+# @frappe.whitelist(allow_guest=True)
+# def receive_alert():
+#     asyncio.run(execute())
+
+@frappe.whitelist(allow_guest=True)
+def get_ip():
+    return HooxAPI.get_client_ip()

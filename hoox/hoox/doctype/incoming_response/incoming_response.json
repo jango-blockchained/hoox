@@ -6,21 +6,31 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "section_break_odfaj",
+  "origin",
+  "column_break_2rkqc",
+  "status",
+  "section_break_mdcci",
+  "request_incoming",
+  "column_break_wcfmg",
+  "request_outgoing",
+  "section_break_hiocu",
   "method",
+  "column_break_9bcpx",
   "url",
-  "params",
-  "response",
-  "timestamp",
-  "status"
+  "section_break_s33yq",
+  "params"
  ],
  "fields": [
   {
+   "columns": 1,
    "fieldname": "method",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Method"
   },
   {
+   "columns": 1,
    "fieldname": "url",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -28,33 +38,74 @@
   },
   {
    "fieldname": "params",
-   "fieldtype": "Long Text",
-   "in_list_view": 1,
+   "fieldtype": "Code",
    "label": "Parameter"
   },
   {
-   "fieldname": "response",
-   "fieldtype": "Long Text",
-   "in_list_view": 1,
-   "label": "Response"
-  },
-  {
-   "fieldname": "timestamp",
-   "fieldtype": "Datetime",
-   "in_list_view": 1,
-   "label": "Timestamp"
-  },
-  {
+   "columns": 1,
    "default": "Processing",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
    "options": "Processing\nFailed\nSuccess"
+  },
+  {
+   "columns": 2,
+   "fieldname": "origin",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Origin",
+   "options": "Trades"
+  },
+  {
+   "columns": 2,
+   "fieldname": "request_outgoing",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Outgoing Request",
+   "options": "Outgoing Requests"
+  },
+  {
+   "fieldname": "section_break_odfaj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_mdcci",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_hiocu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_9bcpx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_s33yq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_2rkqc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 2,
+   "fieldname": "request_incoming",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Incoming Request",
+   "options": "Incoming Requests"
+  },
+  {
+   "fieldname": "column_break_wcfmg",
+   "fieldtype": "Column Break"
   }
  ],
+ "in_create": 1,
  "links": [],
- "modified": "2023-06-06 00:58:55.079204",
+ "modified": "2023-06-07 11:55:08.260734",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Incoming Response",

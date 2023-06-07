@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_events_in_timeline": 1,
- "allow_rename": 1,
  "autoname": "HOOX-TRADE-.#######",
  "creation": "2023-05-26 16:51:18.530808",
  "doctype": "DocType",
@@ -193,8 +192,24 @@
   }
  ],
  "in_create": 1,
- "links": [],
- "modified": "2023-06-06 19:57:27.139640",
+ "links": [
+  {
+   "group": "API Gateway",
+   "link_doctype": "Incoming Requests",
+   "link_fieldname": "origin"
+  },
+  {
+   "group": "API Gateway",
+   "link_doctype": "Outgoing Requests",
+   "link_fieldname": "origin"
+  },
+  {
+   "group": "API Gateway",
+   "link_doctype": "Incoming Response",
+   "link_fieldname": "origin"
+  }
+ ],
+ "modified": "2023-06-07 12:05:23.512821",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trades",

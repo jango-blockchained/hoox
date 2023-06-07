@@ -6,12 +6,20 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "method",
-  "url",
-  "params",
-  "response",
-  "timestamp",
+  "section_break_7a9b2",
+  "origin",
+  "column_break_yxbvg",
   "status",
+  "section_break_mnl2y",
+  "response_incoming",
+  "column_break_k49iz",
+  "request_incoming",
+  "section_break_grcq8",
+  "method",
+  "column_break_tqcvo",
+  "url",
+  "section_break_kpecz",
+  "params",
   "published",
   "route"
  ],
@@ -30,21 +38,8 @@
   },
   {
    "fieldname": "params",
-   "fieldtype": "Long Text",
-   "in_list_view": 1,
+   "fieldtype": "Code",
    "label": "Parameter"
-  },
-  {
-   "fieldname": "response",
-   "fieldtype": "Long Text",
-   "in_list_view": 1,
-   "label": "Response"
-  },
-  {
-   "fieldname": "timestamp",
-   "fieldtype": "Datetime",
-   "in_list_view": 1,
-   "label": "Timestamp"
   },
   {
    "default": "Processing",
@@ -55,23 +50,75 @@
    "options": "Processing\nFailed\nSuccess"
   },
   {
-   "allow_in_quick_entry": 1,
-   "default": "0",
+   "default": "1",
    "fieldname": "published",
    "fieldtype": "Check",
-   "in_standard_filter": 1,
+   "hidden": 1,
    "label": "Published"
   },
   {
    "fieldname": "route",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Route"
+  },
+  {
+   "bold": 1,
+   "fetch_from": "Trades.name",
+   "fieldname": "origin",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Origin",
+   "options": "Trades"
+  },
+  {
+   "fieldname": "response_incoming",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Incoming Response",
+   "options": "Incoming Response"
+  },
+  {
+   "fieldname": "request_incoming",
+   "fieldtype": "Link",
+   "label": "Incoming Request",
+   "options": "Incoming Requests"
+  },
+  {
+   "fieldname": "section_break_7a9b2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_yxbvg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_mnl2y",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_k49iz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_grcq8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_tqcvo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_kpecz",
+   "fieldtype": "Section Break"
   }
  ],
  "has_web_view": 1,
+ "in_create": 1,
  "is_published_field": "published",
  "links": [],
- "modified": "2023-06-06 21:00:32.723576",
+ "modified": "2023-06-07 11:51:25.876076",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Outgoing Requests",
@@ -91,7 +138,7 @@
    "write": 1
   }
  ],
- "route": "hoox/incoming-requests",
+ "route": "hoox/outgoing-requests",
  "sort_field": "modified",
  "sort_order": "DESC"
 }

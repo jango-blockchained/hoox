@@ -6,12 +6,16 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "method",
-  "url",
-  "params",
-  "response",
-  "timestamp",
+  "section_break_p2u9x",
+  "origin",
+  "column_break_wtyhc",
   "status",
+  "section_break_jxkwu",
+  "method",
+  "column_break_vxcyx",
+  "url",
+  "section_break_ed2tw",
+  "params",
   "published",
   "route"
  ],
@@ -35,18 +39,6 @@
    "label": "Parameter"
   },
   {
-   "fieldname": "response",
-   "fieldtype": "Long Text",
-   "in_list_view": 1,
-   "label": "Response"
-  },
-  {
-   "fieldname": "timestamp",
-   "fieldtype": "Datetime",
-   "in_list_view": 1,
-   "label": "Timestamp"
-  },
-  {
    "default": "Processing",
    "fieldname": "status",
    "fieldtype": "Select",
@@ -66,12 +58,48 @@
    "fieldname": "route",
    "fieldtype": "Data",
    "label": "Route"
+  },
+  {
+   "fieldname": "section_break_p2u9x",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "origin",
+   "fieldtype": "Link",
+   "label": "Origin",
+   "options": "Trades"
+  },
+  {
+   "fieldname": "column_break_wtyhc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_jxkwu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_vxcyx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ed2tw",
+   "fieldtype": "Section Break"
   }
  ],
  "has_web_view": 1,
+ "in_create": 1,
  "is_published_field": "published",
- "links": [],
- "modified": "2023-06-06 01:05:49.974270",
+ "links": [
+  {
+   "link_doctype": "Outgoing Requests",
+   "link_fieldname": "request_incoming"
+  },
+  {
+   "link_doctype": "Incoming Response",
+   "link_fieldname": "request_incoming"
+  }
+ ],
+ "modified": "2023-06-07 12:01:33.187255",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Incoming Requests",

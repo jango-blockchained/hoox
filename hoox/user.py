@@ -44,7 +44,7 @@ def send_to_telegram(user, message, settings, toId=None):
     )
     bot = telegram.Bot(token=settings.telegram_bot_token)
     response = bot.send_message(chat_id=chat_id, text=message)
-    print(f"Sending to Telegram: # {chat_id}\t{message}")
+    # print(f"Sending to Telegram: # {chat_id}\t{message}")
 
     return response
 
