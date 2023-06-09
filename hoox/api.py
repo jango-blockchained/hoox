@@ -307,7 +307,20 @@ class HooxAPI:
                 })
                 incoming_request.insert(ignore_permissions=True)
 
+                outgoing_request = frappe.get_doc({
+                    "doctype": "outgoing_requests",
+                    "method": action,
+                    "url": self.exchange_creds.exchange,
+                    "params": json.dumps(self.json),
+                    "request_incoming": incoming_request.name,
+                    # "response_incoming": json.dumps(exchange_response),
+                    "origin": trade.name,
+                    "status": "Processing"
+                })
+                outgoing_request.insert(ignore_permissions=True)
+
             else:
+
                 trade = frappe.get_last_doc(
                     "Trades",
                     {
@@ -320,7 +333,13 @@ class HooxAPI:
                     "incoming_requests",
                     {
                         "origin": trade.name,
-                        "status": ["!=", "Success"]
+                    }
+                )
+
+                outgoing_request = frappe.get_last_doc(
+                    "outgoing_requests",
+                    {
+                        "origin": trade.name,
                     }
                 )
 
@@ -347,20 +366,9 @@ class HooxAPI:
             trade.exchange_order_id = exchange_order_id
             trade.save()
 
-            incoming_request.status = status
 
             # Update trade document based on response
-            outgoing_request = frappe.get_doc({
-                "doctype": "outgoing_requests",
-                "method": action,
-                "url": exchange_response.get("url"),
-                "params": json.dumps(self.json),
-                "request_incoming": incoming_request.name,
-                # "response_incoming": json.dumps(exchange_response),
-                "status": status,
-                "origin": trade.name
-            })
-            outgoing_request.insert(ignore_permissions=True)
+
 
             incoming_response = frappe.get_doc({
                 "doctype": "incoming_response",
@@ -374,6 +382,8 @@ class HooxAPI:
             })
             incoming_response.insert(ignore_permissions=True)
 
+            outgoing_request.status = "Success"
+            outgoing_request.url = exchange_response.get("url")
             outgoing_request.response_incoming = incoming_response.name
             outgoing_request.save()
 
@@ -389,9 +399,9 @@ class HooxAPI:
 
         except Exception as e:
             self.retry += 1
-            send_to_telegram(
+            send_message(
                 self.exchange_creds.user,
-                f"Order failed to execute. Retry # {self.retry+1} Exception: {e}", self.cfg
+                msg, self.cfg
             )
 
 
