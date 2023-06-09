@@ -13,7 +13,7 @@ var subscriber = redis.createClient(
 
 subscriber.on("message", function (channel, message) {
   message = JSON.parse(message);
-  if (message.event == "custom_connector") {
-    console.log("Got the Message:", message);
+  if (message.event == "hoox_alert") {
+    console.log("Got the Alert:", message);
   }
 });

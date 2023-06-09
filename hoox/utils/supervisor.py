@@ -137,3 +137,37 @@ def get_bot_program_name(telegram_bot):
 
 def get_bot_group_name():
     return f"group:{get_bench_name()}-telegram-bots"
+
+
+
+def add_supervisor_service_to_confd(service_name, service_command, service_directory, service_user):
+    # Create Supervisor configuration file
+    config_file_path = f"/etc/supervisor/conf.d/{service_name}.conf"
+    config_content = f"""
+        [program:{service_name}]
+        command={service_command}
+        directory={service_directory}
+        user={service_user}
+        autostart=true
+        autorestart=true
+        redirect_stderr=true
+        stdout_logfile=/var/log/{service_name}.log
+        """
+    # Write the configuration to the file
+    with open(config_file_path, 'w') as config_file:
+        config_file.write(config_content)
+
+    # Update Supervisor
+    frappe.utils.execute_in_shell("sudo supervisorctl reread")
+    frappe.utils.execute_in_shell("sudo supervisorctl update")
+
+    # Start the service
+    frappe.utils.execute_in_shell(f"sudo supervisorctl restart all")
+
+# Example usage
+# add_supervisor_service(
+#     "my_service",
+#     "/path/to/my_service_command",
+#     "/path/to/service_directory",
+#     "my_service_user"
+# )
