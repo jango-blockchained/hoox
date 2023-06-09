@@ -55,15 +55,17 @@ class HooxAPI:
         Initializes the Hoox object. It fet ches Hoox settings and the request data.
         """
 
-        # Immediately return if the request method is not POST
-        # if frappe.local.request.method != "POST":
-        #     print(frappe.local.request.method)
-        #     return
+        # Return if the request method is not POST
+        if frappe.local.request.method != "POST":
+            frappe.throw("Method not allowed.")
+            print(frappe.local.request.method)
+            return
 
         # Validate IP address
-        # self.client_ip_address = self.get_client_ip()
-        # if not self.is_valid_ip(self.client_ip_address):
-        #     return
+        self.client_ip_address = self.get_client_ip()
+        if not self.is_valid_ip(self.client_ip_address):
+            frappe.throw(f"Invalid IP address. IP: {self.client_ip_address}")
+            return
 
         # Get request data
         self.data = frappe.request.data
@@ -72,6 +74,7 @@ class HooxAPI:
         # Get secret hash
         self.secret_hash = self.json.get("secret_hash")
         if not self.secret_hash:
+            frappe.throw("Secret Hash is required.")
             return
 
         self.exchange_creds = get_exchange_credentials(self.secret_hash)
@@ -166,17 +169,13 @@ class HooxAPI:
             ip_address = frappe.local.request.remote_addr
         return ip_address
 
-    def is_valid_ip(self, ip_address):
+    def is_valid_ip(self, client_ip_address):
         """
         Checks if the IP address is valid and not blacklisted.
         """
-        docs = frappe.get_all('Alert IP Restriction')
-        if len(docs) == 0:
-            return
+        return frappe.db.exists("Alert IP Restriction", {"ip": ["in", [client_ip_address, "*"]], "enabled": 1})
 
-        for whitelisted in docs:
-            if (whitelisted.ip == ip_address or whitelisted.ip == "*") and whitelisted.enabled:
-                return True
+    
     # ------------------------------------------------------------
 
     def process_trade_action(self):
@@ -237,7 +236,7 @@ class HooxAPI:
             payload = haas.get("data") or {}
             payload["entity_id"] = haas.get("entity_id")
             entity_domain = payload["entity_id"].split(".")[0]
-            return send_to_haas(
+            send_to_haas(
                 self.exchange_creds.user,
                 entity_domain,
                 haas.get("service"),
@@ -265,37 +264,18 @@ class HooxAPI:
         leverage = self.json.get("leverage") or 1
 
         # Initialize variables for exchange response, order ID, and status
+        trade = None
+        incoming_request = None
+        outgoing_request = None
+        incoming_response = None
         exchange_response = None
         exchange_order_id = None
         status = "Processing"
 
         # Execute order and handle exceptions
         try:
-            exchange_response = execute_order(
-                action,
-                exchange_id,
-                symbol,
-                price,
-                quantity,
-                order_type,
-                market_type,
-                leverage,
-                self.exchange_creds,
-            )
 
-            exchange_order_id = exchange_response.get("info").get("orderId")
-            status = "Success" if exchange_order_id else "Failed"
-
-            self.retry = 0
-
-            send_to_telegram(
-                self.exchange_creds.user, f"Order executed: {exchange_response}", self.cfg
-            )
-
-            # Update trade document based on retry status
-            trade = None
-
-            if self.retry <= 1:
+            if self.retry == 0:
                 trade = frappe.get_doc(
                     {
                         "doctype": "Trades",
@@ -309,8 +289,8 @@ class HooxAPI:
                         "price": price,
                         "quantity": quantity,
                         "leverage": leverage,
-                        "exchange_order_id": exchange_order_id,
-                        "status": status,
+                        # "exchange_order_id": exchange_order_id,
+                        # "status": status,
                     }
                 )
                 trade.insert(ignore_permissions=True)
@@ -318,7 +298,7 @@ class HooxAPI:
                 incoming_request = frappe.get_doc({
                     "doctype": "incoming_requests",
                     "method": action,
-                    "url": exchange_response.get("url"),
+                    "url": self.exchange_creds.exchange,
                     "params": json.dumps(self.json),
                     # "response_incoming": json.dumps(exchange_response),
                     # "request_outgoing": self.data,
@@ -335,9 +315,41 @@ class HooxAPI:
                         "status": ["!=", "Success"],
                     },
                 )
-                trade.status = status
-                trade.save()
 
+                incoming_request = frappe.get_last_doc(
+                    "incoming_requests",
+                    {
+                        "origin": trade.name,
+                        "status": ["!=", "Success"]
+                    }
+                )
+
+            # Create trade document
+            exchange_response = execute_order(
+                action,
+                exchange_id,
+                symbol,
+                price,
+                quantity,
+                order_type,
+                market_type,
+                leverage,
+                self.exchange_creds,
+            )
+
+            self.retry = 0
+            send_message(message_text=f"Order executed: {exchange_response}", user=self.exchange_creds.user)
+            
+            exchange_order_id = exchange_response.get("info").get("orderId")
+            status = "Success" if exchange_order_id else "Failed"
+
+            trade.status = status
+            trade.exchange_order_id = exchange_order_id
+            trade.save()
+
+            incoming_request.status = status
+
+            # Update trade document based on response
             outgoing_request = frappe.get_doc({
                 "doctype": "outgoing_requests",
                 "method": action,
@@ -354,7 +366,7 @@ class HooxAPI:
                 "doctype": "incoming_response",
                 "method": action,
                 "url": exchange_response.get("url"),
-                "params": exchange_response.get("original_response"),
+                "params": exchange_response.get("original_data"),
                 "request_incoming": incoming_request.name,
                 "request_outgoing": outgoing_request.name,
                 "status": status,
@@ -364,6 +376,10 @@ class HooxAPI:
 
             outgoing_request.response_incoming = incoming_response.name
             outgoing_request.save()
+
+            incoming_request.response_incoming = incoming_response.name
+            incoming_request.request_outgoing = outgoing_request.name
+            incoming_request.save()
 
             retry_no = self.retry + 1
             self.log.info(
@@ -395,12 +411,9 @@ def receive_alert():
         if hapi.exchange_creds and hapi.exchange_creds.enabled:
             hapi.immediately_response()
             hapi.process_trade_action()
-            # hapi.process_telegram()
+            hapi.process_telegram()#
             hapi.process_haas()
-            frappe.enqueue(hapi.process_telegram, queue='default',
-                           timeout=60, job_name='send_telegram_message', is_async=True)
-            # frappe.enqueue(hapi.process_haas, queue='short',
-            #                timeout=15, is_async=True)
+
 
     except Exception as e:
         print(f"Error: {e}")

@@ -70,7 +70,6 @@ def send_to_haas(user, entity_domain, service, payload):
 
     Incoming << JSON format:
     {
-    {
         "secret_hash": "SECRET_HASH",
         "haas": {
             "entity_id": "light.living_room",
@@ -94,11 +93,13 @@ def send_to_haas(user, entity_domain, service, payload):
         * "effect": "colorloop|random|flash|...",
     }
     """
-
+    print(f"Sending to haas: {payload}")
     if not user or not service or not entity_domain:
+        frappe.throw("Invalid request data")
         return
 
     if not payload or not isinstance(payload, dict) or not payload.get("entity_id"):
+        frappe.throw("Invalid request data")
         return
 
     import requests
@@ -107,11 +108,12 @@ def send_to_haas(user, entity_domain, service, payload):
     haas_creds = get_haas_credentials(user)
 
     if not haas_creds or not haas_creds.enabled:
+        frappe.throw("Home Assistant credentials not found")
         return
-
+    
     # Define the endpoint for the Home Assistant REST API
     url = f"{haas_creds.ha_url}/api/services/{entity_domain}/{service}"
-
+    print(f"Sending to haas: {url}")
     # Define the headers for the API call
     headers = {
         "Authorization": f"Bearer {haas_creds.ha_token}",
@@ -120,10 +122,9 @@ def send_to_haas(user, entity_domain, service, payload):
 
     # Make the API call
     response = requests.post(url, headers=headers, json=payload)
-
+    print(f"Response from haas: {response.content}")
     # Check the response
     if response.status_code != 200:
-        print(f"Failed to send to haas: {response.content}")
         return
 
     return response.content

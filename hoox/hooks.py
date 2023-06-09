@@ -15,12 +15,12 @@ app_license = "MIT"
 # ------------------
 
 # include js, css files in header of desk.html
-app_include_css = "/assets/hoox/css/hoox.css"
+# app_include_css = "/assets/hoox/css/hoox.css"
 app_include_js = "/assets/hoox/js/hoox.js"
 
 # include js, css files in header of web template
-web_include_css = "/assets/hoox/css/hoox.css"
-web_include_js = "/assets/hoox/js/hoox.js"
+# web_include_css = "/assets/hoox/css/hoox.css"
+web_include_js = "/assets/hoox/js/hoox_web.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "hoox/public/scss/website"
@@ -97,13 +97,13 @@ web_include_js = "/assets/hoox/js/hoox.js"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"*": {
+		"on_update": "method",
+		"on_cancel": "method",
+		"on_trash": "method"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
