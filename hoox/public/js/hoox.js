@@ -1,4 +1,4 @@
-frappe.realtime.on("message", function (data) {
+frappe.realtime.on("hoox", function (data) {
   frappe.show_alert(data.message);
   console.log(data.message);
 });
