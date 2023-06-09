@@ -294,6 +294,9 @@ class HooxAPI:
 
             # Update trade document based on retry status
             trade = None
+            incoming_request = None
+            outgoing_request = None
+            incoming_response = None
 
             if self.retry <= 1:
                 trade = frappe.get_doc(
@@ -338,6 +341,16 @@ class HooxAPI:
                 trade.status = status
                 trade.save()
 
+                incoming_request = frappe.get_last_doc(
+                    "incoming_requests",
+                    {
+                        "origin": trade.name,
+                        "status": ["!=", "Success"]
+                    }
+                )
+                incoming_request.status = status
+                incoming_request.save()
+
             outgoing_request = frappe.get_doc({
                 "doctype": "outgoing_requests",
                 "method": action,
@@ -354,7 +367,7 @@ class HooxAPI:
                 "doctype": "incoming_response",
                 "method": action,
                 "url": exchange_response.get("url"),
-                "params": exchange_response.get("original_response"),
+                "params": exchange_response.get("original_data"),
                 "request_incoming": incoming_request.name,
                 "request_outgoing": outgoing_request.name,
                 "status": status,
@@ -395,12 +408,9 @@ def receive_alert():
         if hapi.exchange_creds and hapi.exchange_creds.enabled:
             hapi.immediately_response()
             hapi.process_trade_action()
-            # hapi.process_telegram()
+            hapi.process_telegram()#
             hapi.process_haas()
-            frappe.enqueue(hapi.process_telegram, queue='default',
-                           timeout=60, job_name='send_telegram_message', is_async=True)
-            # frappe.enqueue(hapi.process_haas, queue='short',
-            #                timeout=15, is_async=True)
+
 
     except Exception as e:
         print(f"Error: {e}")
