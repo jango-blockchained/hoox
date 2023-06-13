@@ -49,6 +49,7 @@
    "description": "Get your Telegram Bot Token from @BotFather ",
    "fieldname": "telegram_bot_token",
    "fieldtype": "Password",
+   "hidden": 1,
    "label": "Bot Token"
   },
   {
@@ -154,7 +155,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2023-06-05 09:59:59.128540",
+ "modified": "2023-06-13 21:02:52.100720",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox Settings",

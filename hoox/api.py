@@ -58,14 +58,12 @@ class HooxAPI:
         # Return if the request method is not POST
         if frappe.local.request.method != "POST":
             frappe.throw("Method not allowed.")
-            print(frappe.local.request.method)
             return
 
         # Validate IP address
         self.client_ip_address = self.get_client_ip()
         if not self.is_valid_ip(self.client_ip_address):
-            frappe.throw(f"Invalid IP address. IP: {self.client_ip_address}")
-            return
+            return frappe.throw(f"Invalid IP address. IP: {self.client_ip_address}")
 
         # Get request data
         self.data = frappe.request.data
@@ -74,19 +72,18 @@ class HooxAPI:
         # Get secret hash
         self.secret_hash = self.json.get("secret_hash")
         if not self.secret_hash:
-            frappe.throw("Secret Hash is required.")
-            return
+            return frappe.throw("Secret Hash is required.")
 
+        # Get exchange credentials
         self.exchange_creds = get_exchange_credentials(self.secret_hash)
+        if not self.exchange_creds:
+            return frappe.throw("Invalid Secret Hash")
 
         # Initialize retry counter
         self.retry = 0
 
         # Get Hoox settings and request data
         self.cfg = frappe.get_single("Hoox Settings")
-        self.cfg.telegram_bot_token = get_decrypted_password(
-            "Hoox Settings", "Hoox Settings", "telegram_bot_token", False
-        )
 
         # Initialize logger
         self.log = get_logger(__name__)
@@ -116,7 +113,7 @@ class HooxAPI:
             return no_retry
 
     @frappe.whitelist(allow_guest=True)
-    def console_log_execution_time(func):
+    def log_execution_time(func):
         """
         Logs the execution time of a function if logging is enabled.
         """
@@ -161,12 +158,14 @@ class HooxAPI:
         """
         Gets the client IP address from the POST request.
         """
+
         if 'X-Forwarded-For' in frappe.local.request.headers:
             # the last IP in the X-Forwarded-For header is the original client IP
             ip_address = frappe.local.request.headers.get(
                 'X-Forwarded-For').split(', ')[-1]
         else:
             ip_address = frappe.local.request.remote_addr
+
         return ip_address
 
     def is_valid_ip(self, client_ip_address):
@@ -175,9 +174,9 @@ class HooxAPI:
         """
         return frappe.db.exists("Alert IP Restriction", {"ip": ["in", [client_ip_address, "*"]], "enabled": 1})
 
-    
     # ------------------------------------------------------------
 
+    @log_execution_time
     def process_trade_action(self):
         """
         Processes the trade action in the request if all required fields are present and the exchange credentials are valid and enabled.
@@ -191,13 +190,14 @@ class HooxAPI:
                 self.json["order_type"] == "limit"
                 and "price" not in self.json
             ):
-                self.log.debug(
-                    "Price field is required for 'limit' order type.")
+                return frappe.throw("Price field is required for 'limit' order type.")
+
             elif self.exchange_creds.enabled:
                 return self.handle_alert()
             else:
-                self.log.debug("Invalid Secret Hash")
+                return frappe.throw("Invalid Secret Hash")
 
+    @log_execution_time
     def process_telegram(self):
         """
         Sends a message to Telegram if there is a "telegram" field in the request data.
@@ -208,15 +208,15 @@ class HooxAPI:
             return
 
         # Return if there the alert holds no task
-        telegram = self.json.get("telegram")
-        if not telegram or not telegram.get("message"):
+        if not self.json.get("telegram") or not self.json.get("telegram").get("message"):
             return
 
-        message = telegram.get("message")
+        message = self.json.get("telegram").get("message")
 
         # Get Telegram credentials
         telegram_creds = frappe.get_doc(
             "Telegram User", {"user": self.exchange_creds.user})
+
         if not telegram_creds:
             return
 
@@ -226,26 +226,31 @@ class HooxAPI:
         return send_message(
             message_text=message, user=self.exchange_creds.user, telegram_user=telegram_creds.telegram_user_id)
 
+    @log_execution_time
     def process_haas(self):
         """
         Sends a request to Haas if there is a "haas" field in the request data.
         """
+
+        if not self.cfg.haas_enabled:
+            return
 
         haas = self.json.get("haas")
         if haas and haas.get("entity_id") and haas.get("service"):
             payload = haas.get("data") or {}
             payload["entity_id"] = haas.get("entity_id")
             entity_domain = payload["entity_id"].split(".")[0]
-            send_to_haas(
+            return send_to_haas(
                 self.exchange_creds.user,
                 entity_domain,
                 haas.get("service"),
                 payload,
             )
+        return
 
     # ------------------------------------------------------------
 
-    @console_log_execution_time
+    @log_execution_time
     @retry_on_exception()
     def handle_alert(self):
         """
@@ -357,8 +362,9 @@ class HooxAPI:
             )
 
             self.retry = 0
-            send_message(message_text=f"Order executed: {exchange_response}", user=self.exchange_creds.user)
-            
+            send_message(
+                message_text=f"Order executed: {exchange_response}", user=self.exchange_creds.user)
+
             exchange_order_id = exchange_response.get("info").get("orderId")
             status = "Success" if exchange_order_id else "Failed"
 
@@ -366,9 +372,7 @@ class HooxAPI:
             trade.exchange_order_id = exchange_order_id
             trade.save()
 
-
             # Update trade document based on response
-
 
             incoming_response = frappe.get_doc({
                 "doctype": "incoming_response",
@@ -418,12 +422,12 @@ def receive_alert():
     hapi = HooxAPI()
 
     try:
+        hapi.immediately_response()
         if hapi.exchange_creds and hapi.exchange_creds.enabled:
-            hapi.immediately_response()
             hapi.process_trade_action()
-            hapi.process_telegram()#
+            hapi.process_telegram()
             hapi.process_haas()
-
+        return
 
     except Exception as e:
         print(f"Error: {e}")

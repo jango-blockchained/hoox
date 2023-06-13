@@ -78,15 +78,6 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 0,
-   "label": "API Log",
-   "link_to": "API Log",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
    "icon": "tools",
    "is_query_report": 0,
    "label": "Settings",
@@ -194,7 +185,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-07 05:23:09.100287",
+ "modified": "2023-06-13 20:47:50.286046",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -218,8 +209,8 @@
   {
    "color": "#761ACB",
    "doc_view": "List",
-   "label": "API Log",
-   "link_to": "API Log",
+   "label": "Alert IP Restriction",
+   "link_to": "Alert IP Restriction",
    "type": "DocType"
   },
   {
