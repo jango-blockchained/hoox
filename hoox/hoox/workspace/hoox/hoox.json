@@ -32,7 +32,7 @@
    "type": "Link"
   },
   {
-   "hidden": 0,
+   "hidden": 1,
    "is_query_report": 0,
    "label": "Telegram Credentials",
    "link_to": "Telegram Credentials",
@@ -51,7 +51,7 @@
   },
   {
    "hidden": 0,
-   "icon": "tools",
+   "icon": "tool",
    "is_query_report": 0,
    "label": "Gateway",
    "link_type": "DocType",
@@ -78,7 +78,7 @@
   },
   {
    "hidden": 0,
-   "icon": "tools",
+   "icon": "tool",
    "is_query_report": 0,
    "label": "Settings",
    "link_type": "DocType",
@@ -96,7 +96,7 @@
   },
   {
    "hidden": 0,
-   "icon": "access",
+   "icon": "",
    "is_query_report": 0,
    "label": "Alert IP Restriction",
    "link_to": "Alert IP Restriction",
@@ -106,7 +106,7 @@
   },
   {
    "hidden": 0,
-   "icon": "message",
+   "icon": "",
    "is_query_report": 0,
    "label": "Telegram",
    "link_type": "DocType",
@@ -185,7 +185,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-13 20:47:50.286046",
+ "modified": "2023-06-13 21:37:53.166219",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -196,12 +196,15 @@
  "shortcuts": [
   {
    "doc_view": "List",
+   "format": "{} Success",
    "label": "Trades",
    "link_to": "Trades",
    "type": "DocType"
   },
   {
+   "color": "#29CD42",
    "doc_view": "List",
+   "format": "{} Enabled",
    "label": "CCXT Exchanges",
    "link_to": "CCXT Exchanges",
    "type": "DocType"
@@ -209,6 +212,7 @@
   {
    "color": "#761ACB",
    "doc_view": "List",
+   "format": "{} Enabled",
    "label": "Alert IP Restriction",
    "link_to": "Alert IP Restriction",
    "type": "DocType"
@@ -221,18 +225,21 @@
   },
   {
    "doc_view": "List",
+   "format": "{} Requests",
    "label": "Incoming Requests",
    "link_to": "Incoming Requests",
    "type": "DocType"
   },
   {
    "doc_view": "List",
+   "format": "{} Requests",
    "label": "Outgoing Requests",
    "link_to": "Outgoing Requests",
    "type": "DocType"
   },
   {
    "doc_view": "List",
+   "format": "{} Response",
    "label": "Incoming Response",
    "link_to": "Incoming Response",
    "type": "DocType"

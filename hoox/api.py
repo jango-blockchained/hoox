@@ -11,6 +11,7 @@ from tenacity.stop import stop_after_attempt
 from tenacity.wait import wait_exponential
 from frappe.utils.password import get_decrypted_password
 from frappe_telegram.client import send_message
+from frappe.auth import LoginManager, HTTPRequest
 
 # ------------------------------------------------------------
 
@@ -32,6 +33,8 @@ class HooxAPI:
     json = None
     retry = None
     log = None
+
+    # ------------------------------------------------------------
 
     # ------------------------------------------------------------
     # Initialization
@@ -78,6 +81,11 @@ class HooxAPI:
         self.exchange_creds = get_exchange_credentials(self.secret_hash)
         if not self.exchange_creds:
             return frappe.throw("Invalid Secret Hash")
+
+        # Login
+        self.HTTPRequest = HTTPRequest()
+        self.LoginManager = LoginManager()
+        self.LoginManager.login_as(self.exchange_creds.user)
 
         # Initialize retry counter
         self.retry = 0
@@ -143,12 +151,11 @@ class HooxAPI:
         """
         Immediately returns a response to the incoming request.
         """
-        frappe.local.response.update({
+        return frappe.local.response.update({
             "http_status_code": 200,
             "message": "Success",
             "data": self.json
         })
-        return
 
     # ------------------------------------------------------------
 
@@ -294,8 +301,7 @@ class HooxAPI:
                         "price": price,
                         "quantity": quantity,
                         "leverage": leverage,
-                        # "exchange_order_id": exchange_order_id,
-                        # "status": status,
+                        "status": status,
                     }
                 )
                 trade.insert(ignore_permissions=True)
@@ -305,8 +311,6 @@ class HooxAPI:
                     "method": action,
                     "url": self.exchange_creds.exchange,
                     "params": json.dumps(self.json),
-                    # "response_incoming": json.dumps(exchange_response),
-                    # "request_outgoing": self.data,
                     "status": "Success",
                     "origin": trade.name
                 })
@@ -318,7 +322,6 @@ class HooxAPI:
                     "url": self.exchange_creds.exchange,
                     "params": json.dumps(self.json),
                     "request_incoming": incoming_request.name,
-                    # "response_incoming": json.dumps(exchange_response),
                     "origin": trade.name,
                     "status": "Processing"
                 })
@@ -398,7 +401,7 @@ class HooxAPI:
             retry_no = self.retry + 1
             self.log.info(
                 f"Internal Trade-ID: {trade.name}\tExternal Trade-ID: {trade.exchange_order_id}\tRequest # {retry_no}")
-
+            frappe.db.commit()
             return trade
 
         except Exception as e:
