@@ -30,7 +30,7 @@ hoox = {
     "hoox": {
         "color": "#589494",
         "icon": "fa fa-line-chart",
-        "label": _("Custom App"),
+        "label": _("Smart Trading"),
         "website_route_rules": [
             {
                 "from_route": "/smart-trading",
@@ -38,7 +38,7 @@ hoox = {
                 "role": "System Manager",
             },
         ],
-        "website_context": "hoox.hoox.smart_trading.smart_trading.get_context",
+        "website_context": "hoox.www.smart_trading.index.get_context",
         "get_data": "hoox.hoox.config.desktop.get_data",
     }
 }
