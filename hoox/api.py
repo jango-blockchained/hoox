@@ -82,7 +82,7 @@ class HooxAPI():
             return frappe.throw("Invalid Secret Hash")
 
         # Login
-        self.HTTPRequest = HTTPRequest()
+        # self.HTTPRequest = HTTPRequest()
         self.LoginManager = LoginManager()
         self.LoginManager.login_as(self.exchange_creds.user)
 
