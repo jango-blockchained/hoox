@@ -117,10 +117,11 @@ def send_to_haas(user, entity_domain, service, payload):
     }
 
     # Make the API call
-    response = requests.post(url, headers=headers, json=payload)
-    print(f"Response from haas: {response.content}")
+    response = requests.request("POST", url, headers=headers, data=payload)
+    response.raise_for_status()
+    print(f"Response from haas: {response.json()}")
     # Check the response
     if response.status_code != 200:
         return frappe.throw("Error sending request to Home Assistant")
 
-    return response.content
+    return response.json()

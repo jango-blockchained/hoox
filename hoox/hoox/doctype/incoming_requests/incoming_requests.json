@@ -10,6 +10,10 @@
   "origin",
   "column_break_wtyhc",
   "status",
+  "section_break_e7kwt",
+  "request_outgoing",
+  "column_break_248cy",
+  "response_incoming",
   "section_break_jxkwu",
   "method",
   "column_break_vxcyx",
@@ -84,6 +88,26 @@
   {
    "fieldname": "section_break_ed2tw",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "request_outgoing",
+   "fieldtype": "Link",
+   "label": "Outgoing Request",
+   "options": "Outgoing Requests"
+  },
+  {
+   "fieldname": "column_break_248cy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "response_incoming",
+   "fieldtype": "Link",
+   "label": "Incoming Response",
+   "options": "Incoming Response"
+  },
+  {
+   "fieldname": "section_break_e7kwt",
+   "fieldtype": "Section Break"
   }
  ],
  "has_web_view": 1,
@@ -99,7 +123,7 @@
    "link_fieldname": "request_incoming"
   }
  ],
- "modified": "2023-06-07 12:01:33.187255",
+ "modified": "2023-06-14 06:50:44.487513",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Incoming Requests",

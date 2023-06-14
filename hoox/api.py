@@ -6,12 +6,11 @@ import time
 from frappe import _
 from .action import execute_order
 from .user import get_exchange_credentials, send_to_haas
-from tenacity import retry
-from tenacity.stop import stop_after_attempt
-from tenacity.wait import wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential
 from frappe.utils.password import get_decrypted_password
 from frappe_telegram.client import send_message
 from frappe.auth import LoginManager, HTTPRequest
+
 
 # ------------------------------------------------------------
 
@@ -39,24 +38,14 @@ class HooxAPI():
     # ------------------------------------------------------------
     # Initialization
 
-    def __setitem__(self, key, value):
-        """
-        Sets an item in the Hoox object.
-        """
-
-        setattr(self, key, value)
-
-    def __getitem__(self, key):
-        """
-        Gets an item from the Hoox object.
-        """
-
-        return getattr(self, key)
-
     def __init__(self, request_json=None):
         """
         Initializes the Hoox object. It fet ches Hoox settings and the request data.
         """
+
+        # Get request data
+        self.data = request_json or frappe.request.data
+        self.json = json.loads(self.data)
 
         # Return if the request method is not POST
         if frappe.local.request.method != "POST" and request_json is None:
@@ -66,10 +55,6 @@ class HooxAPI():
         self.client_ip_address = self.get_client_ip()
         if not self.is_valid_ip(self.client_ip_address):
             return frappe.throw(f"Invalid IP address. IP: {self.client_ip_address}")
-
-        # Get request data
-        self.data = request_json or frappe.request.data
-        self.json = json.loads(self.data)
 
         # Get secret hash
         self.secret_hash = self.json.get("secret_hash")
@@ -82,7 +67,7 @@ class HooxAPI():
             return frappe.throw("Invalid Secret Hash")
 
         # Login
-        # self.HTTPRequest = HTTPRequest()
+        self.HTTPRequest = HTTPRequest()
         self.LoginManager = LoginManager()
         self.LoginManager.login_as(self.exchange_creds.user)
 
@@ -93,7 +78,8 @@ class HooxAPI():
         self.cfg = frappe.get_single("Hoox Settings")
 
         # Initialize logger
-        self.log = get_logger(__name__)
+        self.log = get_logger(__name__ if self.cfg.log_type ==
+                              "Global" else self.secret_hash)
         self.log.setLevel(logging.getLevelName(self.cfg.log_level))
 
     # ------------------------------------------------------------
@@ -146,15 +132,14 @@ class HooxAPI():
     # ------------------------------------------------------------
     # Methods
 
-    def immediately_response(self, incoming_response):
+    def immediately_response(self):
         """
         Immediately returns a response to the incoming request.
         """
-        return frappe.local.response.update({
+        frappe.response.update({
             "http_status_code": 200,
             "message": "Success",
-            "data": self.json,
-            "incoming_response": incoming_response
+            "data": self.json
         })
 
     # ------------------------------------------------------------
@@ -200,7 +185,9 @@ class HooxAPI():
                 return frappe.throw("Price field is required for 'limit' order type.")
 
             elif self.exchange_creds.enabled:
-                return self.handle_alert()
+                response_alert = self.handle_alert()
+                self.log.info(json.dumps(response_alert))
+                return response_alert
             else:
                 return frappe.throw("Invalid Secret Hash")
 
@@ -289,6 +276,8 @@ class HooxAPI():
         exchange_response = None
         exchange_order_id = None
         status = "Processing"
+        original_data = None
+        url = None
 
         # Execute order and handle exceptions
         try:
@@ -374,7 +363,11 @@ class HooxAPI():
             send_message(
                 message_text=f"Order executed: {exchange_response}", user=self.exchange_creds.user)
 
-            exchange_order_id = exchange_response.get("info").get("orderId")
+            if exchange_response is not None:
+                exchange_order_id = exchange_response["order"].get(
+                    "info").get("orderId") or None
+                url = exchange_response["url"]
+                original_data = exchange_response["original_data"]
             status = "Success" if exchange_order_id else "Failed"
 
             trade.status = status
@@ -385,8 +378,8 @@ class HooxAPI():
             incoming_response = frappe.get_doc({
                 "doctype": "Incoming Response",
                 "method": action,
-                "url": exchange_response.get("url"),
-                "params": exchange_response.get("original_data"),
+                "url": url,
+                "params": original_data,
                 "request_incoming": incoming_request.name,
                 "request_outgoing": outgoing_request.name,
                 "status": status,
@@ -394,7 +387,7 @@ class HooxAPI():
             })
             incoming_response.insert(ignore_permissions=True)
             outgoing_request.status = "Success"
-            outgoing_request.url = exchange_response.get("url")
+            outgoing_request.url = url
             outgoing_request.response_incoming = incoming_response.name
             outgoing_request.save()
             incoming_request.response_incoming = incoming_response.name
@@ -418,9 +411,8 @@ class HooxAPI():
         except Exception as e:
             self.retry += 1
             send_message(
-                self.exchange_creds.user,
-                msg, self.cfg
-            )
+                message_text=f"Error: {e}", user=self.exchange_creds.user)
+            self.log.error(f"Error: {e}")
 
 
 # ------------------------------------------------------------

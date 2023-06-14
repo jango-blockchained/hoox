@@ -5,6 +5,8 @@ from frappe.utils.logger import get_logger
 import logging
 from frappe import _
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
+from io import BytesIO
+
 
 ORDER_TYPE_FUNCS = {
     "buy": {
@@ -41,8 +43,7 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
 
     try:
         # Get exchange
-        exchange_class = getattr(ccxt, exchange_id)
-        exchange = exchange_class({
+        exchange = getattr(ccxt, exchange_id)({
             "apiKey": user_creds.api_key,
             "secret": user_creds.api_secret,
             "enableRateLimit": True,
@@ -56,15 +57,16 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
         response = {}
 
         # Set leverage
-        if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and leverage > 0 and leverage <= exchange.maxLeverage:
+        if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and 0 < leverage <= exchange.maxLeverage:
             exchange.set_leverage(leverage)
 
         # Set testnet
         if user_creds.testnet:
             if "test" in exchange.urls:
                 exchange.urls["api"] = exchange.urls["test"]
+                logger.info(f"Exchange URL: {exchange.urls['api']}")
             else:
-                logger.error(
+                raise ValueError(
                     f"Exchange {exchange_id} does not have a testnet.")
 
         # Set URL
@@ -72,23 +74,24 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
 
         # Check action
         if action not in ["buy", "sell", "close", None]:
-            logger.error(f"Invalid action: {action}")
+            logger.info(f"Invalid action: {action}")
 
         # Execute order
         if action in ["buy", "sell"]:
             order_func_name = ORDER_TYPE_FUNCS[action].get(order_type)
             if order_func_name:
                 order_func = getattr(exchange, order_func_name)
-                response["order"] = order_func(
-                    symbol, quantity, price) if order_type == "limit" else order_func(symbol, quantity)
+                if order_type == "limit":
+                    response["order"] = order_func(symbol, quantity, price)
+                else:
+                    response["order"] = order_func(symbol, quantity)
         elif action == "close":
             all_orders = exchange.fetch_open_orders(symbol)
-            response["order"] = [exchange.cancel_order(order["id"])
-                                 for order in all_orders]
+            response["order"] = [exchange.cancel_order(
+                order["id"]) for order in all_orders]
 
         response["original_data"] = exchange.last_json_response
-        print(response["original_data"])
-        # print(order)
+        logger.info(response["original_data"])
         return response
 
     except AttributeError as e:
@@ -115,7 +118,20 @@ def sync_exchanges():
                 "CCXT Exchanges", {"exchange_id": exchange.id}
             )
 
-            # set logo_url field in the doc
+            # Set logo_url field in the doc
+            logo_url = exchange.urls.get("logo")
+            if logo_url:
+                logo_response = requests.get(logo_url)
+                if logo_response.status_code == 200:
+                    logo_image = BytesIO(logo_response.content)
+                    logo_filename = f"{exchange.id}_logo.png"
+                    logo_attachment = frappe.attach_file(
+                        logo_filename, logo_image, "CCXT Exchanges", exchange.id
+                    )
+                    frappe.msgprint(
+                        f"Downloaded and attached logo for exchange {exchange.name}: {logo_attachment.file_url}"
+                    )
+
             exchange_doc_data = {
                 "doctype": "CCXT Exchanges",
                 "exchange_id": exchange.id,
@@ -124,7 +140,7 @@ def sync_exchanges():
                 "rate_limit": exchange.rateLimit,
                 "testnet": 1 if exchange.urls.get("test") is not None else 0,
                 "has": json.dumps(exchange.has),
-                "logo_url": exchange.urls.get("logo"),
+                "logo_url": logo_url,
             }
 
             if exchange_exists:
@@ -146,7 +162,8 @@ def sync_exchanges():
 
         else:
             frappe.msgprint(
-                f"Exchange '{exchange_id}' is not found in ccxt module.")
+                f"Exchange '{exchange_id}' is not found in ccxt module."
+            )
 
     frappe.db.commit()
     amount = len(ccxt.exchanges)
