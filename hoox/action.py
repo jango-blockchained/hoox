@@ -46,6 +46,10 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
             "apiKey": user_creds.api_key,
             "secret": user_creds.api_secret,
             "enableRateLimit": True,
+            "options": {
+                "defaultType": market_type,
+                "test": user_creds.testnet,
+            }
         })
 
         # Create order object
@@ -185,7 +189,7 @@ def add_ip_addresses():
     ip_addresses = ["52.89.214.238", "34.212.75.30",
                     "54.218.53.128", "52.32.178.7"]
     for i, ip_address in enumerate(ip_addresses, start=1):
-        friendly_name = 'IP Restriction {}'.format(i)
+        friendly_name = 'TradingView™ IP Whitelist {}'.format(i)
         # Check if the doc exists
         if not frappe.db.exists('Alert IP Restriction', {"ip": ip_address}):
             doc = frappe.new_doc('Alert IP Restriction')
@@ -193,5 +197,6 @@ def add_ip_addresses():
             doc.ip = ip_address
             doc.insert()
         frappe.db.commit()
-    frappe.msgprint(f"{len(ip_addresses)} IP addresses added successfully.")
+    frappe.msgprint(
+        "{} IP addresses added successfully.".format(len(ip_addresses)))
     return
