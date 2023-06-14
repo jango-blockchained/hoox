@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 import telegram
 from frappe.utils.password import get_decrypted_password
+import requests
 
 
 def get_exchange_credentials(secret_hash):
@@ -95,22 +96,17 @@ def send_to_haas(user, entity_domain, service, payload):
     """
     print(f"Sending to haas: {payload}")
     if not user or not service or not entity_domain:
-        frappe.throw("Invalid request data")
-        return
+        return frappe.throw("Invalid request data")
 
     if not payload or not isinstance(payload, dict) or not payload.get("entity_id"):
-        frappe.throw("Invalid request data")
-        return
-
-    import requests
+        return frappe.throw("Invalid request data")
 
     # Get Home Assistant credentials for the user from the DocType
     haas_creds = get_haas_credentials(user)
 
     if not haas_creds or not haas_creds.enabled:
-        frappe.throw("Home Assistant credentials not found")
-        return
-    
+        return frappe.throw("Home Assistant credentials not found")
+
     # Define the endpoint for the Home Assistant REST API
     url = f"{haas_creds.ha_url}/api/services/{entity_domain}/{service}"
     print(f"Sending to haas: {url}")
@@ -125,6 +121,6 @@ def send_to_haas(user, entity_domain, service, payload):
     print(f"Response from haas: {response.content}")
     # Check the response
     if response.status_code != 200:
-        return
+        return frappe.throw("Error sending request to Home Assistant")
 
     return response.content

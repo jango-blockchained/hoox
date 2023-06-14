@@ -146,14 +146,15 @@ class HooxAPI():
     # ------------------------------------------------------------
     # Methods
 
-    def immediately_response(self):
+    def immediately_response(self, incoming_response):
         """
         Immediately returns a response to the incoming request.
         """
         return frappe.local.response.update({
             "http_status_code": 200,
             "message": "Success",
-            "data": self.json
+            "data": self.json,
+            "incoming_response": incoming_response
         })
 
     # ------------------------------------------------------------
@@ -242,10 +243,16 @@ class HooxAPI():
             return
 
         haas = self.json.get("haas")
-        if haas and haas.get("entity_id") and haas.get("service"):
+        if haas:
+            if not haas.get("entity_id") or not haas.get("service"):
+                return frappe.throw(
+                    "Entity ID and Service are required for Home Assistant service calls.")
             payload = haas.get("data") or {}
             payload["entity_id"] = haas.get("entity_id")
             entity_domain = payload["entity_id"].split(".")[0]
+            if not entity_domain:
+                return frappe.throw(
+                    "Entity ID must be in the format <domain>.<object_id>")
             return send_to_haas(
                 self.exchange_creds.user,
                 entity_domain,
@@ -306,7 +313,7 @@ class HooxAPI():
                 trade.insert(ignore_permissions=True)
 
                 incoming_request = frappe.get_doc({
-                    "doctype": "incoming_requests",
+                    "doctype": "Incoming Requests",
                     "method": action,
                     "url": self.exchange_creds.exchange,
                     "params": json.dumps(self.json),
@@ -316,7 +323,7 @@ class HooxAPI():
                 incoming_request.insert(ignore_permissions=True)
 
                 outgoing_request = frappe.get_doc({
-                    "doctype": "outgoing_requests",
+                    "doctype": "Outgoing Requests",
                     "method": action,
                     "url": self.exchange_creds.exchange,
                     "params": json.dumps(self.json),
@@ -337,14 +344,14 @@ class HooxAPI():
                 )
 
                 incoming_request = frappe.get_last_doc(
-                    "incoming_requests",
+                    "Incoming Requests",
                     {
                         "origin": trade.name,
                     }
                 )
 
                 outgoing_request = frappe.get_last_doc(
-                    "outgoing_requests",
+                    "Outgoing Requests",
                     {
                         "origin": trade.name,
                     }
@@ -376,7 +383,7 @@ class HooxAPI():
 
             # Update trade document based on response
             incoming_response = frappe.get_doc({
-                "doctype": "incoming_response",
+                "doctype": "Incoming Response",
                 "method": action,
                 "url": exchange_response.get("url"),
                 "params": exchange_response.get("original_data"),
@@ -429,8 +436,9 @@ def receive_alert(request_json=None):
     hapi = HooxAPI(request_json)
 
     try:
-        hapi.immediately_response()
+
         if hapi.exchange_creds and hapi.exchange_creds.enabled:
+            hapi.immediately_response()
             hapi.process_trade_action()
             hapi.process_telegram()
             hapi.process_haas()
