@@ -6,10 +6,6 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "telegram_settings",
-  "telegram_bot_token",
-  "telegram_enabled",
-  "section_break_w6w1u",
   "section_break_wmbbc",
   "retry_stop_after",
   "retry_enabled",
@@ -26,14 +22,13 @@
   "log_type",
   "column_break_on7vz",
   "log_level",
+  "telegram_settings",
+  "telegram_bot_token",
+  "telegram_enabled",
   "home_assistant_section",
   "enabled"
  ],
  "fields": [
-  {
-   "fieldname": "section_break_w6w1u",
-   "fieldtype": "Column Break"
-  },
   {
    "fieldname": "telegram_settings",
    "fieldtype": "Section Break",
@@ -61,7 +56,7 @@
    "default": "5",
    "fieldname": "retry_stop_after",
    "fieldtype": "Int",
-   "label": "Retry Stop After "
+   "label": "Stop After N Retries"
   },
   {
    "default": "1",
@@ -153,9 +148,10 @@
    "label": "Enabled"
   }
  ],
+ "hide_toolbar": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-06-13 21:02:52.100720",
+ "modified": "2023-06-14 04:06:23.533644",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox Settings",
