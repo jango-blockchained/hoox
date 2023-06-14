@@ -1,12 +1,17 @@
-import ccxt
 import frappe
-import json
-from frappe.utils.logger import get_logger
+import os
+import ccxt
+import requests
 import logging
+import json
 from frappe import _
+from frappe import get_doc
+from frappe.utils.logger import get_logger
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
+from frappe.utils import get_files_path
+from frappe.utils.file_manager import save_file
+from urllib.parse import urlparse
 from io import BytesIO
-
 
 ORDER_TYPE_FUNCS = {
     "buy": {
@@ -115,23 +120,9 @@ def sync_exchanges():
 
             # Check if the exchange document already exists
             exchange_exists = frappe.db.exists(
-                "CCXT Exchanges", {"exchange_id": exchange.id}
-            )
+                "CCXT Exchanges", {"exchange_id": exchange.id})
 
-            # Set logo_url field in the doc
-            logo_url = exchange.urls.get("logo")
-            if logo_url:
-                logo_response = requests.get(logo_url)
-                if logo_response.status_code == 200:
-                    logo_image = BytesIO(logo_response.content)
-                    logo_filename = f"{exchange.id}_logo.png"
-                    logo_attachment = frappe.attach_file(
-                        logo_filename, logo_image, "CCXT Exchanges", exchange.id
-                    )
-                    frappe.msgprint(
-                        f"Downloaded and attached logo for exchange {exchange.name}: {logo_attachment.file_url}"
-                    )
-
+            # set logo_url field in the doc
             exchange_doc_data = {
                 "doctype": "CCXT Exchanges",
                 "exchange_id": exchange.id,
@@ -140,7 +131,7 @@ def sync_exchanges():
                 "rate_limit": exchange.rateLimit,
                 "testnet": 1 if exchange.urls.get("test") is not None else 0,
                 "has": json.dumps(exchange.has),
-                "logo_url": logo_url,
+                "logo_url": exchange.urls.get("logo"),
             }
 
             if exchange_exists:
@@ -157,13 +148,35 @@ def sync_exchanges():
             current_position = i + 1
             amount_exchanges = len(ccxt.exchanges)
             logger.info(
-                f"Synced exchange {exchange.name} - {current_position} of {amount_exchanges}"
-            )
+                f"Synced exchange {exchange.name} - {current_position} of {amount_exchanges}")
+
+            # Download and attach the logo file
+            logo_url = exchange.urls.get("logo")
+            if logo_url:
+                directory = "public/assets/exchange_logos"
+                os.makedirs(directory, exist_ok=True)
+
+                file_name = f"{exchange_id}_logo.jpg"
+                file_path = os.path.join(directory, file_name)
+
+                # Skip download if the logo file already exists
+                if not os.path.exists(file_path):
+                    # Save the downloaded file on the server
+                    with open(file_path, "wb") as file:
+                        file.write(requests.get(logo_url).content)
+
+                    # Attach the file to the CCXT Exchanges document
+                else:
+                    print(
+                        f"Skipping download for logo {file_name} as it already exists.")
+
+                doc = frappe.get_doc("CCXT Exchanges", {
+                                     "exchange_id": exchange.id})
+                save_file(file_name, file_path, doc.doctype, doc.name)
 
         else:
             frappe.msgprint(
-                f"Exchange '{exchange_id}' is not found in ccxt module."
-            )
+                f"Exchange '{exchange_id}' is not found in ccxt module.")
 
     frappe.db.commit()
     amount = len(ccxt.exchanges)
@@ -217,3 +230,50 @@ def add_ip_addresses():
     frappe.msgprint(
         "{} IP addresses added successfully.".format(len(ip_addresses)))
     return
+
+
+@frappe.whitelist()
+def download_exchange_logo(exchange_id, logo_url):
+    directory = "public/images/exchange_logos"
+    os.makedirs(directory, exist_ok=True)
+
+    url_file_name = os.path.basename(logo_url)
+    # Split the filename into name and extension
+    url_name, url_extension = os.path.splitext(filename)
+
+    file_name = f"{exchange_id}_logo.{url_extension.lstrip('.')}"
+    file_path = os.path.join(directory, file_name)
+
+    response = requests.get(logo_url)
+    if response.status_code == 200:
+        with open(file_path, "wb") as file:
+            file.write(response.content)
+        print(f"Logo downloaded for exchange {exchange_id}")
+    else:
+        print(f"Failed to download logo for exchange {exchange_id}")
+
+
+@frappe.whitelist()
+def download_all_exchange_logos():
+    directory = "public/images/exchange_logos"
+    os.makedirs(directory, exist_ok=True)
+
+    for exchange_id in ccxt.exchanges:
+        exchange_class = getattr(ccxt, exchange_id)
+        exchange = exchange_class()
+
+        logo_url = exchange.urls.get("logo")
+        if logo_url:
+            download_exchange_logo(exchange_id, logo_url)
+        #     file_name = f"{exchange_id}_logo.png"
+        #     file_path = os.path.join(directory, file_name)
+
+        #     response = requests.get(logo_url)
+        #     if response.status_code == 200:
+        #         with open(file_path, "wb") as file:
+        #             file.write(response.content)
+        #         print(f"Logo downloaded for exchange {exchange_id}")
+        #     else:
+        #         print(f"Failed to download logo for exchange {exchange_id}")
+        # else:
+        #     print(f"No logo available for exchange {exchange_id}")

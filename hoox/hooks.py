@@ -124,7 +124,7 @@ web_include_js = "/assets/hoox/js/hoox_web.js"
 # 	"monthly": [
 # 		"hoox.tasks.monthly"
 # 	]
-# }
+# }exit()
 
 # Testing
 # -------

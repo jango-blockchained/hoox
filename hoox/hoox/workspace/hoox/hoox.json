@@ -1,6 +1,14 @@
 {
  "category": "Domains",
- "charts": [],
+ "charts": [
+  {
+   "chart_name": "Trading Volume",
+   "label": "Trading Volume"
+  },
+  {
+   "chart_name": "Gateway"
+  }
+ ],
  "creation": "2023-05-23 11:17:39.197890",
  "developer_mode_only": 0,
  "disable_user_customization": 0,
@@ -185,8 +193,8 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-13 21:37:53.166219",
- "modified_by": "Administrator",
+ "modified": "2023-06-15 01:13:56.525064",
+ "modified_by": "jan.goischke@gmail.com",
  "module": "Hoox",
  "name": "Hoox",
  "onboarding": "HOOX Onboarding",
