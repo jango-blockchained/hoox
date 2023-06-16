@@ -6,7 +6,12 @@
    "label": "Trading Volume"
   },
   {
-   "chart_name": "Gateway"
+   "chart_name": "Exchange Credentials Ratio",
+   "label": "Exchange Credentials Ratio"
+  },
+  {
+   "chart_name": "Gateway",
+   "label": "I/O Heatmap"
   }
  ],
  "creation": "2023-05-23 11:17:39.197890",
@@ -193,7 +198,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-15 01:13:56.525064",
+ "modified": "2023-06-15 15:42:51.079683",
  "modified_by": "jan.goischke@gmail.com",
  "module": "Hoox",
  "name": "Hoox",
