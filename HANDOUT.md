@@ -1,10 +1,10 @@
 # Account Information
 
-- Username: dennishilpmann@gmail.com
-- Password: Hilpmann!#
-- URL: [https://erp.abigruppe.de](https://erp.abigruppe.de)
-- Frontend: [https://erp.abigruppe.de/me/hoox](https://erp.abigruppe.de/me/hoox)
-- Backend: [https://erp.abigruppe.de/app/hoox](https://erp.abigruppe.de/app/hoox)
+- Username: user@domain.tld
+- Password: **\*\*\*\***
+- URL:
+- Frontend:
+- Backend:
 
 ## Alert Configuration
 
