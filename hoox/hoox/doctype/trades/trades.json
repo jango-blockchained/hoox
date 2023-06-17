@@ -27,6 +27,7 @@
  ],
  "allow_events_in_timeline": 1,
  "autoname": "HOOX-TRADE-.#######",
+ "beta": 1,
  "creation": "2023-05-26 16:51:18.530808",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -234,7 +235,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-06-07 22:31:00.691622",
+ "modified": "2023-06-17 02:03:52.117699",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trades",

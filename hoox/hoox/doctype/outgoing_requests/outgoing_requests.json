@@ -1,6 +1,7 @@
 {
  "actions": [],
  "autoname": "HOOX-REQ-OUT-.######",
+ "beta": 1,
  "creation": "2023-06-06 21:00:32.723576",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -118,7 +119,7 @@
  "in_create": 1,
  "is_published_field": "published",
  "links": [],
- "modified": "2023-06-07 11:51:25.876076",
+ "modified": "2023-06-17 02:03:51.033301",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Outgoing Requests",

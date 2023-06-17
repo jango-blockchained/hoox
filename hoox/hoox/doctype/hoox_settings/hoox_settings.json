@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "beta": 1,
  "creation": "2023-05-24 06:14:47.416144",
  "doctype": "DocType",
  "document_type": "Setup",
@@ -151,7 +152,7 @@
  "hide_toolbar": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-06-14 04:06:23.533644",
+ "modified": "2023-06-17 02:03:52.411270",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox Settings",

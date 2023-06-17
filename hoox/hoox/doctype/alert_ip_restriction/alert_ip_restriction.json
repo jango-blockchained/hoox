@@ -1,6 +1,7 @@
 {
  "actions": [],
  "autoname": "HOOX-IP-.#####",
+ "beta": 1,
  "creation": "2023-06-07 05:20:49.814959",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -32,7 +33,7 @@
   }
  ],
  "links": [],
- "modified": "2023-06-07 05:44:17.723090",
+ "modified": "2023-06-17 02:03:50.801600",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Alert IP Restriction",

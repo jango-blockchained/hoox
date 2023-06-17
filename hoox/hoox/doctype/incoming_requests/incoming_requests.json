@@ -1,6 +1,7 @@
 {
  "actions": [],
  "autoname": "HOOX-REQ-IN-.######",
+ "beta": 1,
  "creation": "2023-06-06 01:00:13.322650",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -123,7 +124,7 @@
    "link_fieldname": "request_incoming"
   }
  ],
- "modified": "2023-06-14 06:50:44.487513",
+ "modified": "2023-06-17 02:03:51.213002",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Incoming Requests",
