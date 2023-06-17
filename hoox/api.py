@@ -186,7 +186,7 @@ class HooxAPI():
 
             elif self.exchange_creds.enabled:
                 response_alert = self.handle_alert()
-                self.log.info(json.dumps(response_alert))
+                self.log.info(response_alert)
                 return response_alert
             else:
                 return frappe.throw("Invalid Secret Hash")
@@ -430,14 +430,14 @@ def receive_alert(request_json=None):
     try:
 
         if hapi.exchange_creds and hapi.exchange_creds.enabled:
-            hapi.immediately_response()
+            # hapi.immediately_response()
             hapi.process_trade_action()
             hapi.process_telegram()
             hapi.process_haas()
         return
 
     except Exception as e:
-        print(f"Error: {e}")
+        frappe.msgprint(f"Error: {e}")
 
 
 # DEVELOPMENT ONLY

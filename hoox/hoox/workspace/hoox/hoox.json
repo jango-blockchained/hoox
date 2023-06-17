@@ -8,10 +8,6 @@
   {
    "chart_name": "Exchange Credentials Ratio",
    "label": "Exchange Credentials Ratio"
-  },
-  {
-   "chart_name": "Gateway",
-   "label": "I/O Heatmap"
   }
  ],
  "creation": "2023-05-23 11:17:39.197890",
@@ -198,8 +194,8 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-15 15:42:51.079683",
- "modified_by": "jan.goischke@gmail.com",
+ "modified": "2023-06-17 16:55:16.315863",
+ "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
  "onboarding": "HOOX Onboarding",
@@ -256,6 +252,12 @@
    "label": "Incoming Response",
    "link_to": "Incoming Response",
    "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Dashboard",
+   "link_to": "Hoox",
+   "type": "Dashboard"
   }
  ]
 }

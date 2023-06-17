@@ -27,7 +27,7 @@
   "telegram_bot_token",
   "telegram_enabled",
   "home_assistant_section",
-  "enabled"
+  "haas_enabled"
  ],
  "fields": [
   {
@@ -144,7 +144,7 @@
   },
   {
    "default": "0",
-   "fieldname": "enabled",
+   "fieldname": "haas_enabled",
    "fieldtype": "Check",
    "label": "Enabled"
   }
@@ -152,7 +152,7 @@
  "hide_toolbar": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-06-17 02:03:52.411270",
+ "modified": "2023-06-17 03:27:04.647312",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox Settings",

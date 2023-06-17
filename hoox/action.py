@@ -1,6 +1,6 @@
 import frappe
 import os
-import ccxt
+import ccxt.async_support as ccxt
 import requests
 import logging
 import json
@@ -96,14 +96,19 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
                 order["id"]) for order in all_orders]
 
         response["original_data"] = exchange.last_json_response
-        logger.info(response["original_data"])
+        response["original_data"].pop("Trades", None)
+
         return response
 
     except AttributeError as e:
-        logger.error(f"Exchange {exchange_id} not found in CCXT.")
+        msg = f"Exchange {exchange_id} not found in CCXT."
+        frappe.msgprint(msg)
+        logger.error(msg)
 
     except (ccxt.BaseError, Exception) as e:
-        logger.error(f"An error occurred: {str(e)}")
+        msg = f"An error occurred: {str(e)}"
+        frappe.msgprint(msg)
+        logger.error(msg)
 
 
 @frappe.whitelist()

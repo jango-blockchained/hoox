@@ -80,6 +80,11 @@ def send_to_haas(user, entity_domain, service, payload):
                 * "brightness": 255,
                 * "color_temp": 255
                 * "effect": "colorloop|random|flash|...",
+                * "flash": "short|long",
+                * "transition": 255,
+                * "xy_color": [0.5, 0.5],
+                * "profile": "relax|energize|concentrate|..."
+                **** all avaiulable fields ....
             }
         }
     }
@@ -118,10 +123,10 @@ def send_to_haas(user, entity_domain, service, payload):
 
     # Make the API call
     response = requests.request("POST", url, headers=headers, data=payload)
-    response.raise_for_status()
-    print(f"Response from haas: {response.json()}")
+    # response.raise_for_status()
+    frappe.msgprint(f"Response from haas: {response}")
     # Check the response
     if response.status_code != 200:
         return frappe.throw("Error sending request to Home Assistant")
 
-    return response.json()
+    return response
