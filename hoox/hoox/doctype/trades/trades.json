@@ -54,7 +54,9 @@
   "exec_price",
   "leverage",
   "section_break_prlsy",
-  "exchange_order_id"
+  "exchange_order_id",
+  "route",
+  "published"
  ],
  "fields": [
   {
@@ -215,9 +217,23 @@
    "fieldname": "exchange_order_id",
    "fieldtype": "Data",
    "label": "Exchange Order ID"
+  },
+  {
+   "fieldname": "route",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Rouite"
+  },
+  {
+   "fieldname": "published",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Published"
   }
  ],
+ "has_web_view": 1,
  "in_create": 1,
+ "is_published_field": "published",
  "links": [
   {
    "group": "Incoming",
@@ -235,7 +251,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-06-17 02:03:52.117699",
+ "modified": "2023-06-17 02:14:17.332154",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trades",
@@ -256,6 +272,7 @@
   }
  ],
  "quick_entry": 1,
+ "route": "me/hoox/trades",
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1
