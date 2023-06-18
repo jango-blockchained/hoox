@@ -1,4 +1,4 @@
-frappe.listview_settings["Alert IP Restriction"] = {
+frappe.listview_settings["IP Whitelist"] = {
   onload: function (listview) {
     listview.page.add_inner_button(__("Add TradingView™ Server"), function () {
       frappe.call({
@@ -19,4 +19,3 @@ frappe.listview_settings["Alert IP Restriction"] = {
     });
   },
 };
-e;

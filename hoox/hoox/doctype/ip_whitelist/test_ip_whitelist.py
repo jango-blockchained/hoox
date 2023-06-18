@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestAlertIPRestriction(unittest.TestCase):
+class TestIPWhitelist(unittest.TestCase):
 	pass

@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "HOOX-IP-.#####",
+ "autoname": "HOOX-WIP-.#####",
  "creation": "2023-06-07 05:20:49.814959",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -14,6 +14,18 @@
  ],
  "fields": [
   {
+   "fieldname": "friendly_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Friendly Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_oe2kg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Ex. 0.0.0.0, 192.168.0.100 or * to whitelist all ip addresses (Not recommanded! Development ONLY!)",
    "fieldname": "ip",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -25,25 +37,13 @@
    "fieldname": "enabled",
    "fieldtype": "Check",
    "label": "Enabled"
-  },
-  {
-   "fieldname": "friendly_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Friendly Name",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_oe2kg",
-   "fieldtype": "Column Break"
   }
  ],
  "links": [],
- "modified": "2023-06-18 13:57:36.880287",
+ "modified": "2023-06-18 15:58:38.218225",
  "modified_by": "Administrator",
  "module": "Hoox",
- "name": "Alert IP Restriction",
- "name_case": "UPPER CASE",
+ "name": "IP Whitelist",
  "owner": "Administrator",
  "permissions": [
   {
@@ -60,7 +60,6 @@
   }
  ],
  "quick_entry": 1,
- "restrict_to_domain": "HOOX",
  "sort_field": "modified",
  "sort_order": "DESC",
  "title_field": "friendly_name"
