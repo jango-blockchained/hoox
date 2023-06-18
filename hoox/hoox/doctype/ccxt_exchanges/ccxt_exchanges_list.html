@@ -1,0 +1,15 @@
+{% extends "frappe/templates/includes/list/list.html" %}
+
+{% block list_row %}
+{% for doc in docs %}
+<div class="list-row">
+    <div class="list-row-left">
+        <img class="logo" src="{{ doc.logo_url }}">
+    </div>
+    <div class="list-row-content">
+        <a href="{{ doc.route }}">{{ doc.name }}</a>
+
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

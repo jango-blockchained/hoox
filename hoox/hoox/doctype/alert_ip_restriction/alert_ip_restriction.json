@@ -1,16 +1,16 @@
 {
  "actions": [],
+ "allow_rename": 1,
  "autoname": "HOOX-IP-.#####",
- "beta": 1,
  "creation": "2023-06-07 05:20:49.814959",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "ip",
+  "friendly_name",
   "enabled",
   "column_break_oe2kg",
-  "friendly_name"
+  "ip"
  ],
  "fields": [
   {
@@ -29,6 +29,7 @@
   {
    "fieldname": "friendly_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Friendly Name",
    "reqd": 1
   },
@@ -38,7 +39,7 @@
   }
  ],
  "links": [],
- "modified": "2023-06-18 03:06:57.601877",
+ "modified": "2023-06-18 13:57:36.880287",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Alert IP Restriction",
@@ -59,7 +60,8 @@
   }
  ],
  "quick_entry": 1,
+ "restrict_to_domain": "HOOX",
  "sort_field": "modified",
  "sort_order": "DESC",
- "title_field": "ip"
+ "title_field": "friendly_name"
 }

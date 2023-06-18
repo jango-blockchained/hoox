@@ -127,13 +127,13 @@ def sync_exchanges():
             exchange = exchange_class()  # create an instance of the exchange class
 
             # Check if the exchange document already exists
-            exchange_exists = frappe.db.exists(
-                "CCXT Exchanges", {"exchange_id": exchange.id})
+            exchange_exists = frappe.db.exists("CCXT Exchanges", exchange_id)
 
             # set logo_url field in the doc
             exchange_doc_data = {
                 "doctype": "CCXT Exchanges",
                 "exchange_name": exchange.name,
+                "exchange_id": exchange_id,
                 "precision_mode": exchange.precisionMode,
                 "rate_limit": exchange.rateLimit,
                 "testnet": 1 if exchange.urls.get("test") is not None else 0,
@@ -141,46 +141,53 @@ def sync_exchanges():
                 "logo_url": exchange.urls.get("logo"),
             }
 
-            doc = None
-
             if exchange_exists:
-                # If the document exists, update its properties
-                doc = frappe.get_doc("CCXT Exchanges", {
-                                     "exchange_id": exchange.id})
-                doc.update(exchange_doc_data)
-                doc.save()
+                # If the document exists, fetch it
+                doc = frappe.get_doc("CCXT Exchanges", exchange_id)
             else:
                 # If the document doesn't exist, create a new one
-                exchange_doc_data["exchange_id"] = exchange.id
                 doc = frappe.get_doc(exchange_doc_data)
-                doc.insert(ignore_permissions=True)
+
+            # Update the document properties
+            doc.update(exchange_doc_data)
+
+            # Save the document with exception handling for duplicate entries
+            try:
+                doc.save(ignore_permissions=True)
+            except frappe.DuplicateEntryError:
+                continue
 
             # Download and attach the logo file
             logo_url = exchange.urls.get("logo")
             auto_download = False
             if logo_url and auto_download:
-                directory = "public/assets/exchange_logos"
-                os.makedirs(directory, exist_ok=True)
+                # Download and attach the logo file
+                # if logo_url:
+                try:
+                    upload_image_from_url(logo_url, doc.doctype, doc.name)
+                except Exception as e:
+                    print(f"Error attaching logo for {exchange_id}: {e}")
+                # directory = "public/assets/exchange_logos"
+                # os.makedirs(directory, exist_ok=True)
 
-                file_name = f"{exchange_id}_logo.jpg"
-                file_path = os.path.join(directory, file_name)
+                # file_name = f"{exchange_id}_logo.jpg"
+                # file_path = os.path.join(directory, file_name)
 
-                # Skip download if the logo file already exists
-                if not os.path.exists(file_path):
-                    # Save the downloaded file on the server
-                    with open(file_path, "wb") as file:
-                        file.write(requests.get(logo_url).content)
+                # # Skip download if the logo file already exists
+                # if not os.path.exists(file_path):
+                #     # Save the downloaded file on the server
+                #     with open(file_path, "wb") as file:
+                #         file.write(requests.get(logo_url).content)
 
-                    # Attach the file to the CCXT Exchanges document
-                else:
-                    print(
-                        f"Skipping download for logo {file_name} as it already exists.")
-
-                save_file(file_name, file_path, doc.doctype, doc.name)
+                #     # Attach the file to the CCXT Exchanges document
+                #     save_file(file_name, file_path, doc.doctype, doc.name)
+                # else:
+                #     print(
+                #         f"Skipping download for logo {file_name} as it already exists.")
 
     amount = len(ccxt.exchanges)
     frappe.msgprint(f"{amount} exchanges synced successfully.")
-
+    frappe.db.commit()
     return
 
 
@@ -238,7 +245,7 @@ def download_exchange_logo(exchange_id, logo_url):
 
     url_file_name = os.path.basename(logo_url)
     # Split the filename into name and extension
-    url_name, url_extension = os.path.splitext(filename)
+    url_name, url_extension = os.path.splitext(url_file_name)
 
     file_name = f"{exchange_id}_logo.{url_extension.lstrip('.')}"
     file_path = os.path.join(directory, file_name)
@@ -276,3 +283,29 @@ def download_all_exchange_logos():
         #         print(f"Failed to download logo for exchange {exchange_id}")
         # else:
         #     print(f"No logo available for exchange {exchange_id}")
+
+
+def upload_image_from_url(url, document_doctype, document_name, file_name=None):
+    # Download the image from the URL
+    response = requests.get(url)
+
+    # Check if the response is an image
+    if response.headers['Content-Type'].startswith('image/'):
+        # Set the file_name if not provided
+        if not file_name:
+            file_name = os.path.basename(url)
+
+        # Save the downloaded file as a temporary file
+        with open(file_name, "wb") as file:
+            file.write(response.content)
+
+        # Attach the file to the document
+        attached_file = save_file(
+            file_name, file.name, document_doctype, document_name)
+
+        # Remove the temporary file
+        os.remove(file_name)
+
+        return attached_file
+    else:
+        frappe.throw(_("The provided URL is not an image."))

@@ -1,0 +1,13 @@
+.copy-to-clipboard {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 14px;
+    display: none;
+}
+
+.form-group:hover .copy-to-clipboard {
+    display: block;
+}
