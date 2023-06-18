@@ -2,7 +2,9 @@
 # For license information, please see license.txt
 
 # import frappe
-from frappe.model.document import Document
+# from frappe.website.website_generator import WebsiteGenerator
+from frappe.website.website_generator import WebsiteGenerator
 
-class HomeassistantCredentials(Document):
-	pass
+
+class HomeassistantCredentials(WebsiteGenerator):
+    pass

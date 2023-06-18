@@ -5,6 +5,7 @@ import frappe
 from frappe.website.website_generator import WebsiteGenerator
 from frappe.model.document import Document
 from frappe import _, whitelist
+from frappe.model.delete_doc import delete_doc
 
 
 class ExchangeCredentials(WebsiteGenerator, Document):
@@ -15,7 +16,7 @@ class ExchangeCredentials(WebsiteGenerator, Document):
         if not self.secret_hash:
             self.secret_hash = frappe.generate_hash(length=16)
 
-    def validate(self):
+    def before_insert(self):
         """
         Validates that exchange credentials do not already exist for the user.
         """
@@ -41,3 +42,10 @@ class ExchangeCredentials(WebsiteGenerator, Document):
             filter(lambda x: x['docstatus'] != 'Revoked', existing_credentials))
 
         return bool(filtered_credentials)
+
+    def delete_document(doctype, name, ignore_linked_doctypes=None):
+        delete_doc(doctype, name, ignore_doctypes=ignore_linked_doctypes,
+                   force=1, for_reload=False, ignore_permissions=False, flags=None)
+
+    def on_trash(self):
+        delete_document(self.doctype, self.docname, ["Trades"])

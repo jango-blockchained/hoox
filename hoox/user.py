@@ -7,15 +7,16 @@ from frappe.auth import LoginManager, HTTPRequest
 
 
 def get_exchange_credentials(secret_hash):
-    exchange_creds = frappe.get_doc("Exchange Credentials", secret_hash)
+    exchange_creds = frappe.get_doc("Exchange Credentials", {
+                                    "secret_hash": secret_hash})
     if not exchange_creds:
         raise Exception(
             f"No exchange credentials found for secret hash {secret_hash}")
     exchange_creds.api_key = get_decrypted_password(
-        "Exchange Credentials", secret_hash, "api_key", False
+        "Exchange Credentials", exchange_creds.name, "api_key", False
     )
     exchange_creds.api_secret = get_decrypted_password(
-        "Exchange Credentials", secret_hash, "api_secret", False
+        "Exchange Credentials", exchange_creds.name, "api_secret", False
     )
     return exchange_creds if exchange_creds.enabled else None
 
@@ -85,7 +86,7 @@ def send_to_haas(user, entity_domain, service, payload):
                 * "transition": 255,
                 * "xy_color": [0.5, 0.5],
                 * "profile": "relax|energize|concentrate|..."
-                **** all avaiulable fields ....
+                **** all available fields ....
             }
         }
     }
@@ -123,11 +124,11 @@ def send_to_haas(user, entity_domain, service, payload):
     }
 
     # Make the API call
-    response = requests.post(url, headers=headers, data=payload)
+    response = requests.post(url, headers=headers, json=payload)
     # response.raise_for_status()
     frappe.msgprint(f"Response from haas: {response}")
     # Check the response
-    # if response.status_code != 200:
-    #     return frappe.throw("Error sending request to Home Assistant")
+    if response.status_code != 200:
+        return frappe.throw("Error sending request to Home Assistant")
 
     return response

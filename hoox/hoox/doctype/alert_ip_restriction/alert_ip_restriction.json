@@ -8,8 +8,9 @@
  "engine": "InnoDB",
  "field_order": [
   "ip",
-  "friendly_name",
-  "enabled"
+  "enabled",
+  "column_break_oe2kg",
+  "friendly_name"
  ],
  "fields": [
   {
@@ -30,10 +31,14 @@
    "fieldtype": "Data",
    "label": "Friendly Name",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_oe2kg",
+   "fieldtype": "Column Break"
   }
  ],
  "links": [],
- "modified": "2023-06-17 02:03:50.801600",
+ "modified": "2023-06-18 03:06:57.601877",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Alert IP Restriction",

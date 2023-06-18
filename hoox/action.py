@@ -1,6 +1,6 @@
 import frappe
 import os
-import ccxt.async_support as ccxt
+import ccxt
 import requests
 import logging
 import json
@@ -54,9 +54,12 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
             "enableRateLimit": True,
             "options": {
                 "defaultType": market_type,
-                "test": user_creds.testnet,
+                "test": user_creds.testnet
             }
         })
+
+        if user_creds.testnet:
+            exchange.set_sandbox_mode(True)
 
         # Create order object
         response = {}
@@ -139,6 +142,8 @@ def sync_exchanges():
                 "logo_url": exchange.urls.get("logo"),
             }
 
+            doc = None
+
             if exchange_exists:
                 # If the document exists, update its properties
                 doc = frappe.get_doc("CCXT Exchanges", {
@@ -147,8 +152,8 @@ def sync_exchanges():
                 doc.save()
             else:
                 # If the document doesn't exist, create a new one
-                new_doc = frappe.get_doc(exchange_doc_data)
-                new_doc.insert(ignore_permissions=True)
+                doc = frappe.get_doc(exchange_doc_data)
+                doc.insert(ignore_permissions=True)
 
             current_position = i + 1
             amount_exchanges = len(ccxt.exchanges)
@@ -157,7 +162,8 @@ def sync_exchanges():
 
             # Download and attach the logo file
             logo_url = exchange.urls.get("logo")
-            if logo_url:
+            auto_download = False
+            if logo_url and auto_download:
                 directory = "public/assets/exchange_logos"
                 os.makedirs(directory, exist_ok=True)
 
@@ -175,13 +181,7 @@ def sync_exchanges():
                     print(
                         f"Skipping download for logo {file_name} as it already exists.")
 
-                doc = frappe.get_doc("CCXT Exchanges", {
-                                     "exchange_id": exchange.id})
                 save_file(file_name, file_path, doc.doctype, doc.name)
-
-        else:
-            frappe.msgprint(
-                f"Exchange '{exchange_id}' is not found in ccxt module.")
 
     frappe.db.commit()
     amount = len(ccxt.exchanges)

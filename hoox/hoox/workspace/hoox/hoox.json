@@ -12,7 +12,7 @@
  ],
  "creation": "2023-05-23 11:17:39.197890",
  "developer_mode_only": 0,
- "disable_user_customization": 0,
+ "disable_user_customization": 1,
  "docstatus": 0,
  "doctype": "Workspace",
  "extends_another_page": 0,
@@ -36,15 +36,6 @@
    "is_query_report": 0,
    "label": "Exchange Credentials",
    "link_to": "Exchange Credentials",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 1,
-   "is_query_report": 0,
-   "label": "Telegram Credentials",
-   "link_to": "Telegram Credentials",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -194,7 +185,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-17 16:55:16.315863",
+ "modified": "2023-06-18 04:07:50.738402",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
