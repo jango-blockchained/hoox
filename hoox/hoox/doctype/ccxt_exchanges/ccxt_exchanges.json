@@ -1,8 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "field:exchange_id",
- "beta": 1,
+ "autoname": "HOOX-EX-.#####",
  "creation": "2023-05-28 21:58:58.973116",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -36,8 +35,7 @@
    "in_standard_filter": 1,
    "label": "Exchange ID",
    "read_only": 1,
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -46,9 +44,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Exchange Name",
-   "read_only": 1,
-   "reqd": 1,
-   "search_index": 1
+   "read_only": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -151,10 +147,11 @@
  "in_create": 1,
  "is_published_field": "published",
  "links": [],
- "modified": "2023-06-17 02:20:17.082478",
+ "modified": "2023-06-18 05:53:16.792993",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "CCXT Exchanges",
+ "name_case": "UPPER CASE",
  "owner": "Administrator",
  "permissions": [
   {

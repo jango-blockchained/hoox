@@ -1,18 +1,9 @@
 {
  "category": "Domains",
- "charts": [
-  {
-   "chart_name": "Trading Volume",
-   "label": "Trading Volume"
-  },
-  {
-   "chart_name": "Exchange Credentials Ratio",
-   "label": "Exchange Credentials Ratio"
-  }
- ],
+ "charts": [],
  "creation": "2023-05-23 11:17:39.197890",
  "developer_mode_only": 0,
- "disable_user_customization": 1,
+ "disable_user_customization": 0,
  "docstatus": 0,
  "doctype": "Workspace",
  "extends_another_page": 0,
@@ -185,7 +176,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-18 04:07:50.738402",
+ "modified": "2023-06-18 04:43:32.269685",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",

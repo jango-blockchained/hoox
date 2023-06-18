@@ -9,7 +9,7 @@ frappe.listview_settings["CCXT Exchanges"] = {
   filters: [["docstatus", "=", 1]],
   onload: function (listview) {
     listview.page.add_inner_button(
-      __("<i class='fa fa-sync'></i> Sync Exchanges"),
+      __("Sync Exchanges"),
       function () {
         frappe.call({
           method: "hoox.action.sync_exchanges",
@@ -24,9 +24,7 @@ frappe.listview_settings["CCXT Exchanges"] = {
             }
           },
           freeze: true,
-          freeze_message: __(
-            "<i class='fa fa-sync fa-rotate'></i> Syncing Exchanges..."
-          ),
+          freeze_message: __("Syncing Exchanges..."),
         });
       },
       __("Actions")

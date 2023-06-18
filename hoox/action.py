@@ -121,7 +121,7 @@ def sync_exchanges():
     """
 
     # Get list of exchanges
-    for i, exchange_id in enumerate(ccxt.exchanges):
+    for exchange_id in ccxt.exchanges:
         if hasattr(ccxt, exchange_id):
             exchange_class = getattr(ccxt, exchange_id)
             exchange = exchange_class()  # create an instance of the exchange class
@@ -133,7 +133,6 @@ def sync_exchanges():
             # set logo_url field in the doc
             exchange_doc_data = {
                 "doctype": "CCXT Exchanges",
-                "exchange_id": exchange.id,
                 "exchange_name": exchange.name,
                 "precision_mode": exchange.precisionMode,
                 "rate_limit": exchange.rateLimit,
@@ -152,13 +151,9 @@ def sync_exchanges():
                 doc.save()
             else:
                 # If the document doesn't exist, create a new one
+                exchange_doc_data["exchange_id"] = exchange.id
                 doc = frappe.get_doc(exchange_doc_data)
                 doc.insert(ignore_permissions=True)
-
-            current_position = i + 1
-            amount_exchanges = len(ccxt.exchanges)
-            logger.info(
-                f"Synced exchange {exchange.name} - {current_position} of {amount_exchanges}")
 
             # Download and attach the logo file
             logo_url = exchange.urls.get("logo")
@@ -183,7 +178,6 @@ def sync_exchanges():
 
                 save_file(file_name, file_path, doc.doctype, doc.name)
 
-    frappe.db.commit()
     amount = len(ccxt.exchanges)
     frappe.msgprint(f"{amount} exchanges synced successfully.")
 
