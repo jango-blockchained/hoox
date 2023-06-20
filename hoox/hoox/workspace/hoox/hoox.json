@@ -89,8 +89,8 @@
    "hidden": 0,
    "icon": "",
    "is_query_report": 0,
-   "label": "Alert IP Restriction",
-   "link_to": "Alert IP Restriction",
+   "label": "IP Whitelist",
+   "link_to": "IP Whitelist",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -176,7 +176,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-18 04:43:32.269685",
+ "modified": "2023-06-18 16:54:37.841982",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -204,8 +204,9 @@
    "color": "#761ACB",
    "doc_view": "List",
    "format": "{} Enabled",
-   "label": "Alert IP Restriction",
-   "link_to": "Alert IP Restriction",
+   "label": "IP Whitelist",
+   "link_to": "IP Whitelist",
+   "stats_filter": "",
    "type": "DocType"
   },
   {

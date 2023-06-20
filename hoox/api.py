@@ -164,7 +164,7 @@ class HooxAPI():
         """
         Checks if the IP address is valid and not blacklisted.
         """
-        return frappe.db.exists("Alert IP Restriction", {"ip": ["in", [client_ip_address, "*"]], "enabled": 1})
+        return frappe.db.exists("IP Whitelist", {"ip": ["in", [client_ip_address, "*"]], "enabled": 1})
 
     # ------------------------------------------------------------
 
@@ -287,7 +287,7 @@ class HooxAPI():
                     {
                         "doctype": "Trades",
                         "user": self.exchange_creds.user,
-                        "secret_hash": secret_hash,
+                        "exchange_cred": self.exchange_creds.name,
                         "action": action,
                         "order_type": order_type,
                         "market_type": market_type,
@@ -327,7 +327,7 @@ class HooxAPI():
                 trade = frappe.get_last_doc(
                     "Trades",
                     {
-                        "secret_hash": self.json.get("secret_hash"),
+                        "exchange_creds": self.exchange_creds.name,
                         "status": ["!=", "Success"],
                     },
                 )

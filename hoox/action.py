@@ -227,8 +227,8 @@ def add_ip_addresses():
     for i, ip_address in enumerate(ip_addresses, start=1):
         friendly_name = 'TradingView™ IP Whitelist {}'.format(i)
         # Check if the doc exists
-        if not frappe.db.exists('Alert IP Restriction', {"ip": ip_address}):
-            doc = frappe.new_doc('Alert IP Restriction')
+        if not frappe.db.exists('IP Whitelist', {"ip": ip_address}):
+            doc = frappe.new_doc('IP Whitelist')
             doc.friendly_name = friendly_name
             doc.ip = ip_address
             doc.insert()
