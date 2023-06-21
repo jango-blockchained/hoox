@@ -12,6 +12,7 @@
   "column_break_4eiyc",
   "logo_url",
   "column_break_0jazi",
+  "logo_up",
   "exchange_id",
   "section_break_wuj7a",
   "settings",
@@ -139,14 +140,21 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Published"
+  },
+  {
+   "default": "{doc.logo_url}",
+   "fieldname": "logo_up",
+   "fieldtype": "Attach Image",
+   "label": "Logo Upload",
+   "options": "{doc.logo_url}"
   }
  ],
- "has_web_view": 1,
+ "image_field": "logo_up",
  "in_create": 1,
  "is_published_field": "published",
  "links": [],
  "make_attachments_public": 1,
- "modified": "2023-06-18 15:54:46.116624",
+ "modified": "2023-06-21 02:00:09.069057",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "CCXT Exchanges",

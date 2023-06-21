@@ -28,7 +28,7 @@
    "label": "Exchange Credentials",
    "link_to": "Exchange Credentials",
    "link_type": "DocType",
-   "onboard": 0,
+   "onboard": 1,
    "type": "Link"
   },
   {
@@ -37,7 +37,7 @@
    "label": "Homeassistant Credentials",
    "link_to": "Homeassistant Credentials",
    "link_type": "DocType",
-   "onboard": 0,
+   "onboard": 1,
    "type": "Link"
   },
   {
@@ -64,7 +64,7 @@
    "label": "CCXT Exchanges",
    "link_to": "CCXT Exchanges",
    "link_type": "DocType",
-   "onboard": 0,
+   "onboard": 1,
    "type": "Link"
   },
   {
@@ -82,7 +82,7 @@
    "label": "Hoox Settings",
    "link_to": "Hoox Settings",
    "link_type": "DocType",
-   "onboard": 0,
+   "onboard": 1,
    "type": "Link"
   },
   {
@@ -92,7 +92,7 @@
    "label": "IP Whitelist",
    "link_to": "IP Whitelist",
    "link_type": "DocType",
-   "onboard": 0,
+   "onboard": 1,
    "type": "Link"
   },
   {
@@ -110,7 +110,7 @@
    "label": "Telegram Bot",
    "link_to": "Telegram Bot",
    "link_type": "DocType",
-   "onboard": 0,
+   "onboard": 1,
    "type": "Link"
   },
   {
@@ -176,7 +176,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-18 16:54:37.841982",
+ "modified": "2023-06-21 01:56:50.923914",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",

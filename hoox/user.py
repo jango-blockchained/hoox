@@ -7,7 +7,7 @@ from frappe.auth import LoginManager, HTTPRequest
 
 
 def get_exchange_credentials(secret_hash):
-    exchange_creds = frappe.get_doc("Exchange Credentials", filters={
+    exchange_creds = frappe.get_doc("Exchange Credentials", {
                                     "secret_hash": secret_hash})
     if not exchange_creds:
         raise Exception(
@@ -22,13 +22,13 @@ def get_exchange_credentials(secret_hash):
 
 
 def get_telegram_credentials(user):
-    telegram_creds = frappe.get_doc("Telegram User", filters={"user": user})
+    telegram_creds = frappe.get_doc("Telegram User", {"user": user})
     return telegram_creds
 
 
 def get_haas_credentials(user):
     haas_creds = frappe.get_doc(
-        "Homeassistant Credentials", filters={"user": user})
+        "Homeassistant Credentials", {"user": user})
     return haas_creds if haas_creds.enabled else None
 
 

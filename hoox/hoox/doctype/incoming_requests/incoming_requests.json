@@ -111,7 +111,6 @@
    "fieldtype": "Section Break"
   }
  ],
- "has_web_view": 1,
  "in_create": 1,
  "is_published_field": "published",
  "links": [
@@ -124,7 +123,7 @@
    "link_fieldname": "request_incoming"
   }
  ],
- "modified": "2023-06-18 15:54:45.427072",
+ "modified": "2023-06-21 02:00:08.401066",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Incoming Requests",

@@ -71,6 +71,17 @@ class HooxAPI():
         self.LoginManager = LoginManager()
         self.LoginManager.login_as(self.exchange_creds.user)
 
+        self.action = []
+        if self.json.get("action") in ["buy", "sell", "close"]:
+            self.action.append("trade")
+        if self.json.get("haas") and self.json.get("haas").get("entity_id"):
+            self.action.append("homeassistant")
+        if self.json.get("telegram"):
+            self.action.append("telegram")
+
+        self.save_incoming_request(
+            "/".join(act for act in self.action), json.dumps(self.json))
+
         # Initialize retry counter
         self.retry = 0
 
@@ -248,6 +259,15 @@ class HooxAPI():
             )
         return
 
+    def save_incoming_request(self, action, params):
+        self.incoming_request = frappe.get_doc({
+            "doctype": "Incoming Requests",
+            "method": action,
+            "params": params,
+            "status": "Success",
+        })
+        self.incoming_request.insert(ignore_permissions=True)
+
     # ------------------------------------------------------------
 
     @log_execution_time
@@ -269,10 +289,6 @@ class HooxAPI():
         leverage = self.json.get("leverage") or 1
 
         # Initialize variables for exchange response, order ID, and status
-        trade = None
-        incoming_request = None
-        outgoing_request = None
-        incoming_response = None
         exchange_response = None
         exchange_order_id = None
         status = "Processing"
@@ -283,7 +299,7 @@ class HooxAPI():
         try:
 
             if self.retry == 0:
-                trade = frappe.get_doc(
+                self.trade = frappe.get_doc(
                     {
                         "doctype": "Trades",
                         "user": self.exchange_creds.user,
@@ -299,52 +315,18 @@ class HooxAPI():
                         "status": status,
                     }
                 )
-                trade.insert(ignore_permissions=True)
+                self.trade.insert(ignore_permissions=True)
 
-                incoming_request = frappe.get_doc({
-                    "doctype": "Incoming Requests",
-                    "method": action,
-                    "url": self.exchange_creds.exchange,
-                    "params": json.dumps(self.json),
-                    "status": "Success",
-                    "origin": trade.name
-                })
-                incoming_request.insert(ignore_permissions=True)
-
-                outgoing_request = frappe.get_doc({
+                self.outgoing_request = frappe.get_doc({
                     "doctype": "Outgoing Requests",
                     "method": action,
                     "url": self.exchange_creds.exchange,
                     "params": json.dumps(self.json),
-                    "request_incoming": incoming_request.name,
-                    "origin": trade.name,
+                    "request_incoming": self.incoming_request.name,
+                    "origin": self.trade.name,
                     "status": "Processing"
                 })
-                outgoing_request.insert(ignore_permissions=True)
-
-            else:
-
-                trade = frappe.get_last_doc(
-                    "Trades",
-                    {
-                        "exchange_creds": self.exchange_creds.name,
-                        "status": ["!=", "Success"],
-                    },
-                )
-
-                incoming_request = frappe.get_last_doc(
-                    "Incoming Requests",
-                    {
-                        "origin": trade.name,
-                    }
-                )
-
-                outgoing_request = frappe.get_last_doc(
-                    "Outgoing Requests",
-                    {
-                        "origin": trade.name,
-                    }
-                )
+                self.outgoing_request.insert(ignore_permissions=True)
 
             # Create trade document
             exchange_response = execute_order(
@@ -370,42 +352,43 @@ class HooxAPI():
                 original_data = exchange_response["original_data"]
             status = "Success" if exchange_order_id else "Failed"
 
-            trade.status = status
-            trade.exchange_order_id = exchange_order_id
-            trade.save()
+            self.trade.status = status
+            self.trade.exchange_order_id = exchange_order_id
+            self.trade.save()
 
             # Update trade document based on response
-            incoming_response = frappe.get_doc({
+            self.incoming_response = frappe.get_doc({
                 "doctype": "Incoming Response",
                 "method": action,
                 "url": url,
                 "params": original_data,
-                "request_incoming": incoming_request.name,
-                "request_outgoing": outgoing_request.name,
+                "request_incoming": self.incoming_request.name,
+                "request_outgoing": self.outgoing_request.name,
                 "status": status,
-                "origin": trade.name
+                "origin": self.trade.name
             })
-            incoming_response.insert(ignore_permissions=True)
-            outgoing_request.status = "Success"
-            outgoing_request.url = url
-            outgoing_request.response_incoming = incoming_response.name
-            outgoing_request.save()
-            incoming_request.response_incoming = incoming_response.name
-            incoming_request.request_outgoing = outgoing_request.name
-            incoming_request.save()
+            self.incoming_response.insert(ignore_permissions=True)
+            self.outgoing_request.status = "Success"
+            self.outgoing_request.url = url
+            self.outgoing_request.response_incoming = self.incoming_response.name
+            self.outgoing_request.save()
+            self.incoming_request.origin = self.trade.name
+            self.incoming_request.response_incoming = self.incoming_response.name
+            self.incoming_request.request_outgoing = self.outgoing_request.name
+            self.incoming_request.save()
             # - - - -
             retry_no = self.retry + 1
             # - - - -
             self.log.info(
-                f"Internal Trade-ID: {trade.name}\tExternal Trade-ID: {trade.exchange_order_id}\tRequest # {retry_no}")
+                f"Internal Trade-ID: {self.trade.name}\tExternal Trade-ID: {self.trade.exchange_order_id}\tRequest # {retry_no}")
             # - - - -
             frappe.db.commit()
             # - - - -
             return {
-                "trade": trade,
-                "incoming_request": incoming_request,
-                "outgoing_request": outgoing_request,
-                "incoming_response": incoming_response,
+                "trade": self.trade,
+                "incoming_request": self.incoming_request,
+                "outgoing_request": self.outgoing_request,
+                "incoming_response": self.incoming_response,
             }
 
         except Exception as e:

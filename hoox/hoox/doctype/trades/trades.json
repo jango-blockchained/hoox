@@ -231,7 +231,6 @@
    "label": "Published"
   }
  ],
- "has_web_view": 1,
  "in_create": 1,
  "is_published_field": "published",
  "links": [
@@ -251,7 +250,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-06-18 15:54:46.329122",
+ "modified": "2023-06-21 02:00:17.288552",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trades",
