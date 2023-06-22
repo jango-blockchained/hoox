@@ -55,7 +55,9 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
             "enableRateLimit": True,
             "options": {
                 "defaultType": market_type,
-                "test": user_creds.testnet
+                "test": user_creds.testnet,
+                "createMarketBuyOrderRequiresPrice": False,
+                "createMarketSellOrderRequiresPrice": False
             }
             # "urls": {
             #     "api": "https://api-testnet.bybit.com",

@@ -40,7 +40,7 @@ class HooxAPI():
 
     def __init__(self, request_json=None):
         """
-        Initializes the Hoox object. It fet ches Hoox settings and the request data.
+        Initializes the Hoox object. It fetches Hoox settings and the request data.
         """
 
         # Get request data
@@ -171,9 +171,9 @@ class HooxAPI():
 
         return ip_address
 
-    def is_valid_ip(self, client_ip_address):
+    def is_valid_ip(self, client_ip_address):s
         """
-        Checks if the IP address is valid and not blacklisted.
+        Checks if the IP address is whitelisted
         """
         return frappe.db.exists("IP Whitelist", {"ip": ["in", [client_ip_address, "*"]], "enabled": 1})
 
@@ -317,16 +317,16 @@ class HooxAPI():
                 )
                 self.trade.insert(ignore_permissions=True)
 
-                self.outgoing_request = frappe.get_doc({
-                    "doctype": "Outgoing Requests",
-                    "method": action,
-                    "url": self.exchange_creds.exchange,
-                    "params": json.dumps(self.json),
-                    "request_incoming": self.incoming_request.name,
-                    "origin": self.trade.name,
-                    "status": "Processing"
-                })
-                self.outgoing_request.insert(ignore_permissions=True)
+            self.outgoing_request = frappe.get_doc({
+                "doctype": "Outgoing Requests",
+                "method": action,
+                "url": self.exchange_creds.exchange,
+                "params": json.dumps(self.json),
+                "request_incoming": self.incoming_request.name,
+                "origin": self.trade.name,
+                "status": "Processing"
+            })
+            self.outgoing_request.insert(ignore_permissions=True)
 
             # Create trade document
             exchange_response = execute_order(
@@ -346,10 +346,7 @@ class HooxAPI():
                 message_text=f"Order executed: {exchange_response}", user=self.exchange_creds.user)
 
             if exchange_response is not None:
-                exchange_order_id = exchange_response["order"].get(
-                    "info").get("orderId") or None
-                url = exchange_response["url"]
-                original_data = exchange_response["original_data"]
+                exchange_order_id = exchange_response['order']['id'] or None
             status = "Success" if exchange_order_id else "Failed"
 
             self.trade.status = status
@@ -360,8 +357,7 @@ class HooxAPI():
             self.incoming_response = frappe.get_doc({
                 "doctype": "Incoming Response",
                 "method": action,
-                "url": url,
-                "params": original_data,
+                "params": json.dumps(exchange_response),
                 "request_incoming": self.incoming_request.name,
                 "request_outgoing": self.outgoing_request.name,
                 "status": status,
@@ -369,7 +365,7 @@ class HooxAPI():
             })
             self.incoming_response.insert(ignore_permissions=True)
             self.outgoing_request.status = "Success"
-            self.outgoing_request.url = url
+            self.outgoing_request.url = exchange_id
             self.outgoing_request.response_incoming = self.incoming_response.name
             self.outgoing_request.save()
             self.incoming_request.origin = self.trade.name
@@ -413,7 +409,7 @@ def receive_alert(request_json=None):
     try:
 
         if hapi.exchange_creds and hapi.exchange_creds.enabled:
-            # hapi.immediately_response()
+            hapi.immediately_response()
             hapi.process_trade_action()
             hapi.process_telegram()
             hapi.process_haas()

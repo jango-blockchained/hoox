@@ -39,7 +39,7 @@
   },
   {
    "fieldname": "params",
-   "fieldtype": "Code",
+   "fieldtype": "Long Text",
    "label": "Parameter"
   },
   {
@@ -106,7 +106,7 @@
  ],
  "in_create": 1,
  "links": [],
- "modified": "2023-06-21 02:00:08.622857",
+ "modified": "2023-06-21 12:28:25.333263",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Incoming Response",
