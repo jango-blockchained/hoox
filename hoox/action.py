@@ -14,6 +14,7 @@ from frappe.utils.file_manager import save_file
 from urllib.parse import urlparse
 from io import BytesIO
 
+# Function Definition
 ORDER_TYPE_FUNCS = {
     "buy": {
         "limit": "create_limit_buy_order",
@@ -25,6 +26,7 @@ ORDER_TYPE_FUNCS = {
     },
 }
 
+# Logger
 logger = get_logger(__name__)
 logger_level = logging.getLevelName("DEBUG")
 logger.setLevel(logger_level)
@@ -59,22 +61,7 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
                 "createMarketBuyOrderRequiresPrice": False,
                 "createMarketSellOrderRequiresPrice": False
             }
-            # "urls": {
-            #     "api": "https://api-testnet.bybit.com",
-            #     "www": "https://testnet.bybit.com",
-            #     "doc": "https://testnet.bybit.com",
-            # }
         })
-
-        if user_creds.testnet:
-            exchange.set_sandbox_mode(True)
-
-        # Create order object
-        response = {}
-
-        # Set leverage
-        if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and 0 < leverage <= exchange.maxLeverage:
-            exchange.set_leverage(leverage)
 
         # Set testnet
         # if user_creds.testnet:
@@ -85,8 +72,15 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
         #         raise ValueError(
         #             f"Exchange {exchange_id} does not have a testnet.")
 
-        # Set URL
-        response["url"] = exchange.urls["api"]
+        if user_creds.testnet:
+            exchange.set_sandbox_mode(True)
+
+        # Create order object
+        response = {}
+
+        # Set leverage
+        if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and 0 < leverage <= exchange.maxLeverage:
+            exchange.set_leverage(leverage)
 
         # Check action
         if action not in ["buy", "sell", "close", None]:
@@ -106,7 +100,7 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
             response["order"] = [exchange.cancel_order(
                 order["id"]) for order in all_orders]
 
-        response["original_data"] = exchange.last_json_response
+        # response["original_data"] = exchange.last_json_response
         response["original_data"].pop("Trades", None)
 
         return response
@@ -129,19 +123,20 @@ def sync_exchanges():
     """
 
     # Get list of exchanges
-    for exchange_id in ccxt.exchanges:
+    amount = len(ccxt.exchanges)
+    for i, exchange_id in enumerate(ccxt.exchanges):
         if hasattr(ccxt, exchange_id):
             exchange_class = getattr(ccxt, exchange_id)
             exchange = exchange_class()  # create an instance of the exchange class
 
             # Check if the exchange document already exists
-            exchange_exists = frappe.db.exists("CCXT Exchanges", exchange_id)
-            print(exchange_id)
+            exchange_exists = frappe.db.exists("CCXT Exchanges", exchange.id)
+
             # set logo_url field in the doc
             exchange_doc_data = {
                 "doctype": "CCXT Exchanges",
                 "exchange_name": exchange.name,
-                "exchange_id": exchange_id,
+                "exchange_id": exchange.id,
                 "precision_mode": exchange.precisionMode,
                 "rate_limit": exchange.rateLimit,
                 "testnet": 1 if exchange.urls.get("test") is not None else 0,
@@ -151,33 +146,32 @@ def sync_exchanges():
 
             if exchange_exists:
                 # If the document exists, fetch it
-                doc = frappe.get_doc("CCXT Exchanges", exchange_id)
+                doc = frappe.get_doc("CCXT Exchanges", exchange.id)
+                doc.update(exchange_doc_data)
             else:
                 # If the document doesn't exist, create a new one
                 doc = frappe.get_doc(exchange_doc_data)
 
-            # Update the document properties
-            doc.update(exchange_doc_data)
-
             # Save the document with exception handling for duplicate entries
             try:
                 doc.save(ignore_permissions=True)
+                # Download and attach the logo file
+                logo_url = exchange.urls.get("logo")
+                if logo_url:
+                    # Download and attach the logo file
+                    # if logo_url:
+                    try:
+                        attach_url_to_document(doc, logo_url)
+                    except Exception as e:
+                        frappe.msgprint(
+                            f"Error attaching logo for {exchange_id}: {e}")
+
             except frappe.DuplicateEntryError:
                 continue
 
-            # Download and attach the logo file
-            logo_url = exchange.urls.get("logo")
-            auto_download = True
-            if logo_url and auto_download:
-                # Download and attach the logo file
-                # if logo_url:
-                try:
-                    upload_image_from_url(logo_url, doc.doctype, doc.name)
-                except Exception as e:
-                    print(f"Error attaching logo for {exchange_id}: {e}")
+            frappe.publish_progress(
+                percent=((i + 1) / amount) * 100, title=_('Processing...'))
 
-    amount = len(ccxt.exchanges)
-    frappe.msgprint(f"{amount} exchanges synced successfully.")
     frappe.db.commit()
     return
 
@@ -198,21 +192,18 @@ def delete_exchanges(force=False):
         linked_docs = get_linked_documents("CCXT Exchanges", doc.name)
         links = len(linked_docs)
         if links > 0:
-            print(
-                f"Exchange '{doc.name}' has {links} linked documents. Skipping deletion."
-            )
-            if force:
-                for ldoc in linked_docs:
-                    frappe.delete_doc("Files", ldoc.name)
-                    print(f"Linked document {ldoc.name} deleted.")
-            else:
+            if not force:
+                frappe.msgprint(
+                    f"Exchange '{doc.name}' has {links} linked documents. Skipping deletion."
+                )
                 continue
-        frappe.delete_doc("CCXT Exchanges", doc.name)
+        frappe.delete_doc("CCXT Exchanges", doc.name, force=force)
+        frappe.publish_progress(percent=((i + 1) / amount) *
+                                100, title=_('Processing...'))
 
     frappe.db.commit()
-    print(f"{amount} exchanges deleted successfully.")
 
-    return
+    return f"{amount} exchanges deleted successfully."
 
 
 @frappe.whitelist()
@@ -234,48 +225,48 @@ def add_ip_addresses():
     return
 
 
-@frappe.whitelist()
-def download_exchange_logo(exchange_id, logo_url):
-    directory = "public/images/exchange_logos"
-    os.makedirs(directory, exist_ok=True)
+# @frappe.whitelist()
+# def download_exchange_logo(exchange_id, logo_url):
+#     directory = "public/images/exchange_logos"
+#     os.makedirs(directory, exist_ok=True)
 
-    url_file_name = os.path.basename(logo_url)
-    # Split the filename into name and extension
-    url_name, url_extension = os.path.splitext(url_file_name)
+#     url_file_name = os.path.basename(logo_url)
+#     # Split the filename into name and extension
+#     url_name, url_extension = os.path.splitext(url_file_name)
 
-    file_name = f"{exchange_id}_logo.{url_extension.lstrip('.')}"
-    file_path = os.path.join(directory, file_name)
+#     file_name = f"{exchange_id}_logo.{url_extension.lstrip('.')}"
+#     file_path = os.path.join(directory, file_name)
 
-    response = requests.get(logo_url)
-    if response.status_code == 200:
-        with open(file_path, "wb") as file:
-            file.write(response.content)
-        print(f"Logo downloaded for exchange {exchange_id}")
-    else:
-        print(f"Failed to download logo for exchange {exchange_id}")
+#     response = requests.get(logo_url)
+#     if response.status_code == 200:
+#         with open(file_path, "wb") as file:
+#             file.write(response.content)
+#         print(f"Logo downloaded for exchange {exchange_id}")
+#     else:
+#         print(f"Failed to download logo for exchange {exchange_id}")
 
-    # Using io.BytesIO to write the response content
-    if response.status_code == 200:
-        with open(file_path, "wb") as file:
-            buffer = io.BytesIO(response.content)
-            file.write(buffer.read())
-        print(f"Logo downloaded for exchange {exchange_id}")
-    else:
-        print(f"Failed to download logo for exchange {exchange_id}")
+#     # Using io.BytesIO to write the response content
+#     if response.status_code == 200:
+#         with open(file_path, "wb") as file:
+#             buffer = io.BytesIO(response.content)
+#             file.write(buffer.read())
+#         print(f"Logo downloaded for exchange {exchange_id}")
+#     else:
+#         print(f"Failed to download logo for exchange {exchange_id}")
 
 
-@frappe.whitelist()
-def download_all_exchange_logos():
-    directory = "public/images/exchange_logos"
-    os.makedirs(directory, exist_ok=True)
+# @frappe.whitelist()
+# def download_all_exchange_logos():
+#     directory = "public/images/exchange_logos"
+#     os.makedirs(directory, exist_ok=True)
 
-    for exchange_id in ccxt.exchanges:
-        exchange_class = getattr(ccxt, exchange_id)
-        exchange = exchange_class()
+#     for exchange_id in ccxt.exchanges:
+#         exchange_class = getattr(ccxt, exchange_id)
+#         exchange = exchange_class()
 
-        logo_url = exchange.urls.get("logo")
-        if logo_url:
-            download_exchange_logo(exchange_id, logo_url)
+#         logo_url = exchange.urls.get("logo")
+#         if logo_url:
+#             download_exchange_logo(exchange_id, logo_url)
 
 
 def save_file_from_buffer(buffer, filename):
@@ -283,23 +274,14 @@ def save_file_from_buffer(buffer, filename):
         file.write(buffer.getbuffer())
 
 
-def upload_image_from_url(url, document_doctype, document_name, file_name=None):
-    # Download the image from the URL
-    response = requests.get(url)
-
-    # Check if the response is an image
-    if response.headers['Content-Type'].startswith('image/'):
-        # Set the file_name if not provided
-        if not file_name:
-            file_name = os.path.basename(url)
-
-        # Save the downloaded file as a temporary file using io.BytesIO
-        buffer = io.BytesIO(response.content)
-
-        # Attach the file to the document
-        attached_file = save_file_from_buffer(
-            buffer, file_name, document_doctype, document_name)
-
-        return attached_file
-    else:
-        throw(_("The provided URL is not an image."))
+def attach_url_to_document(doc, file_url):
+    try:
+        doc.append("attachments", {
+            "file_url": file_url
+        })
+        doc.save()
+        print("File attached successfully.")
+    except frappe.DoesNotExistError:
+        print("Document does not exist.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")

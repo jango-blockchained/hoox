@@ -171,7 +171,7 @@ class HooxAPI():
 
         return ip_address
 
-    def is_valid_ip(self, client_ip_address):s
+    def is_valid_ip(self, client_ip_address):
         """
         Checks if the IP address is whitelisted
         """
@@ -286,7 +286,7 @@ class HooxAPI():
         quantity = self.json.get("quantity")
         order_type = self.json.get("order_type") or "market"
         market_type = self.json.get("market_type") or "future"
-        leverage = self.json.get("leverage") or 1
+        leverage = self.json.get("leverage") or None
 
         # Initialize variables for exchange response, order ID, and status
         exchange_response = None

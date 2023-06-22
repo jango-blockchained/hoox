@@ -3,12 +3,10 @@ frappe.listview_settings["CCXT Exchanges"] = {
     "exchange_name",
     "status",
     "logo_url",
-    "exchange_id",
     "precision_mode",
-    "rate_limit",
     "testnet",
+    "rate_limit"
   ],
-  // filters: [["docstatus", "=", 1]],
   hide_name_column: true,
   onload: function (listview) {
     listview.page.add_inner_button(
@@ -28,6 +26,9 @@ frappe.listview_settings["CCXT Exchanges"] = {
           },
           freeze: true,
           freeze_message: __("Syncing Exchanges..."),
+          progress: (percent) => {
+            frappe.show_progress(__("Progress"), percent, 100);
+          },
         });
       },
       __("Exchange")
@@ -37,6 +38,9 @@ frappe.listview_settings["CCXT Exchanges"] = {
       function () {
         frappe.call({
           method: "hoox.action.delete_exchanges",
+          args: {
+            force: false,
+          },
           callback: function (r) {
             if (r.message) {
               frappe.msgprint(r.message);
@@ -48,35 +52,41 @@ frappe.listview_settings["CCXT Exchanges"] = {
             }
           },
           freeze: true,
-          freeze_message: __(
-            "<i class='fa fa-sync fa-rotate'></i> Deleting Exchanges..."
-          ),
+          freeze_message: __("Deleting Exchanges..."),
+          progress: (percent) => {
+            frappe.show_progress(__("Progress"), percent, 100);
+          }
         });
       },
       __("Exchange")
     );
-    // --
-    // listview.page.add_inner_button(
-    //   __("Preload Exchange Logos"),
-    //   function () {
-    //     frappe.call({
-    //       method: "hoox.action.download_all_exchange_logos",
-    //       callback: function (r) {
-    //         if (r.message) {
-    //           frappe.msgprint(r.message);
-    //         }
-    //       },
-    //       error: function (r) {
-    //         if (r.message) {
-    //           frappe.msgprint(r.message);
-    //         }
-    //       },
-    //       freeze: true,
-    //       freeze_message: __("Downloading Exchange Logos..."),
-    //     });
-    //   },
-    //   __("Exchange")
-    // );
+    listview.page.add_inner_button(
+      __("Delete Exchanges (Force)"),
+      function () {
+        frappe.call({
+          method: "hoox.action.delete_exchanges",
+          args: {
+            force: true,
+          },
+          callback: function (r) {
+            if (r.message) {
+              frappe.msgprint(r.message);
+            }
+          },
+          error: function (r) {
+            if (r.message) {
+              frappe.msgprint(r.message);
+            }
+          },
+          freeze: true,
+          freeze_message: __("Deleting Exchanges..."),
+          progress: (percent) => {
+            frappe.show_progress(__("Progress"), percent, 100);
+          }
+        });
+      },
+      __("Exchange")
+    );
   },
   formatters: {
     logo_url(val) {
@@ -85,56 +95,50 @@ frappe.listview_settings["CCXT Exchanges"] = {
   },
   button: {
     show(doc) {
-      return doc.reference_name;
+      return doc.name;
     },
     get_label() {
       return "Features";
     },
     get_description(doc) {
-      return __("View {0}", [`${doc.reference_type} ${doc.reference_name}`]);
+      return __("Show Features");
     },
     action(doc) {
-      frappe.set_route("Form", doc.reference_type, doc.reference_name);
-    },
-  },
+      // frappe.set_route("Form", "CCXT Exchanges", doc.name);
+      frappe.db.get_doc('CCXT Exchanges', doc.name)
+      .then(row => {
+          // frappe.msgprint({
+          //   title: __('Features'),
+          //   indicator: 'green',
+          //   message: JSON.stringify(JSON.parse(row.has), null, 4)
+          // });
+        let jsonContent = JSON.parse(row.has)
+        let Fields = []
+        for (let key in jsonContent) {
+          if (jsonContent.hasOwnProperty(key)) {
+            let value = jsonContent[key];
+            Fields.push({
+              fieldtype: "Data",
+              label: key,
+              fieldname: key,
+              default: value,
+              read_only: true
+            });
+          }
+        }
+        let d = new frappe.ui.Dialog({
+          title: __('API Permissions'),
+          fields: Fields,
+          size: 'small', // small, large, extra-large 
+          primary_action_label: __('Hide'),
+          primary_action(values) {
+              d.hide();
+          }
+        });
+
+        // Show the dialog box
+        d.show();
+      })
+    }
+  }
 };
-
-// frappe.listview_settings['MQTT Logs'] = {
-//     // add_fields: ['title', 'public'],
-//     // filters: [
-//     //     ['public', '=', 1]
-//     // ],
-//     // hide_name_column: true,
-//     onload(listview) {
-
-//     },
-//     before_render() {
-
-//     },
-//     primary_action() {
-//         // triggers when the primary action is clicked
-//     },
-//     get_form_link(doc) {
-//         // override the form route for this doc
-//     },
-//     // add a custom button for each row
-//     button: {
-//         show(doc) {
-//             return doc.reference_name;
-//         },
-//         get_label() {
-//             return 'View';
-//         },
-//         get_description(doc) {
-//             return __('View {0}', [`${doc.reference_type} ${doc.reference_name}`])
-//         },
-//         action(doc) {
-//             frappe.set_route('Form', doc.reference_type, doc.reference_name);
-//         }
-//     },
-//     formatters: {
-//         title(val) {
-//             return val.bold();
-//         }
-//     }
-// }

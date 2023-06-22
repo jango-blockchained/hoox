@@ -11,8 +11,6 @@
   "exchange_name",
   "column_break_4eiyc",
   "logo_url",
-  "column_break_0jazi",
-  "logo_up",
   "exchange_id",
   "section_break_wuj7a",
   "settings",
@@ -23,9 +21,7 @@
   "testnet",
   "section_break_1fknw",
   "has",
-  "enabled",
-  "route",
-  "published"
+  "enabled"
  ],
  "fields": [
   {
@@ -69,7 +65,7 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Enabled",
+   "label": "Testnet",
    "read_only": 1
   },
   {
@@ -78,10 +74,6 @@
    "in_global_search": 1,
    "label": "Features",
    "read_only": 1
-  },
-  {
-   "fieldname": "column_break_0jazi",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "section_break_wuj7a",
@@ -128,33 +120,12 @@
    "fieldname": "exchange_section",
    "fieldtype": "Section Break",
    "label": "Exchange"
-  },
-  {
-   "fieldname": "route",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Route"
-  },
-  {
-   "fieldname": "published",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Published"
-  },
-  {
-   "default": "{doc.logo_url}",
-   "fieldname": "logo_up",
-   "fieldtype": "Attach Image",
-   "label": "Logo Upload",
-   "options": "{doc.logo_url}"
   }
  ],
- "image_field": "logo_up",
  "in_create": 1,
- "is_published_field": "published",
  "links": [],
  "make_attachments_public": 1,
- "modified": "2023-06-21 02:00:09.069057",
+ "modified": "2023-06-22 22:28:07.757360",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "CCXT Exchanges",
@@ -175,9 +146,7 @@
   }
  ],
  "quick_entry": 1,
- "route": "me/hoox/ccxt-exchanges",
  "show_name_in_global_search": 1,
  "sort_field": "modified",
- "sort_order": "DESC",
- "title_field": "exchange_name"
+ "sort_order": "DESC"
 }

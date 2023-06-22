@@ -187,13 +187,3 @@ user_data_fields = [
 # auth_hooks = [
 # 	"hoox.auth.validate"
 # ]
-
-# fixtures = [
-#   {
-#     "dt": "Custom Field",
-#     "filters": [["name", "in", [
-#       'Sales Invoice-custom_field1',
-#       'Sales Invoice-custom_field2'
-#     ]]]
-#   }
-# ]
