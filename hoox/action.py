@@ -307,7 +307,7 @@ def sync_all_symbols_from_enabled_exchanges():
     print(total_exchanges)
     processed_steps = 0
     steps = 0
-    for exchange_data in enabled_exchanges:
+    for ei, exchange_data in enumerate(enabled_exchanges):
         exchange_id = exchange_data["name"]
         exchange_class = getattr(ccxt, exchange_id)
         print(exchange_id)
@@ -315,7 +315,7 @@ def sync_all_symbols_from_enabled_exchanges():
             exchange_instance = exchange_class({'testnet': testnet})
             supported_market_types = get_supported_market_types(
                 exchange_instance)
-            for marketType in ["spot", "future"]:
+            for mi, marketType in enumerate(["spot", "future"]):
                 if marketType in supported_market_types:
 
                     exchange_instance.options['defaultType'] = marketType
@@ -339,7 +339,7 @@ def sync_all_symbols_from_enabled_exchanges():
 
                         processed_steps += 1
                         progress_percentage = (
-                            processed_steps / steps) * 100
+                            processed_steps / steps) * 100 * (ei+1) / total_exchanges * (mi+1) / 2
                         frappe.publish_progress(progress_percentage, title=_(
                             "Syncing Symbols..."), description=f"Processing {exchange_id}")
 

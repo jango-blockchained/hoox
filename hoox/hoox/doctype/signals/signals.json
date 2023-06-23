@@ -38,8 +38,9 @@
   },
   {
    "fieldname": "sig_symbols",
-   "fieldtype": "Data",
-   "label": "Symbols"
+   "fieldtype": "Table MultiSelect",
+   "label": "Symbols",
+   "options": "Signals Symbols Table"
   },
   {
    "fieldname": "sig_provider",
@@ -49,7 +50,7 @@
   }
  ],
  "links": [],
- "modified": "2023-06-23 14:09:58.920194",
+ "modified": "2023-06-23 20:43:21.775807",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Signals",

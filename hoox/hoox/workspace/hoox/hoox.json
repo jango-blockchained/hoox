@@ -207,7 +207,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-23 17:44:51.984554",
+ "modified": "2023-06-23 21:09:24.714992",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -231,7 +231,60 @@
    "format": "{} Enabled",
    "label": "CCXT Exchanges",
    "link_to": "CCXT Exchanges",
-   "stats_filter": "",
+   "stats_filter": "{}",
+   "type": "DocType"
+  },
+  {
+   "color": "#ECAD4B",
+   "doc_view": "List",
+   "format": "{} Provider",
+   "label": "Signal Provider",
+   "link_to": "Signal Provider",
+   "stats_filter": "{}",
+   "type": "DocType"
+  },
+  {
+   "color": "#ECAD4B",
+   "doc_view": "List",
+   "format": "{} Active",
+   "label": "Signals",
+   "link_to": "Signals",
+   "stats_filter": "{}",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "format": "{} Requests",
+   "label": "Incoming Requests",
+   "link_to": "Incoming Requests",
+   "stats_filter": "{}",
+   "type": "DocType"
+  },
+  {
+   "color": "#ED6396",
+   "doc_view": "List",
+   "format": "{} Requests",
+   "label": "Outgoing Requests",
+   "link_to": "Outgoing Requests",
+   "stats_filter": "{}",
+   "type": "DocType"
+  },
+  {
+   "color": "#4463F0",
+   "doc_view": "List",
+   "format": "{} Response",
+   "label": "Incoming Response",
+   "link_to": "Incoming Response",
+   "stats_filter": "{}",
+   "type": "DocType"
+  },
+  {
+   "color": "#449CF0",
+   "doc_view": "List",
+   "format": "{} Total",
+   "label": "Symbols",
+   "link_to": "Symbols",
+   "stats_filter": "{}",
    "type": "DocType"
   },
   {
@@ -241,49 +294,11 @@
    "type": "DocType"
   },
   {
-   "doc_view": "List",
-   "format": "{} Requests",
-   "label": "Incoming Requests",
-   "link_to": "Incoming Requests",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "format": "{} Requests",
-   "label": "Outgoing Requests",
-   "link_to": "Outgoing Requests",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "format": "{} Response",
-   "label": "Incoming Response",
-   "link_to": "Incoming Response",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "label": "Signal Provider",
-   "link_to": "Signal Provider",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "label": "Signals",
-   "link_to": "Signals",
-   "type": "DocType"
-  },
-  {
+   "color": "#39E4A5",
    "doc_view": "Dashboard",
    "label": "Dashboard",
    "link_to": "Hoox",
    "type": "Dashboard"
-  },
-  {
-   "doc_view": "List",
-   "label": "Symbols",
-   "link_to": "Symbols",
-   "type": "DocType"
   }
  ]
 }
