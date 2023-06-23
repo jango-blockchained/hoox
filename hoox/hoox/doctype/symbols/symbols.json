@@ -8,7 +8,10 @@
  "engine": "InnoDB",
  "field_order": [
   "exchange",
-  "symbol"
+  "symbol",
+  "market",
+  "enabled",
+  "data"
  ],
  "fields": [
   {
@@ -26,10 +29,28 @@
    "in_list_view": 1,
    "label": "Symbol",
    "reqd": 1
+  },
+  {
+   "fieldname": "market",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Market",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "data",
+   "fieldtype": "Long Text",
+   "label": "Data"
   }
  ],
  "links": [],
- "modified": "2023-06-23 14:55:32.562446",
+ "modified": "2023-06-23 19:24:00.848275",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Symbols",

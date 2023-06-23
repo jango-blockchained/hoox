@@ -103,7 +103,7 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
 
         elif action == "close":
             all_orders = exchange.fetch_open_orders(symbol)
-            [exchange.cancel_order(
+            response["order"] = [exchange.cancel_order(
                 order["id"]) for order in all_orders]
 
         # Details
@@ -292,3 +292,68 @@ def attach_url_to_document(doc, file_url):
         print("Document does not exist.")
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+
+
+def sync_exchange_symbols(exchange_id):
+
+    pass
+
+
+@frappe.whitelist()
+def sync_all_symbols_from_enabled_exchanges():
+    enabled_exchanges = frappe.get_all("CCXT Exchanges", filters={
+                                       "enabled": 1}, fields=["name"])
+    total_exchanges = len(enabled_exchanges)
+    print(total_exchanges)
+    processed_steps = 0
+    steps = 0
+    for exchange_data in enabled_exchanges:
+        exchange_id = exchange_data["name"]
+        exchange_class = getattr(ccxt, exchange_id)
+        print(exchange_id)
+        for testnet in [True, False]:
+            exchange_instance = exchange_class({'testnet': testnet})
+            supported_market_types = get_supported_market_types(
+                exchange_instance)
+            for marketType in ["spot", "future"]:
+                if marketType in supported_market_types:
+
+                    exchange_instance.options['defaultType'] = marketType
+                    markets = exchange_instance.load_markets()
+                    steps += len(markets)
+                    for symbol, market_data in markets.items():
+                        symbol_exists = frappe.db.exists(
+                            "Symbols", {"symbol": symbol, "exchange": exchange_id, "market": marketType})
+                        # print("market_data:", market_data)
+                        print(f"Symbol: {symbol}")
+                        print(f"Exists: {symbol_exists}")
+                        if not symbol_exists:
+                            new_symbol = frappe.new_doc("Symbols")
+                            new_symbol.symbol = symbol
+                            new_symbol.exchange = exchange_id
+                            new_symbol.market = marketType
+                            new_symbol.enabled = 0
+                            new_symbol.data = json.dumps(market_data)
+                            new_symbol.insert(ignore_permissions=True)
+                            print(f"INSERT {new_symbol.name}")
+
+                        processed_steps += 1
+                        progress_percentage = (
+                            processed_steps / steps) * 100
+                        frappe.publish_progress(progress_percentage, title=_(
+                            "Syncing Symbols..."), description=f"Processing {exchange_id}")
+
+    frappe.db.commit()
+    frappe.publish_progress(100, title=_(
+        "Syncing Symbols..."), description=_("Sync completed"))
+
+
+def get_supported_market_types(exchange):
+    supported_market_types = []
+
+    if hasattr(exchange, 'has') and exchange.has:
+        for market_type in ['spot', 'future']:
+            if exchange.has.get(market_type):
+                supported_market_types.append(market_type)
+
+    return supported_market_types

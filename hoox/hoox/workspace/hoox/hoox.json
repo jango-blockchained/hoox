@@ -207,7 +207,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-23 14:59:40.080662",
+ "modified": "2023-06-23 17:44:51.984554",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -217,10 +217,12 @@
  "pin_to_top": 0,
  "shortcuts": [
   {
+   "color": "#4463F0",
    "doc_view": "List",
-   "format": "{} Success",
+   "format": "{} Total",
    "label": "Trades",
    "link_to": "Trades",
+   "stats_filter": "{}",
    "type": "DocType"
   },
   {
@@ -229,6 +231,7 @@
    "format": "{} Enabled",
    "label": "CCXT Exchanges",
    "link_to": "CCXT Exchanges",
+   "stats_filter": "",
    "type": "DocType"
   },
   {
@@ -259,22 +262,28 @@
    "type": "DocType"
   },
   {
-   "doc_view": "",
+   "doc_view": "List",
    "label": "Signal Provider",
    "link_to": "Signal Provider",
    "type": "DocType"
   },
   {
-   "doc_view": "",
+   "doc_view": "List",
    "label": "Signals",
    "link_to": "Signals",
    "type": "DocType"
   },
   {
-   "doc_view": "",
+   "doc_view": "Dashboard",
    "label": "Dashboard",
    "link_to": "Hoox",
    "type": "Dashboard"
+  },
+  {
+   "doc_view": "List",
+   "label": "Symbols",
+   "link_to": "Symbols",
+   "type": "DocType"
   }
  ]
 }
