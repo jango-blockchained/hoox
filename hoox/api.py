@@ -287,13 +287,7 @@ class HooxAPI():
         order_type = self.json.get("order_type") or "market"
         market_type = self.json.get("market_type") or "future"
         leverage = self.json.get("leverage") or None
-
-        # Initialize variables for exchange response, order ID, and status
-        exchange_response = None
-        exchange_order_id = None
         status = "Processing"
-        original_data = None
-        url = None
 
         # Execute order and handle exceptions
         try:
@@ -329,7 +323,7 @@ class HooxAPI():
             self.outgoing_request.insert(ignore_permissions=True)
 
             # Create trade document
-            exchange_response = execute_order(
+            self.order = execute_order(
                 action,
                 exchange_id,
                 symbol,
@@ -343,14 +337,17 @@ class HooxAPI():
 
             self.retry = 0
             send_message(
-                message_text=f"Order executed: {exchange_response}", user=self.exchange_creds.user)
+                message_text=f"Order executed: {self.order}", user=self.exchange_creds.user)
 
-            if exchange_response is not None:
-                exchange_order_id = exchange_response['order']['id'] or None
-            status = "Success" if exchange_order_id else "Failed"
+            if self.order is not None:
+                self.trade.exchange_order_id = self.order['order']['id'] or None
+            self.trade.status = "Success" if self.trade.exchange_order_id else "Failed"
 
-            self.trade.status = status
-            self.trade.exchange_order_id = exchange_order_id
+            self.trade.filled = self.order["details"]["filled"]
+            self.trade.cost = self.order["details"]["cost"]
+            self.trade.fee = self.order["details"]["fee"]["cost"]
+            self.trade.avg_exec_price = self.trade.cost / self.trade.filled
+
             self.trade.save()
 
             # Update trade document based on response
@@ -360,7 +357,7 @@ class HooxAPI():
                 "params": json.dumps(exchange_response),
                 "request_incoming": self.incoming_request.name,
                 "request_outgoing": self.outgoing_request.name,
-                "status": status,
+                "status": self.trade.status,
                 "origin": self.trade.name
             })
             self.incoming_response.insert(ignore_permissions=True)
@@ -380,12 +377,7 @@ class HooxAPI():
             # - - - -
             frappe.db.commit()
             # - - - -
-            return {
-                "trade": self.trade,
-                "incoming_request": self.incoming_request,
-                "outgoing_request": self.outgoing_request,
-                "incoming_response": self.incoming_response,
-            }
+            return
 
         except Exception as e:
             self.retry += 1

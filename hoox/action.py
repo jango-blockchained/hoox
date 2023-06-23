@@ -49,6 +49,8 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
     Returns the order object.
     """
 
+    order = None
+
     try:
         # Get exchange
         exchange = getattr(ccxt, exchange_id)({
@@ -72,11 +74,10 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
         #         raise ValueError(
         #             f"Exchange {exchange_id} does not have a testnet.")
 
+        response = {}
+
         if user_creds.testnet:
             exchange.set_sandbox_mode(True)
-
-        # Create order object
-        response = {}
 
         # Set leverage
         if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and 0 < leverage <= exchange.maxLeverage:
@@ -91,17 +92,23 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
             order_func_name = ORDER_TYPE_FUNCS[action].get(order_type)
             if order_func_name:
                 order_func = getattr(exchange, order_func_name)
+
                 if order_type == "limit":
                     response["order"] = order_func(symbol, quantity, price)
                 else:
                     response["order"] = order_func(symbol, quantity)
+
+                response["details"] = exchange.fetch_order(
+                    response["order"]["id"], symbol)
+
         elif action == "close":
             all_orders = exchange.fetch_open_orders(symbol)
-            response["order"] = [exchange.cancel_order(
+            [exchange.cancel_order(
                 order["id"]) for order in all_orders]
 
-        # response["original_data"] = exchange.last_json_response
-        response["original_data"].pop("Trades", None)
+        # Details
+        # response["last"] = exchange.last_json_response
+        # response["original_data"].pop("Trades", None)
 
         return response
 
