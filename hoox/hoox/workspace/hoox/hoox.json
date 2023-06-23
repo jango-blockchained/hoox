@@ -1,6 +1,11 @@
 {
  "category": "Domains",
- "charts": [],
+ "charts": [
+  {
+   "chart_name": "Trading Volume",
+   "label": "Trading Volume"
+  }
+ ],
  "creation": "2023-05-23 11:17:39.197890",
  "developer_mode_only": 0,
  "disable_user_customization": 0,
@@ -174,9 +179,35 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Signals",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Signal Provider",
+   "link_to": "Signal Provider",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Signals",
+   "link_to": "Signals",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2023-06-21 01:56:50.923914",
+ "modified": "2023-06-23 14:59:40.080662",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -198,15 +229,6 @@
    "format": "{} Enabled",
    "label": "CCXT Exchanges",
    "link_to": "CCXT Exchanges",
-   "type": "DocType"
-  },
-  {
-   "color": "#761ACB",
-   "doc_view": "List",
-   "format": "{} Enabled",
-   "label": "IP Whitelist",
-   "link_to": "IP Whitelist",
-   "stats_filter": "",
    "type": "DocType"
   },
   {
@@ -234,6 +256,18 @@
    "format": "{} Response",
    "label": "Incoming Response",
    "link_to": "Incoming Response",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Signal Provider",
+   "link_to": "Signal Provider",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Signals",
+   "link_to": "Signals",
    "type": "DocType"
   },
   {

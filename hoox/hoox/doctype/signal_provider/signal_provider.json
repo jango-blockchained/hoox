@@ -1,0 +1,71 @@
+{
+ "actions": [],
+ "allow_events_in_timeline": 1,
+ "allow_rename": 1,
+ "autoname": "HOOX-SIGPROV-.#####",
+ "creation": "2023-06-23 13:52:54.103260",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "logo_upload",
+  "provider_name",
+  "description",
+  "domain"
+ ],
+ "fields": [
+  {
+   "fieldname": "logo_upload",
+   "fieldtype": "Attach Image",
+   "label": "Logo Upload"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "HTML Editor",
+   "in_list_view": 1,
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "domain",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Domain",
+   "options": "URL"
+  },
+  {
+   "fieldname": "provider_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Provider Namer",
+   "options": "Name",
+   "reqd": 1,
+   "unique": 1
+  }
+ ],
+ "image_field": "logo_upload",
+ "links": [],
+ "modified": "2023-06-23 15:12:48.946109",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "Signal Provider",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "provider_name"
+}

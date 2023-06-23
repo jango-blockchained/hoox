@@ -1,0 +1,56 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:SYM-{exchange}-{symbol}",
+ "creation": "2023-06-23 14:55:32.562446",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "exchange",
+  "symbol"
+ ],
+ "fields": [
+  {
+   "fieldname": "exchange",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Exchange",
+   "options": "CCXT Exchanges",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "symbol",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Symbol",
+   "reqd": 1
+  }
+ ],
+ "links": [],
+ "modified": "2023-06-23 14:55:32.562446",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "Symbols",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
