@@ -8,7 +8,7 @@
  ],
  "creation": "2023-05-23 11:17:39.197890",
  "developer_mode_only": 0,
- "disable_user_customization": 0,
+ "disable_user_customization": 1,
  "docstatus": 0,
  "doctype": "Workspace",
  "extends_another_page": 0,
@@ -205,9 +205,18 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Symbols",
+   "link_to": "Symbols",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2023-06-23 21:09:24.714992",
+ "modified": "2023-06-23 21:30:09.194362",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
