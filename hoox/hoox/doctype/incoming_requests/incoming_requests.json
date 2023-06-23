@@ -1,7 +1,6 @@
 {
  "actions": [],
  "autoname": "HOOX-REQ-IN-.######",
- "beta": 1,
  "creation": "2023-06-06 01:00:13.322650",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -20,9 +19,7 @@
   "column_break_vxcyx",
   "url",
   "section_break_ed2tw",
-  "params",
-  "published",
-  "route"
+  "params"
  ],
  "fields": [
   {
@@ -34,7 +31,6 @@
   {
    "fieldname": "url",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "URL"
   },
   {
@@ -50,19 +46,6 @@
    "in_list_view": 1,
    "label": "Status",
    "options": "Processing\nFailed\nSuccess"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "default": "0",
-   "fieldname": "published",
-   "fieldtype": "Check",
-   "in_standard_filter": 1,
-   "label": "Published"
-  },
-  {
-   "fieldname": "route",
-   "fieldtype": "Data",
-   "label": "Route"
   },
   {
    "fieldname": "section_break_p2u9x",
@@ -112,7 +95,6 @@
   }
  ],
  "in_create": 1,
- "is_published_field": "published",
  "links": [
   {
    "link_doctype": "Outgoing Requests",
@@ -123,7 +105,7 @@
    "link_fieldname": "request_incoming"
   }
  ],
- "modified": "2023-06-21 02:00:08.401066",
+ "modified": "2023-06-23 01:20:48.484390",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Incoming Requests",
@@ -143,7 +125,6 @@
    "write": 1
   }
  ],
- "route": "hoox/incoming-requests",
  "sort_field": "modified",
  "sort_order": "DESC"
 }
