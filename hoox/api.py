@@ -284,6 +284,7 @@ class HooxAPI():
         symbol = self.json.get("symbol")
         price = self.json.get("price")
         quantity = self.json.get("quantity")
+        percent = self.json.get("percent") or False
         order_type = self.json.get("order_type") or "market"
         market_type = self.json.get("market_type") or "future"
         leverage = self.json.get("leverage") or None
@@ -305,6 +306,7 @@ class HooxAPI():
                         "symbol": symbol,
                         "price": price,
                         "quantity": quantity,
+                        "percent": percent,
                         "leverage": leverage,
                         "status": status,
                     }
@@ -329,6 +331,7 @@ class HooxAPI():
                 symbol,
                 price,
                 quantity,
+                percent,
                 order_type,
                 market_type,
                 leverage,

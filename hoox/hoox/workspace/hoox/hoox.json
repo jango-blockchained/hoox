@@ -216,7 +216,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-23 21:30:09.194362",
+ "modified": "2023-06-24 14:12:28.928426",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -258,6 +258,14 @@
    "format": "{} Active",
    "label": "Signals",
    "link_to": "Signals",
+   "stats_filter": "{}",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "format": "{} Total",
+   "label": "Incoming Signals",
+   "link_to": "Incoming Signals",
    "stats_filter": "{}",
    "type": "DocType"
   },

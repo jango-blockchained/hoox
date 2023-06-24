@@ -43,13 +43,11 @@ def get_linked_documents(doctype, docname):
     return docs
 
 
-def execute_order(action, exchange_id, symbol, price, quantity, order_type, market_type, leverage, user_creds):
+def execute_order(action, exchange_id, symbol, price, quantity, percent, order_type, market_type, leverage, user_creds):
     """
     Execute an order on an exchange using CCXT.
     Returns the order object.
     """
-
-    order = None
 
     try:
         # Get exchange
@@ -75,6 +73,12 @@ def execute_order(action, exchange_id, symbol, price, quantity, order_type, mark
         #             f"Exchange {exchange_id} does not have a testnet.")
 
         response = {}
+
+        if percent:
+            open_orders = exchange.fetch_open_orders(symbol)
+            open_order_amount = sum([order['remaining']
+                                    for order in open_orders])
+            quantity = open_order_amount * quantity / 100
 
         if user_creds.testnet:
             exchange.set_sandbox_mode(True)
@@ -315,33 +319,32 @@ def sync_all_symbols_from_enabled_exchanges():
             exchange_instance = exchange_class({'testnet': testnet})
             supported_market_types = get_supported_market_types(
                 exchange_instance)
-            for mi, marketType in enumerate(["spot", "future"]):
-                if marketType in supported_market_types:
+            for mi, marketType in enumerate(supported_market_types):
 
-                    exchange_instance.options['defaultType'] = marketType
-                    markets = exchange_instance.load_markets()
-                    steps += len(markets)
-                    for symbol, market_data in markets.items():
-                        symbol_exists = frappe.db.exists(
-                            "Symbols", {"symbol": symbol, "exchange": exchange_id, "market": marketType})
-                        # print("market_data:", market_data)
-                        print(f"Symbol: {symbol}")
-                        print(f"Exists: {symbol_exists}")
-                        if not symbol_exists:
-                            new_symbol = frappe.new_doc("Symbols")
-                            new_symbol.symbol = symbol
-                            new_symbol.exchange = exchange_id
-                            new_symbol.market = marketType
-                            new_symbol.enabled = 0
-                            new_symbol.data = json.dumps(market_data)
-                            new_symbol.insert(ignore_permissions=True)
-                            print(f"INSERT {new_symbol.name}")
+                exchange_instance.options['defaultType'] = marketType
+                markets = exchange_instance.load_markets()
+                steps += len(markets)
+                for symbol, market_data in markets.items():
+                    symbol_exists = frappe.db.exists(
+                        "Symbols", {"symbol": symbol, "exchange": exchange_id, "market": marketType})
+                    # print("market_data:", market_data)
+                    print(f"Symbol: {symbol}")
+                    print(f"Exists: {symbol_exists}")
+                    if not symbol_exists:
+                        new_symbol = frappe.new_doc("Symbols")
+                        new_symbol.symbol = symbol
+                        new_symbol.exchange = exchange_id
+                        new_symbol.market = marketType
+                        new_symbol.enabled = 0
+                        new_symbol.data = json.dumps(market_data)
+                        new_symbol.insert(ignore_permissions=True)
+                        print(f"INSERT {new_symbol.name}")
 
-                        processed_steps += 1
-                        progress_percentage = (
-                            processed_steps / steps) * 100 * (ei+1) / total_exchanges * (mi+1) / 2
-                        frappe.publish_progress(progress_percentage, title=_(
-                            f"Syncing {exchange_id}"), description=f"Processing {marketType} {symbol}")
+                    processed_steps += 1
+                    progress_percentage = (
+                        processed_steps / steps) * 100 * (ei+1) / total_exchanges * (mi+1) / 2
+                    frappe.publish_progress(progress_percentage, title=_(
+                        f"Syncing {exchange_id}"), description=f"Processing {marketType} {symbol}")
 
     frappe.db.commit()
     frappe.publish_progress(100, title=_(
@@ -363,11 +366,14 @@ def get_supported_market_types(exchange):
 def activate_all_symbols():
     docs = frappe.get_all("Symbols")
     amount = len(docs)
-    for i, doc in docs:
+    for i, ref in enumerate(docs):
+        doc = frappe.get_doc("Symbols", ref.name)
         doc.update({"enabled": 1})
         doc.save()
-        frappe.publish_progress(i / amount * 100, title=_(
-            f"Activating {doc.name}"), description="Processing")
-    frappe.publish_progress(100, title=_(
-                            f"Successfully Activated Symbols"), description=f"Finished")
+        frappe.publish_progress(
+            i / amount * 100, title=_("Activating"), description=_("Processing"))
+    frappe.publish_progress(100, title=_("Activating"),
+                            description=_("Finished"))
     frappe.db.commit()
+
+    return 'Successfull'

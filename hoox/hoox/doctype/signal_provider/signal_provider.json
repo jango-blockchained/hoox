@@ -11,7 +11,8 @@
   "logo_upload",
   "provider_name",
   "description",
-  "domain"
+  "domain",
+  "owner"
  ],
  "fields": [
   {
@@ -41,11 +42,17 @@
    "options": "Name",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "fieldname": "owner",
+   "fieldtype": "Link",
+   "label": "Owner",
+   "options": "User"
   }
  ],
  "image_field": "logo_upload",
  "links": [],
- "modified": "2023-06-23 17:47:22.622172",
+ "modified": "2023-06-24 14:20:29.224026",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Signal Provider",
