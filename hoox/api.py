@@ -76,7 +76,7 @@ class HooxAPI():
             self.action.append("trade")
         if self.json.get("haas") and self.json.get("haas").get("entity_id"):
             self.action.append("homeassistant")
-        if self.json.get("telegram"):
+        if self.json.get("telegram") and self.json.get("telegram").get("message"):
             self.action.append("telegram")
 
         self.save_incoming_request(
@@ -89,8 +89,8 @@ class HooxAPI():
         self.cfg = frappe.get_single("Hoox Settings")
 
         # Initialize logger
-        self.log = get_logger(__name__ if self.cfg.log_type ==
-                              "Global" else self.secret_hash)
+        self.log = get_logger(__name__ if self.cfg.log_type !=
+                              "Personal" else self.secret_hash)
         self.log.setLevel(logging.getLevelName(self.cfg.log_level))
 
     # ------------------------------------------------------------
@@ -343,21 +343,21 @@ class HooxAPI():
                 message_text=f"Order executed: {self.order}", user=self.exchange_creds.user)
 
             if self.order is not None:
-                self.trade.exchange_order_id = self.order['order']['id'] or None
+                self.trade.exchange_order_id = self.order['order'].get(
+                    'id') or None
             self.trade.status = "Success" if self.trade.exchange_order_id else "Failed"
 
-            self.trade.filled = self.order["details"]["filled"]
-            self.trade.cost = self.order["details"]["cost"]
-            self.trade.fee = self.order["details"]["fee"]["cost"]
-            self.trade.avg_exec_price = self.trade.cost / self.trade.filled
-
+            # self.trade.filled = self.order["details"].get("filled")
+            # self.trade.cost = self.order["details"].get("cost")
+            # self.trade.fee = self.order["details"].get("fee").get("cost")
+            # self.trade.avg_exec_price = self.trade.cost / self.trade.filled
             self.trade.save()
 
             # Update trade document based on response
             self.incoming_response = frappe.get_doc({
                 "doctype": "Incoming Response",
                 "method": action,
-                "params": json.dumps(exchange_response),
+                "params": json.dumps(self.order),
                 "request_incoming": self.incoming_request.name,
                 "request_outgoing": self.outgoing_request.name,
                 "status": self.trade.status,

@@ -72,16 +72,16 @@ def execute_order(action, exchange_id, symbol, price, quantity, percent, order_t
         #         raise ValueError(
         #             f"Exchange {exchange_id} does not have a testnet.")
 
-        response = {}
-
-        if percent:
-            open_orders = exchange.fetch_open_orders(symbol)
-            open_order_amount = sum([order['remaining']
-                                    for order in open_orders])
-            quantity = open_order_amount * quantity / 100
-
         if user_creds.testnet:
             exchange.set_sandbox_mode(True)
+
+        response = {}
+
+        # open_orders = exchange.fetch_open_orders(symbol)
+        # open_order_amount = sum([order['remaining']
+        #                          for order in open_orders])
+        # if percent:
+        #     quantity = open_order_amount * quantity / 100
 
         # Set leverage
         if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and 0 < leverage <= exchange.maxLeverage:
@@ -102,8 +102,8 @@ def execute_order(action, exchange_id, symbol, price, quantity, percent, order_t
                 else:
                     response["order"] = order_func(symbol, quantity)
 
-                response["details"] = exchange.fetch_order(
-                    response["order"]["id"], symbol)
+                # response["details"] = exchange.fetch_open_order(
+                #     response["order"]["id"], symbol)
 
         elif action == "close":
             all_orders = exchange.fetch_open_orders(symbol)

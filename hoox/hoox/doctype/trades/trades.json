@@ -240,7 +240,8 @@
    "default": "0",
    "fieldname": "percent",
    "fieldtype": "Check",
-   "label": "Percent"
+   "label": "Percent",
+   "read_only": 1
   }
  ],
  "in_create": 1,
@@ -261,7 +262,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-06-24 15:07:30.467444",
+ "modified": "2023-06-25 13:38:38.515021",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trades",

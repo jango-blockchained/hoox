@@ -51,8 +51,13 @@
   }
  ],
  "image_field": "logo_upload",
- "links": [],
- "modified": "2023-06-24 14:20:29.224026",
+ "links": [
+  {
+   "link_doctype": "Signals",
+   "link_fieldname": "sig_provider"
+  }
+ ],
+ "modified": "2023-06-24 23:05:48.836616",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Signal Provider",

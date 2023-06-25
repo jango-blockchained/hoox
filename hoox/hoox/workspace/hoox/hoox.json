@@ -74,6 +74,15 @@
   },
   {
    "hidden": 0,
+   "is_query_report": 0,
+   "label": "Supported Markets",
+   "link_to": "Supported Markets",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
    "icon": "tool",
    "is_query_report": 0,
    "label": "Settings",
@@ -209,14 +218,58 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Incoming Signals",
+   "link_to": "Incoming Signals",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Symbols",
    "link_to": "Symbols",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Abonnement Management",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Abonnementplan",
+   "link_to": "Subscription Plan",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Abonnement",
+   "link_to": "Subscription",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Abonnementeinstellungen",
+   "link_to": "Subscription Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2023-06-24 14:12:28.928426",
+ "modified": "2023-06-25 14:33:38.184882",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",

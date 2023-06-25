@@ -12,7 +12,8 @@
   "sig_secret_hash",
   "sig_desc",
   "sig_exchanges",
-  "sig_symbols"
+  "sig_symbols",
+  "market"
  ],
  "fields": [
   {
@@ -37,6 +38,7 @@
    "options": "Signals Exchange Table"
   },
   {
+   "depends_on": "sig_exchanges",
    "fieldname": "sig_symbols",
    "fieldtype": "Table MultiSelect",
    "label": "Symbols",
@@ -47,10 +49,16 @@
    "fieldtype": "Link",
    "label": "Signal Provider",
    "options": "Signal Provider"
+  },
+  {
+   "fieldname": "market",
+   "fieldtype": "Select",
+   "label": "Market",
+   "options": "spot\nfuture"
   }
  ],
  "links": [],
- "modified": "2023-06-23 20:43:21.775807",
+ "modified": "2023-06-25 14:02:42.863310",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Signals",
