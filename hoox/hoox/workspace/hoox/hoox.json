@@ -269,7 +269,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-25 14:33:38.184882",
+ "modified": "2023-06-29 08:25:52.466937",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -290,7 +290,7 @@
   {
    "color": "#29CD42",
    "doc_view": "List",
-   "format": "{} Enabled",
+   "format": "{} Total",
    "label": "CCXT Exchanges",
    "link_to": "CCXT Exchanges",
    "stats_filter": "{}",
@@ -308,7 +308,7 @@
   {
    "color": "#ECAD4B",
    "doc_view": "List",
-   "format": "{} Active",
+   "format": "{} Total",
    "label": "Signals",
    "link_to": "Signals",
    "stats_filter": "{}",

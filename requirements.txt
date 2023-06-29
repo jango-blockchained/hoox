@@ -1,5 +1,6 @@
 frappe
+frappe_telegram
 ccxt
-ccxtpro
-python-telegram-bot
 tenacity
+# ccxtpro
+# python-telegram-bot
