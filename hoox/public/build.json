@@ -1,0 +1,5 @@
+{
+    "js/chart_bundle.js": [
+        "public/js/lightchart.js"
+    ]
+}
