@@ -184,9 +184,9 @@ user_data_fields = [
 # Authentication and authorization
 # --------------------------------
 
-auth_hooks = [
-    "hoox.user.auth"
-]
+# auth_hooks = [
+#     "hoox.user.auth"
+# ]
 
 
 # Fixtures

@@ -229,7 +229,7 @@ def add_ip_addresses():
         # Check if the doc exists
         if not frappe.db.exists("IP Whitelist", {"ip": ip_address}):
             doc = frappe.new_doc("IP Whitelist")
-            doc.sig_provider = "TradingView™"
+            doc.sig_provider = "TradingView"
             doc.friendly_name = friendly_name
             doc.ip = ip_address
             doc.insert()
@@ -241,7 +241,7 @@ def add_ip_addresses():
 def add_whitelist_all():
     if not frappe.db.exists("IP Whitelist", {"ip": "*"}):
         doc = frappe.new_doc("IP Whitelist")
-        doc.sig_provider = "TradingView™"
+        doc.sig_provider = "DEVELOPMENT"
         doc.friendly_name = "Whitelist All"
         doc.ip = "*"
         doc.insert()
