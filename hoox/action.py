@@ -236,50 +236,6 @@ def add_ip_addresses():
     return
 
 
-# @frappe.whitelist()
-# def download_exchange_logo(exchange_id, logo_url):
-#     directory = "public/images/exchange_logos"
-#     os.makedirs(directory, exist_ok=True)
-
-#     url_file_name = os.path.basename(logo_url)
-#     # Split the filename into name and extension
-#     url_name, url_extension = os.path.splitext(url_file_name)
-
-#     file_name = f"{exchange_id}_logo.{url_extension.lstrip('.')}"
-#     file_path = os.path.join(directory, file_name)
-
-#     response = requests.get(logo_url)
-#     if response.status_code == 200:
-#         with open(file_path, "wb") as file:
-#             file.write(response.content)
-#         print(f"Logo downloaded for exchange {exchange_id}")
-#     else:
-#         print(f"Failed to download logo for exchange {exchange_id}")
-
-#     # Using io.BytesIO to write the response content
-#     if response.status_code == 200:
-#         with open(file_path, "wb") as file:
-#             buffer = io.BytesIO(response.content)
-#             file.write(buffer.read())
-#         print(f"Logo downloaded for exchange {exchange_id}")
-#     else:
-#         print(f"Failed to download logo for exchange {exchange_id}")
-
-
-# @frappe.whitelist()
-# def download_all_exchange_logos():
-#     directory = "public/images/exchange_logos"
-#     os.makedirs(directory, exist_ok=True)
-
-#     for exchange_id in ccxt.exchanges:
-#         exchange_class = getattr(ccxt, exchange_id)
-#         exchange = exchange_class()
-
-#         logo_url = exchange.urls.get("logo")
-#         if logo_url:
-#             download_exchange_logo(exchange_id, logo_url)
-
-
 def save_file_from_buffer(buffer, filename):
     with open(filename, 'wb') as file:
         file.write(buffer.getbuffer())
@@ -296,11 +252,6 @@ def attach_url_to_document(doc, file_url):
         print("Document does not exist.")
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-
-
-def sync_exchange_symbols(exchange_id):
-
-    pass
 
 
 @frappe.whitelist()
@@ -344,11 +295,12 @@ def sync_all_symbols_from_enabled_exchanges():
                     progress_percentage = (
                         processed_steps / steps) * 100 * (ei+1) / total_exchanges * (mi+1) / 2
                     frappe.publish_progress(progress_percentage, title=_(
-                        f"Syncing {exchange_id}"), description=f"Processing {marketType} {symbol}")
+                        f"Syncing Symbols..."), description=f"Processing {exchange_id} {marketType} {symbol}")
+                processed_steps = 0
 
     frappe.db.commit()
     frappe.publish_progress(100, title=_(
-        "Syncing Symbols..."), description=_("Sync completed"))
+        "Syncing Symbols..."), description=_("Completed!"))
 
 
 def get_supported_market_types(exchange):
@@ -377,3 +329,78 @@ def activate_all_symbols():
     frappe.db.commit()
 
     return 'Successfull'
+
+
+@frappe.whitelist()
+def delete_symbols(force=False):
+    """
+    Delete all exchanges from the database.
+    """
+
+    if frappe.db.count("Symbols") == 0:
+        frappe.msgprint(f"No Symbols found in database.")
+        return False
+
+    docs = frappe.get_all("Symbols")
+    amount = len(docs)
+    for i, doc in enumerate(docs):
+        linked_docs = get_linked_documents("Symbols", doc.name)
+        links = len(linked_docs)
+        if links > 0:
+            if not force:
+                frappe.msgprint(
+                    f"Symbol '{doc.name}' has {links} linked documents. Skipping deletion."
+                )
+                continue
+        frappe.delete_doc("Symbols", doc.name, force=force)
+        frappe.publish_progress(percent=(i / amount) *
+                                100, title=_('Processing...'))
+
+    frappe.db.commit()
+    frappe.publish_progress(percent=100, title=_('Processing...'))
+
+    return f"{amount} symbols deleted successfully."
+
+
+# @frappe.whitelist()
+# def download_exchange_logo(exchange_id, logo_url):
+#     directory = "public/images/exchange_logos"
+#     os.makedirs(directory, exist_ok=True)
+
+#     url_file_name = os.path.basename(logo_url)
+#     # Split the filename into name and extension
+#     url_name, url_extension = os.path.splitext(url_file_name)
+
+#     file_name = f"{exchange_id}_logo.{url_extension.lstrip('.')}"
+#     file_path = os.path.join(directory, file_name)
+
+#     response = requests.get(logo_url)
+#     if response.status_code == 200:
+#         with open(file_path, "wb") as file:
+#             file.write(response.content)
+#         print(f"Logo downloaded for exchange {exchange_id}")
+#     else:
+#         print(f"Failed to download logo for exchange {exchange_id}")
+
+#     # Using io.BytesIO to write the response content
+#     if response.status_code == 200:
+#         with open(file_path, "wb") as file:
+#             buffer = io.BytesIO(response.content)
+#             file.write(buffer.read())
+#         print(f"Logo downloaded for exchange {exchange_id}")
+#     else:
+#         print(f"Failed to download logo for exchange {exchange_id}")
+
+
+# @frappe.whitelist()
+# def download_all_exchange_logos():
+#     directory = "public/images/exchange_logos"
+#     os.makedirs(directory, exist_ok=True)
+
+#     for exchange_id in ccxt.exchanges:
+#         exchange_class = getattr(ccxt, exchange_id)
+#         exchange = exchange_class()
+
+#         logo_url = exchange.urls.get("logo")
+#         if logo_url:
+#             download_exchange_logo(exchange_id, logo_url)

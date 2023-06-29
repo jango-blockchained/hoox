@@ -99,6 +99,7 @@
   {
    "fieldname": "logo_url",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Logo",
    "options": "URL"
   },
@@ -124,7 +125,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2023-06-24 14:29:52.405517",
+ "modified": "2023-06-29 02:09:51.227442",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "CCXT Exchanges",

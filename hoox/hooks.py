@@ -6,8 +6,8 @@ app_publisher = "jango_blockchained"
 app_description = (
     "An API Gateway to handle Tradingview Alerts and execute trades using ccxt."
 )
-app_icon = "octicon octicon-file-directory"
-app_color = "grey"
+app_icon = "fa fa-line-chart"
+app_color = "orange"
 app_email = "info@cryptolinx.de"
 app_license = "MIT"
 
