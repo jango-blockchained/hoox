@@ -8,10 +8,10 @@
  "engine": "InnoDB",
  "field_order": [
   "friendly_name",
-  "sig_provider",
   "enabled",
   "column_break_oe2kg",
-  "ip"
+  "ip",
+  "sig_provider"
  ],
  "fields": [
   {
@@ -44,12 +44,11 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Signal Provider",
-   "options": "Signal Provider",
-   "reqd": 1
+   "options": "Signal Provider"
   }
  ],
  "links": [],
- "modified": "2023-06-29 03:20:11.320099",
+ "modified": "2023-06-29 07:11:12.030590",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "IP Whitelist",

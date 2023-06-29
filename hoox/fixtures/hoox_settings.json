@@ -1,0 +1,23 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Hoox Settings",
+  "haas_enabled": 1,
+  "log_enabled": 1,
+  "log_file_count": 2,
+  "log_level": "DEBUG",
+  "log_type": "Global",
+  "modified": "2023-06-18 03:02:30.982003",
+  "name": "Hoox Settings",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "retry_backoff": 1,
+  "retry_enabled": 1,
+  "retry_max": 4,
+  "retry_min": 2,
+  "retry_stop_after": 5,
+  "telegram_bot_token": "**********************************************",
+  "telegram_enabled": 1
+ }
+]

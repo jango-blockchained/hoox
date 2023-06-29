@@ -21,6 +21,11 @@ def get_exchange_credentials(secret_hash):
     return exchange_creds if exchange_creds.enabled else None
 
 
+def auth(secret_hash):
+    creds = get_exchange_credentials(secret_hash)
+    True if creds is not None else False
+
+
 def get_telegram_credentials(user):
     telegram_creds = frappe.get_doc("Telegram User", {"user": user})
     return telegram_creds

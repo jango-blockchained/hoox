@@ -184,6 +184,12 @@ user_data_fields = [
 # Authentication and authorization
 # --------------------------------
 
-# auth_hooks = [
-# 	"hoox.auth.validate"
-# ]
+auth_hooks = [
+    "hoox.user.auth"
+]
+
+
+# Fixtures
+# --------
+
+fixtures = ['Signal Provider', 'Supported Markets', 'Hoox Settings']

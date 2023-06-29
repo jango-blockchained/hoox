@@ -1,0 +1,24 @@
+[
+ {
+  "_user_tags": ",fixtures",
+  "docstatus": 0,
+  "doctype": "Supported Markets",
+  "market_type": "spot",
+  "modified": "2023-06-29 02:07:36.902251",
+  "name": "spot",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null
+ },
+ {
+  "_user_tags": ",fixtures",
+  "docstatus": 0,
+  "doctype": "Supported Markets",
+  "market_type": "future",
+  "modified": "2023-06-29 02:07:45.792846",
+  "name": "future",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null
+ }
+]
