@@ -55,9 +55,17 @@
   {
    "link_doctype": "Signals",
    "link_fieldname": "sig_provider"
+  },
+  {
+   "link_doctype": "IP Whitelist",
+   "link_fieldname": "sig_provider"
+  },
+  {
+   "link_doctype": "Incoming Signals",
+   "link_fieldname": "sig_provider"
   }
  ],
- "modified": "2023-06-24 23:05:48.836616",
+ "modified": "2023-06-29 03:26:51.179937",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Signal Provider",

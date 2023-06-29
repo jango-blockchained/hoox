@@ -255,7 +255,7 @@ def attach_url_to_document(doc, file_url):
 
 
 @frappe.whitelist()
-def sync_all_symbols_from_enabled_exchanges():
+def sync_symbols():
     enabled_exchanges = frappe.get_all("CCXT Exchanges", filters={
                                        "enabled": 1}, fields=["name"])
     total_exchanges = len(enabled_exchanges)
@@ -313,7 +313,7 @@ def get_supported_market_types(exchange):
 
 
 @frappe.whitelist()
-def activate_all_symbols():
+def activate_symbols():
     docs = frappe.get_all("Symbols")
     amount = len(docs)
     for i, ref in enumerate(docs):
@@ -326,7 +326,7 @@ def activate_all_symbols():
 
 
 @frappe.whitelist()
-def delete_symbols(force=False):
+def delete_symbols():
     """
     Delete all exchanges from the database.
     """
@@ -338,15 +338,7 @@ def delete_symbols(force=False):
     docs = frappe.get_all("Symbols")
     amount = len(docs)
     for i, doc in enumerate(docs):
-        linked_docs = get_linked_documents("Symbols", doc.name)
-        links = len(linked_docs)
-        if links > 0:
-            if not force:
-                frappe.msgprint(
-                    f"Symbol '{doc.name}' has {links} linked documents. Skipping deletion."
-                )
-                continue
-        frappe.delete_doc("Symbols", doc.name, force=force)
+        frappe.delete_doc("Symbols", doc.name, force=True)
         frappe.publish_progress(percent=(i / amount) *
                                 100, title=_('Processing...'))
 

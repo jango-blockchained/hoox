@@ -1,10 +1,10 @@
 frappe.listview_settings["Symbols"] = {
   onload: function (listview) {
     listview.page.add_inner_button(
-      __("Sync All Symbols"),
+      __("Sync Symbols"),
       function () {
         frappe.call({
-          method: "hoox.action.sync_all_symbols_from_enabled_exchanges",
+          method: "hoox.action.sync_symbols",
           callback: function (r) {
             if (r.message) {
               frappe.msgprint(r.message);
@@ -25,10 +25,10 @@ frappe.listview_settings["Symbols"] = {
       __("Symbols")
     );
     listview.page.add_inner_button(
-      __("Activate All Symbols"),
+      __("Activate Symbols"),
       function () {
         frappe.call({
-          method: "hoox.action.activate_all_symbols",
+          method: "hoox.action.activate_symbols",
           callback: function (r) {
             if (r.message) {
               frappe.msgprint(r.message);
@@ -49,13 +49,10 @@ frappe.listview_settings["Symbols"] = {
       __("Symbols")
     );
     listview.page.add_inner_button(
-      __("Delete All Symbols"),
+      __("Delete Symbols"),
       function () {
         frappe.call({
           method: "hoox.action.delete_symbols",
-          args: {
-            force: true,
-          },
           callback: function (r) {
             if (r.message) {
               frappe.msgprint(r.message);
