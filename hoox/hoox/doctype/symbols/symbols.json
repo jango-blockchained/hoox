@@ -7,8 +7,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "exchange",
   "symbol",
+  "symbol_id",
+  "exchange",
+  "logo_url",
   "market",
   "enabled",
   "params"
@@ -56,11 +58,24 @@
    "fieldtype": "Long Text",
    "hidden": 1,
    "label": "Parameter"
+  },
+  {
+   "fieldname": "symbol_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Symbol ID"
+  },
+  {
+   "fieldname": "logo_url",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Logo",
+   "options": "URL"
   }
  ],
  "in_create": 1,
  "links": [],
- "modified": "2023-06-29 02:25:00.620315",
+ "modified": "2023-06-29 03:07:05.066329",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Symbols",

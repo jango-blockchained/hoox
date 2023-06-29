@@ -5,7 +5,7 @@ frappe.listview_settings["CCXT Exchanges"] = {
     "logo_url",
     "precision_mode",
     "testnet",
-    "rate_limit"
+    "rate_limit",
   ],
   hide_name_column: true,
   onload: function (listview) {
@@ -55,7 +55,7 @@ frappe.listview_settings["CCXT Exchanges"] = {
           freeze_message: __("Deleting Exchanges..."),
           progress: (percent) => {
             frappe.show_progress(__("Progress"), percent, 100);
-          }
+          },
         });
       },
       __("Exchange")
@@ -82,7 +82,7 @@ frappe.listview_settings["CCXT Exchanges"] = {
           freeze_message: __("Deleting Exchanges..."),
           progress: (percent) => {
             frappe.show_progress(__("Progress"), percent, 100);
-          }
+          },
         });
       },
       __("Exchange")
@@ -104,16 +104,9 @@ frappe.listview_settings["CCXT Exchanges"] = {
       return __("Show Features");
     },
     action(doc) {
-      // frappe.set_route("Form", "CCXT Exchanges", doc.name);
-      frappe.db.get_doc('CCXT Exchanges', doc.name)
-      .then(row => {
-          // frappe.msgprint({
-          //   title: __('Features'),
-          //   indicator: 'green',
-          //   message: JSON.stringify(JSON.parse(row.has), null, 4)
-          // });
-        let jsonContent = JSON.parse(row.has)
-        let Fields = []
+      frappe.db.get_doc("CCXT Exchanges", doc.name).then((row) => {
+        let jsonContent = JSON.parse(row.has);
+        let Fields = [];
         for (let key in jsonContent) {
           if (jsonContent.hasOwnProperty(key)) {
             let value = jsonContent[key];
@@ -122,23 +115,21 @@ frappe.listview_settings["CCXT Exchanges"] = {
               label: key,
               fieldname: key,
               default: value,
-              read_only: true
+              read_only: true,
             });
           }
         }
         let d = new frappe.ui.Dialog({
-          title: __('API Permissions'),
+          title: __("API Permissions"),
           fields: Fields,
-          size: 'small', // small, large, extra-large 
-          primary_action_label: __('Hide'),
+          size: "small",
+          primary_action_label: __("Hide"),
           primary_action(values) {
-              d.hide();
-          }
+            d.hide();
+          },
         });
-
-        // Show the dialog box
         d.show();
-      })
-    }
-  }
+      });
+    },
+  },
 };

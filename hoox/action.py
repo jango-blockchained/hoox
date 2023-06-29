@@ -259,7 +259,7 @@ def sync_all_symbols_from_enabled_exchanges():
     enabled_exchanges = frappe.get_all("CCXT Exchanges", filters={
                                        "enabled": 1}, fields=["name"])
     total_exchanges = len(enabled_exchanges)
-    print(total_exchanges)
+
     processed_steps = 0
     steps = 0
     for ei, exchange_data in enumerate(enabled_exchanges):
@@ -278,18 +278,15 @@ def sync_all_symbols_from_enabled_exchanges():
                 for symbol, market_data in markets.items():
                     symbol_exists = frappe.db.exists(
                         "Symbols", {"symbol": symbol, "exchange": exchange_id, "market": marketType})
-                    # print("market_data:", market_data)
-                    print(f"Symbol: {symbol}")
-                    print(f"Exists: {symbol_exists}")
+
                     if not symbol_exists:
                         new_symbol = frappe.new_doc("Symbols")
                         new_symbol.symbol = symbol
                         new_symbol.exchange = exchange_id
                         new_symbol.market = marketType
                         new_symbol.enabled = 0
-                        new_symbol.data = json.dumps(market_data)
+                        new_symbol.params = json.dumps(market_data)
                         new_symbol.insert(ignore_permissions=True)
-                        print(f"INSERT {new_symbol.name}")
 
                     processed_steps += 1
                     progress_percentage = (
@@ -298,9 +295,10 @@ def sync_all_symbols_from_enabled_exchanges():
                         f"Syncing Symbols..."), description=f"Processing {exchange_id} {marketType} {symbol}")
                 processed_steps = 0
 
-    frappe.db.commit()
     frappe.publish_progress(100, title=_(
         "Syncing Symbols..."), description=_("Completed!"))
+
+    return 'Successfull'
 
 
 def get_supported_market_types(exchange):
@@ -319,15 +317,11 @@ def activate_all_symbols():
     docs = frappe.get_all("Symbols")
     amount = len(docs)
     for i, ref in enumerate(docs):
-        doc = frappe.get_doc("Symbols", ref.name)
-        doc.update({"enabled": 1})
-        doc.save()
+        frappe.db.set_value("symbols", symbol.name, "enabled", 1)
         frappe.publish_progress(
             i / amount * 100, title=_("Activating"), description=_("Processing"))
     frappe.publish_progress(100, title=_("Activating"),
                             description=_("Finished"))
-    frappe.db.commit()
-
     return 'Successfull'
 
 
@@ -356,7 +350,6 @@ def delete_symbols(force=False):
         frappe.publish_progress(percent=(i / amount) *
                                 100, title=_('Processing...'))
 
-    frappe.db.commit()
     frappe.publish_progress(percent=100, title=_('Processing...'))
 
     return f"{amount} symbols deleted successfully."

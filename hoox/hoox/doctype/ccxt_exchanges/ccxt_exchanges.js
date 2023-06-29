@@ -27,7 +27,7 @@ frappe.ui.form.on("CCXT Exchanges", {
         });
         d.show();
       })
-      .css({ "background-color": "#5525d8", color: "#fff" });
+      .css({ "background-color": "#5451f0", color: "#fff" });
   },
 });
 

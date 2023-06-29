@@ -48,57 +48,71 @@ frappe.listview_settings["Symbols"] = {
       },
       __("Symbols")
     );
-    //   formatters: {
-    //     logo_url(val) {
-    //       return '<img src="' + val + '" class="rounded img-fluid" alt="logo" />';
-    //     },
-    //   },
-    //   button: {
-    //     show(doc) {
-    //       return doc.name;
-    //     },
-    //     get_label() {
-    //       return "Features";
-    //     },
-    //     get_description(doc) {
-    //       return __("Show Features");
-    //     },
-    //     action(doc) {
-    //       // frappe.set_route("Form", "CCXT Exchanges", doc.name);
-    //       frappe.db.get_doc("CCXT Exchanges", doc.name).then((row) => {
-    //         // frappe.msgprint({
-    //         //   title: __('Features'),
-    //         //   indicator: 'green',
-    //         //   message: JSON.stringify(JSON.parse(row.has), null, 4)
-    //         // });
-    //         let jsonContent = JSON.parse(row.has);
-    //         let Fields = [];
-    //         for (let key in jsonContent) {
-    //           if (jsonContent.hasOwnProperty(key)) {
-    //             let value = jsonContent[key];
-    //             Fields.push({
-    //               fieldtype: "Data",
-    //               label: key,
-    //               fieldname: key,
-    //               default: value,
-    //               read_only: true,
-    //             });
-    //           }
-    //         }
-    //         let d = new frappe.ui.Dialog({
-    //           title: __("API Permissions"),
-    //           fields: Fields,
-    //           size: "small", // small, large, extra-large
-    //           primary_action_label: __("Hide"),
-    //           primary_action(values) {
-    //             d.hide();
-    //           },
-    //         });
-
-    //         // Show the dialog box
-    //         d.show();
-    //       });
-    //     },
-    //   },
+    listview.page.add_inner_button(
+      __("Delete All Symbols"),
+      function () {
+        frappe.call({
+          method: "hoox.action.delete_symbols",
+          args: {
+            force: true,
+          },
+          callback: function (r) {
+            if (r.message) {
+              frappe.msgprint(r.message);
+            }
+          },
+          error: function (r) {
+            if (r.message) {
+              frappe.msgprint(r.message);
+            }
+          },
+          freeze: true,
+          freeze_message: __("Deleting Symbols..."),
+          progress: (percent) => {
+            frappe.show_progress(__("Progress"), percent, 100);
+          },
+        });
+      },
+      __("Symbols")
+    );
+  },
+  button: {
+    show(doc) {
+      return doc.name;
+    },
+    get_label() {
+      return "Market Data";
+    },
+    get_description(doc) {
+      return __("Show Full Market Data");
+    },
+    action(doc) {
+      frappe.db.get_doc("Symbols", doc.name).then((row) => {
+        let jsonContent = JSON.parse(row.params);
+        let Fields = [];
+        for (let key in jsonContent) {
+          if (jsonContent.hasOwnProperty(key)) {
+            let value = jsonContent[key];
+            Fields.push({
+              fieldtype: "Data",
+              label: key,
+              fieldname: key,
+              default: value,
+              read_only: true,
+            });
+          }
+        }
+        let d = new frappe.ui.Dialog({
+          title: __("Symbol Market Data"),
+          fields: Fields,
+          size: "small",
+          primary_action_label: __("Hide"),
+          primary_action(values) {
+            d.hide();
+          },
+        });
+        d.show();
+      });
+    },
   },
 };
