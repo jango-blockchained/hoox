@@ -242,8 +242,9 @@ def add_whitelist_all():
     if not frappe.db.exists("IP Whitelist", {"ip": "*"}):
         doc = frappe.new_doc("IP Whitelist")
         doc.sig_provider = "SYSTEM"
-        doc.friendly_name = "Whitelist All"
+        doc.friendly_name = "Whitelist All (NOT RECOMMANDED!)"
         doc.ip = "*"
+        doc.enabled = 0
         doc.insert()
 
         return "Whitelist All '*' address placeholder added successfully."

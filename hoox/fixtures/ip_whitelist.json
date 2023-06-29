@@ -1,54 +1,54 @@
 [
- {
-  "docstatus": 0,
-  "doctype": "IP Whitelist",
-  "enabled": 1,
-  "friendly_name": "TradingView\u2122 IP Whitelist 1",
-  "ip": "52.89.214.238",
-  "modified": "2023-06-29 15:15:42.703358",
-  "name": "HOOX-WIP-00016",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "sig_provider": "TradingView"
- },
- {
-  "docstatus": 0,
-  "doctype": "IP Whitelist",
-  "enabled": 1,
-  "friendly_name": "TradingView\u2122 IP Whitelist 2",
-  "ip": "34.212.75.30",
-  "modified": "2023-06-29 15:15:42.844381",
-  "name": "HOOX-WIP-00017",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "sig_provider": "TradingView"
- },
- {
-  "docstatus": 0,
-  "doctype": "IP Whitelist",
-  "enabled": 1,
-  "friendly_name": "TradingView\u2122 IP Whitelist 3",
-  "ip": "54.218.53.128",
-  "modified": "2023-06-29 15:15:42.851316",
-  "name": "HOOX-WIP-00018",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "sig_provider": "TradingView"
- },
- {
-  "docstatus": 0,
-  "doctype": "IP Whitelist",
-  "enabled": 1,
-  "friendly_name": "TradingView\u2122 IP Whitelist 4",
-  "ip": "52.32.178.7",
-  "modified": "2023-06-29 15:15:42.857787",
-  "name": "HOOX-WIP-00019",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "sig_provider": "TradingView"
- }
+    {
+        "docstatus": 0,
+        "doctype": "IP Whitelist",
+        "enabled": 1,
+        "friendly_name": "TradingView\u2122 IP Whitelist 1",
+        "ip": "52.89.214.238",
+        "modified": "2023-06-29 15:15:42.703358",
+        "name": "HOOX-WIP-00016",
+        "parent": null,
+        "parentfield": null,
+        "parenttype": null,
+        "sig_provider": "TradingView"
+    },
+    {
+        "docstatus": 0,
+        "doctype": "IP Whitelist",
+        "enabled": 1,
+        "friendly_name": "TradingView\u2122 IP Whitelist 2",
+        "ip": "34.212.75.30",
+        "modified": "2023-06-29 15:15:42.844381",
+        "name": "HOOX-WIP-00017",
+        "parent": null,
+        "parentfield": null,
+        "parenttype": null,
+        "sig_provider": "TradingView"
+    },
+    {
+        "docstatus": 0,
+        "doctype": "IP Whitelist",
+        "enabled": 1,
+        "friendly_name": "TradingView\u2122 IP Whitelist 3",
+        "ip": "54.218.53.128",
+        "modified": "2023-06-29 15:15:42.851316",
+        "name": "HOOX-WIP-00018",
+        "parent": null,
+        "parentfield": null,
+        "parenttype": null,
+        "sig_provider": "TradingView"
+    },
+    {
+        "docstatus": 0,
+        "doctype": "IP Whitelist",
+        "enabled": 1,
+        "friendly_name": "TradingView\u2122 IP Whitelist 4",
+        "ip": "52.32.178.7",
+        "modified": "2023-06-29 15:15:42.857787",
+        "name": "HOOX-WIP-00019",
+        "parent": null,
+        "parentfield": null,
+        "parenttype": null,
+        "sig_provider": "TradingView"
+    }
 ]
