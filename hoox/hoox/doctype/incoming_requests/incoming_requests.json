@@ -35,9 +35,10 @@
   },
   {
    "fieldname": "params",
-   "fieldtype": "Long Text",
+   "fieldtype": "Code",
    "in_list_view": 1,
-   "label": "Parameter"
+   "label": "Parameter",
+   "options": "JSON"
   },
   {
    "default": "Processing",
@@ -105,7 +106,7 @@
    "link_fieldname": "request_incoming"
   }
  ],
- "modified": "2023-06-23 01:20:48.484390",
+ "modified": "2023-06-29 15:09:24.625926",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Incoming Requests",

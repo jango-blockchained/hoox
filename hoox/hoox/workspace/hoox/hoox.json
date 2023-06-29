@@ -1,5 +1,5 @@
 {
- "category": "Domains",
+ "category": "Administration",
  "charts": [
   {
    "chart_name": "Trading Volume",
@@ -269,7 +269,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-29 08:48:14.103660",
+ "modified": "2023-06-29 12:07:54.010917",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",

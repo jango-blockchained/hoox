@@ -32,6 +32,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "tvchart",
+  "section_break_qxiik",
   "status",
   "column_break_kabux",
   "user",
@@ -242,6 +244,16 @@
    "fieldtype": "Check",
    "label": "Percent",
    "read_only": 1
+  },
+  {
+   "default": "<div id=\"chart\" style=\"width: 100%; height: 500px;\"></div>\n",
+   "fieldname": "tvchart",
+   "fieldtype": "HTML",
+   "label": "Chart"
+  },
+  {
+   "fieldname": "section_break_qxiik",
+   "fieldtype": "Section Break"
   }
  ],
  "in_create": 1,
@@ -262,7 +274,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-06-25 13:38:38.515021",
+ "modified": "2023-06-29 12:20:46.126441",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trades",

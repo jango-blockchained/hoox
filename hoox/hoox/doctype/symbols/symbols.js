@@ -3,6 +3,7 @@
 
 frappe.ui.form.on("Symbols", {
   refresh: function (frm) {
+    // --
     frm
       .add_custom_button(__("Show Data"), function () {
         let jsonContent = JSON.parse(frm.doc.params);

@@ -19,9 +19,7 @@
   "column_break_tqcvo",
   "url",
   "section_break_kpecz",
-  "params",
-  "published",
-  "route"
+  "params"
  ],
  "fields": [
   {
@@ -39,7 +37,8 @@
   {
    "fieldname": "params",
    "fieldtype": "Code",
-   "label": "Parameter"
+   "label": "Parameter",
+   "options": "JSON"
   },
   {
    "default": "Processing",
@@ -48,19 +47,6 @@
    "in_list_view": 1,
    "label": "Status",
    "options": "Processing\nFailed\nSuccess"
-  },
-  {
-   "default": "1",
-   "fieldname": "published",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Published"
-  },
-  {
-   "fieldname": "route",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Route"
   },
   {
    "bold": 1,
@@ -115,9 +101,8 @@
   }
  ],
  "in_create": 1,
- "is_published_field": "published",
  "links": [],
- "modified": "2023-06-23 15:20:21.234725",
+ "modified": "2023-06-29 15:08:53.771114",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Outgoing Requests",
@@ -137,7 +122,6 @@
    "write": 1
   }
  ],
- "route": "hoox/outgoing-requests",
  "sort_field": "modified",
  "sort_order": "DESC"
 }

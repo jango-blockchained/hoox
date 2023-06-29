@@ -59,9 +59,10 @@
   },
   {
    "fieldname": "params",
-   "fieldtype": "Long Text",
+   "fieldtype": "Code",
    "in_list_view": 1,
-   "label": "Parameter"
+   "label": "Parameter",
+   "options": "JSON"
   },
   {
    "fieldname": "sig_provider",
@@ -74,7 +75,7 @@
  ],
  "in_create": 1,
  "links": [],
- "modified": "2023-06-29 03:24:35.299291",
+ "modified": "2023-06-29 15:08:20.249080",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Incoming Signals",

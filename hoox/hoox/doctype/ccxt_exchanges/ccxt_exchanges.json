@@ -68,10 +68,11 @@
   },
   {
    "fieldname": "has",
-   "fieldtype": "Long Text",
+   "fieldtype": "Code",
    "hidden": 1,
    "in_global_search": 1,
    "label": "Features",
+   "options": "JSON",
    "read_only": 1
   },
   {
@@ -125,7 +126,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2023-06-29 03:28:57.279997",
+ "modified": "2023-06-29 15:08:05.761566",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "CCXT Exchanges",

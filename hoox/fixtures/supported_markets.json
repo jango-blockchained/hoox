@@ -1,6 +1,5 @@
 [
  {
-  "_user_tags": ",fixtures",
   "docstatus": 0,
   "doctype": "Supported Markets",
   "market_type": "spot",
@@ -11,7 +10,6 @@
   "parenttype": null
  },
  {
-  "_user_tags": ",fixtures",
   "docstatus": 0,
   "doctype": "Supported Markets",
   "market_type": "future",

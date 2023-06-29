@@ -10,7 +10,7 @@ from frappe import get_doc
 from frappe.utils.logger import get_logger
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
 from frappe.utils import get_files_path
-from frappe.utils.file_manager import save_file, file_exists
+from frappe.utils.file_manager import save_file
 import frappe.utils.file_manager as file_manager
 
 from urllib.parse import urlparse
@@ -153,7 +153,7 @@ def sync_exchanges():
                 "precision_mode": exchange.precisionMode,
                 "rate_limit": exchange.rateLimit,
                 "testnet": 1 if exchange.urls.get("test") is not None else 0,
-                "has": json.dumps(exchange.has),
+                "has": json.dumps(exchange.has, indent=4),
                 "logo_url": exchange.urls.get("logo"),
             }
 
@@ -241,7 +241,7 @@ def add_ip_addresses():
 def add_whitelist_all():
     if not frappe.db.exists("IP Whitelist", {"ip": "*"}):
         doc = frappe.new_doc("IP Whitelist")
-        doc.sig_provider = "DEVELOPMENT"
+        doc.sig_provider = "SYSTEM"
         doc.friendly_name = "Whitelist All"
         doc.ip = "*"
         doc.insert()
@@ -311,10 +311,10 @@ def sync_symbols():
                         new_symbol.enabled = 0
                         url = f"/assets/hoox/svg/symbols/svg/color/{market_data['baseId']}.svg".lower(
                         )
-                        if file_exists(url):
-                            new_symbol.logo_url = frappe.utils.get_url(url)
+                        # if os.path.exists(url):
+                        new_symbol.logo_url = frappe.utils.get_url(url)
 
-                        new_symbol.params = json.dumps(market_data)
+                        new_symbol.params = json.dumps(market_data, indent=4)
                         new_symbol.save(ignore_permissions=True)
 
                     processed_steps += 1
