@@ -20,7 +20,7 @@ frappe.listview_settings["IP Whitelist"] = {
     listview.page.add_inner_button(__("Add Whitelist All"), function () {
       if (
         frappe.user.has_role("System Manager")
-        // frappe.user.is_allowed("Custom", "write")
+        // && frappe.user.is_allowed("Custom", "write")
       ) {
         frappe.confirm(
           __(

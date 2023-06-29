@@ -49,19 +49,10 @@
    "hidden": 0,
    "icon": "tool",
    "is_query_report": 0,
-   "label": "Gateway",
+   "label": "Data",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Trades",
-   "link_to": "Trades",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
   },
   {
    "hidden": 0,
@@ -79,6 +70,15 @@
    "link_to": "Supported Markets",
    "link_type": "DocType",
    "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Symbols",
+   "link_to": "Symbols",
+   "link_type": "DocType",
+   "onboard": 0,
    "type": "Link"
   },
   {
@@ -165,6 +165,15 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Trades",
+   "link_to": "Trades",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Incoming Requests",
    "link_to": "Incoming Requests",
    "link_type": "DocType",
@@ -227,15 +236,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Symbols",
-   "link_to": "Symbols",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Abonnement Management",
    "link_type": "DocType",
    "onboard": 0,
@@ -269,7 +269,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-29 08:25:52.466937",
+ "modified": "2023-06-29 08:48:14.103660",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",

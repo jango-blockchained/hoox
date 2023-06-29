@@ -192,4 +192,5 @@ user_data_fields = [
 # Fixtures
 # --------
 
-fixtures = ['Signal Provider', 'Supported Markets', 'Hoox Settings']
+fixtures = ['Signal Provider', 'Supported Markets',
+            'Hoox Settings', 'IP Whitelist']
