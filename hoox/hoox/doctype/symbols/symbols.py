@@ -4,5 +4,10 @@
 # import frappe
 from frappe.model.document import Document
 
+
 class Symbols(Document):
-	pass
+
+    # def before_save(self):
+    #     self.name = self.name.upper()
+
+    pass

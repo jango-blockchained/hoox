@@ -11,6 +11,8 @@ from frappe.utils.logger import get_logger
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
 from frappe.utils import get_files_path
 from frappe.utils.file_manager import save_file
+import frappe.utils.file_manager as file_manager
+
 from urllib.parse import urlparse
 from io import BytesIO
 
@@ -280,13 +282,27 @@ def sync_symbols():
                         "Symbols", {"symbol": symbol, "exchange": exchange_id, "market": marketType})
 
                     if not symbol_exists:
-                        new_symbol = frappe.new_doc("Symbols")
-                        new_symbol.symbol = symbol
+                        # new_symbol = frappe.new_doc("Symbols")
+                        new_symbol = frappe.get_doc({
+                            "doctype": "Symbols",
+                            "symbol": symbol,
+                            "exchange": exchange_id,
+                            "market": marketType
+                        })
+
+                        new_symbol.symbol_id = market_data["id"]
+                        new_symbol.base_id = market_data["baseId"]
+                        new_symbol.quote_id = market_data["quoteId"]
                         new_symbol.exchange = exchange_id
                         new_symbol.market = marketType
                         new_symbol.enabled = 0
+                        url = f"/assets/hoox/svg/symbols/svg/color/{market_data['baseId']}.svg".lower(
+                        )
+                        if file_manager.file_exists(url):
+                            new_symbol.logo_url = frappe.utils.get_url(url)
+
                         new_symbol.params = json.dumps(market_data)
-                        new_symbol.insert(ignore_permissions=True)
+                        new_symbol.save(ignore_permissions=True)
 
                     processed_steps += 1
                     progress_percentage = (
@@ -338,7 +354,7 @@ def delete_symbols():
     docs = frappe.get_all("Symbols")
     amount = len(docs)
     for i, doc in enumerate(docs):
-        frappe.delete_doc("Symbols", doc.name, force=True)
+        frappe.delete_doc("Symbols", doc.name, ignore_missing=True, force=True)
         frappe.publish_progress(percent=(i / amount) *
                                 100, title=_('Processing...'))
 

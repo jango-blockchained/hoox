@@ -7,12 +7,19 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "section_break_je7y1",
   "symbol",
   "symbol_id",
-  "exchange",
-  "logo_url",
-  "market",
   "enabled",
+  "column_break_unosx",
+  "base_id",
+  "quote_id",
+  "section_break_gdkan",
+  "exchange",
+  "column_break_m3w5u",
+  "market",
+  "section_break_yflzt",
+  "logo_url",
   "params"
  ],
  "fields": [
@@ -55,15 +62,16 @@
   },
   {
    "fieldname": "params",
-   "fieldtype": "Long Text",
-   "hidden": 1,
-   "label": "Parameter"
+   "fieldtype": "Code",
+   "label": "Parameter",
+   "options": "JSON"
   },
   {
    "fieldname": "symbol_id",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Symbol ID"
+   "label": "Symbol ID",
+   "options": "Name"
   },
   {
    "fieldname": "logo_url",
@@ -71,11 +79,43 @@
    "in_list_view": 1,
    "label": "Logo",
    "options": "URL"
+  },
+  {
+   "fieldname": "section_break_je7y1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_unosx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "base_id",
+   "fieldtype": "Data",
+   "label": "Base ID",
+   "options": "Name"
+  },
+  {
+   "fieldname": "quote_id",
+   "fieldtype": "Data",
+   "label": "Quote ID",
+   "options": "Name"
+  },
+  {
+   "fieldname": "section_break_gdkan",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_m3w5u",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_yflzt",
+   "fieldtype": "Section Break"
   }
  ],
  "in_create": 1,
  "links": [],
- "modified": "2023-06-29 03:07:05.066329",
+ "modified": "2023-06-29 04:50:19.701800",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Symbols",
