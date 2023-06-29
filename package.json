@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "ccxt": "^3.1.56",
     "lightweight-charts": "^4.0.1"
   },
   "name": "hoox",

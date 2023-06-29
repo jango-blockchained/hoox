@@ -8,7 +8,7 @@ frappe.ui.form.on("Trades", {
     );
     // --
     frappe.call({
-      method: "hoox.api.crypto_data.fetch_ohlcv",
+      method: "hoox.action.fetch_ohlcv",
       args: {
         exchange_id: frm.doc.exchange, // Replace with the actual exchange ID
         symbol: frm.doc.symbol, // Replace with the actual symbol
@@ -27,9 +27,8 @@ frappe.ui.form.on("Trades", {
         });
 
         let chart = LightweightCharts.createChart(
-          $(frm.fields_dict.tvchart.wrapper)
+          document.getElementById("chart")
         );
-        // document.getElementById("tvchart")
         let candleSeries = chart.addCandlestickSeries();
         candleSeries.setData(bars);
       },

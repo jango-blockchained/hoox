@@ -377,6 +377,12 @@ def delete_symbols():
     return f"{amount} symbols deleted successfully."
 
 
+@frappe.whitelist()
+def fetch_ohlcv(exchange_id, symbol, timeframe):
+    exchange = getattr(ccxt, exchange_id)()
+    data = exchange.fetch_ohlcv(symbol, timeframe)
+    return data
+
 # @frappe.whitelist()
 # def download_exchange_logo(exchange_id, logo_url):
 #     directory = "public/images/exchange_logos"

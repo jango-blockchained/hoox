@@ -6,3 +6,5 @@ tags
 hoox/docs/current
 /build/
 HANDOUT.md
+node_modules/
+package-lock.json
