@@ -10,7 +10,7 @@ from frappe import get_doc
 from frappe.utils.logger import get_logger
 from frappe.desk.form.linked_with import get_linked_docs, get_linked_doctypes
 from frappe.utils import get_files_path
-from frappe.utils.file_manager import save_file
+from frappe.utils.file_manager import save_file, file_exists
 import frappe.utils.file_manager as file_manager
 
 from urllib.parse import urlparse
@@ -311,7 +311,7 @@ def sync_symbols():
                         new_symbol.enabled = 0
                         url = f"/assets/hoox/svg/symbols/svg/color/{market_data['baseId']}.svg".lower(
                         )
-                        if file_manager.file_exists(url):
+                        if file_exists(url):
                             new_symbol.logo_url = frappe.utils.get_url(url)
 
                         new_symbol.params = json.dumps(market_data)
