@@ -138,3 +138,23 @@ def send_to_haas(user, entity_domain, service, payload):
         return frappe.throw("Error sending request to Home Assistant")
 
     return response
+
+
+def get_user_lang(user=None):
+    """
+    Set frappe.local.lang from user preferences on session beginning or resumption.
+    """
+
+    if not user:
+        user = frappe.session.user
+    # via cache
+    lang = frappe.cache().hget("lang", user)
+    if not lang:
+        # if defined in user profile
+        lang = frappe.db.get_value("User", user, "language")
+        if not lang:
+            lang = frappe.db.get_default("lang")
+        if not lang:
+            lang = frappe.local.lang or 'en'
+        frappe.cache().hset("lang", user, lang)
+    return lang
