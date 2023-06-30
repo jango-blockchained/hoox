@@ -33,33 +33,7 @@ frappe.listview_settings["CCXT Exchanges"] = {
       },
       __("Exchange")
     );
-    listview.page.add_inner_button(
-      __("Delete Exchanges"),
-      function () {
-        frappe.call({
-          method: "hoox.action.delete_exchanges",
-          args: {
-            force: false,
-          },
-          callback: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
-            }
-          },
-          error: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
-            }
-          },
-          freeze: true,
-          freeze_message: __("Deleting Exchanges..."),
-          progress: (percent) => {
-            frappe.show_progress(__("Progress"), percent, 100);
-          },
-        });
-      },
-      __("Exchange")
-    );
+
     listview.page.add_inner_button(
       __("Delete Exchanges (Force)"),
       function () {

@@ -112,4 +112,13 @@ frappe.listview_settings["Symbols"] = {
       });
     },
   },
+  formatters: {
+    logo_url(val) {
+      return (
+        '<img src="' +
+        val +
+        '" class="rounded img-fluid" alt="logo" width="32" height="32" />'
+      );
+    },
+  },
 };

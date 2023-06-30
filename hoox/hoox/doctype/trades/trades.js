@@ -1,16 +1,14 @@
-// // Copyright (c) 2023, jango_blockchained and contributors
-// // For license information, please see license.txt
-
 frappe.ui.form.on("Trades", {
   refresh: function (frm) {
     frm.fields_dict.tvchart.wrapper.innerHTML =
-      '<div id="trades_chart" style="width: 100%; height: 300px;"></div>';
+      '<div id="chart_price" style="width: 100%; height: 300px;"></div>' +
+      '<div id="chart_vol" style="width: 100%; height: 150px;"></div>';
     frappe.call({
       method: "hoox.action.fetch_ohlcv",
       args: {
-        exchange_id: frm.doc.exchange, // Replace with the actual exchange ID
-        symbol: frm.doc.symbol, // Replace with the actual symbol
-        timeframe: "15m", // Replace with the actual timeframe
+        exchange_id: frm.doc.exchange,
+        symbol: frm.doc.symbol,
+        timeframe: "15m",
       },
       callback: function (response) {
         const labels = response.message.map((ohlcv) => {
@@ -18,10 +16,11 @@ frappe.ui.form.on("Trades", {
           return date.toLocaleString("en-US", {
             weekday: "short",
             hourCycle: "h24",
+            month: "numeric",
+            day: "numeric",
             hour: "numeric",
             minute: "numeric",
           });
-          // return frappe.datetime.str_to_user(date, frappe.get_user_locale());
         });
 
         const values = response.message.map((ohlcv) => {
@@ -32,7 +31,7 @@ frappe.ui.form.on("Trades", {
           return ohlcv[5];
         });
 
-        const chart = new frappe.Chart("#trades_chart", {
+        const chart_price = new frappe.Chart("#chart_price", {
           title: `${frm.doc.symbol} Price Chart`,
           data: {
             labels: labels,
@@ -41,33 +40,67 @@ frappe.ui.form.on("Trades", {
                 name: "Price",
                 values: values,
                 chartType: "line",
-              },
-              {
-                name: "Volume",
-                values: volumes,
-                chartType: "bar",
+                color: "hsl(251, 76%, 55%)",
               },
             ],
           },
-          type: "axis-mixed",
+          type: "line",
           height: 300,
           annotations: [
             {
               type: "line",
-              value: frm.doc.avg_exec_price,
+              value: 0.07,
               series: "Price",
               label: frm.doc.action.toUpperCase(),
               backgroundColor: "#ff8800",
               borderColor: "#ff7300",
               borderWidth: 2,
-              x: new Date(frm.doc.creation),
-              // position: "start",
-              // style: {
-              //   "stroke-width": 4,
-              //   stroke: "#00c3ff",
-              // },
+              x: new Date(frm.doc.creation), // Modify the x value to a valid JavaScript Date object
             },
           ],
+          axisOptions: {
+            xIsSeries: true,
+            xAxisMode: "tick",
+            tickFormat: "%Y-%m-%d",
+            yAxisMode: "span",
+            yAxisTickCount: 5,
+            yAxisLabel: "Price",
+            yAxisFormat: "$ 0,0",
+          },
+          tooltipOptions: {
+            formatTooltipX: (d) => (d instanceof Date ? d.toDateString() : d),
+            formatTooltipY: (d) => "$ " + d,
+          },
+        });
+        // --
+        const chart_vol = new frappe.Chart("#chart_vol", {
+          title: `${frm.doc.symbol} Volume Chart`,
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                name: "Volume",
+                values: volumes,
+                chartType: "bar",
+                color: "hsl(332, 100%, 41%)",
+              },
+            ],
+          },
+          type: "bar",
+          height: 150,
+          axisOptions: {
+            xIsSeries: true,
+            xAxisMode: "tick",
+            tickFormat: "%Y-%m-%d",
+            yAxisMode: "span",
+            yAxisTickCount: 5,
+            yAxisLabel: "Qty.",
+            yAxisFormat: "0,0",
+          },
+          tooltipOptions: {
+            formatTooltipX: (d) => (d instanceof Date ? d.toDateString() : d),
+            formatTooltipY: (d) => "x " + d,
+          },
         });
       },
     });

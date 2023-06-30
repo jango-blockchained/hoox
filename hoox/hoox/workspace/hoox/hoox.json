@@ -267,9 +267,26 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Frontend",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Web-Formular",
+   "link_to": "Web Form",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2023-06-29 12:07:54.010917",
+ "modified": "2023-06-30 15:21:09.250802",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -355,6 +372,14 @@
    "label": "Symbols",
    "link_to": "Symbols",
    "stats_filter": "{}",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "format": "",
+   "label": "Frontend",
+   "link_to": "Web Form",
+   "stats_filter": "",
    "type": "DocType"
   },
   {
