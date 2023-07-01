@@ -1,0 +1,5 @@
+{
+    "templates/includes/technical-analysis.html": [
+        "templates/includes/ta.html"
+    ]
+}

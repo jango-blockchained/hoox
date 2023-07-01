@@ -24,7 +24,7 @@
   "section_break_gdkan",
   "exchange",
   "column_break_m3w5u",
-  "market",
+  "market_type",
   "section_break_yflzt",
   "params"
  ],
@@ -46,19 +46,6 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Symbol",
-   "reqd": 1,
-   "search_index": 1
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "columns": 1,
-   "default": "spot",
-   "fieldname": "market",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Market",
-   "options": "Supported Markets",
    "reqd": 1,
    "search_index": 1
   },
@@ -156,6 +143,19 @@
    "fieldname": "logo",
    "fieldtype": "HTML",
    "label": "Logo"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "columns": 1,
+   "default": "spot",
+   "fieldname": "market_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Market",
+   "options": "Supported Markets",
+   "reqd": 1,
+   "search_index": 1
   }
  ],
  "in_create": 1,
@@ -172,7 +172,7 @@
    "table_fieldname": "sig_symbols"
   }
  ],
- "modified": "2023-07-01 11:24:08.552034",
+ "modified": "2023-07-01 11:33:58.645429",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Symbols",

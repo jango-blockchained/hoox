@@ -324,7 +324,7 @@ def sync_symbols():
                         new_symbol.logo_url = frappe.utils.get_url(url)
 
                         new_symbol.params = json.dumps(market_data, indent=4)
-                        new_symbol.save(ignore_permissions=True)
+                        snew_symbol.save(ignore_permissions=True)
 
                     processed_steps += 1
                     progress_percentage = (
@@ -355,7 +355,7 @@ def activate_symbols():
     docs = frappe.get_all("Symbols")
     amount = len(docs)
     for i, ref in enumerate(docs):
-        frappe.db.set_value("symbols", symbol.name, "enabled", 1)
+        frappe.db.set_value("Symbols", ref.name, "enabled", 1)
         frappe.publish_progress(
             i / amount * 100, title=_("Activating"), description=_("Processing"))
     frappe.publish_progress(100, title=_("Activating"),

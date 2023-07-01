@@ -1,5 +1,46 @@
 // Copyright (c) 2023, jango_blockchained and contributors
 // For license information, please see license.txt
+async function createChartForSymbol(
+  elementId,
+  title,
+  yAxisLabel,
+  yAxisFormat,
+  chartType,
+  labels,
+  values,
+  colors
+) {
+  return new frappe.Chart(elementId, {
+    title: title,
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          name: yAxisLabel,
+          values: values,
+          chartType: chartType,
+        },
+      ],
+    },
+    colors: colors,
+    type: chartType,
+    height: chartType === "line" ? 300 : 150,
+    axisOptions: {
+      xIsSeries: true,
+      xAxisMode: "tick",
+      tickFormat: "%Y-%m-%d",
+      yAxisMode: "span",
+      yAxisTickCount: 5,
+      yAxisLabel: yAxisLabel,
+      yAxisFormat: yAxisFormat,
+    },
+    tooltipOptions: {
+      formatTooltipX: (d) => (d instanceof Date ? d.toDateString() : d),
+      formatTooltipY: (d) => yAxisFormat.charAt(0) + " " + d,
+    },
+    limit: 100,
+  });
+}
 
 frappe.ui.form.on("Symbols", {
   onload: async (frm) => {
@@ -34,7 +75,7 @@ frappe.ui.form.on("Symbols", {
         const values = data.map((d) => d.value);
         const volumes = data.map((d) => d.volume);
 
-        const chart_price = await createChart(
+        const chart_price = await createChartForSymbol(
           "#chart_price",
           `${frm.doc.symbol} Price Chart`,
           "Price",
@@ -45,7 +86,7 @@ frappe.ui.form.on("Symbols", {
           ["hsl(251, 76%, 55%)"]
         );
 
-        const chart_vol = await createChart(
+        const chart_vol = await createChartForSymbol(
           "#chart_vol",
           `${frm.doc.symbol} Volume Chart`,
           "Qty.",
@@ -60,7 +101,7 @@ frappe.ui.form.on("Symbols", {
     // --
     let themeSwitcher = new frappe.ui.ThemeSwitcher();
     frm.fields_dict.widget_ta.wrapper.innerHTML = frappe.render_template(
-      "hoox/templates/tradingview/ta.html",
+      "hoox/hoox/templates/tradingview/ta.html",
       {
         timeframe: "15m",
         symbol: frm.doc.symbol_id,
