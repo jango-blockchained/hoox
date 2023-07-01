@@ -25,6 +25,7 @@
    "label": "Re-Execute Homeassistant"
   }
  ],
+ "allow_copy": 1,
  "allow_events_in_timeline": 1,
  "autoname": "HOOX-TRADE-.#######",
  "creation": "2023-05-26 16:51:18.530808",
@@ -32,34 +33,38 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "charts_section",
   "tvchart",
   "section_break_qxiik",
   "status",
   "column_break_kabux",
   "user",
   "column_break_bgfrp",
-  "secret_hash",
+  "exchange_creds",
   "section_break_x1p1w",
   "exchange",
   "column_break_h5gh3",
-  "time",
+  "market_type",
   "section_break_athv6",
+  "symbol",
   "action",
   "order_type",
-  "symbol",
   "column_break_265fg",
   "quantity",
-  "filled",
+  "percent",
   "column_break_ssgjg",
   "price",
   "avg_exec_price",
   "leverage",
   "section_break_prlsy",
   "exchange_order_id",
-  "fee",
+  "balance_section",
   "cost",
+  "column_break_29",
+  "fee",
+  "column_break_31",
   "pnl",
-  "percent"
+  "data_33"
  ],
  "fields": [
   {
@@ -104,13 +109,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "time",
-   "fieldtype": "Datetime",
-   "in_list_view": 1,
-   "label": "Time",
-   "read_only": 1
-  },
-  {
    "allow_in_quick_entry": 1,
    "default": "market",
    "fieldname": "order_type",
@@ -133,14 +131,6 @@
    "options": "User",
    "read_only": 1,
    "reqd": 1
-  },
-  {
-   "fetch_from": "Exchange Credentials.name",
-   "fieldname": "secret_hash",
-   "fieldtype": "Link",
-   "label": "Secret Hash",
-   "options": "Exchange Credentials",
-   "read_only": 1
   },
   {
    "fieldname": "column_break_kabux",
@@ -181,13 +171,8 @@
   },
   {
    "fieldname": "section_break_athv6",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "filled",
-   "fieldtype": "Data",
-   "label": "Filled",
-   "read_only": 1
+   "fieldtype": "Section Break",
+   "label": "Details"
   },
   {
    "allow_in_quick_entry": 1,
@@ -249,11 +234,48 @@
    "default": "<div id=\"chart\" style=\"width: 100%; height: 500px;\"></div>\n",
    "fieldname": "tvchart",
    "fieldtype": "HTML",
-   "label": "Chart"
+   "label": "Kline"
   },
   {
    "fieldname": "section_break_qxiik",
    "fieldtype": "Section Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "charts_section",
+   "fieldtype": "Section Break",
+   "label": "Charts"
+  },
+  {
+   "fieldname": "balance_section",
+   "fieldtype": "Section Break",
+   "label": "Balance"
+  },
+  {
+   "fieldname": "column_break_29",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_31",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "exchange_creds",
+   "fieldtype": "Link",
+   "label": "Exchange Credentials",
+   "options": "Exchange Credentials",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "market_type",
+   "fieldtype": "Link",
+   "label": "Market",
+   "options": "Supported Markets"
+  },
+  {
+   "fieldname": "data_33",
+   "fieldtype": "Data"
   }
  ],
  "in_create": 1,
@@ -274,7 +296,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-06-29 12:20:46.126441",
+ "modified": "2023-07-01 07:13:09.344714",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trades",
@@ -295,6 +317,7 @@
   }
  ],
  "quick_entry": 1,
+ "show_preview_popup": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1

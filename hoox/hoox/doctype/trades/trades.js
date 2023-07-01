@@ -1,12 +1,13 @@
 frappe.ui.form.on("Trades", {
-  refresh: function (frm) {
-    frm.fields_dict.tvchart.wrapper.innerHTML =
+  onload: async (frm) => {
+    frm.fields_dict.chart.wrapper.innerHTML =
       '<div id="chart_price" style="width: 100%; height: 300px;"></div>' +
       '<div id="chart_vol" style="width: 100%; height: 150px;"></div>';
-    frappe.call({
+    await frappe.call({
       method: "hoox.action.fetch_ohlcv",
       args: {
         exchange_id: frm.doc.exchange,
+        market: frm.doc.market_type,
         symbol: frm.doc.symbol,
         timeframe: "15m",
       },
@@ -22,7 +23,6 @@ frappe.ui.form.on("Trades", {
             minute: "numeric",
           });
         });
-
         const values = response.message.map((ohlcv) => {
           return ohlcv[4];
         });
@@ -40,24 +40,24 @@ frappe.ui.form.on("Trades", {
                 name: "Price",
                 values: values,
                 chartType: "line",
-                color: "hsl(251, 76%, 55%)",
               },
             ],
           },
+          colors: ["hsl(73, 100%, 61%)"],
           type: "line",
           height: 300,
-          annotations: [
-            {
-              type: "line",
-              value: 0.07,
-              series: "Price",
-              label: frm.doc.action.toUpperCase(),
-              backgroundColor: "#ff8800",
-              borderColor: "#ff7300",
-              borderWidth: 2,
-              x: new Date(frm.doc.creation), // Modify the x value to a valid JavaScript Date object
-            },
-          ],
+          // annotations: [
+          //   {
+          //     type: "line",
+          //     value: 0.07,
+          //     series: "Price",
+          //     label: frm.doc.action.toUpperCase(),
+          //     backgroundColor: "#ff8800",
+          //     borderColor: "#ff7300",
+          //     borderWidth: 2,
+          //     x: new Date(frm.doc.creation), // Modify the x value to a valid JavaScript Date object
+          //   },
+          // ],
           axisOptions: {
             xIsSeries: true,
             xAxisMode: "tick",
@@ -71,6 +71,7 @@ frappe.ui.form.on("Trades", {
             formatTooltipX: (d) => (d instanceof Date ? d.toDateString() : d),
             formatTooltipY: (d) => "$ " + d,
           },
+          limit: 100,
         });
         // --
         const chart_vol = new frappe.Chart("#chart_vol", {
@@ -82,10 +83,10 @@ frappe.ui.form.on("Trades", {
                 name: "Volume",
                 values: volumes,
                 chartType: "bar",
-                color: "hsl(332, 100%, 41%)",
               },
             ],
           },
+          colors: ["hsl(332, 100%, 41%)"],
           type: "bar",
           height: 150,
           axisOptions: {
@@ -101,6 +102,7 @@ frappe.ui.form.on("Trades", {
             formatTooltipX: (d) => (d instanceof Date ? d.toDateString() : d),
             formatTooltipY: (d) => "x " + d,
           },
+          limit: 100,
         });
       },
     });

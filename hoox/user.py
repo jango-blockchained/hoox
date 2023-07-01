@@ -140,6 +140,7 @@ def send_to_haas(user, entity_domain, service, payload):
     return response
 
 
+@frappe.whitelist()
 def get_user_lang(user=None):
     """
     Set frappe.local.lang from user preferences on session beginning or resumption.
@@ -158,3 +159,11 @@ def get_user_lang(user=None):
             lang = frappe.local.lang or 'en'
         frappe.cache().hset("lang", user, lang)
     return lang
+
+
+@frappe.whitelist()
+def get_user_theme(user=None):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user)
+    return user_doc.user_theme

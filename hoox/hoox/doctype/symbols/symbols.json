@@ -16,16 +16,16 @@
   "column_break_unosx",
   "base_id",
   "quote_id",
+  "live_data_section",
+  "chart",
+  "column_break_18",
+  "widget_ta",
   "section_break_gdkan",
   "exchange",
   "column_break_m3w5u",
   "market",
   "section_break_yflzt",
-  "params",
-  "live_data_section",
-  "chart_price",
-  "column_break_18",
-  "widget_ta"
+  "params"
  ],
  "fields": [
   {
@@ -121,9 +121,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "bold": 1,
    "collapsible": 1,
    "fieldname": "section_break_yflzt",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Market Data"
   },
   {
    "fieldname": "column_break_3",
@@ -135,11 +137,6 @@
    "label": "Live Data"
   },
   {
-   "fieldname": "chart_price",
-   "fieldtype": "HTML",
-   "label": "Price Chart"
-  },
-  {
    "fieldname": "column_break_18",
    "fieldtype": "Column Break"
   },
@@ -147,11 +144,16 @@
    "fieldname": "widget_ta",
    "fieldtype": "HTML",
    "label": "Technical Analyse"
+  },
+  {
+   "fieldname": "chart",
+   "fieldtype": "HTML",
+   "label": "Price Chart"
   }
  ],
  "in_create": 1,
  "links": [],
- "modified": "2023-06-30 15:37:59.227098",
+ "modified": "2023-06-30 22:16:47.162966",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Symbols",

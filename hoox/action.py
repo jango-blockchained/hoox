@@ -242,7 +242,7 @@ def add_whitelist_all():
     if not frappe.db.exists("IP Whitelist", {"ip": "*"}):
         doc = frappe.new_doc("IP Whitelist")
         doc.sig_provider = "SYSTEM"
-        doc.friendly_name = "Whitelist All (NOT RECOMMANDED!)"
+        doc.friendly_name = "Whitelist All (NOT RECOMMENDED!)"
         doc.ip = "*"
         doc.enabled = 0
         doc.insert()
@@ -328,7 +328,7 @@ def sync_symbols():
     frappe.publish_progress(100, title=_(
         "Syncing Symbols..."), description=_("Completed!"))
 
-    return 'Successfull'
+    return 'Successful'
 
 
 def get_supported_market_types(exchange):
@@ -352,7 +352,7 @@ def activate_symbols():
             i / amount * 100, title=_("Activating"), description=_("Processing"))
     frappe.publish_progress(100, title=_("Activating"),
                             description=_("Finished"))
-    return 'Successfull'
+    return 'Successful'
 
 
 @frappe.whitelist()
@@ -378,10 +378,11 @@ def delete_symbols():
 
 
 @frappe.whitelist()
-def fetch_ohlcv(exchange_id, symbol, timeframe):
-    exchange = getattr(ccxt, exchange_id)()
-    data = exchange.fetch_ohlcv(symbol, timeframe)
-    return data
+def fetch_ohlcv(exchange_id, market, symbol, timeframe):
+    exchange = getattr(ccxt, exchange_id)({defaultType: market})
+    exchange.rateLimit = 2000
+    return exchange.fetch_ohlcv(symbol, timeframe)
+
 
 # @frappe.whitelist()
 # def download_exchange_logo(exchange_id, logo_url):

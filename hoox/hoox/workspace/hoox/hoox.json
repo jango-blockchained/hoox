@@ -4,6 +4,10 @@
   {
    "chart_name": "Trading Volume",
    "label": "Trading Volume"
+  },
+  {
+   "chart_name": "Portal Weighted Leverage Average",
+   "label": "Portal Weighted Leverage Average"
   }
  ],
  "creation": "2023-05-23 11:17:39.197890",
@@ -286,7 +290,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-06-30 15:21:09.250802",
+ "modified": "2023-06-30 23:08:08.054884",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
