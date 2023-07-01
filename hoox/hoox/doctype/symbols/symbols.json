@@ -8,6 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_je7y1",
+  "logo",
   "logo_url",
   "column_break_3",
   "symbol",
@@ -87,7 +88,7 @@
    "fieldname": "logo_url",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Logo",
+   "label": "Logo URL",
    "options": "URL"
   },
   {
@@ -143,17 +144,35 @@
   {
    "fieldname": "widget_ta",
    "fieldtype": "HTML",
-   "label": "Technical Analyse"
+   "label": "Technical Analysis"
   },
   {
    "fieldname": "chart",
    "fieldtype": "HTML",
    "label": "Price Chart"
+  },
+  {
+   "depends_on": "eval:doc.logo_url!=\"\"",
+   "fieldname": "logo",
+   "fieldtype": "HTML",
+   "label": "Logo"
   }
  ],
  "in_create": 1,
- "links": [],
- "modified": "2023-06-30 22:16:47.162966",
+ "links": [
+  {
+   "link_doctype": "Trades",
+   "link_fieldname": "symbol"
+  },
+  {
+   "is_child_table": 1,
+   "link_doctype": "Signals Symbols Table",
+   "link_fieldname": "symbol",
+   "parent_doctype": "Signals",
+   "table_fieldname": "sig_symbols"
+  }
+ ],
+ "modified": "2023-07-01 11:24:08.552034",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Symbols",

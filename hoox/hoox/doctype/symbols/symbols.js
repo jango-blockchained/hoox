@@ -10,96 +10,56 @@ frappe.ui.form.on("Symbols", {
       method: "hoox.action.fetch_ohlcv",
       args: {
         exchange_id: frm.doc.exchange,
+        market: frm.doc.market_type,
         symbol: frm.doc.symbol_id,
         timeframe: "15m",
       },
-      callback: function (response) {
-        const labels = response.message.map((ohlcv) => {
+      callback: async (response) => {
+        const data = response.message.map((ohlcv) => {
           let date = new Date(ohlcv[0]);
-          return date.toLocaleString("en-US", {
-            weekday: "short",
-            hourCycle: "h24",
-            month: "numeric",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-          });
+          return {
+            label: date.toLocaleString("en-US", {
+              weekday: "short",
+              hourCycle: "h24",
+              month: "numeric",
+              day: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+            }),
+            value: ohlcv[4],
+            volume: ohlcv[5],
+          };
         });
+        const labels = data.map((d) => d.label);
+        const values = data.map((d) => d.value);
+        const volumes = data.map((d) => d.volume);
 
-        const values = response.message.map((ohlcv) => {
-          return ohlcv[4];
-        });
+        const chart_price = await createChart(
+          "#chart_price",
+          `${frm.doc.symbol} Price Chart`,
+          "Price",
+          "$ 0,0",
+          "line",
+          labels,
+          values,
+          ["hsl(251, 76%, 55%)"]
+        );
 
-        const volumes = response.message.map((ohlcv) => {
-          return ohlcv[5];
-        });
-
-        const chart_price = new frappe.Chart("#chart_price", {
-          title: `${frm.doc.symbol} Price Chart`,
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                name: "Price",
-                values: values,
-                chartType: "line",
-              },
-            ],
-          },
-          colors: ["hsl(251, 76%, 55%)"],
-          type: "line",
-          height: 300,
-          axisOptions: {
-            xIsSeries: true,
-            xAxisMode: "tick",
-            tickFormat: "%Y-%m-%d",
-            yAxisMode: "span",
-            yAxisTickCount: 5,
-            yAxisLabel: "Price",
-            yAxisFormat: "$ 0,0",
-            limit: 50,
-          },
-          tooltipOptions: {
-            formatTooltipX: (d) => (d instanceof Date ? d.toDateString() : d),
-            formatTooltipY: (d) => "$ " + d,
-          },
-        });
-        // --
-        const chart_vol = new frappe.Chart("#chart_vol", {
-          title: `${frm.doc.symbol} Volume Chart`,
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                name: "Volume",
-                values: volumes,
-                chartType: "bar",
-              },
-            ],
-          },
-          colors: ["hsl(332, 100%, 41%)"],
-          type: "bar",
-          height: 150,
-          axisOptions: {
-            xIsSeries: true,
-            xAxisMode: "tick",
-            tickFormat: "%Y-%m-%d",
-            yAxisMode: "span",
-            yAxisTickCount: 5,
-            yAxisLabel: "Qty.",
-            yAxisFormat: "0,0",
-          },
-          tooltipOptions: {
-            formatTooltipX: (d) => (d instanceof Date ? d.toDateString() : d),
-            formatTooltipY: (d) => "x " + d,
-          },
-          limit: 50,
-        });
+        const chart_vol = await createChart(
+          "#chart_vol",
+          `${frm.doc.symbol} Volume Chart`,
+          "Qty.",
+          "0,0",
+          "bar",
+          labels,
+          volumes,
+          ["hsl(332, 100%, 41%)"]
+        );
       },
     });
     // --
     let themeSwitcher = new frappe.ui.ThemeSwitcher();
-    frm.fields_dict.chart.wrapper.innerHTML = frappe.render_template(
+    frm.fields_dict.widget_ta.wrapper.innerHTML = frappe.render_template(
       "hoox/templates/tradingview/ta.html",
       {
         timeframe: "15m",
@@ -135,7 +95,7 @@ frappe.ui.form.on("Symbols", {
         });
         d.show();
       })
-      .css({ "background-color": "#5451f0", color: "#fff" });
+      .css({ "background-color": "hsl(251, 76%, 55%)", color: "#fff" });
   },
 });
 

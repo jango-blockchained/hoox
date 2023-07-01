@@ -1,5 +1,6 @@
 import frappe
-import ccxt
+import ccxt as ccxtx
+import ccxt.async_support as ccxt
 import requests
 import logging
 import json
@@ -45,7 +46,7 @@ def get_linked_documents(doctype, docname):
     return docs
 
 
-def execute_order(action, exchange_id, symbol, price, quantity, percent, order_type, market_type, leverage, user_creds):
+async def execute_order(action, exchange_id, symbol, price, quantity, percent, order_type, market_type, leverage, user_creds):
     """
     Execute an order on an exchange using CCXT.
     Returns the order object.
@@ -65,29 +66,14 @@ def execute_order(action, exchange_id, symbol, price, quantity, percent, order_t
             }
         })
 
-        # Set testnet
-        # if user_creds.testnet:
-        #     if "test" in exchange.urls:
-        #         exchange.urls["api"] = exchange.urls["test"]
-        #         logger.info(f"Exchange URL: {exchange.urls['api']}")
-        #     else:
-        #         raise ValueError(
-        #             f"Exchange {exchange_id} does not have a testnet.")
-
         if user_creds.testnet:
             exchange.set_sandbox_mode(True)
 
         response = {}
 
-        # open_orders = exchange.fetch_open_orders(symbol)
-        # open_order_amount = sum([order['remaining']
-        #                          for order in open_orders])
-        # if percent:
-        #     quantity = open_order_amount * quantity / 100
-
         # Set leverage
         if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and 0 < leverage <= exchange.maxLeverage:
-            exchange.set_leverage(leverage)
+            await exchange.set_leverage(leverage)
 
         # Check action
         if action not in ["buy", "sell", "close", None]:
@@ -100,31 +86,53 @@ def execute_order(action, exchange_id, symbol, price, quantity, percent, order_t
                 order_func = getattr(exchange, order_func_name)
 
                 if order_type == "limit":
-                    response["order"] = order_func(symbol, quantity, price)
+                    response["order"] = await order_func(symbol, quantity, price)
                 else:
-                    response["order"] = order_func(symbol, quantity)
-
-                # response["details"] = exchange.fetch_open_order(
-                #     response["order"]["id"], symbol)
+                    response["order"] = await order_func(symbol, quantity)
 
         elif action == "close":
-            all_orders = exchange.fetch_open_orders(symbol)
-            response["order"] = [exchange.cancel_order(
-                order["id"]) for order in all_orders]
-
-        # Details
-        # response["last"] = exchange.last_json_response
-        # response["original_data"].pop("Trades", None)
+            all_orders = await exchange.fetch_open_orders(symbol)
+            response["order"] = [await exchange.cancel_order(order["id"]) for order in all_orders]
 
         return response
 
-    except AttributeError as e:
-        msg = f"Exchange {exchange_id} not found in CCXT."
+    except ccxt.RequestTimeout as e:
+        msg = f"Request timed out: {str(e)}"
         frappe.msgprint(msg)
         logger.error(msg)
 
-    except (ccxt.BaseError, ValueError, Exception) as e:
-        msg = f"An error occurred: {str(e)}"
+    except ccxt.AuthenticationError as e:
+        msg = f"Authentication error: {str(e)}"
+        frappe.msgprint(msg)
+        logger.error(msg)
+
+    except ccxt.ExchangeNotAvailable as e:
+        msg = f"Exchange not available: {str(e)}"
+        frappe.msgprint(msg)
+        logger.error(msg)
+
+    except ccxt.ExchangeError as e:
+        msg = f"Exchange error: {str(e)}"
+        frappe.msgprint(msg)
+        logger.error(msg)
+
+    except ccxt.BaseError as e:
+        msg = f"Base error in CCXT: {str(e)}"
+        frappe.msgprint(msg)
+        logger.error(msg)
+
+    except ValueError as e:
+        msg = f"Value error: {str(e)}"
+        frappe.msgprint(msg)
+        logger.error(msg)
+
+    except AttributeError as e:
+        msg = f"Attribute error: {str(e)}"
+        frappe.msgprint(msg)
+        logger.error(msg)
+
+    except Exception as e:
+        msg = f"An unexpected error occurred: {str(e)}"
         frappe.msgprint(msg)
         logger.error(msg)
 
@@ -379,8 +387,10 @@ def delete_symbols():
 
 @frappe.whitelist()
 def fetch_ohlcv(exchange_id, market, symbol, timeframe):
-    exchange = getattr(ccxt, exchange_id)({defaultType: market})
-    exchange.rateLimit = 2000
+    exchange = getattr(ccxtx, exchange_id)({"enableRateLimit": True,
+                                           "options": {
+                                               "defaultType": market}
+                                            })
     return exchange.fetch_ohlcv(symbol, timeframe)
 
 
