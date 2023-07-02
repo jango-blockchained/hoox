@@ -1,5 +1,5 @@
 frappe
-frappe_telegram
+# frappe_telegram
 ccxt
 tenacity
 # ccxtpro
