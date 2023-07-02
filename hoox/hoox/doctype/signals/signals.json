@@ -58,10 +58,11 @@
   }
  ],
  "links": [],
- "modified": "2023-06-25 14:02:42.863310",
+ "modified": "2023-07-02 16:15:39.748400",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Signals",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -81,6 +82,7 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "sig_name",
  "track_changes": 1,
  "track_views": 1

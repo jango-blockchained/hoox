@@ -20,10 +20,11 @@
   }
  ],
  "links": [],
- "modified": "2023-06-25 14:32:10.700288",
+ "modified": "2023-07-02 16:15:18.258091",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Supported Markets",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -41,5 +42,6 @@
  ],
  "quick_entry": 1,
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }

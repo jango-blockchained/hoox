@@ -48,10 +48,11 @@
   }
  ],
  "links": [],
- "modified": "2023-06-29 07:11:12.030590",
+ "modified": "2023-07-02 16:14:36.869193",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "IP Whitelist",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -70,5 +71,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "friendly_name"
 }

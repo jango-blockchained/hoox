@@ -3,6 +3,7 @@
  "allow_rename": 1,
  "autoname": "format:SYM-{exchange}-{market}-{symbol}",
  "creation": "2023-06-23 14:55:32.562446",
+ "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -172,11 +173,12 @@
    "table_fieldname": "sig_symbols"
   }
  ],
- "modified": "2023-07-01 11:33:58.645429",
+ "modified": "2023-07-02 16:10:38.974492",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Symbols",
  "name_case": "UPPER CASE",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -193,8 +195,10 @@
   }
  ],
  "quick_entry": 1,
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "symbol",
  "track_changes": 1
 }

@@ -1,6 +1,5 @@
 import frappe
-import ccxt as ccxtx
-import ccxt.async_support as ccxt
+import ccxt
 import requests
 import logging
 import json
@@ -46,7 +45,7 @@ def get_linked_documents(doctype, docname):
     return docs
 
 
-async def execute_order(action, exchange_id, symbol, price, quantity, percent, order_type, market_type, leverage, user_creds):
+def execute_order(action, exchange_id, symbol, price, quantity, percent, order_type, market_type, leverage, user_creds):
     """
     Execute an order on an exchange using CCXT.
     Returns the order object.
@@ -73,7 +72,7 @@ async def execute_order(action, exchange_id, symbol, price, quantity, percent, o
 
         # Set leverage
         if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and 0 < leverage <= exchange.maxLeverage:
-            await exchange.set_leverage(leverage)
+            exchange.set_leverage(leverage)
 
         # Check action
         if action not in ["buy", "sell", "close", None]:
@@ -86,13 +85,13 @@ async def execute_order(action, exchange_id, symbol, price, quantity, percent, o
                 order_func = getattr(exchange, order_func_name)
 
                 if order_type == "limit":
-                    response["order"] = await order_func(symbol, quantity, price)
+                    response["order"] = order_func(symbol, quantity, price)
                 else:
-                    response["order"] = await order_func(symbol, quantity)
+                    response["order"] = order_func(symbol, quantity)
 
         elif action == "close":
-            all_orders = await exchange.fetch_open_orders(symbol)
-            response["order"] = [await exchange.cancel_order(order["id"]) for order in all_orders]
+            all_orders = exchange.fetch_open_orders(symbol)
+            response["order"] = [exchange.cancel_order(order["id"]) for order in all_orders]
 
         return response
 
@@ -324,7 +323,7 @@ def sync_symbols():
                         new_symbol.logo_url = frappe.utils.get_url(url)
 
                         new_symbol.params = json.dumps(market_data, indent=4)
-                        snew_symbol.save(ignore_permissions=True)
+                        new_symbol.save(ignore_permissions=True)
 
                     processed_steps += 1
                     progress_percentage = (

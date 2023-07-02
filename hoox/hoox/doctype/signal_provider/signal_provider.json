@@ -12,7 +12,7 @@
   "provider_name",
   "description",
   "domain",
-  "owner"
+  "sig_provider_owner"
  ],
  "fields": [
   {
@@ -44,7 +44,7 @@
    "unique": 1
   },
   {
-   "fieldname": "owner",
+   "fieldname": "sig_provider_owner",
    "fieldtype": "Link",
    "label": "Owner",
    "options": "User"
@@ -65,10 +65,11 @@
    "link_fieldname": "sig_provider"
   }
  ],
- "modified": "2023-06-29 03:26:51.179937",
+ "modified": "2023-07-02 16:15:10.127190",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Signal Provider",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -87,5 +88,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "provider_name"
 }

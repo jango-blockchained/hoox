@@ -1,403 +1,404 @@
 {
- "category": "Administration",
- "charts": [
-  {
-   "chart_name": "Trading Volume",
-   "label": "Trading Volume"
-  },
-  {
-   "chart_name": "Portal Weighted Leverage Average",
-   "label": "Portal Weighted Leverage Average"
-  }
- ],
- "creation": "2023-05-23 11:17:39.197890",
- "developer_mode_only": 0,
- "disable_user_customization": 1,
- "docstatus": 0,
- "doctype": "Workspace",
- "extends_another_page": 0,
- "hide_custom": 0,
- "idx": 0,
- "is_default": 0,
- "is_standard": 1,
- "label": "Hoox",
- "links": [
-  {
-   "hidden": 0,
-   "icon": "user",
-   "is_query_report": 0,
-   "label": "Credentials",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Exchange Credentials",
-   "link_to": "Exchange Credentials",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Homeassistant Credentials",
-   "link_to": "Homeassistant Credentials",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "icon": "tool",
-   "is_query_report": 0,
-   "label": "Data",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "CCXT Exchanges",
-   "link_to": "CCXT Exchanges",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Supported Markets",
-   "link_to": "Supported Markets",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Symbols",
-   "link_to": "Symbols",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "icon": "tool",
-   "is_query_report": 0,
-   "label": "Settings",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Hoox Settings",
-   "link_to": "Hoox Settings",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "icon": "",
-   "is_query_report": 0,
-   "label": "IP Whitelist",
-   "link_to": "IP Whitelist",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "icon": "",
-   "is_query_report": 0,
-   "label": "Telegram",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Telegram Bot",
-   "link_to": "Telegram Bot",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Telegram User",
-   "link_to": "Telegram User",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Telegram Message",
-   "link_to": "Telegram Message",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Telegram Message Template",
-   "link_to": "Telegram Message Template",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Gateway",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Trades",
-   "link_to": "Trades",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Incoming Requests",
-   "link_to": "Incoming Requests",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Outgoing Requests",
-   "link_to": "Outgoing Requests",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Incoming Response",
-   "link_to": "Incoming Response",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Signals",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Signal Provider",
-   "link_to": "Signal Provider",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Signals",
-   "link_to": "Signals",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Incoming Signals",
-   "link_to": "Incoming Signals",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Abonnement Management",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Abonnementplan",
-   "link_to": "Subscription Plan",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Abonnement",
-   "link_to": "Subscription",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Abonnementeinstellungen",
-   "link_to": "Subscription Settings",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Frontend",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Web-Formular",
-   "link_to": "Web Form",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  }
- ],
- "modified": "2023-06-30 23:08:08.054884",
- "modified_by": "Administrator",
- "module": "Hoox",
- "name": "Hoox",
- "onboarding": "HOOX Onboarding",
- "owner": "Administrator",
- "pin_to_bottom": 0,
- "pin_to_top": 0,
- "shortcuts": [
-  {
-   "color": "#4463F0",
-   "doc_view": "List",
-   "format": "{} Total",
-   "label": "Trades",
-   "link_to": "Trades",
-   "stats_filter": "{}",
-   "type": "DocType"
-  },
-  {
-   "color": "#29CD42",
-   "doc_view": "List",
-   "format": "{} Total",
-   "label": "CCXT Exchanges",
-   "link_to": "CCXT Exchanges",
-   "stats_filter": "{}",
-   "type": "DocType"
-  },
-  {
-   "color": "#ECAD4B",
-   "doc_view": "List",
-   "format": "{} Provider",
-   "label": "Signal Provider",
-   "link_to": "Signal Provider",
-   "stats_filter": "{}",
-   "type": "DocType"
-  },
-  {
-   "color": "#ECAD4B",
-   "doc_view": "List",
-   "format": "{} Total",
-   "label": "Signals",
-   "link_to": "Signals",
-   "stats_filter": "{}",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "format": "{} Total",
-   "label": "Incoming Signals",
-   "link_to": "Incoming Signals",
-   "stats_filter": "{}",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "format": "{} Requests",
-   "label": "Incoming Requests",
-   "link_to": "Incoming Requests",
-   "stats_filter": "{}",
-   "type": "DocType"
-  },
-  {
-   "color": "#ED6396",
-   "doc_view": "List",
-   "format": "{} Requests",
-   "label": "Outgoing Requests",
-   "link_to": "Outgoing Requests",
-   "stats_filter": "{}",
-   "type": "DocType"
-  },
-  {
-   "color": "#4463F0",
-   "doc_view": "List",
-   "format": "{} Response",
-   "label": "Incoming Response",
-   "link_to": "Incoming Response",
-   "stats_filter": "{}",
-   "type": "DocType"
-  },
-  {
-   "color": "#449CF0",
-   "doc_view": "List",
-   "format": "{} Total",
-   "label": "Symbols",
-   "link_to": "Symbols",
-   "stats_filter": "{}",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "format": "",
-   "label": "Frontend",
-   "link_to": "Web Form",
-   "stats_filter": "",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "label": "Hoox Settings",
-   "link_to": "Hoox Settings",
-   "type": "DocType"
-  },
-  {
-   "color": "#39E4A5",
-   "doc_view": "Dashboard",
-   "label": "Dashboard",
-   "link_to": "Hoox",
-   "type": "Dashboard"
-  }
- ]
+    "category": "Administration",
+    "charts": [
+        {
+            "chart_name": "Trading Volume",
+            "label": "Trading Volume"
+        },
+        {
+            "chart_name": "Portal Weighted Leverage Average",
+            "label": "Portal Weighted Leverage Average"
+        }
+    ],
+    "title": "Hoox",
+    "creation": "2023-05-23 11:17:39.197890",
+    "developer_mode_only": 0,
+    "disable_user_customization": 1,
+    "docstatus": 0,
+    "doctype": "Workspace",
+    "extends_another_page": 0,
+    "hide_custom": 0,
+    "idx": 0,
+    "is_default": 0,
+    "is_standard": 1,
+    "label": "Hoox",
+    "links": [
+        {
+            "hidden": 0,
+            "icon": "user",
+            "is_query_report": 0,
+            "label": "Credentials",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Exchange Credentials",
+            "link_to": "Exchange Credentials",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Homeassistant Credentials",
+            "link_to": "Homeassistant Credentials",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "icon": "tool",
+            "is_query_report": 0,
+            "label": "Data",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "CCXT Exchanges",
+            "link_to": "CCXT Exchanges",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Supported Markets",
+            "link_to": "Supported Markets",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Symbols",
+            "link_to": "Symbols",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "icon": "tool",
+            "is_query_report": 0,
+            "label": "Settings",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Hoox Settings",
+            "link_to": "Hoox Settings",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "icon": "",
+            "is_query_report": 0,
+            "label": "IP Whitelist",
+            "link_to": "IP Whitelist",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "icon": "",
+            "is_query_report": 0,
+            "label": "Telegram",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Telegram Bot",
+            "link_to": "Telegram Bot",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Telegram User",
+            "link_to": "Telegram User",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Telegram Message",
+            "link_to": "Telegram Message",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Telegram Message Template",
+            "link_to": "Telegram Message Template",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Gateway",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Trades",
+            "link_to": "Trades",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Incoming Requests",
+            "link_to": "Incoming Requests",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Outgoing Requests",
+            "link_to": "Outgoing Requests",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Incoming Response",
+            "link_to": "Incoming Response",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Signals",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Signal Provider",
+            "link_to": "Signal Provider",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Signals",
+            "link_to": "Signals",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Incoming Signals",
+            "link_to": "Incoming Signals",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Abonnement Management",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Abonnementplan",
+            "link_to": "Subscription Plan",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Abonnement",
+            "link_to": "Subscription",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Abonnementeinstellungen",
+            "link_to": "Subscription Settings",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Frontend",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Web-Formular",
+            "link_to": "Web Form",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        }
+    ],
+    "modified": "2023-06-30 23:08:08.054884",
+    "modified_by": "Administrator",
+    "module": "Hoox",
+    "name": "Hoox",
+    "onboarding": "HOOX Onboarding",
+    "owner": "Administrator",
+    "pin_to_bottom": 0,
+    "pin_to_top": 0,
+    "shortcuts": [
+        {
+            "color": "#4463F0",
+            "doc_view": "List",
+            "format": "{} Total",
+            "label": "Trades",
+            "link_to": "Trades",
+            "stats_filter": "{}",
+            "type": "DocType"
+        },
+        {
+            "color": "#29CD42",
+            "doc_view": "List",
+            "format": "{} Total",
+            "label": "CCXT Exchanges",
+            "link_to": "CCXT Exchanges",
+            "stats_filter": "{}",
+            "type": "DocType"
+        },
+        {
+            "color": "#ECAD4B",
+            "doc_view": "List",
+            "format": "{} Provider",
+            "label": "Signal Provider",
+            "link_to": "Signal Provider",
+            "stats_filter": "{}",
+            "type": "DocType"
+        },
+        {
+            "color": "#ECAD4B",
+            "doc_view": "List",
+            "format": "{} Total",
+            "label": "Signals",
+            "link_to": "Signals",
+            "stats_filter": "{}",
+            "type": "DocType"
+        },
+        {
+            "doc_view": "List",
+            "format": "{} Total",
+            "label": "Incoming Signals",
+            "link_to": "Incoming Signals",
+            "stats_filter": "{}",
+            "type": "DocType"
+        },
+        {
+            "doc_view": "List",
+            "format": "{} Requests",
+            "label": "Incoming Requests",
+            "link_to": "Incoming Requests",
+            "stats_filter": "{}",
+            "type": "DocType"
+        },
+        {
+            "color": "#ED6396",
+            "doc_view": "List",
+            "format": "{} Requests",
+            "label": "Outgoing Requests",
+            "link_to": "Outgoing Requests",
+            "stats_filter": "{}",
+            "type": "DocType"
+        },
+        {
+            "color": "#4463F0",
+            "doc_view": "List",
+            "format": "{} Response",
+            "label": "Incoming Response",
+            "link_to": "Incoming Response",
+            "stats_filter": "{}",
+            "type": "DocType"
+        },
+        {
+            "color": "#449CF0",
+            "doc_view": "List",
+            "format": "{} Total",
+            "label": "Symbols",
+            "link_to": "Symbols",
+            "stats_filter": "{}",
+            "type": "DocType"
+        },
+        {
+            "doc_view": "List",
+            "format": "",
+            "label": "Frontend",
+            "link_to": "Web Form",
+            "stats_filter": "",
+            "type": "DocType"
+        },
+        {
+            "doc_view": "List",
+            "label": "Hoox Settings",
+            "link_to": "Hoox Settings",
+            "type": "DocType"
+        },
+        {
+            "color": "#39E4A5",
+            "doc_view": "Dashboard",
+            "label": "Dashboard",
+            "link_to": "Hoox",
+            "type": "Dashboard"
+        }
+    ]
 }
