@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestCCXTExchanges(unittest.TestCase):
+class TestExchange(unittest.TestCase):
 	pass

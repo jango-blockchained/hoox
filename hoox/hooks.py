@@ -194,7 +194,7 @@ user_data_fields = [
 # --------
 
 fixtures = ['Signal Provider', 'Supported Market',
-            'Hoox Settings', 'IP Whitelist']
+            'Hoox Settings', 'IP Whitelist','Timeframe']
 
 
 def set_cors_headers(response):

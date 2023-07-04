@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestOutgoingRequests(unittest.TestCase):
+class TestOutgoingRequest(unittest.TestCase):
 	pass
