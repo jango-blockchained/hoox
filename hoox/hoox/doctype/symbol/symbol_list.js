@@ -4,7 +4,7 @@ frappe.listview_settings["Symbol"] = {
       __("Sync Symbol"),
       function () {
         frappe.call({
-          method: "hoox.action.sync_symbols",
+          method: "hoox.hoox.doctype.symbol.symbol.sync_symbols",
           callback: function (r) {
             if (r.message) {
               frappe.msgprint(r.message);
@@ -28,7 +28,7 @@ frappe.listview_settings["Symbol"] = {
       __("Activate Symbol"),
       function () {
         frappe.call({
-          method: "hoox.action.activate_symbols",
+          method: "hoox.hoox.doctype.symbol.symbol.activate_symbols",
           callback: function (r) {
             if (r.message) {
               frappe.msgprint(r.message);
@@ -52,7 +52,7 @@ frappe.listview_settings["Symbol"] = {
       __("Delete Symbol"),
       function () {
         frappe.call({
-          method: "hoox.action.delete_symbols",
+          method: "hoox.hoox.doctype.symbol.symbol.delete_symbols",
           callback: function (r) {
             if (r.message) {
               frappe.msgprint(r.message);

@@ -357,7 +357,7 @@ class HooxAPI():
             self.incoming_response = frappe.get_doc({
                 "doctype": "Incoming Response",
                 "method": action,
-                "params": json.dumps(self.order),
+                "params": json.dumps(self.order, ident=4),
                 "request_incoming": self.incoming_request.name,
                 "request_outgoing": self.outgoing_request.name,
                 "status": self.trade.status,
@@ -372,11 +372,6 @@ class HooxAPI():
             self.incoming_request.response_incoming = self.incoming_response.name
             self.incoming_request.request_outgoing = self.outgoing_request.name
             self.incoming_request.save()
-            # - - - -
-            retry_no = self.retry + 1
-            # - - - -
-            self.log.info(
-                f"Internal Trade-ID: {self.trade.name}\tExternal Trade-ID: {self.trade.exchange_order_id}\tRequest # {retry_no}")
             # - - - -
             frappe.db.commit()
             # - - - -
@@ -393,7 +388,7 @@ class HooxAPI():
 # Expose the hoox function to the outside world
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(method="POST", allow_guest=True)
 def receive_alert(request_json=None):
     """
     Main entry point for Incoming Request. If there are valid exchange credentials and they are enabled, it processes the request.

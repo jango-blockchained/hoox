@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_import": 1,
  "autoname": "field:exchange_id",
  "creation": "2023-05-28 21:58:58.973116",
  "doctype": "DocType",
@@ -12,6 +11,7 @@
   "enabled",
   "column_break_4eiyc",
   "logo_url",
+  "logo_ghost",
   "exchange_id",
   "section_break_wuj7a",
   "precision_mode",
@@ -99,8 +99,7 @@
   },
   {
    "fieldname": "logo_url",
-   "fieldtype": "Data",
-   "in_list_view": 1,
+   "fieldtype": "Attach Image",
    "label": "Logo",
    "options": "URL"
   },
@@ -118,8 +117,16 @@
    "fieldname": "raw_section",
    "fieldtype": "Section Break",
    "label": "Raw"
+  },
+  {
+   "fieldname": "logo_ghost",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Logo"
   }
  ],
+ "image_field": "logo_url",
  "in_create": 1,
  "links": [
   {
@@ -132,7 +139,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2023-07-04 17:57:09.162933",
+ "modified": "2023-07-04 18:19:13.282502",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Exchange",

@@ -63,8 +63,12 @@ frappe.listview_settings["Exchange"] = {
     );
   },
   formatters: {
-    logo_url(val) {
-      return '<img src="' + val + '" class="rounded img-fluid" alt="logo" />';
+    logo_ghost(val) {
+      return (
+        '<img src="' +
+        frm.doc.logo_url +
+        '" class="rounded img-fluid" alt="logo" />'
+      );
     },
   },
   button: {

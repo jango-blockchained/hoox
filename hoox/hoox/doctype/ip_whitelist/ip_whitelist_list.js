@@ -2,7 +2,7 @@ frappe.listview_settings["IP Whitelist"] = {
   onload: function (listview) {
     listview.page.add_inner_button(__("Add TradingView™ Server"), function () {
       frappe.call({
-        method: "hoox.action.add_ip_addresses",
+        method: "hoox.hoox.doctype.ip_whitelist.ip_whitelist.add_ip_addresses",
         callback: function (r) {
           if (r.message) {
             frappe.msgprint(r.message);
@@ -28,7 +28,8 @@ frappe.listview_settings["IP Whitelist"] = {
           ),
           function () {
             frappe.call({
-              method: "hoox.action.add_whitelist_all",
+              method:
+                "hoox.hoox.doctype.ip_whitelist.ip_whitelist.add_whitelist_all",
               callback: function (r) {
                 if (r.message) {
                   frappe.msgprint(r.message);

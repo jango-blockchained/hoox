@@ -1,19 +1,21 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "HOOX-SIG-.#####",
+ "autoname": "format:HOOX-SIG-.#####",
  "creation": "2023-06-23 14:01:40.902807",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "sig_provider",
   "sig_name",
+  "sig_provider",
   "sig_secret_hash",
   "sig_desc",
   "sig_exchanges",
+  "market",
   "sig_symbol",
-  "market"
+  "banner",
+  "pnl"
  ],
  "fields": [
   {
@@ -55,14 +57,26 @@
    "fieldtype": "Table MultiSelect",
    "label": "Symbol",
    "options": "Signal Symbol Table"
+  },
+  {
+   "fieldname": "banner",
+   "fieldtype": "Attach Image",
+   "label": "Banner"
+  },
+  {
+   "fieldname": "pnl",
+   "fieldtype": "Percent",
+   "label": "PNL"
   }
  ],
+ "image_field": "banner",
  "links": [],
- "modified": "2023-07-04 16:38:41.245918",
+ "make_attachments_public": 1,
+ "modified": "2023-07-04 22:49:30.227620",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Signal",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -84,6 +98,5 @@
  "sort_order": "DESC",
  "states": [],
  "title_field": "sig_name",
- "track_changes": 1,
- "track_views": 1
+ "track_changes": 1
 }
