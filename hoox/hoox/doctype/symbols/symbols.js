@@ -3,6 +3,8 @@
 async function createChartForSymbol(
   elementId,
   title,
+  xAxisTickCount,
+  yAxisTickCount,
   yAxisLabel,
   yAxisFormat,
   chartType,
@@ -28,9 +30,10 @@ async function createChartForSymbol(
     axisOptions: {
       xIsSeries: true,
       xAxisMode: "tick",
+      xAxisTickCount: xAxisTickCount,
       tickFormat: "%Y-%m-%d",
       yAxisMode: "span",
-      yAxisTickCount: 5,
+      yAxisTickCount: yAxisTickCount,
       yAxisLabel: yAxisLabel,
       yAxisFormat: yAxisFormat,
     },
@@ -38,12 +41,11 @@ async function createChartForSymbol(
       formatTooltipX: (d) => (d instanceof Date ? d.toDateString() : d),
       formatTooltipY: (d) => yAxisFormat.charAt(0) + " " + d,
     },
-    limit: 100,
   });
 }
 
 frappe.ui.form.on("Symbols", {
-  onload: async (frm) => {
+  refresh: async (frm) => {
     frm.fields_dict.chart.wrapper.innerHTML =
       '<div id="chart_price" style="width: 100%; height: 300px;"></div>' +
       '<div id="chart_vol" style="width: 100%; height: 150px;"></div>';
@@ -78,6 +80,8 @@ frappe.ui.form.on("Symbols", {
         const chart_price = await createChartForSymbol(
           "#chart_price",
           `${frm.doc.symbol} Price Chart`,
+          50,
+          4,
           "Price",
           "$ 0,0",
           "line",
@@ -89,6 +93,8 @@ frappe.ui.form.on("Symbols", {
         const chart_vol = await createChartForSymbol(
           "#chart_vol",
           `${frm.doc.symbol} Volume Chart`,
+          50,
+          3,
           "Qty.",
           "0,0",
           "bar",
@@ -137,6 +143,22 @@ frappe.ui.form.on("Symbols", {
         d.show();
       })
       .css({ "background-color": "hsl(251, 76%, 55%)", color: "#fff" });
+
+    frm.add_custom_button(__("Fetch OHLCV Data"), function () {
+      frappe.call({
+        method: "hoox.hoox.doctype.symbol.symbol.fetch_ohlcv_data",
+        args: {
+          symbol: frm.doc.symbol,
+          interval: frm.doc.interval,
+          exchange_name: frm.doc.exchange_name,
+          from_date_time: frm.doc.from_date_time,
+          page_size: frm.doc.page_size,
+        },
+        callback: function (r) {
+          frm.reload_doc();
+        },
+      });
+    });
   },
 });
 

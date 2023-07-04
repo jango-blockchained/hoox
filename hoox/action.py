@@ -259,22 +259,75 @@ def add_whitelist_all():
     return "Whitelist All '*' entry already exists."
 
 
-def save_file_from_buffer(buffer, filename):
-    with open(filename, "wb") as file:
-        file.write(buffer.getbuffer())
 
+@frappe.whitelist()
+def get_svg_logo(symbol):
+    base_url = "https://api.coingecko.com/api/v3"
+    endpoint = f"/coins/{symbol.lower()}"
+    params = {
+        "localization": False,
+    }
 
-def attach_url_to_document(doc, file_url):
     try:
-        doc.append("attachments", {
-            "file_url": file_url
-        })
-        doc.save()
-        print("File attached successfully.")
-    except frappe.DoesNotExistError:
-        print("Document does not exist.")
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        response = requests.get(url=f"{base_url}{endpoint}", params=params)
+        response.raise_for_status()
+        data = response.json()
+        logo_url = data.get("image", {}).get("large")
+
+        if logo_url:
+            logo_response = requests.get(url=logo_url)
+            logo_response.raise_for_status()
+            return logo_response.content
+
+    except requests.exceptions.RequestException as e:
+        frappe.msgprint(f"Error fetching SVG logo for {symbol}: {e}")
+        return None
+
+@frappe.whitelist()
+def sync_exchange_symbols(exchange_id):
+    exchange_class = getattr(ccxt, exchange_id)
+    exchange_instance = exchange_class()
+    supported_market_types = exchange_instance.load_markets().keys()
+
+    for market_type in supported_market_types:
+        exchange_instance.options['defaultType'] = market_type
+        markets = exchange_instance.load_markets()
+
+        for symbol, market_data in markets.items():
+            symbol_exists = frappe.db.exists(
+                "Symbols", {"symbol": symbol, "exchange": exchange_id, "market": market_type})
+
+            if symbol_exists:
+                continue
+
+            try:
+                new_symbol = frappe.get_doc({
+                    "doctype": "Symbols",
+                    "symbol": symbol,
+                    "exchange": exchange_id,
+                    "market": market_type
+                })
+
+                new_symbol.symbol_id = market_data["id"]
+                new_symbol.base_id = market_data["baseId"]
+                new_symbol.quote_id = market_data["quoteId"]
+                new_symbol.exchange = exchange_id
+                new_symbol.market = market_type
+                new_symbol.enabled = 0
+
+                svg_logo = get_svg_logo(market_data["baseId"])
+                if svg_logo:
+                    logo_file_name = f"{market_data['baseId']}.svg"
+                    logo_file_path = frappe.get_site_path("public", "files", logo_file_name)
+                    with open(logo_file_path, "wb") as logo_file:
+                        logo_file.write(svg_logo)
+                    new_symbol.logo_attachment = logo_file_name
+
+                new_symbol.params = json.dumps(market_data, indent=4)
+                new_symbol.insert(ignore_permissions=True)
+
+            except Exception as e:
+                frappe.msgprint(f"An error occurred: {str(e)}")
 
 
 @frappe.whitelist()
@@ -283,58 +336,15 @@ def sync_symbols():
                                        "enabled": 1}, fields=["name"])
     total_exchanges = len(enabled_exchanges)
 
-    processed_steps = 0
-    steps = 0
     for ei, exchange_data in enumerate(enabled_exchanges):
         exchange_id = exchange_data["name"]
-        exchange_class = getattr(ccxt, exchange_id)
-        print(exchange_id)
-        for testnet in [True, False]:
-            exchange_instance = exchange_class({'testnet': testnet})
-            supported_market_types = get_supported_market_types(
-                exchange_instance)
-            for mi, marketType in enumerate(supported_market_types):
+        sync_exchange_symbols(exchange_id)
 
-                exchange_instance.options['defaultType'] = marketType
-                markets = exchange_instance.load_markets()
-                steps += len(markets)
-                for symbol, market_data in markets.items():
-                    symbol_exists = frappe.db.exists(
-                        "Symbols", {"symbol": symbol, "exchange": exchange_id, "market": marketType})
+        progress_percentage = ei / total_exchanges * 100
+        frappe.publish_progress(percent=progress_percentage, title=_("Syncing Symbols..."), description=f"Processing {exchange_id}")
 
-                    if not symbol_exists:
-                        # new_symbol = frappe.new_doc("Symbols")
-                        new_symbol = frappe.get_doc({
-                            "doctype": "Symbols",
-                            "symbol": symbol,
-                            "exchange": exchange_id,
-                            "market": marketType
-                        })
-
-                        new_symbol.symbol_id = market_data["id"]
-                        new_symbol.base_id = market_data["baseId"]
-                        new_symbol.quote_id = market_data["quoteId"]
-                        new_symbol.exchange = exchange_id
-                        new_symbol.market = marketType
-                        new_symbol.enabled = 0
-                        url = f"/assets/hoox/svg/symbols/svg/color/{market_data['baseId']}.svg".lower(
-                        )
-                        # if os.path.exists(url):
-                        new_symbol.logo_url = frappe.utils.get_url(url)
-
-                        new_symbol.params = json.dumps(market_data, indent=4)
-                        new_symbol.save(ignore_permissions=True)
-
-                    processed_steps += 1
-                    progress_percentage = (
-                        processed_steps / steps) * 100 * (ei+1) / total_exchanges * (mi+1) / 2
-                    frappe.publish_progress(progress_percentage, title=_(
-                        f"Syncing Symbols..."), description=f"Processing {exchange_id} {marketType} {symbol}")
-                processed_steps = 0
-
-    frappe.publish_progress(100, title=_(
-        "Syncing Symbols..."), description=_("Completed!"))
-
+    frappe.publish_progress(percent=100, title=_("Syncing Symbols..."), description=_("Completed!"))
+    frappe.db.commit()
     return 'Successful'
 
 
@@ -347,7 +357,6 @@ def get_supported_market_types(exchange):
                 supported_market_types.append(market_type)
 
     return supported_market_types
-
 
 @frappe.whitelist()
 def activate_symbols():
@@ -386,7 +395,7 @@ def delete_symbols():
 
 @frappe.whitelist()
 def fetch_ohlcv(exchange_id, market, symbol, timeframe):
-    exchange = getattr(ccxtx, exchange_id)({"enableRateLimit": True,
+    exchange = getattr(ccxt, exchange_id)({"enableRateLimit": True,
                                            "options": {
                                                "defaultType": market}
                                             })

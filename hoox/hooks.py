@@ -195,3 +195,13 @@ user_data_fields = [
 
 fixtures = ['Signal Provider', 'Supported Markets',
             'Hoox Settings', 'IP Whitelist']
+
+
+def set_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization'
+    return response
+
+after_request = [set_cors_headers]
