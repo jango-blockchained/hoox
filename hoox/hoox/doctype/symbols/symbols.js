@@ -44,7 +44,7 @@ async function createChartForSymbol(
   });
 }
 
-frappe.ui.form.on("Symbols", {
+frappe.ui.form.on("Symbol", {
   refresh: async (frm) => {
     frm.fields_dict.chart.wrapper.innerHTML =
       '<div id="chart_price" style="width: 100%; height: 300px;"></div>' +

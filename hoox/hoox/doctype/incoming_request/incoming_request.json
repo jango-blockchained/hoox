@@ -1,0 +1,146 @@
+{
+    "actions": [],
+    "autoname": "HOOX-REQ-IN-.######",
+    "creation": "2023-06-06 01:00:13.322650",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "section_break_p2u9x",
+        "origin",
+        "column_break_wtyhc",
+        "status",
+        "section_break_e7kwt",
+        "request_outgoing",
+        "column_break_248cy",
+        "response_incoming",
+        "section_break_jxkwu",
+        "method",
+        "column_break_vxcyx",
+        "url",
+        "section_break_ed2tw",
+        "params"
+    ],
+    "fields": [
+        {
+            "fieldname": "method",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Method"
+        },
+        {
+            "fieldname": "url",
+            "fieldtype": "Data",
+            "label": "URL"
+        },
+        {
+            "fieldname": "params",
+            "fieldtype": "Code",
+            "in_list_view": 1,
+            "label": "Parameter",
+            "options": "JSON"
+        },
+        {
+            "default": "Processing",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Status",
+            "options": "Processing\nFailed\nSuccess"
+        },
+        {
+            "fieldname": "section_break_p2u9x",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "origin",
+            "fieldtype": "Link",
+            "label": "Origin",
+            "options": "Trade"
+        },
+        {
+            "fieldname": "column_break_wtyhc",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "section_break_jxkwu",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "column_break_vxcyx",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "section_break_ed2tw",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "request_outgoing",
+            "fieldtype": "Link",
+            "label": "Outgoing Request",
+            "options": "Outgoing Request"
+        },
+        {
+            "fieldname": "column_break_248cy",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "response_incoming",
+            "fieldtype": "Link",
+            "label": "Incoming Response",
+            "options": "Incoming Response"
+        },
+        {
+            "fieldname": "section_break_e7kwt",
+            "fieldtype": "Section Break"
+        }
+    ],
+    "in_create": 1,
+    "links": [
+        {
+            "link_doctype": "Outgoing Request",
+            "link_fieldname": "request_incoming"
+        },
+        {
+            "link_doctype": "Incoming Response",
+            "link_fieldname": "request_incoming"
+        }
+    ],
+    "modified": "2023-07-04 16:34:42.304266",
+    "modified_by": "Administrator",
+    "module": "Hoox",
+    "name": "Incoming Request",
+    "name_case": "UPPER CASE",
+    "naming_rule": "Expression (old style)",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [
+        {
+            "color": "Orange",
+            "title": "Processing"
+        },
+        {
+            "color": "Green",
+            "title": "Successful"
+        },
+        {
+            "color": "Red",
+            "title": "Failure"
+        }
+    ]
+}

@@ -85,8 +85,8 @@ class DataFeed:
             doc.insert()
 
 # Usage example (same as before)
-exchanges = frappe.get_list("CCXT Exchanges", filters={"enabled": 1})
-symbols = frappe.get_list("Symbols", filters={"enabled": 1})
+exchanges = frappe.get_list("Exchange", filters={"enabled": 1})
+symbols = frappe.get_list("Symbol", filters={"enabled": 1})
 
 data_feed = DataFeed(exchanges, symbols)
 

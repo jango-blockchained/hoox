@@ -118,7 +118,7 @@
  "modified": "2023-05-31 14:17:11.562371",
  "modified_by": "Administrator",
  "module": "Hoox",
- "name": "CCXT Exchanges",
+ "name": "Exchange",
  "owner": "Administrator",
  "permissions": [
   {

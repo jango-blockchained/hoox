@@ -1,4 +1,4 @@
-frappe.ui.form.on("CCXT Exchanges", {
+frappe.ui.form.on("Exchange", {
   refresh: function (frm) {
     frm
       .add_custom_button(__("Show Features"), function () {

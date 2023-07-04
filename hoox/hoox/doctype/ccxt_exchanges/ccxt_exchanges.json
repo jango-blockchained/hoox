@@ -1,155 +1,155 @@
 {
- "actions": [],
- "allow_import": 1,
- "autoname": "field:exchange_id",
- "creation": "2023-05-28 21:58:58.973116",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "exchange_section",
-  "exchange_name",
-  "enabled",
-  "column_break_4eiyc",
-  "logo_url",
-  "exchange_id",
-  "section_break_wuj7a",
-  "precision_mode",
-  "column_break_n5k51",
-  "rate_limit",
-  "section_break_3bszp",
-  "testnet",
-  "has"
- ],
- "fields": [
-  {
-   "allow_in_quick_entry": 1,
-   "fieldname": "exchange_id",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Exchange ID",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "fieldname": "exchange_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Exchange Name"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "fieldname": "precision_mode",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Precision Mode",
-   "read_only": 1
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "fieldname": "rate_limit",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Rate Limit",
-   "read_only": 1
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "default": "0",
-   "fieldname": "testnet",
-   "fieldtype": "Check",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Testnet",
-   "read_only": 1
-  },
-  {
-   "fieldname": "has",
-   "fieldtype": "Code",
-   "hidden": 1,
-   "in_global_search": 1,
-   "label": "Features",
-   "options": "JSON",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_break_wuj7a",
-   "fieldtype": "Section Break",
-   "label": "Settings"
-  },
-  {
-   "fieldname": "section_break_3bszp",
-   "fieldtype": "Section Break",
-   "label": "Testnet"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "default": "0",
-   "fieldname": "enabled",
-   "fieldtype": "Check",
-   "in_standard_filter": 1,
-   "label": "Enabled"
-  },
-  {
-   "fieldname": "column_break_4eiyc",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "logo_url",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Logo",
-   "options": "URL"
-  },
-  {
-   "fieldname": "column_break_n5k51",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "exchange_section",
-   "fieldtype": "Section Break",
-   "label": "Exchange"
-  }
- ],
- "in_create": 1,
- "links": [
-  {
-   "link_doctype": "Symbols",
-   "link_fieldname": "exchange"
-  },
-  {
-   "link_doctype": "Signals",
-   "link_fieldname": "sig_exchange"
-  }
- ],
- "make_attachments_public": 1,
- "modified": "2023-07-02 16:14:28.158761",
- "modified_by": "Administrator",
- "module": "Hoox",
- "name": "CCXT Exchanges",
- "naming_rule": "By fieldname",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "select": 1,
-   "share": 1,
-   "write": 1
-  }
- ],
- "quick_entry": 1,
- "show_name_in_global_search": 1,
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+    "actions": [],
+    "allow_import": 1,
+    "autoname": "field:exchange_id",
+    "creation": "2023-05-28 21:58:58.973116",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "exchange_section",
+        "exchange_name",
+        "enabled",
+        "column_break_4eiyc",
+        "logo_url",
+        "exchange_id",
+        "section_break_wuj7a",
+        "precision_mode",
+        "column_break_n5k51",
+        "rate_limit",
+        "section_break_3bszp",
+        "testnet",
+        "has"
+    ],
+    "fields": [
+        {
+            "allow_in_quick_entry": 1,
+            "fieldname": "exchange_id",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Exchange ID",
+            "reqd": 1,
+            "unique": 1
+        },
+        {
+            "allow_in_quick_entry": 1,
+            "fieldname": "exchange_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Exchange Name"
+        },
+        {
+            "allow_in_quick_entry": 1,
+            "fieldname": "precision_mode",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Precision Mode",
+            "read_only": 1
+        },
+        {
+            "allow_in_quick_entry": 1,
+            "fieldname": "rate_limit",
+            "fieldtype": "Float",
+            "in_list_view": 1,
+            "label": "Rate Limit",
+            "read_only": 1
+        },
+        {
+            "allow_in_quick_entry": 1,
+            "default": "0",
+            "fieldname": "testnet",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Testnet",
+            "read_only": 1
+        },
+        {
+            "fieldname": "has",
+            "fieldtype": "Code",
+            "hidden": 1,
+            "in_global_search": 1,
+            "label": "Features",
+            "options": "JSON",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_break_wuj7a",
+            "fieldtype": "Section Break",
+            "label": "Settings"
+        },
+        {
+            "fieldname": "section_break_3bszp",
+            "fieldtype": "Section Break",
+            "label": "Testnet"
+        },
+        {
+            "allow_in_quick_entry": 1,
+            "default": "0",
+            "fieldname": "enabled",
+            "fieldtype": "Check",
+            "in_standard_filter": 1,
+            "label": "Enabled"
+        },
+        {
+            "fieldname": "column_break_4eiyc",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "logo_url",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Logo",
+            "options": "URL"
+        },
+        {
+            "fieldname": "column_break_n5k51",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "exchange_section",
+            "fieldtype": "Section Break",
+            "label": "Exchange"
+        }
+    ],
+    "in_create": 1,
+    "links": [
+        {
+            "link_doctype": "Symbol",
+            "link_fieldname": "exchange"
+        },
+        {
+            "link_doctype": "Signal",
+            "link_fieldname": "sig_exchange"
+        }
+    ],
+    "make_attachments_public": 1,
+    "modified": "2023-07-02 16:14:28.158761",
+    "modified_by": "Administrator",
+    "module": "Hoox",
+    "name": "Exchange",
+    "naming_rule": "By fieldname",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "select": 1,
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "quick_entry": 1,
+    "show_name_in_global_search": 1,
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
 }

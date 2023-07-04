@@ -1,129 +1,130 @@
 {
- "actions": [],
- "autoname": "HOOX-REQ-OUT-.######",
- "creation": "2023-06-06 21:00:32.723576",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "section_break_7a9b2",
-  "origin",
-  "column_break_yxbvg",
-  "status",
-  "section_break_mnl2y",
-  "response_incoming",
-  "column_break_k49iz",
-  "request_incoming",
-  "section_break_grcq8",
-  "method",
-  "column_break_tqcvo",
-  "url",
-  "section_break_kpecz",
-  "params"
- ],
- "fields": [
-  {
-   "fieldname": "method",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Method"
-  },
-  {
-   "fieldname": "url",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "URL"
-  },
-  {
-   "fieldname": "params",
-   "fieldtype": "Code",
-   "label": "Parameter",
-   "options": "JSON"
-  },
-  {
-   "default": "Processing",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Status",
-   "options": "Processing\nFailed\nSuccess"
-  },
-  {
-   "bold": 1,
-   "fetch_from": "Trades.name",
-   "fieldname": "origin",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Origin",
-   "options": "Trades"
-  },
-  {
-   "fieldname": "response_incoming",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Incoming Response",
-   "options": "Incoming Response"
-  },
-  {
-   "fieldname": "request_incoming",
-   "fieldtype": "Link",
-   "label": "Incoming Request",
-   "options": "Incoming Requests"
-  },
-  {
-   "fieldname": "section_break_7a9b2",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_yxbvg",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_mnl2y",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_k49iz",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_grcq8",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_tqcvo",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_kpecz",
-   "fieldtype": "Section Break"
-  }
- ],
- "in_create": 1,
- "links": [],
- "modified": "2023-07-02 16:14:12.137799",
- "modified_by": "Administrator",
- "module": "Hoox",
- "name": "Outgoing Requests",
- "name_case": "UPPER CASE",
- "naming_rule": "Expression (old style)",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+    "_comments": "[{\"comment\": \"Action Failed<br><br>Document Links Row #1: Invalid doctype or fieldname.<br>('DocType', 'Outgoin...\", \"by\": \"Administrator\", \"name\": \"91dbe2ed67\"}]",
+    "actions": [],
+    "autoname": "HOOX-REQ-OUT-.######",
+    "creation": "2023-06-06 21:00:32.723576",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "section_break_7a9b2",
+        "origin",
+        "column_break_yxbvg",
+        "status",
+        "section_break_mnl2y",
+        "response_incoming",
+        "column_break_k49iz",
+        "request_incoming",
+        "section_break_grcq8",
+        "method",
+        "column_break_tqcvo",
+        "url",
+        "section_break_kpecz",
+        "params"
+    ],
+    "fields": [
+        {
+            "fieldname": "method",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Method"
+        },
+        {
+            "fieldname": "url",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "URL"
+        },
+        {
+            "fieldname": "params",
+            "fieldtype": "Code",
+            "label": "Parameter",
+            "options": "JSON"
+        },
+        {
+            "default": "Processing",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Status",
+            "options": "Processing\nFailed\nSuccess"
+        },
+        {
+            "bold": 1,
+            "fetch_from": "Trade.name",
+            "fieldname": "origin",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Origin",
+            "options": "Trade"
+        },
+        {
+            "fieldname": "response_incoming",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Incoming Response",
+            "options": "Incoming Response"
+        },
+        {
+            "fieldname": "request_incoming",
+            "fieldtype": "Link",
+            "label": "Incoming Request",
+            "options": "Incoming Request"
+        },
+        {
+            "fieldname": "section_break_7a9b2",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "column_break_yxbvg",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "section_break_mnl2y",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "column_break_k49iz",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "section_break_grcq8",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "column_break_tqcvo",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "section_break_kpecz",
+            "fieldtype": "Section Break"
+        }
+    ],
+    "in_create": 1,
+    "links": [],
+    "modified": "2023-07-04 16:40:01.292193",
+    "modified_by": "Administrator",
+    "module": "Hoox",
+    "name": "Outgoing Request",
+    "name_case": "UPPER CASE",
+    "naming_rule": "Expression (old style)",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
 }

@@ -1,7 +1,7 @@
-frappe.listview_settings["Symbols"] = {
+frappe.listview_settings["Symbol"] = {
   onload: function (listview) {
     listview.page.add_inner_button(
-      __("Sync Symbols"),
+      __("Sync Symbol"),
       function () {
         frappe.call({
           method: "hoox.action.sync_symbols",
@@ -16,16 +16,16 @@ frappe.listview_settings["Symbols"] = {
             }
           },
           freeze: true,
-          freeze_message: __("Syncing Symbols From Enabled Exchanges..."),
+          freeze_message: __("Syncing Symbol From Enabled Exchanges..."),
           progress: (percent) => {
             frappe.show_progress(__("Progress"), percent, 100);
           },
         });
       },
-      __("Symbols")
+      __("Symbol")
     );
     listview.page.add_inner_button(
-      __("Activate Symbols"),
+      __("Activate Symbol"),
       function () {
         frappe.call({
           method: "hoox.action.activate_symbols",
@@ -40,16 +40,16 @@ frappe.listview_settings["Symbols"] = {
             }
           },
           freeze: true,
-          freeze_message: __("Activating Symbols..."),
+          freeze_message: __("Activating Symbol..."),
           progress: (percent) => {
             frappe.show_progress(__("Progress"), percent, 100);
           },
         });
       },
-      __("Symbols")
+      __("Symbol")
     );
     listview.page.add_inner_button(
-      __("Delete Symbols"),
+      __("Delete Symbol"),
       function () {
         frappe.call({
           method: "hoox.action.delete_symbols",
@@ -64,13 +64,13 @@ frappe.listview_settings["Symbols"] = {
             }
           },
           freeze: true,
-          freeze_message: __("Deleting Symbols..."),
+          freeze_message: __("Deleting Symbol..."),
           progress: (percent) => {
             frappe.show_progress(__("Progress"), percent, 100);
           },
         });
       },
-      __("Symbols")
+      __("Symbol")
     );
   },
   button: {
@@ -84,7 +84,7 @@ frappe.listview_settings["Symbols"] = {
       return __("Show Full Market Data");
     },
     action(doc) {
-      frappe.db.get_doc("Symbols", doc.name).then((row) => {
+      frappe.db.get_doc("Symbol", doc.name).then((row) => {
         let jsonContent = JSON.parse(row.params);
         let Fields = [];
         for (let key in jsonContent) {

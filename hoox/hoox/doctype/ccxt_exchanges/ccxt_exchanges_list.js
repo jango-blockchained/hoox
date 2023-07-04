@@ -1,4 +1,4 @@
-frappe.listview_settings["CCXT Exchanges"] = {
+frappe.listview_settings["Exchange"] = {
   add_fields: [
     "exchange_name",
     "status",
@@ -78,7 +78,7 @@ frappe.listview_settings["CCXT Exchanges"] = {
       return __("Show Features");
     },
     action(doc) {
-      frappe.db.get_doc("CCXT Exchanges", doc.name).then((row) => {
+      frappe.db.get_doc("Exchange", doc.name).then((row) => {
         let jsonContent = JSON.parse(row.has);
         let Fields = [];
         for (let key in jsonContent) {

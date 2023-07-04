@@ -20,7 +20,7 @@ Hoox comes with the following features:
 - Notifying users of incoming webhooks via different services like Telegram, Email, System-Notifications, Home Assistant
 - A highly detailed Backend for professional and private use cases
 - A Frontend for possible users
-- Signal Provider, Signals, and a corresponding marketplace
+- Signal Provider, Signal, and a corresponding marketplace
 - Under heavy development with daily updates (not recommended for production environment at this time)
 
 ## Usage
@@ -30,7 +30,7 @@ To use Hoox, follow these steps:
 1. Get available exchanges
 2. Optional: Add Telegram Credentials
 3. Optional: Add HomeAssistant Credentials
-4. Add Exchange Credentials
+4. Add Exchange Credential
 5. Update HOOX Settings
 
 ## Contributing

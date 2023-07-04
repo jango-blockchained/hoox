@@ -1,0 +1,81 @@
+{
+    "name": "KlineData",
+    "doctype": "DocType",
+    "is_tree": 0,
+    "is_single": 0,
+    "keyword_fields": [],
+    "fields": [
+        {
+            "fieldname": "symbol",
+            "label": "Symbol",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "exchange",
+            "label": "Exchange",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "interval",
+            "label": "Interval",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "open_time",
+            "label": "Open Time",
+            "fieldtype": "Datetime",
+            "required": 1
+        },
+        {
+            "fieldname": "close_time",
+            "label": "Close Time",
+            "fieldtype": "Datetime",
+            "required": 1
+        },
+        {
+            "fieldname": "open",
+            "label": "Open",
+            "fieldtype": "Float",
+            "required": 1
+        },
+        {
+            "fieldname": "high",
+            "label": "High",
+            "fieldtype": "Float",
+            "required": 1
+        },
+        {
+            "fieldname": "low",
+            "label": "Low",
+            "fieldtype": "Float",
+            "required": 1
+        },
+        {
+            "fieldname": "close",
+            "label": "Close",
+            "fieldtype": "Float",
+            "required": 1
+        },
+        {
+            "fieldname": "volume",
+            "label": "Volume",
+            "fieldtype": "Float",
+            "required": 1
+        }
+    ],
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1,
+            "submit": 1,
+            "cancel": 1,
+            "amend": 1
+        }
+    ]
+}

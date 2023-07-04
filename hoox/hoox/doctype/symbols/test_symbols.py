@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestSymbols(unittest.TestCase):
+class TestSymbol(unittest.TestCase):
 	pass

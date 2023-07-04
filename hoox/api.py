@@ -2,7 +2,7 @@ import frappe
 from frappe.utils.logger import get_logger
 import logging
 import json
-import time
+import time 
 from frappe import _
 from .action import execute_order
 from .user import get_exchange_credentials, send_to_haas
@@ -18,7 +18,7 @@ from frappe.auth import LoginManager, HTTPRequest
 class HooxAPI():
 
     """
-    The Hoox class processes incoming requests and handles the required actions.
+    The Hoox class processes Incoming Request and handles the required actions.
     """
 
     # ------------------------------------------------------------
@@ -261,7 +261,7 @@ class HooxAPI():
 
     def save_incoming_request(self, action, params):
         self.incoming_request = frappe.get_doc({
-            "doctype": "Incoming Requests",
+            "doctype": "Incoming Request",
             "method": action,
             "params": params,
             "status": "Success",
@@ -296,7 +296,7 @@ class HooxAPI():
             if self.retry == 0:
                 self.trade = frappe.get_doc(
                     {
-                        "doctype": "Trades",
+                        "doctype": "Trade",
                         "user": self.exchange_creds.user,
                         "exchange_cred": self.exchange_creds.name,
                         "action": action,
@@ -314,7 +314,7 @@ class HooxAPI():
                 self.trade.insert(ignore_permissions=True)
 
             self.outgoing_request = frappe.get_doc({
-                "doctype": "Outgoing Requests",
+                "doctype": "Outgoing Request",
                 "method": action,
                 "url": self.exchange_creds.exchange,
                 "params": json.dumps(self.json),
@@ -396,7 +396,7 @@ class HooxAPI():
 @frappe.whitelist(allow_guest=True)
 def receive_alert(request_json=None):
     """
-    Main entry point for incoming requests. If there are valid exchange credentials and they are enabled, it processes the request.
+    Main entry point for Incoming Request. If there are valid exchange credentials and they are enabled, it processes the request.
     """
 
     hapi = HooxAPI(request_json)

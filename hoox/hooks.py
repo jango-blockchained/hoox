@@ -34,7 +34,7 @@ web_include_js = "/assets/hoox/js/hoox_web.js"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"Trades": "public/js/lightweight-charts.js"}
+# doctype_js = {"Trade": "public/js/lightweight-charts.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -193,7 +193,7 @@ user_data_fields = [
 # Fixtures
 # --------
 
-fixtures = ['Signal Provider', 'Supported Markets',
+fixtures = ['Signal Provider', 'Supported Market',
             'Hoox Settings', 'IP Whitelist']
 
 

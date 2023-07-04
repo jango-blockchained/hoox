@@ -1,204 +1,205 @@
 {
- "actions": [],
- "allow_rename": 1,
- "autoname": "format:SYM-{exchange}-{market}-{symbol_id}",
- "creation": "2023-06-23 14:55:32.562446",
- "default_view": "List",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "section_break_je7y1",
-  "logo",
-  "logo_url",
-  "column_break_3",
-  "symbol",
-  "symbol_id",
-  "enabled",
-  "column_break_unosx",
-  "base_id",
-  "quote_id",
-  "live_data_section",
-  "chart",
-  "column_break_18",
-  "widget_ta",
-  "section_break_gdkan",
-  "exchange",
-  "column_break_m3w5u",
-  "market_type",
-  "section_break_yflzt",
-  "params"
- ],
- "fields": [
-  {
-   "fieldname": "exchange",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Exchange",
-   "options": "CCXT Exchanges",
-   "reqd": 1,
-   "search_index": 1
-  },
-  {
-   "bold": 1,
-   "columns": 1,
-   "fieldname": "symbol",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Symbol",
-   "reqd": 1,
-   "search_index": 1
-  },
-  {
-   "columns": 1,
-   "default": "0",
-   "fieldname": "enabled",
-   "fieldtype": "Check",
-   "label": "Enabled"
-  },
-  {
-   "fieldname": "params",
-   "fieldtype": "Code",
-   "label": "Parameter",
-   "options": "JSON"
-  },
-  {
-   "columns": 1,
-   "fieldname": "symbol_id",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Symbol ID",
-   "options": "Name"
-  },
-  {
-   "columns": 1,
-   "fieldname": "logo_url",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Logo URL",
-   "options": "URL"
-  },
-  {
-   "fieldname": "section_break_je7y1",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_unosx",
-   "fieldtype": "Column Break"
-  },
-  {
-   "columns": 1,
-   "fieldname": "base_id",
-   "fieldtype": "Data",
-   "label": "Base ID",
-   "options": "Name"
-  },
-  {
-   "columns": 1,
-   "fieldname": "quote_id",
-   "fieldtype": "Data",
-   "label": "Quote ID",
-   "options": "Name"
-  },
-  {
-   "fieldname": "section_break_gdkan",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_m3w5u",
-   "fieldtype": "Column Break"
-  },
-  {
-   "bold": 1,
-   "collapsible": 1,
-   "fieldname": "section_break_yflzt",
-   "fieldtype": "Section Break",
-   "label": "Market Data"
-  },
-  {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "live_data_section",
-   "fieldtype": "Section Break",
-   "label": "Live Data"
-  },
-  {
-   "fieldname": "column_break_18",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "widget_ta",
-   "fieldtype": "HTML",
-   "label": "Technical Analysis"
-  },
-  {
-   "fieldname": "chart",
-   "fieldtype": "HTML",
-   "label": "Price Chart"
-  },
-  {
-   "depends_on": "eval:doc.logo_url!=\"\"",
-   "fieldname": "logo",
-   "fieldtype": "HTML",
-   "label": "Logo"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "columns": 1,
-   "default": "spot",
-   "fieldname": "market_type",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Market",
-   "options": "Supported Markets",
-   "reqd": 1,
-   "search_index": 1
-  }
- ],
- "in_create": 1,
- "links": [
-  {
-   "link_doctype": "Trades",
-   "link_fieldname": "symbol"
-  },
-  {
-   "is_child_table": 1,
-   "link_doctype": "Signals Symbols Table",
-   "link_fieldname": "symbol",
-   "parent_doctype": "Signals",
-   "table_fieldname": "sig_symbols"
-  }
- ],
- "modified": "2023-07-03 13:01:53.732738",
- "modified_by": "Administrator",
- "module": "Hoox",
- "name": "Symbols",
- "name_case": "UPPER CASE",
- "naming_rule": "Expression",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "quick_entry": 1,
- "show_title_field_in_link": 1,
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": [],
- "title_field": "symbol",
- "track_changes": 1
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "format:SYM-{exchange}-{market_type}-{symbol_id}",
+    "creation": "2023-06-23 14:55:32.562446",
+    "default_view": "List",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "section_break_je7y1",
+        "logo",
+        "logo_url",
+        "column_break_3",
+        "symbol",
+        "symbol_id",
+        "enabled",
+        "column_break_unosx",
+        "base_id",
+        "quote_id",
+        "live_data_section",
+        "chart",
+        "column_break_18",
+        "widget_ta",
+        "section_break_gdkan",
+        "exchange",
+        "column_break_m3w5u",
+        "market_type",
+        "section_break_yflzt",
+        "params"
+    ],
+    "fields": [
+        {
+            "fieldname": "exchange",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Exchange",
+            "options": "Exchange",
+            "reqd": 1,
+            "search_index": 1
+        },
+        {
+            "bold": 1,
+            "columns": 1,
+            "fieldname": "symbol",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Symbol",
+            "reqd": 1,
+            "search_index": 1
+        },
+        {
+            "columns": 1,
+            "default": "0",
+            "fieldname": "enabled",
+            "fieldtype": "Check",
+            "label": "Enabled"
+        },
+        {
+            "fieldname": "params",
+            "fieldtype": "Code",
+            "label": "Parameter",
+            "options": "JSON"
+        },
+        {
+            "columns": 1,
+            "fieldname": "symbol_id",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Symbol ID",
+            "options": "Name"
+        },
+        {
+            "columns": 1,
+            "fieldname": "logo_url",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Logo URL",
+            "options": "URL"
+        },
+        {
+            "fieldname": "section_break_je7y1",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "column_break_unosx",
+            "fieldtype": "Column Break"
+        },
+        {
+            "columns": 1,
+            "fieldname": "base_id",
+            "fieldtype": "Data",
+            "label": "Base ID",
+            "options": "Name"
+        },
+        {
+            "columns": 1,
+            "fieldname": "quote_id",
+            "fieldtype": "Data",
+            "label": "Quote ID",
+            "options": "Name"
+        },
+        {
+            "fieldname": "section_break_gdkan",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "column_break_m3w5u",
+            "fieldtype": "Column Break"
+        },
+        {
+            "bold": 1,
+            "collapsible": 1,
+            "fieldname": "section_break_yflzt",
+            "fieldtype": "Section Break",
+            "label": "Market Data"
+        },
+        {
+            "fieldname": "column_break_3",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "live_data_section",
+            "fieldtype": "Section Break",
+            "label": "Live Data"
+        },
+        {
+            "fieldname": "column_break_18",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "widget_ta",
+            "fieldtype": "HTML",
+            "label": "Technical Analysis",
+            "options": "<!-- TradingView Widget BEGIN -->\n<div class=\"tradingview-widget-container\">\n    <div class=\"tradingview-widget-container__widget\"></div>\n    <div class=\"tradingview-widget-copyright\"><a href=\"https://de.tradingview.com/\" rel=\"noopener nofollow\" target=\"_blank\"><span class=\"blue-text\">Alle M\u00e4rkte bei TradingView verfolgen</span></a></div>\n    &lt;script type=\"text/javascript\"\n        src=\"https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js\" async&gt;\n            {\n                \"interval\": \"15m\",\n                    \"width\": \"100%\",\n                        \"isTransparent\": true,\n                            \"height\": \"100%\",\n                                \"symbol\": \"BTCUSDT\",\n                                    \"showIntervalTabs\": true,\n                                        \"locale\": \"de_DE\",\n                                            \"colorTheme\": \"dark\"\n            }\n        &lt;/script&gt;\n</div>\n<!-- TradingView Widget END -->"
+        },
+        {
+            "fieldname": "chart",
+            "fieldtype": "HTML",
+            "label": "Price Chart"
+        },
+        {
+            "depends_on": "eval:doc.logo_url!=\"\"",
+            "fieldname": "logo",
+            "fieldtype": "HTML",
+            "label": "Logo"
+        },
+        {
+            "allow_in_quick_entry": 1,
+            "columns": 1,
+            "default": "spot",
+            "fieldname": "market_type",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Market",
+            "options": "Supported Market",
+            "reqd": 1,
+            "search_index": 1
+        }
+    ],
+    "in_create": 1,
+    "links": [
+        {
+            "link_doctype": "Trade",
+            "link_fieldname": "symbol"
+        },
+        {
+            "is_child_table": 1,
+            "link_doctype": "Signal Symbol Table",
+            "link_fieldname": "symbol",
+            "parent_doctype": "Signal",
+            "table_fieldname": "sig_symbols"
+        }
+    ],
+    "modified": "2023-07-04 15:55:56.903009",
+    "modified_by": "Administrator",
+    "module": "Hoox",
+    "name": "Symbol",
+    "name_case": "UPPER CASE",
+    "naming_rule": "Expression",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "quick_entry": 1,
+    "show_title_field_in_link": 1,
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "title_field": "symbol",
+    "track_changes": 1
 }

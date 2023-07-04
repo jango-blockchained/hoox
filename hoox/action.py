@@ -150,11 +150,11 @@ def sync_exchanges():
             exchange = exchange_class()  # create an instance of the exchange class
 
             # Check if the exchange document already exists
-            exchange_exists = frappe.db.exists("CCXT Exchanges", exchange.id)
+            exchange_exists = frappe.db.exists("Exchange", exchange.id)
 
             # set logo_url field in the doc
             exchange_doc_data = {
-                "doctype": "CCXT Exchanges",
+                "doctype": "Exchange",
                 "exchange_name": exchange.name,
                 "exchange_id": exchange.id,
                 "precision_mode": exchange.precisionMode,
@@ -166,7 +166,7 @@ def sync_exchanges():
 
             if exchange_exists:
                 # If the document exists, fetch it
-                doc = frappe.get_doc("CCXT Exchanges", exchange.id)
+                doc = frappe.get_doc("Exchange", exchange.id)
                 doc.update(exchange_doc_data)
             else:
                 # If the document doesn't exist, create a new one
@@ -202,14 +202,14 @@ def delete_exchanges(force=False):
     Delete all exchanges from the database.
     """
 
-    if frappe.db.count("CCXT Exchanges") == 0:
+    if frappe.db.count("Exchange") == 0:
         frappe.msgprint(f"No exchanges found in database.")
         return False
 
-    docs = frappe.get_all("CCXT Exchanges")
+    docs = frappe.get_all("Exchange")
     amount = len(docs)
     for i, doc in enumerate(docs):
-        linked_docs = get_linked_documents("CCXT Exchanges", doc.name)
+        linked_docs = get_linked_documents("Exchange", doc.name)
         links = len(linked_docs)
         if links > 0:
             if not force:
@@ -217,7 +217,7 @@ def delete_exchanges(force=False):
                     f"Exchange '{doc.name}' has {links} linked documents. Skipping deletion."
                 )
                 continue
-        frappe.delete_doc("CCXT Exchanges", doc.name, force=force)
+        frappe.delete_doc("Exchange", doc.name, force=force)
         frappe.publish_progress(percent=((i + 1) / amount) *
                                 100, title=_("Processing..."))
 
@@ -295,14 +295,14 @@ def sync_exchange_symbols(exchange_id):
 
         for symbol, market_data in markets.items():
             symbol_exists = frappe.db.exists(
-                "Symbols", {"symbol": symbol, "exchange": exchange_id, "market": market_type})
+                "Symbol", {"symbol": symbol, "exchange": exchange_id, "market": market_type})
 
             if symbol_exists:
                 continue
 
             try:
                 new_symbol = frappe.get_doc({
-                    "doctype": "Symbols",
+                    "doctype": "Symbol",
                     "symbol": symbol,
                     "exchange": exchange_id,
                     "market": market_type
@@ -332,7 +332,7 @@ def sync_exchange_symbols(exchange_id):
 
 @frappe.whitelist()
 def sync_symbols():
-    enabled_exchanges = frappe.get_all("CCXT Exchanges", filters={
+    enabled_exchanges = frappe.get_all("Exchange", filters={
                                        "enabled": 1}, fields=["name"])
     total_exchanges = len(enabled_exchanges)
 
@@ -341,9 +341,9 @@ def sync_symbols():
         sync_exchange_symbols(exchange_id)
 
         progress_percentage = ei / total_exchanges * 100
-        frappe.publish_progress(percent=progress_percentage, title=_("Syncing Symbols..."), description=f"Processing {exchange_id}")
+        frappe.publish_progress(percent=progress_percentage, title=_("Syncing Symbol..."), description=f"Processing {exchange_id}")
 
-    frappe.publish_progress(percent=100, title=_("Syncing Symbols..."), description=_("Completed!"))
+    frappe.publish_progress(percent=100, title=_("Syncing Symbol..."), description=_("Completed!"))
     frappe.db.commit()
     return 'Successful'
 
@@ -360,10 +360,10 @@ def get_supported_market_types(exchange):
 
 @frappe.whitelist()
 def activate_symbols():
-    docs = frappe.get_all("Symbols")
+    docs = frappe.get_all("Symbol")
     amount = len(docs)
     for i, ref in enumerate(docs):
-        frappe.db.set_value("Symbols", ref.name, "enabled", 1)
+        frappe.db.set_value("Symbol", ref.name, "enabled", 1)
         frappe.publish_progress(
             i / amount * 100, title=_("Activating"), description=_("Processing"))
     frappe.publish_progress(100, title=_("Activating"),
@@ -377,14 +377,14 @@ def delete_symbols():
     Delete all exchanges from the database.
     """
 
-    if frappe.db.count("Symbols") == 0:
-        frappe.msgprint(f"No Symbols found in database.")
+    if frappe.db.count("Symbol") == 0:
+        frappe.msgprint(f"No Symbol found in database.")
         return False
 
-    docs = frappe.get_all("Symbols")
+    docs = frappe.get_all("Symbol")
     amount = len(docs)
     for i, doc in enumerate(docs):
-        frappe.delete_doc("Symbols", doc.name, ignore_missing=True, force=True)
+        frappe.delete_doc("Symbol", doc.name, ignore_missing=True, force=True)
         frappe.publish_progress(percent=(i / amount) *
                                 100, title=_('Processing...'))
 
