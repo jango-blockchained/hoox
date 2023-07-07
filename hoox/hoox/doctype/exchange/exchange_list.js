@@ -2,7 +2,7 @@ frappe.listview_settings["Exchange"] = {
   add_fields: [
     "exchange_name",
     "status",
-    "logo_url",
+    "logo_clone",
     "precision_mode",
     "testnet",
     "rate_limit",
@@ -11,17 +11,24 @@ frappe.listview_settings["Exchange"] = {
   onload: function (listview) {
     listview.page.add_inner_button(
       __("Sync Exchanges"),
-      function () {
-        frappe.call({
-          method: "hoox.action.sync_exchanges",
-          callback: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
+      async function (listview) {
+        await frappe.call({
+          method: "hoox.hoox.doctype.exchange.exchange.sync_exchanges",
+          callback: function (response) {
+            if (response.message) {
+              frappe.show_alert({
+                message: __("Synced Successfully"),
+                indicator: "green",
+              });
+              cur_list.refresh();
             }
           },
-          error: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
+          error: function (response) {
+            if (response.message) {
+              frappe.show_alert({
+                message: __("Error While Syncing Exchanges"),
+                indicator: "red",
+              });
             }
           },
           freeze: true,
@@ -35,40 +42,43 @@ frappe.listview_settings["Exchange"] = {
     );
 
     listview.page.add_inner_button(
-      __("Delete Exchanges (Force)"),
-      function () {
+      __("Delete Exchanges"),
+      function (listview) {
         frappe.call({
-          method: "hoox.action.delete_exchanges",
+          method: "hoox.hoox.doctype.exchange.exchange.delete_exchanges",
           args: {
             force: true,
           },
-          callback: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
+          callback: function (response) {
+            if (response.message) {
+              frappe.show_alert({
+                message: __("Deleted Successfully"),
+                indicator: "green",
+              });
+              cur_list.refresh();
             }
           },
-          error: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
+          error: function (response) {
+            if (response.message) {
+              frappe.show_alert({
+                message: __("Error While Deleting Exchanges"),
+                indicator: "red",
+              });
             }
           },
           freeze: true,
           freeze_message: __("Deleting Exchanges..."),
-          progress: (percent) => {
-            frappe.show_progress(__("Progress"), percent, 100);
-          },
+          // progress: (percent) => {
+          //   frappe.show_progress(__("Progress"), percent, 100);
+          // },
         });
       },
       __("Exchange")
     );
   },
   formatters: {
-    logo_ghost(val) {
-      return (
-        '<img src="' +
-        frm.doc.logo_url +
-        '" class="rounded img-fluid" alt="logo" />'
-      );
+    logo_clone(val) {
+      return '<img src="' + val + '" class="rounded img-fluid" alt="logo" />';
     },
   },
   button: {

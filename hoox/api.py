@@ -9,7 +9,7 @@ from .user import get_exchange_credentials, send_to_haas
 from tenacity import retry, stop_after_attempt, wait_exponential
 from frappe.utils.password import get_decrypted_password
 from frappe_telegram.client import send_message
-from frappe.auth import LoginManager, HTTPRequest
+from frappe.auth import LoginManager
 
 
 # ------------------------------------------------------------
@@ -67,7 +67,7 @@ class HooxAPI():
             return frappe.throw("Invalid Secret Hash")
 
         # Login
-        self.HTTPRequest = HTTPRequest()
+        # self.HTTPRequest = HTTPRequest()
         self.LoginManager = LoginManager()
         self.LoginManager.login_as(self.exchange_creds.user)
 

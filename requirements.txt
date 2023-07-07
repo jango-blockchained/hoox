@@ -1,6 +1,4 @@
 frappe
-# frappe_telegram
 ccxt
 tenacity
-# ccxtpro
-# python-telegram-bot
+influxdb==5.3.1

@@ -370,12 +370,13 @@ def get_attachment_url(doctype, docname):
 #     return exchange.fetch_ohlcv(symbol, timeframe)
 
 
-def attach_url_to_document(doc, file_url):
+def attach_url_to_document(doc, file_url, save=False):
     try:
         doc.append("attachments", {
             "file_url": file_url
         })
-        doc.save()
+        if save:
+            doc.save(ignore_permissions=True)
         print("File attached successfully.")
     except frappe.DoesNotExistError:
         print("Document does not exist.")

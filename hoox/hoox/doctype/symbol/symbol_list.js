@@ -1,18 +1,27 @@
 frappe.listview_settings["Symbol"] = {
+  add_fields: [""],
   onload: function (listview) {
     listview.page.add_inner_button(
       __("Sync Symbol"),
-      function () {
+      function (listview) {
         frappe.call({
           method: "hoox.hoox.doctype.symbol.symbol.sync_symbols",
-          callback: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
+          callback: function (response) {
+            if (response.message) {
+              frappe.show_alert({
+                message: __("Synced Successfully"),
+                indicator: "green",
+              });
+              listview.refresh();
             }
           },
-          error: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
+          error: function (response) {
+            if (response.message) {
+              frappe.show_alert({
+                message: __("Error While Syncing Symbols"),
+                indicator: "red",
+              });
+              listview.refresh();
             }
           },
           freeze: true,
@@ -26,17 +35,26 @@ frappe.listview_settings["Symbol"] = {
     );
     listview.page.add_inner_button(
       __("Activate Symbol"),
-      function () {
+      function (listview) {
         frappe.call({
           method: "hoox.hoox.doctype.symbol.symbol.activate_symbols",
-          callback: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
+          callback: function (response) {
+            if (response.message) {
+              frappe.show_alert({
+                message: __("Synced Successfully"),
+                indicator: "green",
+              });
+              listview.refresh();
             }
           },
-          error: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
+          error: function (response) {
+            // Handle the response here
+            if (response.message) {
+              frappe.show_alert({
+                message: __("Error While Syncing Exchanges"),
+                indicator: "red",
+              });
+              listview.refresh();
             }
           },
           freeze: true,
@@ -53,14 +71,22 @@ frappe.listview_settings["Symbol"] = {
       function () {
         frappe.call({
           method: "hoox.hoox.doctype.symbol.symbol.delete_symbols",
-          callback: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
+          callback: function (response) {
+            if (response.message) {
+              frappe.show_alert({
+                message: __("Synced Successfully"),
+                indicator: "green",
+              });
+              listview.refresh();
             }
           },
-          error: function (r) {
-            if (r.message) {
-              frappe.msgprint(r.message);
+          error: function (response) {
+            if (response.message) {
+              frappe.show_alert({
+                message: __("Error While Syncing Exchanges"),
+                indicator: "red",
+              });
+              listview.refresh();
             }
           },
           freeze: true,

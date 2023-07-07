@@ -10,6 +10,7 @@
     ],
     "fields": [
         {
+            "allow_in_quick_entry": 1,
             "fieldname": "market_type",
             "fieldtype": "Data",
             "in_list_view": 1,
@@ -20,7 +21,7 @@
         }
     ],
     "links": [],
-    "modified": "2023-07-02 16:15:18.258091",
+    "modified": "2023-07-07 17:52:12.116262",
     "modified_by": "Administrator",
     "module": "Hoox",
     "name": "Supported Market",
