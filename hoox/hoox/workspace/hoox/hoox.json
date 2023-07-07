@@ -1,296 +1,296 @@
 {
- "charts": [],
- "content": "[{\"id\":\"MmUf9abwxg\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"Accounts\",\"col\":12}},{\"id\":\"X78jcbq1u3\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"vikWSkNm6_\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"B7-uxs8tkU\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"zwr-wBGKAN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Trade\",\"col\":3}},{\"id\":\"zXzsS-J4AD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Exchange\",\"col\":3}},{\"id\":\"tHb3yxthkR\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"PAKAMj2WCB\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Request\",\"col\":4}},{\"id\":\"2n8VR9oX-Q\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Outgoing Request\",\"col\":4}},{\"id\":\"ZPD9YEW6Xs\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Response\",\"col\":4}},{\"id\":\"UHazhcLtGE\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Trade\",\"col\":4}},{\"id\":\"OX7lZHbiTr\",\"type\":\"card\",\"data\":{\"card_name\":\"Settings\",\"col\":4}}]",
- "creation": "2020-03-02 15:41:59.515192",
- "custom_blocks": [],
- "docstatus": 0,
- "doctype": "Workspace",
- "for_user": "",
- "hide_custom": 0,
- "idx": 0,
- "is_hidden": 0,
- "label": "Hoox",
- "links": [
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Exchange Credential",
-   "link_count": 0,
-   "link_to": "Exchange Credential",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Homeassistant Credential",
-   "link_count": 0,
-   "link_to": "Homeassistant Credential",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Exchange",
-   "link_count": 0,
-   "link_to": "Exchange",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Supported Market",
-   "link_count": 0,
-   "link_to": "Supported Market",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Symbol",
-   "link_count": 0,
-   "link_to": "Symbol",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Settings",
-   "link_count": 15,
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Hoox Settings",
-   "link_count": 0,
-   "link_to": "Hoox Settings",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "IP Whitelist",
-   "link_count": 0,
-   "link_to": "IP Whitelist",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Trade",
-   "link_count": 0,
-   "link_to": "Trade",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Incoming Request",
-   "link_count": 0,
-   "link_to": "Incoming Request",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Outgoing Request",
-   "link_count": 0,
-   "link_to": "Outgoing Request",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Incoming Response",
-   "link_count": 0,
-   "link_to": "Incoming Response",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Signal Provider",
-   "link_count": 0,
-   "link_to": "Signal Provider",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Signal",
-   "link_count": 0,
-   "link_to": "Signal",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Incoming Signal",
-   "link_count": 0,
-   "link_to": "Incoming Signal",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Abonnementplan",
-   "link_count": 0,
-   "link_to": "Subscription Plan",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Abonnement",
-   "link_count": 0,
-   "link_to": "Subscription",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Abonnementeinstellungen",
-   "link_count": 0,
-   "link_to": "Subscription Settings",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Web-Formular",
-   "link_count": 0,
-   "link_to": "Web Form",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Exchange",
-   "link_count": 0,
-   "link_to": "Exchange",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Symbol",
-   "link_count": 0,
-   "link_to": "Symbol",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Timeframe",
-   "link_count": 0,
-   "link_to": "Timeframe",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Supported Market",
-   "link_count": 0,
-   "link_to": "Supported Market",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  }
- ],
- "modified": "2023-07-07 16:20:26.867552",
- "modified_by": "Administrator",
- "module": "Hoox",
- "name": "Hoox",
- "number_cards": [],
- "owner": "Administrator",
- "parent_page": "",
- "public": 1,
- "quick_lists": [
-  {
-   "document_type": "Incoming Request",
-   "label": "Incoming Request"
-  },
-  {
-   "document_type": "Outgoing Request",
-   "label": "Outgoing Request"
-  },
-  {
-   "document_type": "Incoming Response",
-   "label": "Incoming Response"
-  },
-  {
-   "document_type": "Trade",
-   "label": "Trade"
-  }
- ],
- "restrict_to_domain": "",
- "roles": [
-  {
-   "role": "System Manager"
-  }
- ],
- "sequence_id": 31.0,
- "shortcuts": [
-  {
-   "color": "Green",
-   "doc_view": "List",
-   "format": "{} Enabled",
-   "label": "Exchange",
-   "link_to": "Exchange",
-   "stats_filter": "{\"enabled\":[\"=\",1]}",
-   "type": "DocType"
-  },
-  {
-   "color": "Yellow",
-   "doc_view": "List",
-   "format": "{} Successful",
-   "label": "Trade",
-   "link_to": "Trade",
-   "type": "DocType"
-  }
- ],
- "title": "Hoox"
+    "charts": [],
+    "content": "[{\"id\":\"MmUf9abwxg\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"Accounts\",\"col\":12}},{\"id\":\"X78jcbq1u3\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"vikWSkNm6_\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"B7-uxs8tkU\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"zwr-wBGKAN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Trade\",\"col\":3}},{\"id\":\"zXzsS-J4AD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Exchange\",\"col\":3}},{\"id\":\"tHb3yxthkR\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"PAKAMj2WCB\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Request\",\"col\":4}},{\"id\":\"2n8VR9oX-Q\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Outgoing Request\",\"col\":4}},{\"id\":\"ZPD9YEW6Xs\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Response\",\"col\":4}},{\"id\":\"UHazhcLtGE\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Trade\",\"col\":4}},{\"id\":\"OX7lZHbiTr\",\"type\":\"card\",\"data\":{\"card_name\":\"Settings\",\"col\":4}}]",
+    "creation": "2020-03-02 15:41:59.515192",
+    "custom_blocks": [],
+    "docstatus": 0,
+    "doctype": "Workspace",
+    "for_user": "",
+    "hide_custom": 0,
+    "idx": 0,
+    "is_hidden": 0,
+    "label": "Hoox",
+    "links": [
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Exchange Credential",
+            "link_count": 0,
+            "link_to": "Exchange Credential",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Homeassistant Credential",
+            "link_count": 0,
+            "link_to": "Homeassistant Credential",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Exchange",
+            "link_count": 0,
+            "link_to": "Exchange",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Market Type",
+            "link_count": 0,
+            "link_to": "Market Type",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Symbol",
+            "link_count": 0,
+            "link_to": "Symbol",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Settings",
+            "link_count": 15,
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Hoox Settings",
+            "link_count": 0,
+            "link_to": "Hoox Settings",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "IP Whitelist",
+            "link_count": 0,
+            "link_to": "IP Whitelist",
+            "link_type": "DocType",
+            "onboard": 1,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Trade",
+            "link_count": 0,
+            "link_to": "Trade",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Incoming Request",
+            "link_count": 0,
+            "link_to": "Incoming Request",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Outgoing Request",
+            "link_count": 0,
+            "link_to": "Outgoing Request",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Incoming Response",
+            "link_count": 0,
+            "link_to": "Incoming Response",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Signal Provider",
+            "link_count": 0,
+            "link_to": "Signal Provider",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Signal",
+            "link_count": 0,
+            "link_to": "Signal",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Incoming Signal",
+            "link_count": 0,
+            "link_to": "Incoming Signal",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Abonnementplan",
+            "link_count": 0,
+            "link_to": "Subscription Plan",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Abonnement",
+            "link_count": 0,
+            "link_to": "Subscription",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Abonnementeinstellungen",
+            "link_count": 0,
+            "link_to": "Subscription Settings",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Web-Formular",
+            "link_count": 0,
+            "link_to": "Web Form",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Exchange",
+            "link_count": 0,
+            "link_to": "Exchange",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Symbol",
+            "link_count": 0,
+            "link_to": "Symbol",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Timeframe",
+            "link_count": 0,
+            "link_to": "Timeframe",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Market Type",
+            "link_count": 0,
+            "link_to": "Market Type",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        }
+    ],
+    "modified": "2023-07-07 16:20:26.867552",
+    "modified_by": "Administrator",
+    "module": "Hoox",
+    "name": "Hoox",
+    "number_cards": [],
+    "owner": "Administrator",
+    "parent_page": "",
+    "public": 1,
+    "quick_lists": [
+        {
+            "document_type": "Incoming Request",
+            "label": "Incoming Request"
+        },
+        {
+            "document_type": "Outgoing Request",
+            "label": "Outgoing Request"
+        },
+        {
+            "document_type": "Incoming Response",
+            "label": "Incoming Response"
+        },
+        {
+            "document_type": "Trade",
+            "label": "Trade"
+        }
+    ],
+    "restrict_to_domain": "",
+    "roles": [
+        {
+            "role": "System Manager"
+        }
+    ],
+    "sequence_id": 31.0,
+    "shortcuts": [
+        {
+            "color": "Green",
+            "doc_view": "List",
+            "format": "{} Enabled",
+            "label": "Exchange",
+            "link_to": "Exchange",
+            "stats_filter": "{\"enabled\":[\"=\",1]}",
+            "type": "DocType"
+        },
+        {
+            "color": "Yellow",
+            "doc_view": "List",
+            "format": "{} Successful",
+            "label": "Trade",
+            "link_to": "Trade",
+            "type": "DocType"
+        }
+    ],
+    "title": "Hoox"
 }

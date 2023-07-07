@@ -155,7 +155,7 @@
             "in_list_view": 1,
             "in_standard_filter": 1,
             "label": "Market",
-            "options": "Supported Market",
+            "options": "Market Type",
             "reqd": 1,
             "search_index": 1
         }

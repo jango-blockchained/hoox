@@ -1,111 +1,111 @@
 {
- "actions": [],
- "autoname": "format:KLINE-{exchange}-{market_type}-{symbol}-{timeframe}",
- "creation": "2023-07-05 19:40:31.469332",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "symbol",
-  "exchange",
-  "market_type",
-  "timeframe",
-  "time",
-  "time_close",
-  "open",
-  "high",
-  "low",
-  "close",
-  "volume"
- ],
- "fields": [
-  {
-   "fieldname": "symbol",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Symbol",
-   "options": "Symbol",
-   "reqd": 1
-  },
-  {
-   "fieldname": "exchange",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Exchange",
-   "options": "Exchange",
-   "reqd": 1
-  },
-  {
-   "fieldname": "timeframe",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Timeframe",
-   "options": "Timeframe",
-   "reqd": 1
-  },
-  {
-   "fieldname": "time",
-   "fieldtype": "Datetime",
-   "label": "Time Open ",
-   "reqd": 1
-  },
-  {
-   "fieldname": "time_close",
-   "fieldtype": "Datetime",
-   "label": "Time Close",
-   "reqd": 1
-  },
-  {
-   "fieldname": "open",
-   "fieldtype": "Float",
-   "label": "Open",
-   "reqd": 1
-  },
-  {
-   "fieldname": "high",
-   "fieldtype": "Float",
-   "label": "High",
-   "reqd": 1
-  },
-  {
-   "fieldname": "low",
-   "fieldtype": "Float",
-   "label": "Low",
-   "reqd": 1
-  },
-  {
-   "fieldname": "close",
-   "fieldtype": "Float",
-   "label": "Close",
-   "reqd": 1
-  },
-  {
-   "fieldname": "volume",
-   "fieldtype": "Float",
-   "label": "Volume"
-  },
-  {
-   "fieldname": "market_type",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Market",
-   "options": "Supported Market",
-   "reqd": 1
-  }
- ],
- "in_create": 1,
- "is_virtual": 1,
- "istable": 1,
- "links": [],
- "modified": "2023-07-05 20:03:44.362907",
- "modified_by": "Administrator",
- "module": "Hoox",
- "name": "Kline Data",
- "name_case": "UPPER CASE",
- "naming_rule": "Expression",
- "owner": "Administrator",
- "permissions": [],
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+    "actions": [],
+    "autoname": "format:KLINE-{exchange}-{market_type}-{symbol}-{timeframe}",
+    "creation": "2023-07-05 19:40:31.469332",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "symbol",
+        "exchange",
+        "market_type",
+        "timeframe",
+        "time",
+        "time_close",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume"
+    ],
+    "fields": [
+        {
+            "fieldname": "symbol",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Symbol",
+            "options": "Symbol",
+            "reqd": 1
+        },
+        {
+            "fieldname": "exchange",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Exchange",
+            "options": "Exchange",
+            "reqd": 1
+        },
+        {
+            "fieldname": "timeframe",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Timeframe",
+            "options": "Timeframe",
+            "reqd": 1
+        },
+        {
+            "fieldname": "time",
+            "fieldtype": "Datetime",
+            "label": "Time Open ",
+            "reqd": 1
+        },
+        {
+            "fieldname": "time_close",
+            "fieldtype": "Datetime",
+            "label": "Time Close",
+            "reqd": 1
+        },
+        {
+            "fieldname": "open",
+            "fieldtype": "Float",
+            "label": "Open",
+            "reqd": 1
+        },
+        {
+            "fieldname": "high",
+            "fieldtype": "Float",
+            "label": "High",
+            "reqd": 1
+        },
+        {
+            "fieldname": "low",
+            "fieldtype": "Float",
+            "label": "Low",
+            "reqd": 1
+        },
+        {
+            "fieldname": "close",
+            "fieldtype": "Float",
+            "label": "Close",
+            "reqd": 1
+        },
+        {
+            "fieldname": "volume",
+            "fieldtype": "Float",
+            "label": "Volume"
+        },
+        {
+            "fieldname": "market_type",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Market",
+            "options": "Market Type",
+            "reqd": 1
+        }
+    ],
+    "in_create": 1,
+    "is_virtual": 1,
+    "istable": 1,
+    "links": [],
+    "modified": "2023-07-05 20:03:44.362907",
+    "modified_by": "Administrator",
+    "module": "Hoox",
+    "name": "Kline Data",
+    "name_case": "UPPER CASE",
+    "naming_rule": "Expression",
+    "owner": "Administrator",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
 }

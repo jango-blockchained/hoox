@@ -271,7 +271,7 @@
             "fieldname": "market_type",
             "fieldtype": "Link",
             "label": "Market",
-            "options": "Supported Market"
+            "options": "Market Type"
         },
         {
             "fieldname": "data_33",

@@ -24,7 +24,7 @@
     "modified": "2023-07-07 17:52:12.116262",
     "modified_by": "Administrator",
     "module": "Hoox",
-    "name": "Supported Market",
+    "name": "Market Type",
     "naming_rule": "By fieldname",
     "owner": "Administrator",
     "permissions": [
