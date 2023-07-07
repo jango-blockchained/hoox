@@ -267,13 +267,13 @@ def sync_symbols():
 
 
 def get_supported_market_types(exchange):
-    docs = frappe.get_all("Market")
+    cfg = frappe.get_doc("Hoox Settings")
     supported_market_types = []
 
     if hasattr(exchange, 'has') and exchange.has:
-        for doc in docs:
-            if exchange.has.get(doc.market_type):
-                supported_market_types.append(doc.market_type)
+        for market in cfg.market:
+            if exchange.has.get(market):
+                supported_market_types.append(market)
 
     return supported_market_types
 

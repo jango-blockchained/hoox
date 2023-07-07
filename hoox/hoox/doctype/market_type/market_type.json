@@ -1,0 +1,36 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2023-07-07 20:22:03.102988",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "type"
+ ],
+ "fields": [
+  {
+   "fieldname": "type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Type",
+   "reqd": 1,
+   "unique": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2023-07-07 20:28:16.209779",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "Market Type",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "type"
+}

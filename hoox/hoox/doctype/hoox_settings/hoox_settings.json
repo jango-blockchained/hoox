@@ -1,12 +1,12 @@
 {
  "actions": [],
- "beta": 1,
  "creation": "2023-05-24 06:14:47.416144",
  "doctype": "DocType",
  "document_type": "Setup",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "gateway_tab",
   "section_break_wmbbc",
   "retry_stop_after",
   "retry_enabled",
@@ -23,11 +23,15 @@
   "log_type",
   "column_break_on7vz",
   "log_level",
+  "services_tab",
   "telegram_settings",
   "telegram_bot_token",
   "telegram_enabled",
   "home_assistant_section",
-  "haas_enabled"
+  "haas_enabled",
+  "trading_tab",
+  "supported_markets_section",
+  "market_type"
  ],
  "fields": [
   {
@@ -147,12 +151,38 @@
    "fieldname": "haas_enabled",
    "fieldtype": "Check",
    "label": "Enabled"
+  },
+  {
+   "fieldname": "gateway_tab",
+   "fieldtype": "Tab Break",
+   "label": "Gateway"
+  },
+  {
+   "fieldname": "services_tab",
+   "fieldtype": "Tab Break",
+   "label": "Services"
+  },
+  {
+   "fieldname": "trading_tab",
+   "fieldtype": "Tab Break",
+   "label": "Trading"
+  },
+  {
+   "fieldname": "supported_markets_section",
+   "fieldtype": "Section Break",
+   "label": "Supported Markets"
+  },
+  {
+   "fieldname": "market_type",
+   "fieldtype": "Table",
+   "label": "Market Type",
+   "options": "Market Type"
   }
  ],
  "hide_toolbar": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-06-21 02:00:17.542919",
+ "modified": "2023-07-07 20:24:32.007842",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox Settings",
@@ -170,5 +200,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }
