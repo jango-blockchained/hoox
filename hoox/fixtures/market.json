@@ -1,7 +1,7 @@
 [
     {
         "docstatus": 0,
-        "doctype": "Market Type",
+        "doctype": "Market",
         "market_type": "spot",
         "modified": "2023-06-29 02:07:36.902251",
         "name": "spot",
@@ -11,7 +11,7 @@
     },
     {
         "docstatus": 0,
-        "doctype": "Market Type",
+        "doctype": "Market",
         "market_type": "future",
         "modified": "2023-06-29 02:07:45.792846",
         "name": "future",

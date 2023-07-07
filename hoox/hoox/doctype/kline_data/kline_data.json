@@ -89,7 +89,7 @@
             "fieldtype": "Link",
             "in_list_view": 1,
             "label": "Market",
-            "options": "Market Type",
+            "options": "Market",
             "reqd": 1
         }
     ],

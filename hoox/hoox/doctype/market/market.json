@@ -14,7 +14,7 @@
             "fieldname": "market_type",
             "fieldtype": "Data",
             "in_list_view": 1,
-            "label": "Market Type",
+            "label": "Market",
             "options": "Name",
             "reqd": 1,
             "unique": 1
@@ -24,7 +24,7 @@
     "modified": "2023-07-07 17:52:12.116262",
     "modified_by": "Administrator",
     "module": "Hoox",
-    "name": "Market Type",
+    "name": "Market",
     "naming_rule": "By fieldname",
     "owner": "Administrator",
     "permissions": [

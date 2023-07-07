@@ -267,7 +267,7 @@ def sync_symbols():
 
 
 def get_supported_market_types(exchange):
-    docs = frappe.get_all("Market Type")
+    docs = frappe.get_all("Market")
     supported_market_types = []
 
     if hasattr(exchange, 'has') and exchange.has:
