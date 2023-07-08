@@ -3,6 +3,7 @@ frappe.listview_settings["Exchange"] = {
     "exchange_name",
     "status",
     "logo_clone",
+    "exchange_id",
     "precision_mode",
     "testnet",
     "rate_limit",

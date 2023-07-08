@@ -10,24 +10,27 @@
  "field_order": [
   "timeframe_id",
   "value",
-  "unit"
+  "unit",
+  "enabled"
  ],
  "fields": [
   {
-   "allow_in_quick_entry": 1,
    "bold": 1,
    "fieldname": "timeframe_id",
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Timeframe ID",
-   "reqd": 1,
+   "read_only": 1,
    "unique": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "value",
    "fieldtype": "Data",
-   "label": "Value"
+   "in_list_view": 1,
+   "label": "Value",
+   "reqd": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -40,10 +43,16 @@
    "options": "m\nh\nD\nW\nM",
    "reqd": 1,
    "search_index": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
   }
  ],
  "links": [],
- "modified": "2023-07-04 16:29:14.544760",
+ "modified": "2023-07-08 20:10:28.377722",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Timeframe",
@@ -64,7 +73,9 @@
   }
  ],
  "quick_entry": 1,
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "timeframe_id"
 }

@@ -27,6 +27,7 @@ class HooxAPI():
     client_ip_address = None
     secret_hash = None
     exchange_creds = None
+    telegram_creds = None
     cfg = None
     data = None
     json = None
@@ -80,7 +81,10 @@ class HooxAPI():
             self.action.append("telegram")
 
         self.save_incoming_request(
-            "/".join(act for act in self.action), json.dumps(self.json))
+            "/".join(act for act in self.action), json.dumps(self.json, indent=4))
+
+        # Preload Telegram Credentials
+        self.telegram_creds = frappe.get_doc("Telegram User", {"user": self.exchange_creds.user})
 
         # Initialize retry counter
         self.retry = 0
@@ -179,6 +183,13 @@ class HooxAPI():
 
     # ------------------------------------------------------------
 
+    def send_msg(self, message_text):
+        if not self.cfg.telegram_enabled or not self.telegram_creds:
+            return
+        return send_message(message_text=message_text, user=self.exchange_creds.user, telegram_user=self.telegram_creds.telegram_user_id)
+
+    # ------------------------------------------------------------
+
     @log_execution_time
     def process_trade_action(self):
         """
@@ -208,28 +219,13 @@ class HooxAPI():
         Sends a message to Telegram if there is a "telegram" field in the request data.
         """
 
-        # Return if Telegram is not enabled
-        if not self.cfg.telegram_enabled:
-            return
-
         # Return if there the alert holds no task
         if not self.json.get("telegram") or not self.json.get("telegram").get("message"):
             return
 
         message = self.json.get("telegram").get("message")
 
-        # Get Telegram credentials
-        telegram_creds = frappe.get_doc(
-            "Telegram User", {"user": self.exchange_creds.user})
-
-        if not telegram_creds:
-            return
-
-        print(
-            f"Sending to Telegram: # {telegram_creds.telegram_user_id}\t{message}")
-
-        return send_message(
-            message_text=message, user=self.exchange_creds.user, telegram_user=telegram_creds.telegram_user_id)
+        return self.send_msg(message)
 
     @log_execution_time
     def process_haas(self):
@@ -298,7 +294,6 @@ class HooxAPI():
                     {
                         "doctype": "Trade",
                         "user": self.exchange_creds.user,
-                        "exchange_cred": self.exchange_creds.name,
                         "action": action,
                         "order_type": order_type,
                         "market_type": market_type,
@@ -317,12 +312,16 @@ class HooxAPI():
                 "doctype": "Outgoing Request",
                 "method": action,
                 "url": self.exchange_creds.exchange,
-                "params": json.dumps(self.json),
+                "params": json.dumps(self.json, indent=4),
                 "request_incoming": self.incoming_request.name,
                 "origin": self.trade.name,
                 "status": "Processing"
             })
             self.outgoing_request.insert(ignore_permissions=True)
+
+            self.incoming_request.origin = self.trade.name
+            self.incoming_request.request_outgoing = self.outgoing_request.name
+            self.incoming_request.save()
 
             # Create trade document
             self.order = execute_order(
@@ -339,8 +338,7 @@ class HooxAPI():
             )
 
             self.retry = 0
-            send_message(
-                message_text=f"Order executed: {self.order}", user=self.exchange_creds.user)
+            self.send_msg(message_text=f"Order executed: {self.order}")
 
             if self.order is not None:
                 self.trade.exchange_order_id = self.order['order'].get(
@@ -357,7 +355,7 @@ class HooxAPI():
             self.incoming_response = frappe.get_doc({
                 "doctype": "Incoming Response",
                 "method": action,
-                "params": json.dumps(self.order, ident=4),
+                "params": json.dumps(self.order, indent=4),
                 "request_incoming": self.incoming_request.name,
                 "request_outgoing": self.outgoing_request.name,
                 "status": self.trade.status,
@@ -368,9 +366,8 @@ class HooxAPI():
             self.outgoing_request.url = exchange_id
             self.outgoing_request.response_incoming = self.incoming_response.name
             self.outgoing_request.save()
-            self.incoming_request.origin = self.trade.name
+
             self.incoming_request.response_incoming = self.incoming_response.name
-            self.incoming_request.request_outgoing = self.outgoing_request.name
             self.incoming_request.save()
             # - - - -
             frappe.db.commit()
@@ -379,8 +376,7 @@ class HooxAPI():
 
         except Exception as e:
             self.retry += 1
-            send_message(
-                message_text=f"Error: {e}", user=self.exchange_creds.user)
+            self.send_msg(message_text=f"Error: {e}")
             self.log.error(f"Error: {e}")
 
 
@@ -388,7 +384,7 @@ class HooxAPI():
 # Expose the hoox function to the outside world
 
 
-@frappe.whitelist(method="POST", allow_guest=True)
+@frappe.whitelist(allow_guest=True)
 def receive_alert(request_json=None):
     """
     Main entry point for Incoming Request. If there are valid exchange credentials and they are enabled, it processes the request.

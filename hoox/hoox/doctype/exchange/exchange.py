@@ -47,8 +47,8 @@ def sync_exchanges():
                 "rate_limit": exchange.rateLimit,
                 "testnet": 1 if exchange.urls.get("test") is not None else 0,
                 "has": json.dumps(exchange.has, indent=4),
-                "logo_url": exchange.urls.get("logo"),
-                "logo_clone": exchange.urls.get("logo")
+                "logo_url": exchange.urls.get("logo") or "",
+                "logo_clone": exchange.urls.get("logo") or ""
             }
 
             if exchange_exists is not None:
@@ -62,16 +62,19 @@ def sync_exchanges():
             # Save the document with exception handling for duplicate entries
             try:
                 # Download and attach the logo file
-                logo_url = exchange.urls.get("logo")
-                if logo_url:
-                    # Download and attach the logo file
-                    # if logo_url:
-                    try:
-                        attach_url_to_document(doc, logo_url)
-                    except Exception as e:
-                        frappe.msgprint(
-                            f"Error attaching logo for {exchange_id}: {e}")
-                doc.save(ignore_permissions=True)
+                # logo_url = exchange.urls.get("logo")
+                # if logo_url and doc.logo_url == "":
+                #     # Download and attach the logo file
+                #     # if logo_url:
+                #     try:
+                #         attach_url_to_document(doc, logo_url)
+                #     except Exception as e:
+                #         frappe.msgprint(
+                #             f"Error attaching logo for {exchange_id}: {e}")
+                if exchange_exists is not None:
+                    doc.save(ignore_permissions=True)
+                else:
+                    doc.insert(ignore_permissions=True)
 
             except frappe.DuplicateEntryError:
                 continue

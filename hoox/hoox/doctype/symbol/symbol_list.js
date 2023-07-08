@@ -12,7 +12,7 @@ frappe.listview_settings["Symbol"] = {
                 message: __("Synced Successfully"),
                 indicator: "green",
               });
-              listview.refresh();
+              cur_list.refresh();
             }
           },
           error: function (response) {
@@ -21,7 +21,7 @@ frappe.listview_settings["Symbol"] = {
                 message: __("Error While Syncing Symbols"),
                 indicator: "red",
               });
-              listview.refresh();
+              cur_list.refresh();
             }
           },
           freeze: true,
@@ -41,7 +41,7 @@ frappe.listview_settings["Symbol"] = {
           callback: function (response) {
             if (response.message) {
               frappe.show_alert({
-                message: __("Synced Successfully"),
+                message: __("Activated Successfully"),
                 indicator: "green",
               });
               listview.refresh();
@@ -51,10 +51,10 @@ frappe.listview_settings["Symbol"] = {
             // Handle the response here
             if (response.message) {
               frappe.show_alert({
-                message: __("Error While Syncing Exchanges"),
+                message: __("Error While Activating Symbols"),
                 indicator: "red",
               });
-              listview.refresh();
+              cur_list.refresh();
             }
           },
           freeze: true,
@@ -68,25 +68,25 @@ frappe.listview_settings["Symbol"] = {
     );
     listview.page.add_inner_button(
       __("Delete Symbol"),
-      function () {
+      function (listview) {
         frappe.call({
           method: "hoox.hoox.doctype.symbol.symbol.delete_symbols",
           callback: function (response) {
             if (response.message) {
               frappe.show_alert({
-                message: __("Synced Successfully"),
+                message: __("Deleted Successfully"),
                 indicator: "green",
               });
-              listview.refresh();
+              cur_list.refresh();
             }
           },
           error: function (response) {
             if (response.message) {
               frappe.show_alert({
-                message: __("Error While Syncing Exchanges"),
+                message: __("Error While Deleting Symbols"),
                 indicator: "red",
               });
-              listview.refresh();
+              cur_list.refresh();
             }
           },
           freeze: true,

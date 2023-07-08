@@ -34,13 +34,11 @@
  "engine": "InnoDB",
  "field_order": [
   "charts_section",
-  "tvchart",
+  "chart",
   "section_break_qxiik",
   "status",
   "column_break_kabux",
   "user",
-  "column_break_bgfrp",
-  "exchange_creds",
   "section_break_x1p1w",
   "exchange",
   "column_break_h5gh3",
@@ -63,8 +61,7 @@
   "column_break_29",
   "fee",
   "column_break_31",
-  "pnl",
-  "data_33"
+  "pnl"
  ],
  "fields": [
   {
@@ -134,10 +131,6 @@
   },
   {
    "fieldname": "column_break_kabux",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_bgfrp",
    "fieldtype": "Column Break"
   },
   {
@@ -231,12 +224,6 @@
    "read_only": 1
   },
   {
-   "default": "<div id=\"chart\" style=\"width: 100%; height: 500px;\"></div>\n",
-   "fieldname": "tvchart",
-   "fieldtype": "HTML",
-   "label": "Kline"
-  },
-  {
    "fieldname": "section_break_qxiik",
    "fieldtype": "Section Break"
   },
@@ -260,22 +247,16 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "exchange_creds",
-   "fieldtype": "Link",
-   "label": "Exchange Credential",
-   "options": "Exchange Credential",
-   "read_only": 1,
-   "search_index": 1
-  },
-  {
    "fieldname": "market_type",
    "fieldtype": "Link",
    "label": "Market",
-   "options": "Market"
+   "options": "Market Type"
   },
   {
-   "fieldname": "data_33",
-   "fieldtype": "Data"
+   "default": "<div id=\"chart\" style=\"width: 100%; height: 500px;\"></div>\n",
+   "fieldname": "chart",
+   "fieldtype": "HTML",
+   "label": "Kline"
   }
  ],
  "in_create": 1,
@@ -296,7 +277,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-07-07 19:47:55.871862",
+ "modified": "2023-07-08 23:32:22.976927",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trade",
@@ -317,7 +298,6 @@
    "write": 1
   }
  ],
- "quick_entry": 1,
  "show_preview_popup": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

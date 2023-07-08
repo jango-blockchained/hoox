@@ -29,9 +29,10 @@
   "telegram_enabled",
   "home_assistant_section",
   "haas_enabled",
-  "trading_tab",
-  "supported_markets_section",
-  "market_type"
+  "media_tab",
+  "logos_section",
+  "exchange_logo_url",
+  "coin_logo_url"
  ],
  "fields": [
   {
@@ -163,26 +164,32 @@
    "label": "Services"
   },
   {
-   "fieldname": "trading_tab",
+   "fieldname": "media_tab",
    "fieldtype": "Tab Break",
-   "label": "Trading"
+   "label": "Media"
   },
   {
-   "fieldname": "supported_markets_section",
+   "fieldname": "logos_section",
    "fieldtype": "Section Break",
-   "label": "Supported Markets"
+   "label": "Logos"
   },
   {
-   "fieldname": "market_type",
-   "fieldtype": "Table",
-   "label": "Market Type",
-   "options": "Market Type"
+   "fieldname": "exchange_logo_url",
+   "fieldtype": "Data",
+   "label": "Exchange Logo Repository URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "coin_logo_url",
+   "fieldtype": "Data",
+   "label": "Coin Logo Repository URL",
+   "options": "URL"
   }
  ],
  "hide_toolbar": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-07-07 20:24:32.007842",
+ "modified": "2023-07-08 19:59:22.723885",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox Settings",

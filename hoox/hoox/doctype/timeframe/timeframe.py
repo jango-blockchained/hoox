@@ -5,4 +5,9 @@
 from frappe.model.document import Document
 
 class Timeframe(Document):
+
+	def before_save(self):
+		self.timeframe_id = self.value + self.unit
+
+		
 	pass

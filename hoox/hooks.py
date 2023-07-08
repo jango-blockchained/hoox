@@ -125,7 +125,16 @@ web_include_js = "/assets/hoox/js/hoox_web.js"
 # 	"monthly": [
 # 		"hoox.tasks.monthly"
 # 	]
-# }exit()
+# }
+scheduler_events = {
+    "cron": {
+        # This will run every minute
+        "* * * * *": [
+            "hoox.hoox.doctype.outgoing_request.outgoing_request.check_and_update_status",
+            "hoox.hoox.doctype.incoming_response.incoming_response.check_and_update_status",
+            "hoox.hoox.doctype.trade.trade.check_and_update_status"]
+    }
+}
 
 # Testing
 # -------
@@ -193,7 +202,7 @@ user_data_fields = [
 # Fixtures
 # --------
 
-fixtures = ['Signal Provider', 'Market',
+fixtures = ['Signal Provider', 'Market Type',
             'Hoox Settings', 'IP Whitelist','Timeframe']
 
 

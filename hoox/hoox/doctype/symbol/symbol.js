@@ -45,12 +45,34 @@ async function createChartForSymbol(
 }
 
 frappe.ui.form.on("Symbol", {
+  onload: function (frm) {
+    // frm.fields_dict.widget_ta.wrapper.innerHTML = `
+    //   <!-- TradingView Widget BEGIN -->
+    //   <div class="tradingview-widget-container">
+    //       <div class="tradingview-widget-container__widget"></div>
+    //       <div class="tradingview-widget-copyright"><a href="https://de.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Alle Märkte bei TradingView verfolgen</span></a></div>
+    //       <script type="text/javascript"
+    //           src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+    //               {
+    //                   "interval": "15m",
+    //                       "width": "100%",
+    //                           "isTransparent": true,
+    //                               "height": "100%",
+    //                                   "symbol": "BTCUSDT",
+    //                                       "showIntervalTabs": true,
+    //                                           "locale": "de_DE",
+    //                                               "colorTheme": "dark"
+    //               }
+    //           </script>
+    //   </div>
+    //   <!-- TradingView Widget END -->`;
+  },
   refresh: async (frm) => {
     frm.fields_dict.chart.wrapper.innerHTML =
       '<div id="chart_price" style="width: 100%; height: 300px;"></div>' +
       '<div id="chart_vol" style="width: 100%; height: 150px;"></div>';
     await frappe.call({
-      method: "hoox.action.fetch_ohlcv",
+      method: "hoox.hoox.doctype.symbol.symbol.fetch_ohlcv",
       args: {
         exchange_id: frm.doc.exchange,
         market: frm.doc.market_type,
@@ -104,16 +126,17 @@ frappe.ui.form.on("Symbol", {
         );
       },
     });
+
     // --
-    let themeSwitcher = new frappe.ui.ThemeSwitcher();
-    frm.fields_dict.widget_ta.wrapper.innerHTML = frappe.render_template(
-      "hoox/hoox/templates/tradingview/ta.html",
-      {
-        timeframe: "15m",
-        symbol: frm.doc.symbol_id,
-        theme: themeSwitcher.current_theme,
-      }
-    );
+    // let themeSwitcher = new frappe.ui.ThemeSwitcher();
+    // frm.fields_dict.widget_ta.wrapper.innerHTML = frappe.render_template(
+    //   "templates/tradingview/ta.html",
+    //   {
+    //     timeframe: "15m",
+    //     symbol: frm.doc.symbol_id,
+    //     theme: themeSwitcher.current_theme,
+    //   }
+    // );
     // --
     frm
       .add_custom_button(__("Show Data"), function () {
@@ -144,21 +167,21 @@ frappe.ui.form.on("Symbol", {
       })
       .css({ "background-color": "hsl(251, 76%, 55%)", color: "#fff" });
 
-    frm.add_custom_button(__("Fetch OHLCV Data"), function () {
-      frappe.call({
-        method: "hoox.hoox.doctype.symbol.symbol.fetch_ohlcv_data",
-        args: {
-          symbol: frm.doc.symbol,
-          interval: frm.doc.interval,
-          exchange_name: frm.doc.exchange_name,
-          from_date_time: frm.doc.from_date_time,
-          page_size: frm.doc.page_size,
-        },
-        callback: function (r) {
-          frm.reload_doc();
-        },
-      });
-    });
+    // frm.add_custom_button(__("Fetch OHLCV Data"), function () {
+    //   frappe.call({
+    //     method: "hoox.hoox.doctype.symbol.symbol.fetch_ohlcv_data",
+    //     args: {
+    //       symbol: frm.doc.symbol,
+    //       interval: frm.doc.interval,
+    //       exchange_name: frm.doc.exchange_name,
+    //       from_date_time: frm.doc.from_date_time,
+    //       page_size: frm.doc.page_size,
+    //     },
+    //     callback: function (r) {
+    //       frm.reload_doc();
+    //     },
+    //   });
+    // });
   },
 });
 

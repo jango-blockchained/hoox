@@ -1,0 +1,92 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Timeframe",
+  "enabled": 1,
+  "modified": "2023-07-07 21:21:28.744961",
+  "name": "1m",
+  "timeframe_id": "1m",
+  "unit": "m",
+  "value": "1"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Timeframe",
+  "enabled": 1,
+  "modified": "2023-07-07 21:21:28.745587",
+  "name": "5m",
+  "timeframe_id": "5m",
+  "unit": "m",
+  "value": "5"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Timeframe",
+  "enabled": 1,
+  "modified": "2023-07-07 21:21:28.695854",
+  "name": "15m",
+  "timeframe_id": "15m",
+  "unit": "m",
+  "value": "15"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Timeframe",
+  "enabled": 1,
+  "modified": "2023-07-07 21:21:28.749065",
+  "name": "30m",
+  "timeframe_id": "30m",
+  "unit": "m",
+  "value": "30"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Timeframe",
+  "enabled": 1,
+  "modified": "2023-07-07 21:21:28.749656",
+  "name": "1h",
+  "timeframe_id": "1h",
+  "unit": "h",
+  "value": "1"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Timeframe",
+  "enabled": 1,
+  "modified": "2023-07-07 21:21:28.750222",
+  "name": "4h",
+  "timeframe_id": "4h",
+  "unit": "h",
+  "value": "4"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Timeframe",
+  "enabled": 1,
+  "modified": "2023-07-07 21:21:28.750785",
+  "name": "8h",
+  "timeframe_id": "8h",
+  "unit": "h",
+  "value": "8"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Timeframe",
+  "enabled": 1,
+  "modified": "2023-07-07 21:21:28.751346",
+  "name": "12h",
+  "timeframe_id": "12h",
+  "unit": "h",
+  "value": "12"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Timeframe",
+  "enabled": 1,
+  "modified": "2023-07-07 21:21:28.751911",
+  "name": "1D",
+  "timeframe_id": "1D",
+  "unit": "D",
+  "value": "1"
+ }
+]

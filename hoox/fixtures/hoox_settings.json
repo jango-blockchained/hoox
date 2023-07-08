@@ -1,7 +1,9 @@
 [
  {
+  "coin_logo_url": null,
   "docstatus": 0,
   "doctype": "Hoox Settings",
+  "exchange_logo_url": null,
   "haas_enabled": 1,
   "log_enabled": 1,
   "log_file_count": 2,
@@ -9,9 +11,6 @@
   "log_type": "Global",
   "modified": "2023-06-18 03:02:30.982003",
   "name": "Hoox Settings",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
   "retry_backoff": 1,
   "retry_enabled": 1,
   "retry_max": 4,

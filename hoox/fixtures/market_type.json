@@ -1,0 +1,18 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Market Type",
+  "exchange": null,
+  "modified": "2023-06-29 02:07:36.902251",
+  "name": "spot",
+  "type": "spot"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Market Type",
+  "exchange": null,
+  "modified": "2023-06-29 02:07:45.792846",
+  "name": "future",
+  "type": "future"
+ }
+]

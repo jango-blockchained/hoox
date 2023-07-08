@@ -1,30 +1,24 @@
 [
-    {
-        "_user_tags": ",fixtures",
-        "description": "Environment: Production",
-        "docstatus": 0,
-        "doctype": "Signal Provider",
-        "domain": null,
-        "logo_upload": null,
-        "modified": "2023-06-29 07:30:02.626065",
-        "name": "SYSTEM",
-        "parent": null,
-        "parentfield": null,
-        "parenttype": null,
-        "provider_name": "SYSTEM"
-    },
-    {
-        "_user_tags": ",fixtures",
-        "description": "Gateway for TradingView user alerts.",
-        "docstatus": 0,
-        "doctype": "Signal Provider",
-        "domain": "https://www.tradingview.com",
-        "logo_upload": "https://avatars.githubusercontent.com/u/7644688?s=200&v=4",
-        "modified": "2023-06-29 07:36:01.111810",
-        "name": "TradingView",
-        "parent": null,
-        "parentfield": null,
-        "parenttype": null,
-        "provider_name": "TradingView"
-    }
+ {
+  "description": "Environment: Production",
+  "docstatus": 0,
+  "doctype": "Signal Provider",
+  "domain": null,
+  "logo_upload": null,
+  "modified": "2023-06-29 07:30:02.626065",
+  "name": "SYSTEM",
+  "provider_name": "SYSTEM",
+  "sig_provider_owner": null
+ },
+ {
+  "description": "Gateway for TradingView user alerts.",
+  "docstatus": 0,
+  "doctype": "Signal Provider",
+  "domain": "https://www.tradingview.com",
+  "logo_upload": "https://avatars.githubusercontent.com/u/7644688?s=200&v=4",
+  "modified": "2023-06-29 07:36:01.111810",
+  "name": "TradingView",
+  "provider_name": "TradingView",
+  "sig_provider_owner": null
+ }
 ]

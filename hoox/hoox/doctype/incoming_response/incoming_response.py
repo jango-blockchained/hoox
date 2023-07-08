@@ -6,3 +6,10 @@ from frappe.model.document import Document
 
 class IncomingResponse(Document):
 	pass
+
+# ------------------------------------------------------------
+
+from hoox.action import _check_and_update_status
+
+def check_and_update_status():
+    _check_and_update_status("Incoming Response")
