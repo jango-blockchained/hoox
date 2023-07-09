@@ -13,7 +13,7 @@
   "sig_desc",
   "sig_exchanges",
   "market",
-  "sig_symbol",
+  "sig_pair",
   "banner",
   "pnl"
  ],
@@ -52,13 +52,6 @@
    "options": "spot\nfuture"
   },
   {
-   "depends_on": "sig_exchanges",
-   "fieldname": "sig_symbol",
-   "fieldtype": "Table MultiSelect",
-   "label": "Symbol",
-   "options": "Signal Symbol Table"
-  },
-  {
    "fieldname": "banner",
    "fieldtype": "Attach Image",
    "label": "Banner"
@@ -67,12 +60,19 @@
    "fieldname": "pnl",
    "fieldtype": "Percent",
    "label": "PNL"
+  },
+  {
+   "depends_on": "sig_exchanges",
+   "fieldname": "sig_pair",
+   "fieldtype": "Table MultiSelect",
+   "label": "Pair",
+   "options": "Signal Pair Table"
   }
  ],
  "image_field": "banner",
  "links": [],
  "make_attachments_public": 1,
- "modified": "2023-07-04 22:49:30.227620",
+ "modified": "2023-07-09 14:51:50.097988",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Signal",

@@ -20,9 +20,9 @@ ORDER_TYPE_FUNCS = {
 }
 
 # Logger
-# logger = get_logger(__name__)
-# logger_level = logging.getLevelName("DEBUG")
-# logger.setLevel(logger_level)
+logger = get_logger(__name__)
+logger_level = logging.getLevelName("DEBUG")
+logger.setLevel(logger_level)
 ccxt_logger = logging.getLogger('ccxt')
 ccxt_logger.setLevel(logging.DEBUG)
 
@@ -42,7 +42,7 @@ def get_linked_documents(doctype, docname):
     return docs
 
 
-def execute_order(action, exchange_id, symbol, price, quantity, percent, order_type, market_type, leverage, user_creds):
+def execute_order(action, exchange_id, pair, price, quantity, percent, order_type, market_type, leverage, user_creds):
     """
     Execute an order on an exchange using CCXT.
     Returns the order object.
@@ -85,12 +85,12 @@ def execute_order(action, exchange_id, symbol, price, quantity, percent, order_t
                 order_func = getattr(exchange, order_func_name)
 
                 if order_type == "limit":
-                    response["order"] = order_func(symbol, quantity, price)
+                    response["order"] = order_func(pair, quantity, price)
                 else:
-                    response["order"] = order_func(symbol, quantity)
+                    response["order"] = order_func(pair, quantity)
 
         elif action == "close":
-            all_orders = exchange.fetch_open_orders(symbol)
+            all_orders = exchange.fetch_open_orders(pair)
             response["order"] = [exchange.cancel_order(order["id"]) for order in all_orders]
 
         return response

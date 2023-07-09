@@ -196,7 +196,7 @@ class HooxAPI():
         Processes the trade action in the request if all required fields are present and the exchange credentials are valid and enabled.
         """
 
-        required_fields = ["action", "symbol",
+        required_fields = ["action", "pair",
                            "order_type", "secret_hash", "quantity"]
 
         if all(field in self.json for field in required_fields):
@@ -277,7 +277,7 @@ class HooxAPI():
         secret_hash = self.json.get("secret_hash")
         action = self.json.get("action")
         exchange_id = self.exchange_creds.exchange
-        symbol = self.json.get("symbol")
+        pair = self.json.get("pair")
         price = self.json.get("price")
         quantity = self.json.get("quantity")
         percent = self.json.get("percent") or False
@@ -298,7 +298,7 @@ class HooxAPI():
                         "order_type": order_type,
                         "market_type": market_type,
                         "exchange": self.exchange_creds.exchange,
-                        "symbol": symbol,
+                        "pair": pair,
                         "price": price,
                         "quantity": quantity,
                         "percent": percent,
@@ -327,7 +327,7 @@ class HooxAPI():
             self.order = execute_order(
                 action,
                 exchange_id,
-                symbol,
+                pair,
                 price,
                 quantity,
                 percent,

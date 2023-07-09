@@ -1,11 +1,11 @@
-frappe.listview_settings["Symbol"] = {
+frappe.listview_settings["Pair"] = {
   add_fields: [""],
   onload: function (listview) {
     listview.page.add_inner_button(
-      __("Sync Symbol"),
+      __("Sync Pair"),
       function (listview) {
         frappe.call({
-          method: "hoox.hoox.doctype.symbol.symbol.sync_symbols",
+          method: "hoox.hoox.doctype.pair.pair.sync_pairs",
           callback: function (response) {
             if (response.message) {
               frappe.show_alert({
@@ -25,19 +25,19 @@ frappe.listview_settings["Symbol"] = {
             }
           },
           freeze: true,
-          freeze_message: __("Syncing Symbol From Enabled Exchanges..."),
+          freeze_message: __("Syncing Pair From Enabled Exchanges..."),
           progress: (percent) => {
             frappe.show_progress(__("Progress"), percent, 100);
           },
         });
       },
-      __("Symbol")
+      __("Pair")
     );
     listview.page.add_inner_button(
-      __("Activate Symbol"),
+      __("Activate Pair"),
       function (listview) {
         frappe.call({
-          method: "hoox.hoox.doctype.symbol.symbol.activate_symbols",
+          method: "hoox.hoox.doctype.pair.pair.activate_pairs",
           callback: function (response) {
             if (response.message) {
               frappe.show_alert({
@@ -58,19 +58,19 @@ frappe.listview_settings["Symbol"] = {
             }
           },
           freeze: true,
-          freeze_message: __("Activating Symbol..."),
+          freeze_message: __("Activating Pair..."),
           progress: (percent) => {
             frappe.show_progress(__("Progress"), percent, 100);
           },
         });
       },
-      __("Symbol")
+      __("Pair")
     );
     listview.page.add_inner_button(
-      __("Delete Symbol"),
+      __("Delete Pair"),
       function (listview) {
         frappe.call({
-          method: "hoox.hoox.doctype.symbol.symbol.delete_symbols",
+          method: "hoox.hoox.doctype.pair.pair.delete_pairs",
           callback: function (response) {
             if (response.message) {
               frappe.show_alert({
@@ -90,13 +90,13 @@ frappe.listview_settings["Symbol"] = {
             }
           },
           freeze: true,
-          freeze_message: __("Deleting Symbol..."),
+          freeze_message: __("Deleting Pair..."),
           progress: (percent) => {
             frappe.show_progress(__("Progress"), percent, 100);
           },
         });
       },
-      __("Symbol")
+      __("Pair")
     );
   },
   button: {
@@ -110,7 +110,7 @@ frappe.listview_settings["Symbol"] = {
       return __("Show Full Market Data");
     },
     action(doc) {
-      frappe.db.get_doc("Symbol", doc.name).then((row) => {
+      frappe.db.get_doc("Pair", doc.name).then((row) => {
         let jsonContent = JSON.parse(row.params);
         let Fields = [];
         for (let key in jsonContent) {
@@ -126,7 +126,7 @@ frappe.listview_settings["Symbol"] = {
           }
         }
         let d = new frappe.ui.Dialog({
-          title: __("Symbol Market Data"),
+          title: __("Pair Market Data"),
           fields: Fields,
           size: "small",
           primary_action_label: __("Hide"),

@@ -1,5 +1,5 @@
 frappe.listview_settings["Trade"] = {
-  add_fields: ["exchange", "action", "symbol", "quantity", "price", "creation"],
+  add_fields: ["exchange", "action", "pair", "quantity", "price", "creation"],
   onload: function (listview) {
     listview.page.add_inner_button(__("Delete Trade"), function () {
       frappe.confirm(

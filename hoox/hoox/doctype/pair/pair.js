@@ -44,17 +44,17 @@ async function createChartForSymbol(
   });
 }
 
-frappe.ui.form.on("Symbol", {
+frappe.ui.form.on("Pair", {
   refresh: async (frm) => {
     frm.fields_dict.chart.wrapper.innerHTML =
       '<div id="chart_price" style="width: 100%; height: 300px;"></div>' +
       '<div id="chart_vol" style="width: 100%; height: 150px;"></div>';
     await frappe.call({
-      method: "hoox.hoox.doctype.symbol.symbol.fetch_ohlcv",
+      method: "hoox.hoox.doctype.pair.pair.fetch_ohlcv",
       args: {
         exchange_id: frm.doc.exchange,
         market: frm.doc.market_type,
-        symbol: frm.doc.symbol_id,
+        pair: frm.doc.pair_id,
         timeframe: "15m",
       },
       callback: async (response) => {
@@ -79,7 +79,7 @@ frappe.ui.form.on("Symbol", {
 
         const chart_price = await createChartForSymbol(
           "#chart_price",
-          `${frm.doc.symbol} Price Chart`,
+          `${frm.doc.pair} Price Chart`,
           50,
           4,
           "Price",
@@ -92,7 +92,7 @@ frappe.ui.form.on("Symbol", {
 
         const chart_vol = await createChartForSymbol(
           "#chart_vol",
-          `${frm.doc.symbol} Volume Chart`,
+          `${frm.doc.pair} Volume Chart`,
           50,
           3,
           "Qty.",
@@ -111,7 +111,7 @@ frappe.ui.form.on("Symbol", {
     //   "templates/tradingview/ta.html",
     //   {
     //     timeframe: "15m",
-    //     symbol: frm.doc.symbol_id,
+    //     pair: frm.doc.pair_id,
     //     theme: themeSwitcher.current_theme,
     //   }
     // );
@@ -133,7 +133,7 @@ frappe.ui.form.on("Symbol", {
           }
         }
         let d = new frappe.ui.Dialog({
-          title: __("Symbol Market Data"),
+          title: __("Pair Market Data"),
           fields: Fields,
           size: "small",
           primary_action_label: __("Hide"),
@@ -147,9 +147,9 @@ frappe.ui.form.on("Symbol", {
 
     // frm.add_custom_button(__("Fetch OHLCV Data"), function () {
     //   frappe.call({
-    //     method: "hoox.hoox.doctype.symbol.symbol.fetch_ohlcv_data",
+    //     method: "hoox.hoox.doctype.pair.pair.fetch_ohlcv_data",
     //     args: {
-    //       symbol: frm.doc.symbol,
+    //       pair: frm.doc.pair,
     //       interval: frm.doc.interval,
     //       exchange_name: frm.doc.exchange_name,
     //       from_date_time: frm.doc.from_date_time,

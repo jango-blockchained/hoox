@@ -1,0 +1,24 @@
+{
+ "content": null,
+ "creation": "2023-07-09 16:55:26.052075",
+ "docstatus": 0,
+ "doctype": "Page",
+ "icon": "finance",
+ "idx": 0,
+ "modified": "2023-07-09 16:55:26.052075",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "exchange-balance",
+ "owner": "Administrator",
+ "page_name": "exchange-balance",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Exchange Balance"
+}

@@ -1,0 +1,73 @@
+<!-- {% extends "templates/base.html" %}
+
+{% block content %}
+<div class="balance-page">
+    <h1>Balance</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Coin</th>
+                <th>Total Balance</th>
+                <th>Free Balance</th>
+                <th>Used Balance</th>
+                <th>Total Debt</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for coin, balance_info in total.items() %}
+            <tr>
+                <td>{{ coin }}</td>
+                <td>{{ balance_info }}</td>
+                <td>{{ free[coin] }}</td>
+                <td>{{ used[coin] }}</td>
+                <td>{{ debt.get(coin, 0) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} -->
+
+{% extends "templates/base.html" %}
+
+{% block content %}
+<div class="balance-page">
+    <h1>Balance</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Coin</th>
+                <th>Total Equity</th>
+                <th>Account IM Rate</th>
+                <th>Total Margin Balance</th>
+                <th>Total Initial Margin</th>
+                <th>Account Type</th>
+                <th>Total Available Balance</th>
+                <th>Account MM Rate</th>
+                <th>Total Perp UPL</th>
+                <th>Total Wallet Balance</th>
+                <th>Account LTV</th>
+                <th>Total Maintenance Margin</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in info.result.list %}
+            <tr>
+                <td>{{ item.coin }}</td>
+                <td>{{ item.totalEquity }}</td>
+                <td>{{ item.accountIMRate }}</td>
+                <td>{{ item.totalMarginBalance }}</td>
+                <td>{{ item.totalInitialMargin }}</td>
+                <td>{{ item.accountType }}</td>
+                <td>{{ item.totalAvailableBalance }}</td>
+                <td>{{ item.accountMMRate }}</td>
+                <td>{{ item.totalPerpUPL }}</td>
+                <td>{{ item.totalWalletBalance }}</td>
+                <td>{{ item.accountLTV }}</td>
+                <td>{{ item.totalMaintenanceMargin }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

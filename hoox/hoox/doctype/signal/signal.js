@@ -5,7 +5,7 @@ frappe.ui.form.on("Signal", {
   // refresh: function(frm) {
   // }
   //   exchanges: function (frm) {
-  //     frm.set_query("symbols", function () {
+  //     frm.set_query("pairs", function () {
   //       return {
   //         filters: [
   //           ["Signal Symbol Table", "exchange", "in", frm.doc.exchanges],

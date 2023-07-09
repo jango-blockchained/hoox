@@ -8,7 +8,7 @@
 //       args: {
 //         exchange_id: frm.doc.exchange,
 //         market: frm.doc.market_type,
-//         symbol: frm.doc.symbol,
+//         pair: frm.doc.pair,
 //         timeframe: "15m",
 //       },
 //       callback: async (response) => {
@@ -32,7 +32,7 @@
 //         });
 
 //         const chart_price = await new frappe.Chart("#chart_price", {
-//           title: `${frm.doc.symbol} Price Chart`,
+//           title: `${frm.doc.pair} Price Chart`,
 //           data: {
 //             labels: labels,
 //             datasets: [
@@ -75,7 +75,7 @@
 //         });
 //         // --
 //         const chart_vol = await new frappe.Chart("#chart_vol", {
-//           title: `${frm.doc.symbol} Volume Chart`,
+//           title: `${frm.doc.pair} Volume Chart`,
 //           data: {
 //             labels: labels,
 //             datasets: [
@@ -157,11 +157,11 @@ frappe.ui.form.on("Trade", {
       '<div id="chart_price" style="width: 100%; height: 300px;"></div>' +
       '<div id="chart_vol" style="width: 100%; height: 150px;"></div>';
     await frappe.call({
-      method: "hoox.hoox.doctype.symbol.symbol.fetch_ohlcv",
+      method: "hoox.hoox.doctype.pair.pair.fetch_ohlcv",
       args: {
         exchange_id: frm.doc.exchange,
         market: frm.doc.market_type,
-        symbol: frm.doc.symbol,
+        pair: frm.doc.pair,
         timeframe: "15m",
       },
       callback: async (response) => {
@@ -186,7 +186,7 @@ frappe.ui.form.on("Trade", {
 
         const chart_price = await createChart(
           "#chart_price",
-          `${frm.doc.symbol} Price Chart`,
+          `${frm.doc.pair} Price Chart`,
           "Price",
           "$ 0,0",
           "line",
@@ -197,7 +197,7 @@ frappe.ui.form.on("Trade", {
 
         const chart_vol = await createChart(
           "#chart_vol",
-          `${frm.doc.symbol} Volume Chart`,
+          `${frm.doc.pair} Volume Chart`,
           "Qty.",
           "0,0",
           "bar",

@@ -22,20 +22,20 @@ import ccxt
 
 # -----------------------------------------------------------------------------
 
-def retry_fetch_ohlcv(exchange, max_retries, symbol, timeframe, since, limit):
+def retry_fetch_ohlcv(exchange, max_retries, pair, timeframe, since, limit):
     num_retries=0
     try:
         num_retries += 1
-        ohlcv=exchange.fetch_ohlcv(symbol, timeframe, since, limit)
-        # print('Fetched', len(ohlcv), symbol, 'candles from', exchange.iso8601 (ohlcv[0][0]), 'to', exchange.iso8601 (ohlcv[-1][0]))
+        ohlcv=exchange.fetch_ohlcv(pair, timeframe, since, limit)
+        # print('Fetched', len(ohlcv), pair, 'candles from', exchange.iso8601 (ohlcv[0][0]), 'to', exchange.iso8601 (ohlcv[-1][0]))
         time.sleep(0.05)
         return ohlcv
     except Exception:
         if num_retries > max_retries:
-            # Exception('Failed to fetch', timeframe, symbol, 'OHLCV in', max_retries, 'attempts')
+            # Exception('Failed to fetch', timeframe, pair, 'OHLCV in', max_retries, 'attempts')
             raise
 
-def scrape_ohlcv(exchange, max_retries, symbol, timeframe, since, limit):
+def scrape_ohlcv(exchange, max_retries, pair, timeframe, since, limit):
     timeframe_duration_in_seconds=exchange.parse_timeframe(timeframe)
     timeframe_duration_in_ms=timeframe_duration_in_seconds * 1000
     timedelta=limit * timeframe_duration_in_ms
@@ -45,7 +45,7 @@ def scrape_ohlcv(exchange, max_retries, symbol, timeframe, since, limit):
     while fetch_since < now:
         try:
             ohlcv=retry_fetch_ohlcv(
-                exchange, max_retries, symbol, timeframe, fetch_since, limit)
+                exchange, max_retries, pair, timeframe, fetch_since, limit)
             fetch_since=(
                 ohlcv[-1][0] + 1) if len(ohlcv) else (fetch_since + timedelta)
             all_ohlcv=all_ohlcv + ohlcv
@@ -82,7 +82,7 @@ def write_to_csv(filename, data):
     ]]
     df.to_csv(filename, index=False)
 
-def scrape_candles_to_csv(filename, exchange_id, max_retries, symbol, timeframe, since, limit):
+def scrape_candles_to_csv(filename, exchange_id, max_retries, pair, timeframe, since, limit):
     # instantiate the exchange by id
     exchange=getattr(ccxt, exchange_id)()
     # convert since from string to milliseconds integer if needed
@@ -96,7 +96,7 @@ def scrape_candles_to_csv(filename, exchange_id, max_retries, symbol, timeframe,
     # preload all markets from the exchange
     exchange.load_markets()
     # fetch all candles
-    ohlcv=scrape_ohlcv(exchange, max_retries, symbol,
+    ohlcv=scrape_ohlcv(exchange, max_retries, pair,
                          timeframe, since, limit)
     # save to csv file
     write_to_csv(filename, ohlcv)
@@ -107,17 +107,17 @@ def scrape_candles_to_csv(filename, exchange_id, max_retries, symbol, timeframe,
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
 
-    #symbol
-    symbol='BTC/USDT'
-    #interval
-    interval='15m'
+    #pair
+    pair='ETH/USDT'
+    #timeframe
+    timeframe='15m'
     #exchange
     exchangeName='bybit'
     #from
-    fromDateTime='2022-08-01T00:00:00Z'
+    fromDateTime='2023-06-01T00:00:00Z'
     #size of one fetch
     pagesize =100 
 
-    path=exchangeName+'_'+symbol.split('/')[0]+'_'+symbol.split('/')[1]+'_'+interval+'.csv'
+    path=exchangeName+'_'+pair.split('/')[0]+'_'+pair.split('/')[1]+'_'+timeframe+'.csv'
     scrape_candles_to_csv(os.path.join(root, path), exchangeName,
-                          3, symbol, interval, fromDateTime, pagesize)
+                          3, pair, timeframe, fromDateTime, pagesize)

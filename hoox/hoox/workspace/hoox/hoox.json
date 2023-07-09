@@ -5,7 +5,7 @@
    "label": "Trading Volume"
   }
  ],
- "content": "[{\"id\":\"MmUf9abwxg\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"HOOX Onboarding\",\"col\":12}},{\"id\":\"GyZeyKbPWt\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Trading Volume\",\"col\":12}},{\"id\":\"X78jcbq1u3\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"vikWSkNm6_\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"zwr-wBGKAN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Trade\",\"col\":4}},{\"id\":\"zXzsS-J4AD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Exchange\",\"col\":4}},{\"id\":\"7phhdZmyIe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Symbol\",\"col\":4}},{\"id\":\"m7HnD3plZY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Timeframe\",\"col\":4}},{\"id\":\"1wG7hvZ8eZ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Exchange Credential\",\"col\":4}},{\"id\":\"kObm1acjD3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Homeassistant Credential\",\"col\":4}},{\"id\":\"KSmMBieKqu\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Market Type\",\"col\":4}},{\"id\":\"tWPVfE0vjQ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"xETgp1zsL9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Hoox</b></span>\",\"col\":12}},{\"id\":\"5v1FgbGQIQ\",\"type\":\"card\",\"data\":{\"card_name\":\"Trading\",\"col\":4}},{\"id\":\"UzwVjrClIk\",\"type\":\"card\",\"data\":{\"card_name\":\"Signals\",\"col\":4}},{\"id\":\"Gem9dWmMuz\",\"type\":\"card\",\"data\":{\"card_name\":\"Subscription\",\"col\":4}},{\"id\":\"OX7lZHbiTr\",\"type\":\"card\",\"data\":{\"card_name\":\"Einstellungen\",\"col\":4}},{\"id\":\"v3VGTQwpj1\",\"type\":\"card\",\"data\":{\"card_name\":\"Frontend\",\"col\":4}},{\"id\":\"gLF3HZ6jx4\",\"type\":\"card\",\"data\":{\"card_name\":\"Kline\",\"col\":4}},{\"id\":\"HKkWY5SF2V\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"J9S7ZRhUB5\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Services</b></span>\",\"col\":12}},{\"id\":\"zG-iu2Bybl\",\"type\":\"card\",\"data\":{\"card_name\":\"Exchange\",\"col\":4}},{\"id\":\"beKTcV4o2T\",\"type\":\"card\",\"data\":{\"card_name\":\"Telegram\",\"col\":4}},{\"id\":\"gPxdJBMjqD\",\"type\":\"card\",\"data\":{\"card_name\":\"HomeAssistant\",\"col\":4}},{\"id\":\"E7p0G6Yr6E\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tHb3yxthkR\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"PAKAMj2WCB\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Request\",\"col\":4}},{\"id\":\"2n8VR9oX-Q\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Outgoing Request\",\"col\":4}},{\"id\":\"ZPD9YEW6Xs\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Response\",\"col\":4}},{\"id\":\"UHazhcLtGE\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Trade\",\"col\":12}}]",
+ "content": "[{\"id\":\"MmUf9abwxg\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"HOOX Onboarding\",\"col\":12}},{\"id\":\"GyZeyKbPWt\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Trading Volume\",\"col\":12}},{\"id\":\"X78jcbq1u3\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"vikWSkNm6_\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"zwr-wBGKAN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Trade\",\"col\":4}},{\"id\":\"zXzsS-J4AD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Exchange\",\"col\":4}},{\"id\":\"7phhdZmyIe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pair\",\"col\":4}},{\"id\":\"m7HnD3plZY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Timeframe\",\"col\":4}},{\"id\":\"1wG7hvZ8eZ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Exchange Credential\",\"col\":4}},{\"id\":\"kObm1acjD3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Homeassistant Credential\",\"col\":4}},{\"id\":\"KSmMBieKqu\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Market Type\",\"col\":4}},{\"id\":\"tWPVfE0vjQ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"xETgp1zsL9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Hoox</b></span>\",\"col\":12}},{\"id\":\"5v1FgbGQIQ\",\"type\":\"card\",\"data\":{\"card_name\":\"Trading\",\"col\":4}},{\"id\":\"UzwVjrClIk\",\"type\":\"card\",\"data\":{\"card_name\":\"Signals\",\"col\":4}},{\"id\":\"Gem9dWmMuz\",\"type\":\"card\",\"data\":{\"card_name\":\"Subscription\",\"col\":4}},{\"id\":\"OX7lZHbiTr\",\"type\":\"card\",\"data\":{\"card_name\":\"Einstellungen\",\"col\":4}},{\"id\":\"v3VGTQwpj1\",\"type\":\"card\",\"data\":{\"card_name\":\"Frontend\",\"col\":4}},{\"id\":\"gLF3HZ6jx4\",\"type\":\"card\",\"data\":{\"card_name\":\"Kline\",\"col\":4}},{\"id\":\"HKkWY5SF2V\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"J9S7ZRhUB5\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Services</b></span>\",\"col\":12}},{\"id\":\"zG-iu2Bybl\",\"type\":\"card\",\"data\":{\"card_name\":\"Exchange\",\"col\":4}},{\"id\":\"beKTcV4o2T\",\"type\":\"card\",\"data\":{\"card_name\":\"Telegram\",\"col\":4}},{\"id\":\"gPxdJBMjqD\",\"type\":\"card\",\"data\":{\"card_name\":\"HomeAssistant\",\"col\":4}},{\"id\":\"E7p0G6Yr6E\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tHb3yxthkR\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"PAKAMj2WCB\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Request\",\"col\":4}},{\"id\":\"2n8VR9oX-Q\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Outgoing Request\",\"col\":4}},{\"id\":\"ZPD9YEW6Xs\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Response\",\"col\":4}},{\"id\":\"UHazhcLtGE\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Trade\",\"col\":12}}]",
  "creation": "2020-03-02 15:41:59.515192",
  "custom_blocks": [],
  "docstatus": 0,
@@ -61,7 +61,7 @@
    "is_query_report": 0,
    "label": "Symbol",
    "link_count": 0,
-   "link_to": "Symbol",
+   "link_to": "Pair",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -361,15 +361,15 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Symbol",
+   "label": "Pair",
    "link_count": 0,
-   "link_to": "Symbol",
+   "link_to": "Pair",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2023-07-08 23:40:46.883951",
+ "modified": "2023-07-09 15:41:51.129081",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -404,21 +404,21 @@
  "sequence_id": 31.0,
  "shortcuts": [
   {
-   "color": "Green",
-   "doc_view": "List",
-   "format": "{} Enabled",
-   "label": "Symbol",
-   "link_to": "Symbol",
-   "stats_filter": "{\"enabled\":[\"=\",1]}",
-   "type": "DocType"
-  },
-  {
    "color": "Blue",
    "doc_view": "List",
    "format": "{} Total",
    "label": "Market Type",
    "link_to": "Market Type",
    "stats_filter": "{\"name\":[\"!=\",null]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "format": "{} Enabled",
+   "label": "Pair",
+   "link_to": "Pair",
+   "stats_filter": "{\"enabled\":[\"=\",1]}",
    "type": "DocType"
   },
   {
