@@ -35,6 +35,7 @@
  "field_order": [
   "charts_section",
   "chart",
+  "tv_chart_html",
   "section_break_qxiik",
   "status",
   "column_break_kabux",
@@ -191,18 +192,22 @@
   {
    "fieldname": "exchange_order_id",
    "fieldtype": "Data",
-   "label": "Exchange Order ID"
+   "label": "Exchange Order ID",
+   "read_only": 1
   },
   {
    "fieldname": "fee",
    "fieldtype": "Currency",
-   "label": "Fee"
+   "label": "Fee",
+   "read_only": 1
   },
   {
    "fieldname": "pnl",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "PNL"
+   "label": "PNL",
+   "options": "$",
+   "read_only": 1
   },
   {
    "fieldname": "avg_exec_price",
@@ -213,7 +218,8 @@
   {
    "fieldname": "cost",
    "fieldtype": "Currency",
-   "label": "Cost"
+   "label": "Cost",
+   "read_only": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -250,13 +256,19 @@
    "fieldname": "market_type",
    "fieldtype": "Link",
    "label": "Market",
-   "options": "Market Type"
+   "options": "Market Type",
+   "read_only": 1
   },
   {
    "default": "<div id=\"chart\" style=\"width: 100%; height: 500px;\"></div>\n",
    "fieldname": "chart",
    "fieldtype": "HTML",
    "label": "Kline"
+  },
+  {
+   "fieldname": "tv_chart_html",
+   "fieldtype": "HTML",
+   "label": "TV"
   }
  ],
  "in_create": 1,
@@ -277,7 +289,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-07-08 23:32:22.976927",
+ "modified": "2023-07-09 05:13:24.586023",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trade",

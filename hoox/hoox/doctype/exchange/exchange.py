@@ -115,3 +115,8 @@ def delete_exchanges(force=False):
     frappe.db.commit()
 
     return f"{amount} exchanges deleted successfully."
+
+@frappe.whitelist(allow_guest=True)
+def get_logo_html(exchange_id, height=25):
+    doc = frappe.get_doc("Exchange", exchange_id)
+    return f'<img src="{doc.logo_url}" height="{height}" alt="{exchange_id}" class="rounded" />'

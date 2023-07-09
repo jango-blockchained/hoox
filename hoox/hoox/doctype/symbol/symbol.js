@@ -45,28 +45,6 @@ async function createChartForSymbol(
 }
 
 frappe.ui.form.on("Symbol", {
-  onload: function (frm) {
-    // frm.fields_dict.widget_ta.wrapper.innerHTML = `
-    //   <!-- TradingView Widget BEGIN -->
-    //   <div class="tradingview-widget-container">
-    //       <div class="tradingview-widget-container__widget"></div>
-    //       <div class="tradingview-widget-copyright"><a href="https://de.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Alle Märkte bei TradingView verfolgen</span></a></div>
-    //       <script type="text/javascript"
-    //           src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
-    //               {
-    //                   "interval": "15m",
-    //                       "width": "100%",
-    //                           "isTransparent": true,
-    //                               "height": "100%",
-    //                                   "symbol": "BTCUSDT",
-    //                                       "showIntervalTabs": true,
-    //                                           "locale": "de_DE",
-    //                                               "colorTheme": "dark"
-    //               }
-    //           </script>
-    //   </div>
-    //   <!-- TradingView Widget END -->`;
-  },
   refresh: async (frm) => {
     frm.fields_dict.chart.wrapper.innerHTML =
       '<div id="chart_price" style="width: 100%; height: 300px;"></div>' +
@@ -184,11 +162,3 @@ frappe.ui.form.on("Symbol", {
     // });
   },
 });
-
-// frappe.form.link_formatters['exchange'] = function(value, doc) {
-//     if(doc.employee_name && doc.employee_name !== value) {
-//         return value + ': ' + doc.employee_name;
-//     } else {
-//         return value;
-//     }
-// }

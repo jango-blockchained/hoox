@@ -155,13 +155,20 @@ def attach_url_to_document(doc, file_url, save=False):
 
 def _check_and_update_status(doctype):
     # get all documents that are 'Processing' and older than 1 minute
-    docs = frappe.get_all(doctype, filters = {
-        'status': 'Processing',
-        'creation': ['<', add_to_date(now_datetime(), minutes=-1)]
-    }, fields = ['name'])
+    try:
+        docs = frappe.get_all(doctype, filters = {
+            'status': 'Processing',
+            'creation': ['<', add_to_date(now_datetime(), minutes=-1)]
+        }, fields = ['name'])
 
-    # update the status of these documents to 'Failure'
-    for doc in docs:
-        doc_obj = frappe.get_doc(doctype, doc.name)
-        doc_obj.set('status', 'Failure')
-        doc_obj.save()
+        print(len(docs))
+
+        # update the status of these documents to 'Failure'
+        for doc in docs:
+            frappe.db.set_value(doctype, doc.name, 'status', 'Failed')
+            # doc_obj = frappe.get_doc(doctype, doc.name)
+            # doc_obj.set()
+            # doc_obj.save()
+        return True
+    except:
+        return False

@@ -1,0 +1,16 @@
+<svg id="request" width="100%" height="200">
+    <style>
+        #request circle {
+            filter: drop-shadow(0 0 18px #fff);
+            filter: drop-shadow(0 5px 18px red);
+        }
+    </style>
+    <circle cx="5%" cy="50%" r="10" stroke="black" stroke-width="1" fill="red" />
+    <circle cx="35%" cy="50%" r="10" stroke="black" stroke-width="1" fill="red" />
+    <circle cx="65%" cy="50%" r="10" stroke="black" stroke-width="1" fill="red" />
+    <circle cx="95%" cy="50%" r="10" stroke="black" stroke-width="1" fill="red" />
+
+    <line x1="0%" y1="50%" x2="33%" y2="50%" style="stroke:rgb(0,0,0);stroke-width:2" />
+    <line x1="33%" y1="50%" x2="66%" y2="50%" style="stroke:rgb(0,0,0);stroke-width:2" />
+    <line x1="66%" y1="50%" x2="100%" y2="50%" style="stroke:rgb(0,0,0);stroke-width:2" />
+</svg>

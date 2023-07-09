@@ -151,12 +151,13 @@ async function createChart(
 }
 
 frappe.ui.form.on("Trade", {
-  onload: async (frm) => {
+  refresh: async (frm) => {
+    // --
     frm.fields_dict.chart.wrapper.innerHTML =
       '<div id="chart_price" style="width: 100%; height: 300px;"></div>' +
       '<div id="chart_vol" style="width: 100%; height: 150px;"></div>';
     await frappe.call({
-      method: "hoox.action.fetch_ohlcv",
+      method: "hoox.hoox.doctype.symbol.symbol.fetch_ohlcv",
       args: {
         exchange_id: frm.doc.exchange,
         market: frm.doc.market_type,
