@@ -3,15 +3,20 @@
   {
    "chart_name": "Trading Volume",
    "label": "Trading Volume"
+  },
+  {
+   "chart_name": "Gateway",
+   "label": "Gateway Heatmap"
   }
  ],
- "content": "[{\"id\":\"MmUf9abwxg\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"HOOX Onboarding\",\"col\":12}},{\"id\":\"GyZeyKbPWt\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Trading Volume\",\"col\":12}},{\"id\":\"X78jcbq1u3\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"vikWSkNm6_\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"zwr-wBGKAN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Trade\",\"col\":4}},{\"id\":\"zXzsS-J4AD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Exchange\",\"col\":4}},{\"id\":\"7phhdZmyIe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pair\",\"col\":4}},{\"id\":\"m7HnD3plZY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Timeframe\",\"col\":4}},{\"id\":\"1wG7hvZ8eZ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Exchange Credential\",\"col\":4}},{\"id\":\"kObm1acjD3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Homeassistant Credential\",\"col\":4}},{\"id\":\"KSmMBieKqu\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Market Type\",\"col\":4}},{\"id\":\"tWPVfE0vjQ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"xETgp1zsL9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Hoox</b></span>\",\"col\":12}},{\"id\":\"5v1FgbGQIQ\",\"type\":\"card\",\"data\":{\"card_name\":\"Trading\",\"col\":4}},{\"id\":\"UzwVjrClIk\",\"type\":\"card\",\"data\":{\"card_name\":\"Signals\",\"col\":4}},{\"id\":\"Gem9dWmMuz\",\"type\":\"card\",\"data\":{\"card_name\":\"Subscription\",\"col\":4}},{\"id\":\"OX7lZHbiTr\",\"type\":\"card\",\"data\":{\"card_name\":\"Einstellungen\",\"col\":4}},{\"id\":\"v3VGTQwpj1\",\"type\":\"card\",\"data\":{\"card_name\":\"Frontend\",\"col\":4}},{\"id\":\"gLF3HZ6jx4\",\"type\":\"card\",\"data\":{\"card_name\":\"Kline\",\"col\":4}},{\"id\":\"HKkWY5SF2V\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"J9S7ZRhUB5\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Services</b></span>\",\"col\":12}},{\"id\":\"zG-iu2Bybl\",\"type\":\"card\",\"data\":{\"card_name\":\"Exchange\",\"col\":4}},{\"id\":\"beKTcV4o2T\",\"type\":\"card\",\"data\":{\"card_name\":\"Telegram\",\"col\":4}},{\"id\":\"gPxdJBMjqD\",\"type\":\"card\",\"data\":{\"card_name\":\"HomeAssistant\",\"col\":4}},{\"id\":\"E7p0G6Yr6E\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tHb3yxthkR\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"PAKAMj2WCB\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Request\",\"col\":4}},{\"id\":\"2n8VR9oX-Q\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Outgoing Request\",\"col\":4}},{\"id\":\"ZPD9YEW6Xs\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Response\",\"col\":4}},{\"id\":\"UHazhcLtGE\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Trade\",\"col\":12}}]",
+ "content": "[{\"id\":\"MmUf9abwxg\",\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"HOOX Onboarding\",\"col\":12}},{\"id\":\"GyZeyKbPWt\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Trading Volume\",\"col\":12}},{\"id\":\"X78jcbq1u3\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"vikWSkNm6_\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"zwr-wBGKAN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Trade\",\"col\":4}},{\"id\":\"zXzsS-J4AD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Exchange\",\"col\":4}},{\"id\":\"7phhdZmyIe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pair\",\"col\":4}},{\"id\":\"m7HnD3plZY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Timeframe\",\"col\":4}},{\"id\":\"1wG7hvZ8eZ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Exchange Credential\",\"col\":4}},{\"id\":\"kObm1acjD3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Homeassistant Credential\",\"col\":4}},{\"id\":\"KSmMBieKqu\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Market Type\",\"col\":4}},{\"id\":\"tWPVfE0vjQ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"xETgp1zsL9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Hoox</b></span>\",\"col\":12}},{\"id\":\"5v1FgbGQIQ\",\"type\":\"card\",\"data\":{\"card_name\":\"Trading\",\"col\":4}},{\"id\":\"UzwVjrClIk\",\"type\":\"card\",\"data\":{\"card_name\":\"Signals\",\"col\":4}},{\"id\":\"Gem9dWmMuz\",\"type\":\"card\",\"data\":{\"card_name\":\"Subscription\",\"col\":4}},{\"id\":\"OX7lZHbiTr\",\"type\":\"card\",\"data\":{\"card_name\":\"Einstellungen\",\"col\":4}},{\"id\":\"sRlHChtpEE\",\"type\":\"card\",\"data\":{\"card_name\":\"Smart Trading\",\"col\":4}},{\"id\":\"v3VGTQwpj1\",\"type\":\"card\",\"data\":{\"card_name\":\"Frontend\",\"col\":4}},{\"id\":\"HKkWY5SF2V\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"J9S7ZRhUB5\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Services</b></span>\",\"col\":12}},{\"id\":\"zG-iu2Bybl\",\"type\":\"card\",\"data\":{\"card_name\":\"Credentials\",\"col\":4}},{\"id\":\"beKTcV4o2T\",\"type\":\"card\",\"data\":{\"card_name\":\"Telegram\",\"col\":4}},{\"id\":\"GpTmvd-KIJ\",\"type\":\"card\",\"data\":{\"card_name\":\"Web3\",\"col\":4}},{\"id\":\"E7p0G6Yr6E\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"mZ8WohdpYj\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Gateway Heatmap\",\"col\":12}},{\"id\":\"tHb3yxthkR\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"PAKAMj2WCB\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Request\",\"col\":4}},{\"id\":\"2n8VR9oX-Q\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Outgoing Request\",\"col\":4}},{\"id\":\"ZPD9YEW6Xs\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Incoming Response\",\"col\":4}},{\"id\":\"UHazhcLtGE\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Trade\",\"col\":12}}]",
  "creation": "2020-03-02 15:41:59.515192",
  "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
  "hide_custom": 0,
+ "icon": "permission",
  "idx": 0,
  "is_hidden": 0,
  "label": "Hoox",
@@ -155,24 +160,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Kline",
-   "link_count": 1,
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Kline Data",
-   "link_count": 0,
-   "link_to": "Kline Data",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Signals",
    "link_count": 3,
    "onboard": 0,
@@ -287,24 +274,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Exchange",
-   "link_count": 1,
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Exchange Credential",
-   "link_count": 0,
-   "link_to": "Exchange Credential",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "HomeAssistant",
    "link_count": 1,
    "onboard": 0,
@@ -367,9 +336,83 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Smart Trading",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Smart Trading",
+   "link_count": 0,
+   "link_to": "smart-trading",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Exchange Balance",
+   "link_count": 0,
+   "link_to": "exchange-balance",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Web3",
+   "link_count": 1,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Wallet",
+   "link_count": 0,
+   "link_to": "wallet",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Credentials",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Exchange Credential",
+   "link_count": 0,
+   "link_to": "Exchange Credential",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Homeassistant Credential",
+   "link_count": 0,
+   "link_to": "Homeassistant Credential",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2023-07-09 15:41:51.129081",
+ "modified": "2023-07-09 20:36:07.560213",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",
@@ -401,7 +444,7 @@
    "role": "System Manager"
   }
  ],
- "sequence_id": 31.0,
+ "sequence_id": 2.0,
  "shortcuts": [
   {
    "color": "Blue",

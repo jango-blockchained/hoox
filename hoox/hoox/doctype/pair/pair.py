@@ -168,38 +168,6 @@ class Pair(Document):
         # Write to CSV
         df.to_csv(filename, index=False)
 
-# SYMBOLS
-# -------
-# @frappe.whitelist()
-# def get_png_logo(pair):
-#     base_url = "https://api.coingecko.com/api/v3"
-#     endpoint = f"/coins/{pair.lower()}"
-#     params = {
-#         "localization": False,
-#     }
-
-#     try:
-#         response = requests.get(url=f"{base_url}{endpoint}", params=params)
-#         response.raise_for_status()
-#         data = response.json()
-#         logo_url = data.get("image", {}).get("large")
-
-#         if logo_url:
-#             logo_response = requests.get(url=logo_url)
-#             logo_response.raise_for_status()
-#             return logo_response.content
-#         else:
-#             # If logo_url is None or empty, return the alternative image
-#             # alternative_logo_url = "/files/hoox.svg"
-#             # alternative_logo_response = requests.get(url=alternative_logo_url)
-#             # alternative_logo_response.raise_for_status()
-#             return None
-
-#     except requests.exceptions.RequestException as e:
-#         frappe.msgprint(f"Error fetching logo for {pair}: {e}")
-#         return None
-
-
 @frappe.whitelist()
 def sync_exchange_pairs(exchange_id, total_exchanges, current_exchange):
     exchange_class = getattr(ccxt, exchange_id)
@@ -249,9 +217,8 @@ def sync_exchange_pairs(exchange_id, total_exchanges, current_exchange):
         progress_percentage = (processed_pairs / total_pairs) / total_exchanges * current_exchange * 100
         frappe.publish_progress(percent=progress_percentage, title=_("Syncing Pair..."),
                                 description=f"Processing {exchange_id}")
-
-    return {"total": total_pairs, "new": new, "skipped": skipped, "exists": exists}
-
+    return f"<h4>{exchange_id}</h4><p>Total <b>{total_pairs}</b> | New <b>{new}</b> | Skipped <b>{skipped}</b> | Exists <b>{exists}</b></p>"
+    # return {"total": total_pairs, "new": new, "skipped": skipped, "exists": exists}
 
 
 @frappe.whitelist()
@@ -308,8 +275,8 @@ def delete_pairs():
 
 
 @frappe.whitelist()
-def fetch_ohlcv(exchange_id, market, pair, timeframe):
-    cache_key = f"{exchange_id}_{market}_{pair}_{timeframe}"
+def fetch_ohlcv(exchange_id, market, pair, timeframe, limit=100):
+    cache_key = f"{exchange_id}_{market}_{pair}_{timeframe}_{limit}"
 
     # Try to get data from cache
     cached_data = frappe.cache().get(cache_key)
@@ -321,12 +288,40 @@ def fetch_ohlcv(exchange_id, market, pair, timeframe):
                                         "options": {
                                             "defaultType": market}
                                             })
-    ohlcv_data = exchange.fetch_ohlcv(pair, timeframe)
+    ohlcv_data = exchange.fetch_ohlcv(pair, timeframe, limit=limit)
 
     # Store data in cache for 5 minutes
     frappe.cache().set_value(cache_key, ohlcv_data, expires_in_sec=300)
 
-
     return ohlcv_data
 
+# SYMBOLS
+# -------
+# @frappe.whitelist()
+# def get_png_logo(pair):
+#     base_url = "https://api.coingecko.com/api/v3"
+#     endpoint = f"/coins/{pair.lower()}"
+#     params = {
+#         "localization": False,
+#     }
 
+#     try:
+#         response = requests.get(url=f"{base_url}{endpoint}", params=params)
+#         response.raise_for_status()
+#         data = response.json()
+#         logo_url = data.get("image", {}).get("large")
+
+#         if logo_url:
+#             logo_response = requests.get(url=logo_url)
+#             logo_response.raise_for_status()
+#             return logo_response.content
+#         else:
+#             # If logo_url is None or empty, return the alternative image
+#             # alternative_logo_url = "/files/hoox.svg"
+#             # alternative_logo_response = requests.get(url=alternative_logo_url)
+#             # alternative_logo_response.raise_for_status()
+#             return None
+
+#     except requests.exceptions.RequestException as e:
+#         frappe.msgprint(f"Error fetching logo for {pair}: {e}")
+#         return None

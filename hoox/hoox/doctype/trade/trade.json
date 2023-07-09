@@ -229,7 +229,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "collapsible": 1,
    "fieldname": "charts_section",
    "fieldtype": "Section Break",
    "label": "Charts"
@@ -319,7 +318,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-07-09 15:58:40.475038",
+ "modified": "2023-07-09 20:37:55.734232",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trade",
