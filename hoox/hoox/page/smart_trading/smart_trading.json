@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2023-07-09 14:41:01.579345",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2023-07-09 14:41:01.579345",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "smart-trading",
+ "owner": "Administrator",
+ "page_name": "smart-trading",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Smart Trading"
+}

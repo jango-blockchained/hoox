@@ -62,7 +62,12 @@
   "column_break_29",
   "fee",
   "column_break_31",
-  "pnl"
+  "pnl",
+  "external_tab",
+  "signal_section",
+  "signal",
+  "column_break_nzlf4",
+  "signal_incoming"
  ],
  "fields": [
   {
@@ -269,6 +274,32 @@
    "fieldname": "tv_chart_html",
    "fieldtype": "HTML",
    "label": "TV"
+  },
+  {
+   "fieldname": "external_tab",
+   "fieldtype": "Tab Break",
+   "label": "External"
+  },
+  {
+   "fieldname": "signal_section",
+   "fieldtype": "Section Break",
+   "label": "Signal"
+  },
+  {
+   "fieldname": "signal",
+   "fieldtype": "Link",
+   "label": "Signal",
+   "options": "Signal"
+  },
+  {
+   "fieldname": "column_break_nzlf4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "signal_incoming",
+   "fieldtype": "Link",
+   "label": "Incoming Signal",
+   "options": "Incoming Signal"
   }
  ],
  "in_create": 1,
@@ -289,7 +320,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-07-09 05:13:24.586023",
+ "modified": "2023-07-09 12:02:40.191122",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trade",
@@ -313,6 +344,19 @@
  "show_preview_popup": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
+ "states": [
+  {
+   "color": "Light Blue",
+   "title": "Processing"
+  },
+  {
+   "color": "Red",
+   "title": "Failed"
+  },
+  {
+   "color": "Green",
+   "title": "Success"
+  }
+ ],
  "track_changes": 1
 }

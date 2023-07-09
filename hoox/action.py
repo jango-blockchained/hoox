@@ -20,10 +20,16 @@ ORDER_TYPE_FUNCS = {
 }
 
 # Logger
-logger = get_logger(__name__)
-logger_level = logging.getLevelName("DEBUG")
-logger.setLevel(logger_level)
+# logger = get_logger(__name__)
+# logger_level = logging.getLevelName("DEBUG")
+# logger.setLevel(logger_level)
+ccxt_logger = logging.getLogger('ccxt')
+ccxt_logger.setLevel(logging.DEBUG)
 
+ccxt_fh = logging.FileHandler('ccxt.log')
+ccxt_fh.setLevel(logging.DEBUG)
+
+ccxt_logger.addHandler(ccxt_fh)
 
 def get_linked_documents(doctype, docname):
     """
@@ -48,6 +54,7 @@ def execute_order(action, exchange_id, symbol, price, quantity, percent, order_t
             "apiKey": user_creds.api_key,
             "secret": user_creds.api_secret,
             "enableRateLimit": True,
+            "logger": ccxt_logger,
             "options": {
                 "defaultType": market_type,
                 "test": user_creds.testnet,
@@ -55,6 +62,8 @@ def execute_order(action, exchange_id, symbol, price, quantity, percent, order_t
                 "createMarketSellOrderRequiresPrice": False
             }
         })
+
+        exchange.verbose = True
 
         if user_creds.testnet:
             exchange.set_sandbox_mode(True)
