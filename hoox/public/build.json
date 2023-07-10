@@ -1,5 +1,7 @@
 {
-    "templates/includes/technical-analysis.html": [
-        "templates/includes/ta.html"
+    "css": [
+        "public/css/hoox.css",
+        "public/css/copy_icon.css",
+        "overwrites.css"
     ]
 }

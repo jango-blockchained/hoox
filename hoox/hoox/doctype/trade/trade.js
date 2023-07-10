@@ -146,7 +146,32 @@ async function createChart(
       formatTooltipX: (d) => (d instanceof Date ? d.toDateString() : d),
       formatTooltipY: (d) => yAxisFormat.charAt(0) + " " + d,
     },
-    limit: 100,
+  });
+}
+
+async function createTypeChart(
+  elementId,
+  title,
+  labels,
+  values,
+  colors,
+  height = 300,
+  type = "donut" // or 'bar', 'line', 'pie', 'percentage'
+) {
+  new frappe.Chart(elementId, {
+    title: title,
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          values: values,
+          chartType: type,
+        },
+      ],
+    },
+    type: type,
+    height: height,
+    colors: colors,
   });
 }
 
@@ -192,7 +217,7 @@ frappe.ui.form.on("Trade", {
           "line",
           labels,
           values,
-          ["hsl(73, 100%, 61%)"]
+          ["#d4ff38"]
         );
 
         const chart_vol = await createChart(
@@ -203,9 +228,23 @@ frappe.ui.form.on("Trade", {
           "bar",
           labels,
           volumes,
-          ["hsl(332, 100%, 41%)"]
+          ["#8c00ff"]
         );
       },
     });
+    // --
+    frm.fields_dict.ratio.wrapper.innerHTML =
+      '<div id="chart_ratio" style="width: 100%; height: 300px;"></div>';
+
+    const donut = await createTypeChart(
+      "#chart_ratio",
+      "Total Cost/Fee/Profit Ratio",
+      ["Cost", "Fee", "Profit"],
+      // [frm.doc.cost, frm.doc.fee, frm.doc.pnl],
+      ["314.12", "2.01", "29.03"],
+      ["#2490EF", "#d10062", "#d4ff38"],
+      300,
+      "donut" // or 'bar', 'line', 'pie', 'percentage'
+    );
   },
 });

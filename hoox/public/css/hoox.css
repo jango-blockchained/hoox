@@ -5,7 +5,7 @@
 }
 
 .list-row-container[data-filter="action,=,buy"] {
-    background-color: #49b30c;
+    background-color: #49b30c !important;
 }
 
 .list-row-container[data-filter="action,=,sell"] {
@@ -14,4 +14,9 @@
 
 .list-row-container[data-filter="action,=,close"] {
     background-color: #8c00ff;
+}
+
+.test {
+    color: #d4ff38;
+    background-color: #d10062
 }

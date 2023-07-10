@@ -95,7 +95,6 @@
    "depends_on": "frm.doc.price>0",
    "fieldname": "price",
    "fieldtype": "Currency",
-   "in_list_view": 1,
    "label": "Estimated Price",
    "non_negative": 1,
    "read_only": 1
@@ -272,7 +271,8 @@
    "fieldname": "signal",
    "fieldtype": "Link",
    "label": "Signal",
-   "options": "Signal"
+   "options": "Signal",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_nzlf4",
@@ -282,7 +282,8 @@
    "fieldname": "signal_incoming",
    "fieldtype": "Link",
    "label": "Incoming Signal",
-   "options": "Incoming Signal"
+   "options": "Incoming Signal",
+   "read_only": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -325,6 +326,7 @@
    "label": "Ratio"
   }
  ],
+ "hide_toolbar": 1,
  "in_create": 1,
  "links": [
   {
@@ -343,7 +345,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-07-10 00:16:23.842648",
+ "modified": "2023-07-11 01:16:02.071597",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trade",
