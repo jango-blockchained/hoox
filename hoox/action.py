@@ -23,13 +23,13 @@ ORDER_TYPE_FUNCS = {
 logger = get_logger(__name__)
 logger_level = logging.getLevelName("DEBUG")
 logger.setLevel(logger_level)
-ccxt_logger = logging.getLogger('ccxt')
-ccxt_logger.setLevel(logging.DEBUG)
+# ccxt_logger = logging.getLogger('ccxt')
+# ccxt_logger.setLevel(logging.DEBUG)
 
-ccxt_fh = logging.FileHandler('ccxt.log')
-ccxt_fh.setLevel(logging.DEBUG)
+# ccxt_fh = logging.FileHandler('ccxt.log')
+# ccxt_fh.setLevel(logging.DEBUG)
 
-ccxt_logger.addHandler(ccxt_fh)
+# ccxt_logger.addHandler(ccxt_fh)
 
 def get_linked_documents(doctype, docname):
     """
@@ -54,7 +54,7 @@ def execute_order(action, exchange_id, pair, price, quantity, percent, order_typ
             "apiKey": user_creds.api_key,
             "secret": user_creds.api_secret,
             "enableRateLimit": True,
-            "logger": ccxt_logger,
+            # "logger": ccxt_logger,
             "options": {
                 "defaultType": market_type,
                 "test": user_creds.testnet,
@@ -135,9 +135,6 @@ def execute_order(action, exchange_id, pair, price, quantity, percent, order_typ
         frappe.msgprint(msg)
         logger.error(msg)
 
-
-
-
 @frappe.whitelist()
 def get_attachment_url(doctype, docname):
     attachments = get_attachments(doctype, docname)
@@ -175,9 +172,6 @@ def _check_and_update_status(doctype):
         # update the status of these documents to 'Failure'
         for doc in docs:
             frappe.db.set_value(doctype, doc.name, 'status', 'Failed')
-            # doc_obj = frappe.get_doc(doctype, doc.name)
-            # doc_obj.set()
-            # doc_obj.save()
         return True
     except:
         return False

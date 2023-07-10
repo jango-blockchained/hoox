@@ -33,17 +33,18 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "details_tab",
+  "section_break_qxiik",
+  "status",
+  "column_break_h0suj",
+  "user",
   "charts_section",
   "chart",
   "tv_chart_html",
-  "section_break_qxiik",
-  "status",
-  "column_break_kabux",
-  "user",
   "section_break_x1p1w",
   "exchange",
   "column_break_h5gh3",
-  "market_type",
+  "exchange_order_id",
   "section_break_athv6",
   "pair",
   "action",
@@ -52,17 +53,21 @@
   "quantity",
   "percent",
   "column_break_ssgjg",
+  "market_type",
+  "leverage",
+  "column_break_7816y",
   "price",
   "avg_exec_price",
-  "leverage",
   "section_break_prlsy",
-  "exchange_order_id",
+  "stats_tab",
   "balance_section",
   "cost",
-  "column_break_29",
+  "column_break_wdoay",
   "fee",
-  "column_break_31",
+  "column_break_29",
   "pnl",
+  "section_break_ws6it",
+  "ratio",
   "external_tab",
   "signal_section",
   "signal",
@@ -86,10 +91,13 @@
   },
   {
    "allow_in_quick_entry": 1,
+   "bold": 1,
+   "depends_on": "frm.doc.price>0",
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Estimated Price",
+   "non_negative": 1,
    "read_only": 1
   },
   {
@@ -114,20 +122,10 @@
    "reqd": 1
   },
   {
-   "allow_in_quick_entry": 1,
-   "fetch_from": "User.name",
    "fieldname": "user",
    "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "User",
-   "options": "User",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_kabux",
-   "fieldtype": "Column Break"
+   "options": "User"
   },
   {
    "fieldname": "section_break_x1p1w",
@@ -152,7 +150,8 @@
    "in_list_view": 1,
    "label": "Exchange",
    "options": "Exchange",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "column_break_h5gh3",
@@ -166,23 +165,23 @@
   {
    "allow_in_quick_entry": 1,
    "default": "1",
+   "depends_on": "frm.doc.market_type==\"future\"",
    "fieldname": "leverage",
    "fieldtype": "Int",
    "in_list_view": 1,
    "label": "Leverage",
+   "non_negative": 1,
    "read_only": 1
   },
   {
    "bold": 1,
-   "default": "Processing",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "status",
+   "label": "Status",
    "options": "Processing\nFailed\nSuccess",
-   "read_only": 1,
-   "search_index": 1
+   "read_only": 1
   },
   {
    "fieldname": "exchange_order_id",
@@ -201,7 +200,6 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "PNL",
-   "options": "$",
    "read_only": 1
   },
   {
@@ -236,14 +234,10 @@
   {
    "fieldname": "balance_section",
    "fieldtype": "Section Break",
-   "label": "Balance"
+   "label": "Profit & Loss"
   },
   {
    "fieldname": "column_break_29",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_31",
    "fieldtype": "Column Break"
   },
   {
@@ -298,6 +292,37 @@
    "in_standard_filter": 1,
    "label": "Pair",
    "reqd": 1
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "column_break_h0suj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "stats_tab",
+   "fieldtype": "Tab Break",
+   "label": "Stats"
+  },
+  {
+   "fieldname": "column_break_wdoay",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_7816y",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ws6it",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ratio",
+   "fieldtype": "HTML",
+   "label": "Ratio"
   }
  ],
  "in_create": 1,
@@ -318,7 +343,7 @@
    "link_fieldname": "origin"
   }
  ],
- "modified": "2023-07-09 20:37:55.734232",
+ "modified": "2023-07-10 00:16:23.842648",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trade",

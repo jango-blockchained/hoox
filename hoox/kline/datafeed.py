@@ -4,9 +4,9 @@ import asyncio
 import aiohttp
 
 class DataFeed:
-    def __init__(self, exchanges, symbols):
+    def __init__(self, exchanges, pairs):
         self.exchanges = exchanges
-        self.symbols = symbols
+        self.pairs = pairs
 
     async def fetch_and_store_data(self):
         async with aiohttp.ClientSession() as session:
@@ -15,29 +15,29 @@ class DataFeed:
                 exchange = getattr(ccxt, exchange_name)()
                 # Set the desired rate limit in milliseconds (e.g., 2 seconds)
                 exchange.rateLimit = 2000
-                for symbol in self.symbols:
+                for pair in self.pairs:
                     task = asyncio.create_task(
-                        self.fetch_and_store_exchange_data(session, exchange, symbol, exchange_name))
+                        self.fetch_and_store_exchange_data(session, exchange, pair, exchange_name))
                     tasks.append(task)
 
             await asyncio.gather(*tasks)
 
-    async def fetch_and_store_exchange_data(self, session, exchange, symbol, exchange_name):
+    async def fetch_and_store_exchange_data(self, session, exchange, pair, exchange_name):
         try:
             klines = await self.fetch_klines_with_rate_limit(
-                session, exchange, symbol)
+                session, exchange, pair)
             frappe_data = self.format_data_for_frappe(
-                klines, symbol, exchange_name)
+                klines, pair, exchange_name)
             await self.store_data_in_frappe_database(frappe_data)
         except Exception as e:
             print(
-                f"Error retrieving data for {symbol} on {exchange_name}: {e}")
+                f"Error retrieving data for {pair} on {exchange_name}: {e}")
 
-    async def fetch_klines_with_rate_limit(self, session, exchange, symbol):
+    async def fetch_klines_with_rate_limit(self, session, exchange, pair):
         @exchange.rateLimit
         async def fetch_klines():
             return await session.get(f"{exchange.urls['api']}v1/klines", params={
-                "symbol": symbol,
+                "pair": pair,
                 "interval": '1d',
                 "limit": 100
             })
@@ -46,7 +46,7 @@ class DataFeed:
         klines = await response.json()
         return klines
 
-    def format_data_for_frappe(self, klines, symbol, exchange_name):
+    def format_data_for_frappe(self, klines, pair, exchange_name):
         data_points = []
         for kline in klines:
             timestamp = kline[0]
@@ -57,7 +57,7 @@ class DataFeed:
             volume = kline[5]
 
             data_points.append({
-                "symbol": symbol,
+                "pair": pair,
                 "exchange": exchange_name,
                 "time": timestamp,
                 "open": open_price,
@@ -73,7 +73,7 @@ class DataFeed:
         for data_point in frappe_data:
             doc = frappe.get_doc({
                 "doctype": "Kline Data",
-                "symbol": data_point["symbol"],
+                "pair": data_point["pair"],
                 "exchange": data_point["exchange"],
                 "time": data_point["time"],
                 "open": data_point["open"],
@@ -86,8 +86,8 @@ class DataFeed:
 
 # Usage example (same as before)
 exchanges = frappe.get_list("Exchange", filters={"enabled": 1})
-symbols = frappe.get_list("Symbol", filters={"enabled": 1})
+pairs = frappe.get_list("Pair", filters={"enabled": 1})
 
-data_feed = DataFeed(exchanges, symbols)
+data_feed = DataFeed(exchanges, pairs)
 
 asyncio.run(data_feed.fetch_and_store_data())
