@@ -40,7 +40,6 @@
   "user",
   "charts_section",
   "chart",
-  "tv_chart_html",
   "section_break_x1p1w",
   "exchange",
   "column_break_h5gh3",
@@ -253,11 +252,6 @@
    "label": "Kline"
   },
   {
-   "fieldname": "tv_chart_html",
-   "fieldtype": "HTML",
-   "label": "TV"
-  },
-  {
    "fieldname": "external_tab",
    "fieldtype": "Tab Break",
    "label": "External"
@@ -271,8 +265,7 @@
    "fieldname": "signal",
    "fieldtype": "Link",
    "label": "Signal",
-   "options": "Signal",
-   "read_only": 1
+   "options": "Signal"
   },
   {
    "fieldname": "column_break_nzlf4",
@@ -282,8 +275,7 @@
    "fieldname": "signal_incoming",
    "fieldtype": "Link",
    "label": "Incoming Signal",
-   "options": "Incoming Signal",
-   "read_only": 1
+   "options": "Incoming Signal"
   },
   {
    "allow_in_quick_entry": 1,
@@ -326,7 +318,6 @@
    "label": "Ratio"
   }
  ],
- "hide_toolbar": 1,
  "in_create": 1,
  "links": [
   {
@@ -343,9 +334,14 @@
    "group": "Outgoing",
    "link_doctype": "Outgoing Request",
    "link_fieldname": "origin"
+  },
+  {
+   "group": "Maintenance",
+   "link_doctype": "Error Log",
+   "link_fieldname": "reference_name"
   }
  ],
- "modified": "2023-07-11 01:16:02.071597",
+ "modified": "2023-07-11 07:26:46.349899",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Trade",

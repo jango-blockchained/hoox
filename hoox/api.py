@@ -326,7 +326,6 @@ class HooxAPI():
             # Create trade document
             self.order = execute_order(
                 action,
-                exchange_id,
                 pair,
                 price,
                 quantity,
@@ -335,6 +334,7 @@ class HooxAPI():
                 market_type,
                 leverage,
                 self.exchange_creds,
+                self.trade
             )
 
             self.retry = 0

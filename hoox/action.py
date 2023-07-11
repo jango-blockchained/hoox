@@ -34,7 +34,7 @@ def get_linked_documents(doctype, docname):
     print(docs)
     return docs
 
-def get_user_exchange_connection(credentials:object, market_type:str, verbose:bool=False, rate_limit:bool=True, price_required:bool=False):
+def get_user_exchange_connection(credentials:object, market_type:str, verbose:bool=True, rate_limit:bool=True, price_required:bool=False):
     """
     Connect via REST to the selected exchange.
     """
@@ -53,14 +53,15 @@ def get_user_exchange_connection(credentials:object, market_type:str, verbose:bo
     })
 
 
-def execute_order(action:str, exchange_id:str, pair:str, price:float, quantity:float, percent:float, order_type:str, market_type:str, leverage:int, credentials:object):
+def execute_order(action:str, pair:str, price:int|float, quantity:int|float, percent:int|float, order_type:str, market_type:str, leverage:int|float, credentials:object, ref:object):
     """
     Execute an order on an exchange using CCXT.
     Returns the order object.
     """
 
     def handle_error(msg):
-        frappe.msgprint(msg)
+        # frappe.msgprint(msg)
+        frappe.log_error('Order Execution Error', msg, ref.doctype, ref.name)
         logger.error(msg)
         return msg
 
@@ -98,6 +99,8 @@ def execute_order(action:str, exchange_id:str, pair:str, price:float, quantity:f
             all_orders = exchange.fetch_open_orders(pair)
             response["order"] = [exchange.cancel_order(order["id"]) for order in all_orders]
 
+        logger.debug(response)
+
         return response
 
     except ccxt.RequestTimeout as e:
@@ -112,13 +115,14 @@ def execute_order(action:str, exchange_id:str, pair:str, price:float, quantity:f
         msg = f"Exchange not available: {str(e)}"
         handle_error(msg)
 
-    except ccxt.ExchangeError as e:
-        msg = f"Exchange error: {str(e)}"
-        handle_error(msg)
+    # except ccxt.ExchangeError as e:
+    #     msg = f"Exchange error: {str(e)}"
+    #     handle_error(msg)
 
     except ccxt.BaseError as e:
         msg = f"Base error in CCXT: {str(e)}"
         handle_error(msg)
+
     except ValueError as e:
         msg = f"Value error: {str(e)}"
         handle_error(msg)
