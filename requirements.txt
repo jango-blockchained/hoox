@@ -3,3 +3,4 @@ ccxt
 tenacity
 influxdb==5.3.1
 pandas
+ipfshttpclient
