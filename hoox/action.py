@@ -23,13 +23,6 @@ ORDER_TYPE_FUNCS = {
 logger = get_logger(__name__)
 logger_level = logging.getLevelName("DEBUG")
 logger.setLevel(logger_level)
-# ccxt_logger = logging.getLogger('ccxt')
-# ccxt_logger.setLevel(logging.DEBUG)
-
-# ccxt_fh = logging.FileHandler('ccxt.log')
-# ccxt_fh.setLevel(logging.DEBUG)
-
-# ccxt_logger.addHandler(ccxt_fh)
 
 def get_linked_documents(doctype, docname):
     """
@@ -41,38 +34,50 @@ def get_linked_documents(doctype, docname):
     print(docs)
     return docs
 
+def get_user_exchange_connection(credentials:object, market_type:str, verbose:bool=False, rate_limit:bool=True, price_required:bool=False):
+    """
+    Connect via REST to the selected exchange.
+    """
+    
+    return getattr(ccxt, credentials.exchange)({
+        "apiKey": credentials.api_key,
+        "secret": credentials.api_secret,
+        "enableRateLimit": rate_limit,
+        "verbose": verbose,
+        "options": {
+            "defaultType": market_type,
+            "test": credentials.testnet,
+            "createMarketBuyOrderRequiresPrice": price_required,
+            "createMarketSellOrderRequiresPrice": price_required
+        }
+    })
 
-def execute_order(action, exchange_id, pair, price, quantity, percent, order_type, market_type, leverage, user_creds):
+
+def execute_order(action:str, exchange_id:str, pair:str, price:float, quantity:float, percent:float, order_type:str, market_type:str, leverage:int, credentials:object):
     """
     Execute an order on an exchange using CCXT.
     Returns the order object.
     """
 
+    def handle_error(msg):
+        frappe.msgprint(msg)
+        logger.error(msg)
+        return msg
+
     try:
         # Get exchange
-        exchange = getattr(ccxt, exchange_id)({
-            "apiKey": user_creds.api_key,
-            "secret": user_creds.api_secret,
-            "enableRateLimit": True,
-            # "logger": ccxt_logger,
-            "options": {
-                "defaultType": market_type,
-                "test": user_creds.testnet,
-                "createMarketBuyOrderRequiresPrice": False,
-                "createMarketSellOrderRequiresPrice": False
-            }
-        })
+        exchange = get_user_exchange_connection(credentials, market_type)
 
-        exchange.verbose = True
+        # exchange.verbose = True
 
-        if user_creds.testnet:
+        if credentials.testnet:
             exchange.set_sandbox_mode(True)
 
         response = {}
 
         # Set leverage
-        if market_type == "future" and "set_leverage" in exchange.has and leverage is not None and 0 < leverage <= exchange.maxLeverage:
-            exchange.set_leverage(leverage)
+        if market_type == "future" and "setLeverage" in exchange.has and leverage is not None and 1 < leverage: # <= exchange.maxLeverage:
+            exchange.set_leverage(leverage, pair)
 
         # Check action
         if action not in ["buy", "sell", "close", None]:
@@ -97,43 +102,34 @@ def execute_order(action, exchange_id, pair, price, quantity, percent, order_typ
 
     except ccxt.RequestTimeout as e:
         msg = f"Request timed out: {str(e)}"
-        frappe.msgprint(msg)
-        logger.error(msg)
+        handle_error(msg)
 
     except ccxt.AuthenticationError as e:
         msg = f"Authentication error: {str(e)}"
-        frappe.msgprint(msg)
-        logger.error(msg)
+        handle_error(msg)
 
     except ccxt.ExchangeNotAvailable as e:
         msg = f"Exchange not available: {str(e)}"
-        frappe.msgprint(msg)
-        logger.error(msg)
+        handle_error(msg)
 
     except ccxt.ExchangeError as e:
         msg = f"Exchange error: {str(e)}"
-        frappe.msgprint(msg)
-        logger.error(msg)
+        handle_error(msg)
 
     except ccxt.BaseError as e:
         msg = f"Base error in CCXT: {str(e)}"
-        frappe.msgprint(msg)
-        logger.error(msg)
-
+        handle_error(msg)
     except ValueError as e:
         msg = f"Value error: {str(e)}"
-        frappe.msgprint(msg)
-        logger.error(msg)
+        handle_error(msg)
 
     except AttributeError as e:
         msg = f"Attribute error: {str(e)}"
-        frappe.msgprint(msg)
-        logger.error(msg)
+        handle_error(msg)
 
     except Exception as e:
         msg = f"An unexpected error occurred: {str(e)}"
-        frappe.msgprint(msg)
-        logger.error(msg)
+        handle_error(msg)
 
 @frappe.whitelist()
 def get_attachment_url(doctype, docname):
