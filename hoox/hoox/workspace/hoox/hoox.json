@@ -246,52 +246,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Einstellungen",
-   "link_count": 2,
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Hoox Settings",
-   "link_count": 0,
-   "link_to": "Hoox Settings",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "IP Whitelist",
-   "link_count": 0,
-   "link_to": "IP Whitelist",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "HomeAssistant",
-   "link_count": 1,
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Homeassistant Credential",
-   "link_count": 0,
-   "link_to": "Homeassistant Credential",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Trading",
    "link_count": 4,
    "onboard": 0,
@@ -410,9 +364,47 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Einstellungen",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Hoox Settings",
+   "link_count": 0,
+   "link_to": "Hoox Settings",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "IP Whitelist",
+   "link_count": 0,
+   "link_to": "IP Whitelist",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Log File Viewer",
+   "link_count": 0,
+   "link_to": "Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2023-07-09 20:36:07.560213",
+ "modified": "2023-07-11 03:26:57.444223",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Hoox",

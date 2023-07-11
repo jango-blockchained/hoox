@@ -1,45 +1,25 @@
 {
  "actions": [],
- "allow_rename": 1,
  "creation": "2023-07-11 01:27:53.021974",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "log_file",
-  "log_type",
-  "log_data",
-  "log_date"
+  "content"
  ],
  "fields": [
   {
-   "fieldname": "log_file",
-   "fieldtype": "Data",
-   "in_filter": 1,
-   "in_standard_filter": 1,
-   "label": "File"
-  },
-  {
-   "fieldname": "log_type",
-   "fieldtype": "Data",
-   "label": "Type"
-  },
-  {
-   "fieldname": "log_data",
-   "fieldtype": "Data",
-   "label": "Data"
-  },
-  {
-   "fieldname": "log_date",
-   "fieldtype": "Time",
-   "label": "Date"
+   "fieldname": "content",
+   "fieldtype": "Long Text",
+   "label": "Content"
   }
  ],
- "index_web_pages_for_search": 1,
+ "hide_toolbar": 1,
+ "in_create": 1,
  "is_virtual": 1,
  "links": [],
- "modified": "2023-07-11 01:27:53.021974",
+ "modified": "2023-07-11 03:29:06.462534",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "Log",
@@ -58,6 +38,7 @@
    "write": 1
   }
  ],
+ "read_only": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

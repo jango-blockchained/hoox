@@ -240,8 +240,8 @@ frappe.ui.form.on("Trade", {
       "#chart_ratio",
       "Total Cost/Fee/Profit Ratio",
       ["Cost", "Fee", "Profit"],
-      // [frm.doc.cost, frm.doc.fee, frm.doc.pnl],
-      ["314.12", "2.01", "29.03"],
+      [frm.doc.cost, frm.doc.fee, frm.doc.pnl],
+      // ["314.12", "2.01", "29.03"],
       ["#2490EF", "#d10062", "#d4ff38"],
       300,
       "donut" // or 'bar', 'line', 'pie', 'percentage'
