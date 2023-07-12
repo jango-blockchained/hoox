@@ -1,34 +1,72 @@
 {
- "accept_payment": 0,
  "allow_comments": 1,
- "allow_delete": 1,
+ "allow_delete": 0,
  "allow_edit": 0,
  "allow_incomplete": 0,
- "allow_multiple": 1,
+ "allow_multiple": 0,
  "allow_print": 0,
- "amount": 0.0,
- "amount_based_on_field": 0,
  "anonymous": 0,
  "apply_document_permissions": 1,
+ "banner_image": "/private/files/Fu4CnTPaYAE8T8k.jpg",
  "button_label": "Save",
  "creation": "2023-06-21 14:42:27.591879",
- "currency": "EUR",
  "doc_type": "Trade",
  "docstatus": 0,
  "doctype": "Web Form",
  "idx": 0,
+ "introduction_text": "<div class=\"ql-editor read-mode\"><p><br></p></div>",
  "is_standard": 1,
- "list_columns": [],
+ "list_columns": [
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status"
+  },
+  {
+   "fieldname": "exchange",
+   "fieldtype": "Link",
+   "label": "Exchange"
+  },
+  {
+   "fieldname": "market_type",
+   "fieldtype": "Link",
+   "label": "Market"
+  },
+  {
+   "fieldname": "order_type",
+   "fieldtype": "Select",
+   "label": "Order Type"
+  },
+  {
+   "fieldname": "action",
+   "fieldtype": "Select",
+   "label": "Action"
+  },
+  {
+   "fieldname": "pair",
+   "fieldtype": "Data",
+   "label": "Pair"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "label": "Quantity"
+  },
+  {
+   "fieldname": "pnl",
+   "fieldtype": "Currency",
+   "label": "PNL"
+  }
+ ],
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2023-07-11 03:36:24.829879",
+ "modified": "2023-07-12 02:51:04.807041",
  "modified_by": "Administrator",
  "module": "Hoox",
  "name": "trades",
  "owner": "jan.goischke@gmail.com",
- "payment_button_label": "Buy Now",
  "published": 1,
- "route": "trades",
+ "route": "trade",
  "show_attachments": 0,
  "show_list": 1,
  "show_sidebar": 1,
@@ -50,6 +88,19 @@
   },
   {
    "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Column Break",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
    "fieldname": "user",
    "fieldtype": "Link",
    "hidden": 0,
@@ -57,6 +108,19 @@
    "max_length": 0,
    "max_value": 0,
    "options": "User",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Section Break",
+   "hidden": 0,
+   "label": "Exchange",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
    "read_only": 0,
    "reqd": 0,
    "show_in_filter": 0
@@ -76,6 +140,19 @@
   },
   {
    "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Column Break",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
    "depends_on": "",
    "fieldname": "exchange_order_id",
    "fieldtype": "Data",
@@ -89,6 +166,19 @@
   },
   {
    "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Section Break",
+   "hidden": 0,
+   "label": "Order Details",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
    "fieldname": "pair",
    "fieldtype": "Data",
    "hidden": 0,
@@ -97,6 +187,19 @@
    "max_value": 0,
    "read_only": 0,
    "reqd": 1,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Column Break",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
    "show_in_filter": 0
   },
   {
@@ -115,6 +218,19 @@
   },
   {
    "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Column Break",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
    "default": "market",
    "fieldname": "order_type",
    "fieldtype": "Select",
@@ -125,6 +241,45 @@
    "options": "limit\nmarket",
    "read_only": 1,
    "reqd": 1,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Column Break",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "market_type",
+   "fieldtype": "Link",
+   "hidden": 0,
+   "label": "Market",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "Market Type",
+   "read_only": 1,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Section Break",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
    "show_in_filter": 0
   },
   {
@@ -154,28 +309,14 @@
   },
   {
    "allow_read_on_all_link_options": 0,
-   "fieldname": "market_type",
-   "fieldtype": "Link",
+   "fieldname": "",
+   "fieldtype": "Column Break",
    "hidden": 0,
-   "label": "Market",
+   "label": "",
    "max_length": 0,
    "max_value": 0,
-   "options": "Market Type",
-   "read_only": 1,
-   "reqd": 0,
-   "show_in_filter": 0
-  },
-  {
-   "allow_read_on_all_link_options": 0,
-   "default": "1",
-   "depends_on": "frm.doc.market_type==\"future\"",
-   "fieldname": "leverage",
-   "fieldtype": "Int",
-   "hidden": 0,
-   "label": "Leverage",
-   "max_length": 0,
-   "max_value": 0,
-   "read_only": 1,
+   "options": "",
+   "read_only": 0,
    "reqd": 0,
    "show_in_filter": 0
   },
@@ -206,6 +347,33 @@
   },
   {
    "allow_read_on_all_link_options": 0,
+   "default": "1",
+   "depends_on": "frm.doc.market_type==\"future\"",
+   "fieldname": "leverage",
+   "fieldtype": "Int",
+   "hidden": 0,
+   "label": "Leverage",
+   "max_length": 0,
+   "max_value": 0,
+   "read_only": 1,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Section Break",
+   "hidden": 0,
+   "label": "PnL",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
    "fieldname": "cost",
    "fieldtype": "Currency",
    "hidden": 0,
@@ -218,6 +386,19 @@
   },
   {
    "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Column Break",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
    "fieldname": "fee",
    "fieldtype": "Currency",
    "hidden": 0,
@@ -225,6 +406,19 @@
    "max_length": 0,
    "max_value": 0,
    "read_only": 1,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Column Break",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
    "reqd": 0,
    "show_in_filter": 0
   },
@@ -243,6 +437,19 @@
   },
   {
    "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Section Break",
+   "hidden": 0,
+   "label": "External",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
    "fieldname": "signal",
    "fieldtype": "Link",
    "hidden": 0,
@@ -251,6 +458,19 @@
    "max_value": 0,
    "options": "Signal",
    "read_only": 1,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "",
+   "fieldtype": "Column Break",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "",
+   "read_only": 0,
    "reqd": 0,
    "show_in_filter": 0
   },
@@ -267,5 +487,6 @@
    "reqd": 0,
    "show_in_filter": 0
   }
- ]
+ ],
+ "website_sidebar": "Hoox Sidebar"
 }

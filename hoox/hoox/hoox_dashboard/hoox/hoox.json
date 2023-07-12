@@ -1,0 +1,43 @@
+{
+ "cards": [
+  {
+   "card": "Total Incoming Request"
+  },
+  {
+   "card": "Total Outgoing Request"
+  },
+  {
+   "card": "Total Incoming Response"
+  }
+ ],
+ "charts": [
+  {
+   "chart": "Trading Volume",
+   "width": "Half"
+  },
+  {
+   "chart": "Portal Weighted Leverage Average",
+   "width": "Half"
+  },
+  {
+   "chart": "Gateway",
+   "width": "Full"
+  },
+  {
+   "chart": "Exchange Credential Ratio",
+   "width": "Half"
+  }
+ ],
+ "creation": "2023-07-12 02:54:37.279545",
+ "dashboard_name": "Hoox",
+ "docstatus": 0,
+ "doctype": "Dashboard",
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "modified": "2023-07-12 02:54:37.279545",
+ "modified_by": "Administrator",
+ "module": "Hoox",
+ "name": "Hoox",
+ "owner": "Administrator"
+}
