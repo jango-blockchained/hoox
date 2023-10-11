@@ -6,9 +6,9 @@ Hoox is a custom Frappe app that serves as an API Gateway on top of Frappe / ERP
 
 To install Hoox, follow these steps:
 
-1. Clone the Hoox repository to your local machine: `git clone https://github.com/jango-blockchained/frappe-hoox.git`
+1. Clone the Hoox repository to your local machine: `git clone https://github.com/jango-blockchained/hoox.git`
 2. Navigate to the `apps` directory in your Frappe installation.
-3. Run the following command: `bench get-app https://github.com/jango-blockchained/frappe-hoox.git`.
+3. Run the following command: `bench get-app https://github.com/jango-blockchained/hoox.git`.
 4. Install the app using the following command: `bench --site [site-name] install-app hoox`.
 
 ## Features
