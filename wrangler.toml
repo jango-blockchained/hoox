@@ -7,9 +7,11 @@ compatibility_date = "2023-12-01"
 TRADE_WORKER_URL = "https://trade-worker.cryptolinx.workers.dev"
 TELEGRAM_WORKER_URL = "https://telegram-worker.cryptolinx.workers.dev"
 
+# Secrets managed via Cloudflare Secrets Store
+secrets_store_secrets = [
+  { binding = "WEBHOOK_API_KEY_BINDING", store_id = "<YOUR_STORE_ID>", secret_name = "WEBHOOK_API_SECRET_KEY" },
+  { binding = "INTERNAL_KEY_BINDING",  store_id = "<YOUR_STORE_ID>", secret_name = "WEBHOOK_INTERNAL_KEY" }
+]
+
 [observability]
 enabled = true
-
-# Secrets to be added with wrangler:
-# wrangler secret put API_SECRET_KEY
-# wrangler secret put INTERNAL_SERVICE_KEY

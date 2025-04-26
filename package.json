@@ -11,12 +11,14 @@
     "test:coverage": "bun test --coverage"
   },
   "dependencies": {
-    "itty-router": "^5.0.18"
+    "@cloudflare/workers-types": "^4.20250426.0",
+    "itty-router": "^5.0.18",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
-    "wrangler": "^4.10.0",
-    "bun-types": "latest",
-    "@types/jest": "^29.5.12",
+    "wrangler": "^4.13.2",
+    "bun-types": "^1.2.10",
+    "@types/jest": "^29.5.14",
     "jest-mock": "^29.7.0"
   }
 }
