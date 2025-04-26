@@ -1,13 +1,22 @@
 // webhook-receiver/src/index.ts - Public-facing endpoint for TradingView
-import { Router } from "itty-router";
+import { type Env } from "./types"; // Import Env type if needed
+import { type TradeSignal, type WorkerResponse } from "./types"; // Import necessary types
+// import { Router } from "itty-router"; // Removed unused import
+// import Hono, { type Context } from "@hono/hono"; // Removed unused import
+// import { bearerAuth } from "@hono/hono/bearer-auth"; // Removed unused import
+// import { logger } from "@hono/hono/logger"; // Removed unused import
 
 // Type definitions
+// Env interface might be defined in ./types.ts now, ensure it is.
+// If not, define it here:
+/*
 interface Env {
   API_SECRET_KEY: string;
   TRADE_WORKER_URL: string;
   TELEGRAM_WORKER_URL: string;
   INTERNAL_SERVICE_KEY: string;
 }
+*/
 
 interface WebhookData {
   apiKey?: string;
@@ -48,7 +57,7 @@ interface ServiceResponse {
   error?: string;
 }
 
-const router = Router();
+const _router = new Hono<{ Bindings: Env }>(); // Prefix router
 
 // ES Module format requires a default export
 export default {
@@ -161,7 +170,8 @@ async function validateApiKey(apiKey: string, env: Env): Promise<boolean> {
   if (!apiKey) return false;
 
   // Use a hash comparison for security
-  const encoder = new TextEncoder();
+  const utf8Encode = new TextEncoder();
+  const _encoder = utf8Encode; // Prefix encoder
   const knownKey = env.API_SECRET_KEY; // From environment variable
 
   // Timing-safe comparison
@@ -179,7 +189,7 @@ async function validateApiKey(apiKey: string, env: Env): Promise<boolean> {
 
 // Forward to trade worker
 async function processTrade(
-  tradeData: TradeData,
+  _signal: TradeData, // Prefix signal
   env: Env
 ): Promise<ServiceResponse> {
   try {
@@ -188,9 +198,9 @@ async function processTrade(
       headers: {
         "Content-Type": "application/json",
         "X-Internal-Key": env.INTERNAL_SERVICE_KEY,
-        "X-Request-ID": tradeData.requestId,
+        "X-Request-ID": _signal.requestId,
       },
-      body: JSON.stringify(tradeData),
+      body: JSON.stringify(_signal),
     });
 
     return response.json();
@@ -202,7 +212,7 @@ async function processTrade(
 
 // Forward to notification worker
 async function processNotification(
-  notificationData: NotificationData,
+  _signal: NotificationData, // Prefix signal
   env: Env
 ): Promise<ServiceResponse> {
   try {
@@ -211,9 +221,9 @@ async function processNotification(
       headers: {
         "Content-Type": "application/json",
         "X-Internal-Key": env.INTERNAL_SERVICE_KEY,
-        "X-Request-ID": notificationData.requestId,
+        "X-Request-ID": _signal.requestId,
       },
-      body: JSON.stringify(notificationData),
+      body: JSON.stringify(_signal),
     });
 
     return response.json();

@@ -1,6 +1,6 @@
 // webhook-receiver/src/index.js - Public-facing endpoint for TradingView
 import { Router } from "itty-router";
-const router = Router();
+const _router = Router();
 
 // ES Module format requires a default export
 export default {

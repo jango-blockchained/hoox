@@ -1,26 +1,21 @@
 declare module "bun:test" {
   export const expect: typeof import("@jest/expect").expect;
   export const jest: typeof import("jest-mock").jest;
-  export const test: Function;
-  export const describe: Function;
-  export const beforeEach: Function;
-  export const afterEach: Function;
+  export const test: (...args: any[]) => any;
+  export const describe: (...args: any[]) => any;
+  export const beforeEach: (...args: any[]) => any;
+  export const afterEach: (...args: any[]) => any;
 }
 
 declare global {
-  var expect: typeof import("@jest/expect").expect;
-  var jest: typeof import("jest-mock").jest;
-  var test: Function;
-  var describe: Function;
-  var beforeEach: Function;
-  var afterEach: Function;
-
   class WorkerEnv {
-    constructor(env?: Record<string, any>);
+    constructor(env?: Record<string, unknown>);
   }
 
   class ExecutionContext {
-    waitUntil(): void;
+    waitUntil(promise: Promise<any>): void;
     passThroughOnException(): void;
   }
 }
+
+export {};
