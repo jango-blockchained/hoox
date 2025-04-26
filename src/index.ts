@@ -106,11 +106,12 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 
       // Generate tracking ID
       const requestId = crypto.randomUUID();
+      let overallSuccess = true; // Track overall status
+      let errorMessages: string[] = [];
 
       // Process trading signal if present
       let tradeResult: ServiceResponse | null = null;
       if (exchange && action && symbol && quantity) {
-        // Forward to trade worker
         tradeResult = await processTrade(
           {
             requestId,
@@ -123,6 +124,11 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
           },
           env
         );
+        if (!tradeResult?.success) {
+          overallSuccess = false;
+          errorMessages.push(tradeResult?.error || "Trade processing failed");
+          console.error(`Trade processing failed for ${requestId}:`, tradeResult?.error);
+        }
       }
 
       // Process notification if requested
@@ -136,27 +142,43 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
           },
           env
         );
+        if (!notificationResult?.success) {
+          overallSuccess = false;
+          errorMessages.push(notificationResult?.error || "Notification processing failed");
+           console.error(`Notification processing failed for ${requestId}:`, notificationResult?.error);
+        }
       }
 
-      // Return success response
-      return new Response(
-        JSON.stringify({
-          success: true,
-          requestId,
-          tradeResult,
-          notificationResult,
-        }),
-        { status: 200 }
-      );
+      // Return appropriate response based on overall success
+      if (overallSuccess) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            requestId,
+            tradeResult,
+            notificationResult,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      } else {
+         // If any downstream service failed, return a 500
+        return new Response(
+          JSON.stringify({
+            success: false,
+            requestId,
+            error: `Processing failed: ${errorMessages.join("; ")}`,
+            tradeResult, // Include partial results/errors
+            notificationResult,
+          }),
+          { status: 500, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
     } catch (error) {
       console.error("Error processing webhook:", error);
-
-      // Generic error response (don't expose details)
       return new Response(
-        JSON.stringify({
-          success: false,
-        }),
-        { status: 500 }
+        JSON.stringify({ success: false, error: error.message || "Internal Server Error" }),
+        { status: 500, headers: { "Content-Type": "application/json" } } // Catch-all still returns 500
       );
     }
   }
@@ -167,69 +189,122 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 
 // Secure API key validation using a fixed-time comparison
 async function validateApiKey(apiKey: string, env: Env): Promise<boolean> {
+  console.log("[validateApiKey] Called with:", apiKey); // Log input
   if (!apiKey) return false;
 
-  // Use a hash comparison for security
-  const utf8Encode = new TextEncoder();
-  const _encoder = utf8Encode; // Prefix encoder
-  const knownKey = env.API_SECRET_KEY; // From environment variable
-
-  // Timing-safe comparison
-  if (apiKey.length !== knownKey.length) {
-    return false;
+  // Get the expected key from the environment
+  const expectedKey = env.API_SECRET_KEY;
+  console.log("[validateApiKey] Expected key from env.API_SECRET_KEY:", expectedKey); // Log expected key
+  if (!expectedKey) {
+      console.error("[validateApiKey] API_SECRET_KEY is not configured in the environment.");
+      return false; 
   }
 
-  let result = 0;
-  for (let i = 0; i < apiKey.length; i++) {
-    result |= apiKey.charCodeAt(i) ^ knownKey.charCodeAt(i);
-  }
-
-  return result === 0;
+  // Simple string comparison
+  const result = apiKey === expectedKey;
+  console.log(`[validateApiKey] Validation result: ${result}`); // Log result
+  return result;
 }
 
 // Forward to trade worker
 async function processTrade(
-  _signal: TradeData, // Prefix signal
+  tradeData: TradeData, // Use clearer name
   env: Env
 ): Promise<ServiceResponse> {
   try {
+    const internalKey = await env.INTERNAL_KEY_BINDING?.get(); // Get the internal key
+    if (!internalKey) {
+      throw new Error("INTERNAL_KEY_BINDING is not configured for forwarding");
+    }
+
+    // Construct the standardized body
+    const standardizedBody = {
+      internalAuthKey: internalKey,
+      requestId: tradeData.requestId,
+      payload: {
+        exchange: tradeData.exchange,
+        action: tradeData.action,
+        symbol: tradeData.symbol,
+        quantity: tradeData.quantity,
+        price: tradeData.price,
+        leverage: tradeData.leverage,
+      },
+    };
+
     const response = await fetch(env.TRADE_WORKER_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Internal-Key": env.INTERNAL_SERVICE_KEY,
-        "X-Request-ID": _signal.requestId,
+        // Remove X-Internal-Key and X-Request-ID headers
       },
-      body: JSON.stringify(_signal),
+      body: JSON.stringify(standardizedBody), // Send the correct body structure
     });
 
-    return response.json();
+    // Handle potential non-JSON or error responses from downstream
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `Trade worker returned error ${response.status}: ${errorText}`
+      );
+      return {
+        success: false,
+        error: `Trade worker error: ${response.status}`,
+      };
+    }
+    return await response.json();
+
   } catch (error) {
-    console.error("Error forwarding to trade service:", error);
-    return { success: false, error: "Processing error" };
+    console.error(`[processTrade] Error for ${tradeData.requestId}:`, error); // Log specific error
+    return { success: false, error: error.message || "Processing error" };
   }
 }
 
 // Forward to notification worker
 async function processNotification(
-  _signal: NotificationData, // Prefix signal
+  notificationData: NotificationData, // Use clearer name
   env: Env
 ): Promise<ServiceResponse> {
   try {
+    const internalKey = await env.INTERNAL_KEY_BINDING?.get(); // Get the internal key
+    if (!internalKey) {
+      throw new Error("INTERNAL_KEY_BINDING is not configured for forwarding");
+    }
+
+    // Construct the standardized body
+    const standardizedBody = {
+      internalAuthKey: internalKey,
+      requestId: notificationData.requestId,
+      payload: {
+        message: notificationData.message,
+        chatId: notificationData.chatId,
+      },
+    };
+
     const response = await fetch(env.TELEGRAM_WORKER_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Internal-Key": env.INTERNAL_SERVICE_KEY,
-        "X-Request-ID": _signal.requestId,
+        // Remove X-Internal-Key and X-Request-ID headers
       },
-      body: JSON.stringify(_signal),
+      body: JSON.stringify(standardizedBody), // Send the correct body structure
     });
 
-    return response.json();
+     // Handle potential non-JSON or error responses from downstream
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `Telegram worker returned error ${response.status}: ${errorText}`
+      );
+      return {
+        success: false,
+        error: `Telegram worker error: ${response.status}`,
+      };
+    }
+     return await response.json();
+
   } catch (error) {
-    console.error("Error forwarding to notification service:", error);
-    return { success: false, error: "Notification error" };
+    console.error(`[processNotification] Error for ${notificationData.requestId}:`, error); // Log specific error
+    return { success: false, error: error.message || "Notification error" };
   }
 }
 
