@@ -25,13 +25,13 @@ A Cloudflare Worker service that acts as the **primary gateway** for external re
     ```
 2.  Set your Cloudflare account ID in `wrangler.toml`.
 3.  Configure worker URLs in `wrangler.toml` (`vars` section):
-    *   `TRADE_WORKER_URL`: URL of the deployed trade-worker.
-    *   `TELEGRAM_WORKER_URL`: URL of the deployed telegram-worker.
-    *   `HA_WORKER_URL`: URL of the deployed home-assistant-worker.
-    *   *(Add URLs for any other target workers)*
+    - `TRADE_WORKER_URL`: URL of the deployed trade-worker.
+    - `TELEGRAM_WORKER_URL`: URL of the deployed telegram-worker.
+    - `HA_WORKER_URL`: URL of the deployed home-assistant-worker.
+    - _(Add URLs for any other target workers)_
 4.  Configure Secrets (via Cloudflare dashboard Secrets Store or `wrangler secret put`):
-    *   `WEBHOOK_API_SECRET_KEY`: The secret key expected in the `apiKey` field of incoming external requests. Bind this to `WEBHOOK_API_KEY_BINDING` in `wrangler.toml`.
-    *   `WEBHOOK_INTERNAL_KEY`: A shared secret key used for authentication *between* this worker and the target workers. Bind this to `INTERNAL_KEY_BINDING` in `wrangler.toml`.
+    - `WEBHOOK_API_SECRET_KEY`: The secret key expected in the `apiKey` field of incoming external requests. Bind this to `WEBHOOK_API_KEY_BINDING` in `wrangler.toml`.
+    - `WEBHOOK_INTERNAL_KEY`: A shared secret key used for authentication _between_ this worker and the target workers. Bind this to `INTERNAL_KEY_BINDING` in `wrangler.toml`.
 5.  For local development, create a `.dev.vars` file and define the URLs and secrets:
     ```.dev.vars
     TRADE_WORKER_URL="http://localhost:<trade_worker_port>"
@@ -45,11 +45,13 @@ A Cloudflare Worker service that acts as the **primary gateway** for external re
 ## Development
 
 Run locally (e.g., on port 8787):
+
 ```bash
 bun run dev --port 8787
 ```
 
 Deploy:
+
 ```bash
 bun run deploy
 ```
@@ -65,16 +67,16 @@ bun run deploy
   ```json
   {
     "apiKey": "YOUR_EXTERNAL_API_KEY", // Validated against WEBHOOK_API_KEY_BINDING
-    "target": "TARGET_WORKER_NAME",   // e.g., "trade", "telegram", "home-assistant"
+    "target": "TARGET_WORKER_NAME", // e.g., "trade", "telegram", "home-assistant"
     // --- Target-specific payload fields below ---
     "field1": "value1",
     "field2": "value2"
     // ... (rest of the payload for the target worker)
   }
   ```
-  *   `apiKey`: **Required**. Must match the `WEBHOOK_API_SECRET_KEY` secret.
-  *   `target`: **Required**. Specifies which internal worker should process the request. Must match a key in the `workerUrls` map in `src/index.js` (e.g., "trade", "telegram", "home-assistant").
-  *   Other fields: These are passed directly inside the `payload` object to the target worker.
+  - `apiKey`: **Required**. Must match the `WEBHOOK_API_SECRET_KEY` secret.
+  - `target`: **Required**. Specifies which internal worker should process the request. Must match a key in the `workerUrls` map in `src/index.js` (e.g., "trade", "telegram", "home-assistant").
+  - Other fields: These are passed directly inside the `payload` object to the target worker.
 
 ### Outgoing Request (Webhook Receiver -> Target Worker)
 
@@ -100,21 +102,26 @@ bun run deploy
 The receiver echoes the response from the target worker, wrapped with gateway context.
 
 **Success Example:**
+
 ```json
 {
   "gatewaySuccess": true, // Indicates the forwarding call was successful (HTTP 2xx)
   "requestId": "<generated_uuid>",
   "worker": "webhook-receiver",
   "targetWorker": "trade",
-  "targetResponse": { // The actual response from the target worker
+  "targetResponse": {
+    // The actual response from the target worker
     "success": true,
-    "result": { /* Trade execution result */ },
+    "result": {
+      /* Trade execution result */
+    },
     "error": null
   }
 }
 ```
 
 **Forwarding Error Example (Target worker down):**
+
 ```json
 {
   "gatewaySuccess": false,
@@ -130,13 +137,15 @@ The receiver echoes the response from the target worker, wrapped with gateway co
 ```
 
 **Target Worker Error Example (Target worker rejected request):**
+
 ```json
 {
   "gatewaySuccess": true, // Forwarding was ok (got a response)
   "requestId": "<generated_uuid>",
   "worker": "webhook-receiver",
   "targetWorker": "trade",
-  "targetResponse": { // The actual response from the target worker
+  "targetResponse": {
+    // The actual response from the target worker
     "success": false,
     "result": null,
     "error": "Invalid quantity in payload"
@@ -148,4 +157,4 @@ The receiver echoes the response from the target worker, wrapped with gateway co
 
 - External requests are authenticated via `apiKey`.
 - Internal communication between the receiver and target workers is authenticated via a shared `internalAuthKey`.
-- Target workers *must* validate the `internalAuthKey` received in the request body.
+- Target workers _must_ validate the `internalAuthKey` received in the request body.
