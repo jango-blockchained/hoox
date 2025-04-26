@@ -23,11 +23,13 @@ A Cloudflare Worker service that acts as the entry point for TradingView alerts 
 ## Setup
 
 1. Install dependencies:
+
 ```bash
 bun install
 ```
 
 2. Set your Cloudflare account ID in `wrangler.toml`:
+
 ```toml
 name = "webhook-receiver"
 account_id = "your_account_id_here"
@@ -35,6 +37,7 @@ main = "src/index.js"
 ```
 
 3. Configure environment variables in `.dev.vars` for local development:
+
 ```env
 INTERNAL_SERVICE_KEY=your_internal_key
 API_SECRET_KEY=your_api_secret_key
@@ -43,12 +46,14 @@ TELEGRAM_WORKER_URL=http://localhost:8790
 ```
 
 4. Configure production secrets:
+
 ```bash
 wrangler secret put INTERNAL_SERVICE_KEY
 wrangler secret put API_SECRET_KEY
 ```
 
 5. Update the worker URLs in `wrangler.toml` for production:
+
 ```toml
 [vars]
 TRADE_WORKER_URL = "https://your-trade-worker.workers.dev"
@@ -70,6 +75,7 @@ The worker uses environment variables from `.dev.vars` during local development 
 ### Production Deployment
 
 Deploy to production:
+
 ```bash
 bun run deploy
 ```
@@ -95,6 +101,7 @@ bun run deploy
 ```
 
 ### Supported Actions
+
 - `LONG`: Open a long position
 - `SHORT`: Open a short position
 - `CLOSE_LONG`: Close a long position
@@ -103,6 +110,7 @@ bun run deploy
 ## Worker Communication
 
 The webhook receiver communicates with:
+
 - Trade Worker: For executing trades
 - Telegram Worker: For sending notifications
 
@@ -116,6 +124,7 @@ The webhook receiver communicates with:
 ## Error Handling
 
 The worker includes error handling for:
+
 - Invalid webhook payloads
 - Authentication failures
 - Worker communication errors
@@ -124,6 +133,7 @@ The worker includes error handling for:
 ## Response Format
 
 Success:
+
 ```json
 {
   "success": true,
@@ -136,6 +146,7 @@ Success:
 ```
 
 Error:
+
 ```json
 {
   "success": false,
@@ -149,4 +160,4 @@ Error:
 2. Create your feature branch
 3. Commit your changes
 4. Push to the branch
-5. Create a new Pull Request 
+5. Create a new Pull Request

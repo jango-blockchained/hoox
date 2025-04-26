@@ -1,12 +1,12 @@
 // webhook-receiver/src/index.js - Public-facing endpoint for TradingView
-import { Router } from 'itty-router';
+import { Router } from "itty-router";
 const router = Router();
 
 // ES Module format requires a default export
 export default {
   async fetch(request, env) {
     return await handleRequest(request, env);
-  }
+  },
 };
 
 // Define SecretBinding structure for clarity (not enforced in JS)
@@ -30,23 +30,35 @@ export default {
  */
 async function handleRequest(request, env) {
   // Handle TradingView webhook
-  if (request.method === 'POST') {
+  if (request.method === "POST") {
     try {
       const data = await request.json();
 
       // Extract authentication from the payload itself
-      const { apiKey, exchange, action, symbol, quantity, price, leverage, notify } = data;
+      const {
+        apiKey,
+        exchange,
+        action,
+        symbol,
+        quantity,
+        price,
+        leverage,
+        notify,
+      } = data;
 
       // Validate the API key from payload against the secret binding
       const isValidApiKey = await validateApiKey(apiKey, env);
 
       if (!isValidApiKey) {
         // Don't reveal the reason for security
-        return new Response(JSON.stringify({
-          success: false,
-          worker: 'webhook-receiver',
-          error: 'Authentication failed'
-        }), { status: 403 });
+        return new Response(
+          JSON.stringify({
+            success: false,
+            worker: "webhook-receiver",
+            error: "Authentication failed",
+          }),
+          { status: 403 }
+        );
       }
 
       // Remove the API key from the data before forwarding
@@ -62,24 +74,37 @@ async function handleRequest(request, env) {
         // Get internal key for forwarding
         const internalKey = await env.INTERNAL_KEY_BINDING?.get();
         if (!internalKey) {
-           console.error("INTERNAL_KEY_BINDING not configured or accessible for forwarding.");
-           // Return internal error, don't expose config issue
-           return new Response(JSON.stringify({ success: false, worker: 'webhook-receiver', error: 'Internal processing error' }), { status: 500 });
+          console.error(
+            "INTERNAL_KEY_BINDING not configured or accessible for forwarding."
+          );
+          // Return internal error, don't expose config issue
+          return new Response(
+            JSON.stringify({
+              success: false,
+              worker: "webhook-receiver",
+              error: "Internal processing error",
+            }),
+            { status: 500 }
+          );
         }
-        const tradeResponse = await processTrade({
-          requestId,
-          exchange,
-          action,
-          symbol,
-          quantity,
-          price,
-          leverage
-        }, env, internalKey);
+        const tradeResponse = await processTrade(
+          {
+            requestId,
+            exchange,
+            action,
+            symbol,
+            quantity,
+            price,
+            leverage,
+          },
+          env,
+          internalKey
+        );
         tradeResult = tradeResponse.result;
         tradeWorkerInfo = {
           success: tradeResponse.success,
           error: tradeResponse.error,
-          worker: 'trade-worker'
+          worker: "trade-worker",
         };
       }
 
@@ -90,70 +115,95 @@ async function handleRequest(request, env) {
         // Get internal key for forwarding
         const internalKey = await env.INTERNAL_KEY_BINDING?.get();
         if (!internalKey) {
-           console.error("INTERNAL_KEY_BINDING not configured or accessible for forwarding.");
-           return new Response(JSON.stringify({ success: false, worker: 'webhook-receiver', error: 'Internal processing error' }), { status: 500 });
+          console.error(
+            "INTERNAL_KEY_BINDING not configured or accessible for forwarding."
+          );
+          return new Response(
+            JSON.stringify({
+              success: false,
+              worker: "webhook-receiver",
+              error: "Internal processing error",
+            }),
+            { status: 500 }
+          );
         }
-        const notificationResponse = await processNotification({
-          requestId,
-          message: notify.message || createDefaultMessage(data),
-          chatId: notify.chatId
-        }, env, internalKey);
+        const notificationResponse = await processNotification(
+          {
+            requestId,
+            message: notify.message || createDefaultMessage(data),
+            chatId: notify.chatId,
+          },
+          env,
+          internalKey
+        );
         notificationResult = notificationResponse.result;
         notificationWorkerInfo = {
           success: notificationResponse.success,
           error: notificationResponse.error,
-          worker: 'notification-worker'
+          worker: "notification-worker",
         };
       }
 
       // Return success response with worker information
-      return new Response(JSON.stringify({
-        success: true,
-        worker: 'webhook-receiver',
-        requestId,
-        trade: tradeWorkerInfo ? {
-          ...tradeWorkerInfo,
-          result: tradeResult
-        } : null,
-        notification: notificationWorkerInfo ? {
-          ...notificationWorkerInfo,
-          result: notificationResult
-        } : null
-      }), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json'
+      return new Response(
+        JSON.stringify({
+          success: true,
+          worker: "webhook-receiver",
+          requestId,
+          trade: tradeWorkerInfo
+            ? {
+                ...tradeWorkerInfo,
+                result: tradeResult,
+              }
+            : null,
+          notification: notificationWorkerInfo
+            ? {
+                ...notificationWorkerInfo,
+                result: notificationResult,
+              }
+            : null,
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
-
+      );
     } catch (error) {
-      console.error('Error processing webhook:', error);
+      console.error("Error processing webhook:", error);
 
       // Generic error response with worker info
-      return new Response(JSON.stringify({
-        success: false,
-        worker: 'webhook-receiver',
-        error: 'Internal server error'
-      }), {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json'
+      return new Response(
+        JSON.stringify({
+          success: false,
+          worker: "webhook-receiver",
+          error: "Internal server error",
+        }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
     }
   }
 
   // Default response for other methods
-  return new Response(JSON.stringify({
-    success: false,
-    worker: 'webhook-receiver',
-    error: 'Method not allowed'
-  }), {
-    status: 405,
-    headers: {
-      'Content-Type': 'application/json'
+  return new Response(
+    JSON.stringify({
+      success: false,
+      worker: "webhook-receiver",
+      error: "Method not allowed",
+    }),
+    {
+      status: 405,
+      headers: {
+        "Content-Type": "application/json",
+      },
     }
-  });
+  );
 }
 
 // Secure API key validation using a fixed-time comparison
@@ -168,7 +218,9 @@ async function validateApiKey(apiKey, env) {
   const expectedApiKey = await env.WEBHOOK_API_KEY_BINDING?.get();
 
   if (!expectedApiKey) {
-    console.error('WEBHOOK_API_KEY_BINDING binding not configured or accessible');
+    console.error(
+      "WEBHOOK_API_KEY_BINDING binding not configured or accessible"
+    );
     return false; // Treat as invalid if secret isn't set up
   }
 
@@ -198,19 +250,19 @@ async function validateApiKey(apiKey, env) {
 async function processTrade(tradeData, env, internalKey) {
   try {
     const response = await fetch(env.TRADE_WORKER_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'X-Internal-Key': internalKey, // Use passed key
-        'X-Request-ID': tradeData.requestId
+        "Content-Type": "application/json",
+        "X-Internal-Key": internalKey, // Use passed key
+        "X-Request-ID": tradeData.requestId,
       },
-      body: JSON.stringify(tradeData)
+      body: JSON.stringify(tradeData),
     });
 
     return response.json();
   } catch (error) {
-    console.error('Error forwarding to trade service:', error);
-    return { error: 'Processing error' };
+    console.error("Error forwarding to trade service:", error);
+    return { error: "Processing error" };
   }
 }
 
@@ -224,19 +276,19 @@ async function processTrade(tradeData, env, internalKey) {
 async function processNotification(notificationData, env, internalKey) {
   try {
     const response = await fetch(env.TELEGRAM_WORKER_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'X-Internal-Key': internalKey, // Use passed key
-        'X-Request-ID': notificationData.requestId
+        "Content-Type": "application/json",
+        "X-Internal-Key": internalKey, // Use passed key
+        "X-Request-ID": notificationData.requestId,
       },
-      body: JSON.stringify(notificationData)
+      body: JSON.stringify(notificationData),
     });
 
     return response.json();
   } catch (error) {
-    console.error('Error forwarding to notification service:', error);
-    return { error: 'Notification error' };
+    console.error("Error forwarding to notification service:", error);
+    return { error: "Notification error" };
   }
 }
 
