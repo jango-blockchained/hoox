@@ -1,163 +1,151 @@
-# Webhook Receiver
+# Webhook Receiver Worker
 
-A Cloudflare Worker service that acts as the entry point for TradingView alerts and other trading signals. This worker validates incoming webhooks and forwards them to the appropriate worker services.
-
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/yourusername/hoox-trading/tree/main/webhook-receiver)
+A Cloudflare Worker service that acts as the **primary gateway** for external requests (e.g., TradingView alerts, UI actions). This worker validates incoming requests and forwards them to the appropriate internal worker services using a standardized protocol.
 
 ## Features
 
-- TradingView webhook integration
-- Request validation and sanitization
-- Secure communication with other workers
-- Error handling and logging
-- Rate limiting support
-- Telegram notifications
+- Acts as a single entry point for various external triggers.
+- Validates external API keys.
+- Determines the target internal worker based on the request payload.
+- Forwards requests to internal workers using a standardized format and secure internal authentication.
+- Returns responses from internal workers, wrapped with gateway context.
 
 ## Prerequisites
 
 - Node.js >= 16
-- Bun (for package management)
+- Bun (or npm/yarn)
 - Wrangler CLI
 - Cloudflare Workers account
 
 ## Setup
 
-1. Install dependencies:
-
-```bash
-bun install
-```
-
-2. Set your Cloudflare account ID in `wrangler.toml`:
-
-```toml
-name = "webhook-receiver"
-account_id = "your_account_id_here"
-main = "src/index.js"
-```
-
-3. Configure environment variables in `.dev.vars` for local development:
-
-```env
-INTERNAL_SERVICE_KEY=your_internal_key
-API_SECRET_KEY=your_api_secret_key
-TRADE_WORKER_URL=http://localhost:8788
-TELEGRAM_WORKER_URL=http://localhost:8790
-```
-
-4. Configure production secrets:
-
-```bash
-wrangler secret put INTERNAL_SERVICE_KEY
-wrangler secret put API_SECRET_KEY
-```
-
-5. Update the worker URLs in `wrangler.toml` for production:
-
-```toml
-[vars]
-TRADE_WORKER_URL = "https://your-trade-worker.workers.dev"
-TELEGRAM_WORKER_URL = "https://your-telegram-worker.workers.dev"
-```
+1.  Install dependencies:
+    ```bash
+    bun install
+    ```
+2.  Set your Cloudflare account ID in `wrangler.toml`.
+3.  Configure worker URLs in `wrangler.toml` (`vars` section):
+    *   `TRADE_WORKER_URL`: URL of the deployed trade-worker.
+    *   `TELEGRAM_WORKER_URL`: URL of the deployed telegram-worker.
+    *   `HA_WORKER_URL`: URL of the deployed home-assistant-worker.
+    *   *(Add URLs for any other target workers)*
+4.  Configure Secrets (via Cloudflare dashboard Secrets Store or `wrangler secret put`):
+    *   `WEBHOOK_API_SECRET_KEY`: The secret key expected in the `apiKey` field of incoming external requests. Bind this to `WEBHOOK_API_KEY_BINDING` in `wrangler.toml`.
+    *   `WEBHOOK_INTERNAL_KEY`: A shared secret key used for authentication *between* this worker and the target workers. Bind this to `INTERNAL_KEY_BINDING` in `wrangler.toml`.
+5.  For local development, create a `.dev.vars` file and define the URLs and secrets:
+    ```.dev.vars
+    TRADE_WORKER_URL="http://localhost:<trade_worker_port>"
+    TELEGRAM_WORKER_URL="http://localhost:<telegram_worker_port>"
+    HA_WORKER_URL="http://localhost:<ha_worker_port>"
+    # Mock secret bindings for local dev:
+    WEBHOOK_API_KEY_BINDING="your_external_api_key"
+    INTERNAL_KEY_BINDING="your_shared_internal_secret"
+    ```
 
 ## Development
 
-### Local Development
-
-For local development, this worker should run on port 8789:
-
+Run locally (e.g., on port 8787):
 ```bash
-bun run dev -- --port 8789
+bun run dev --port 8787
 ```
 
-The worker uses environment variables from `.dev.vars` during local development instead of the values in `wrangler.toml` or Cloudflare secrets.
-
-### Production Deployment
-
-Deploy to production:
-
+Deploy:
 ```bash
 bun run deploy
 ```
 
-## Webhook Configuration
+## API Interface
 
-### TradingView Alert Message Format
+### Incoming Request (External -> Webhook Receiver)
 
+- **Method:** `POST`
+- **Endpoint:** `/` (Worker root)
+- **Content-Type:** `application/json`
+- **Body Structure:**
+  ```json
+  {
+    "apiKey": "YOUR_EXTERNAL_API_KEY", // Validated against WEBHOOK_API_KEY_BINDING
+    "target": "TARGET_WORKER_NAME",   // e.g., "trade", "telegram", "home-assistant"
+    // --- Target-specific payload fields below ---
+    "field1": "value1",
+    "field2": "value2"
+    // ... (rest of the payload for the target worker)
+  }
+  ```
+  *   `apiKey`: **Required**. Must match the `WEBHOOK_API_SECRET_KEY` secret.
+  *   `target`: **Required**. Specifies which internal worker should process the request. Must match a key in the `workerUrls` map in `src/index.js` (e.g., "trade", "telegram", "home-assistant").
+  *   Other fields: These are passed directly inside the `payload` object to the target worker.
+
+### Outgoing Request (Webhook Receiver -> Target Worker)
+
+- **Method:** `POST`
+- **Endpoint:** `{TARGET_WORKER_URL}/process`
+- **Content-Type:** `application/json`
+- **Body Structure:**
+  ```json
+  {
+    "requestId": "<generated_uuid>",
+    "internalAuthKey": "YOUR_INTERNAL_SHARED_SECRET", // From INTERNAL_KEY_BINDING
+    "payload": {
+      // --- Contains all fields from the original request EXCEPT apiKey and target ---
+      "field1": "value1",
+      "field2": "value2"
+      // ...
+    }
+  }
+  ```
+
+### Response Format (External <- Webhook Receiver)
+
+The receiver echoes the response from the target worker, wrapped with gateway context.
+
+**Success Example:**
 ```json
 {
-  "apiKey": "your_api_secret_key",
-  "exchange": "binance",
-  "action": "LONG",
-  "symbol": "BTC_USDT",
-  "quantity": 0.001,
-  "price": 65000,
-  "leverage": 20,
-  "notify": {
-    "message": "⚠️ BTC Hoox Signal: LONG at 65000",
-    "chatId": 123456789
+  "gatewaySuccess": true, // Indicates the forwarding call was successful (HTTP 2xx)
+  "requestId": "<generated_uuid>",
+  "worker": "webhook-receiver",
+  "targetWorker": "trade",
+  "targetResponse": { // The actual response from the target worker
+    "success": true,
+    "result": { /* Trade execution result */ },
+    "error": null
   }
 }
 ```
 
-### Supported Actions
+**Forwarding Error Example (Target worker down):**
+```json
+{
+  "gatewaySuccess": false,
+  "requestId": "<generated_uuid>",
+  "worker": "webhook-receiver",
+  "targetWorker": "trade",
+  "targetResponse": {
+    "success": false,
+    "error": "Failed to connect to target worker: ...",
+    "result": null
+  }
+}
+```
 
-- `LONG`: Open a long position
-- `SHORT`: Open a short position
-- `CLOSE_LONG`: Close a long position
-- `CLOSE_SHORT`: Close a short position
-
-## Worker Communication
-
-The webhook receiver communicates with:
-
-- Trade Worker: For executing trades
-- Telegram Worker: For sending notifications
+**Target Worker Error Example (Target worker rejected request):**
+```json
+{
+  "gatewaySuccess": true, // Forwarding was ok (got a response)
+  "requestId": "<generated_uuid>",
+  "worker": "webhook-receiver",
+  "targetWorker": "trade",
+  "targetResponse": { // The actual response from the target worker
+    "success": false,
+    "result": null,
+    "error": "Invalid quantity in payload"
+  }
+}
+```
 
 ## Security
 
-- Webhook authentication using `apiKey`
-- Internal service authentication for worker communication
-- Request validation and sanitization
-- Error messages don't expose sensitive information
-
-## Error Handling
-
-The worker includes error handling for:
-
-- Invalid webhook payloads
-- Authentication failures
-- Worker communication errors
-- Network issues
-
-## Response Format
-
-Success:
-
-```json
-{
-  "success": true,
-  "message": "Trade request forwarded successfully",
-  "tradeResponse": {
-    // Trade response details
-  },
-  "notificationSent": true
-}
-```
-
-Error:
-
-```json
-{
-  "success": false,
-  "error": "Error message"
-}
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+- External requests are authenticated via `apiKey`.
+- Internal communication between the receiver and target workers is authenticated via a shared `internalAuthKey`.
+- Target workers *must* validate the `internalAuthKey` received in the request body.

@@ -1,12 +1,16 @@
-// webhook-receiver/src/index.js - Public-facing endpoint for TradingView
+// webhook-receiver/src/index.js - Public-facing endpoint, forwards requests to target workers.
+
+// Itty-router is not strictly needed anymore with this simple logic, but we can leave it for now.
 import { Router } from "itty-router";
 const _router = Router();
 
-// ES Module format requires a default export
+// Standard endpoint for target workers
+const TARGET_ENDPOINT = "/process";
+
 export default {
-  async fetch(request, env) {
-    return await handleRequest(request, env);
-  },
+	async fetch(request, env) {
+		return await handleRequest(request, env);
+	},
 };
 
 // Define SecretBinding structure for clarity (not enforced in JS)
@@ -19,289 +23,200 @@ export default {
  * @typedef {object} Env
  * @property {string} [TRADE_WORKER_URL]
  * @property {string} [TELEGRAM_WORKER_URL]
- * @property {SecretBinding} [WEBHOOK_API_KEY_BINDING]
- * @property {SecretBinding} [INTERNAL_KEY_BINDING]
+ * @property {string} [HA_WORKER_URL] // Added Home Assistant Worker URL
+ * @property {SecretBinding} [WEBHOOK_API_KEY_BINDING] // For external validation
+ * @property {SecretBinding} [INTERNAL_KEY_BINDING] // For internal inter-worker auth
  */
 
 /**
+ * Handles the incoming request, validates, determines target, and forwards.
  * @param {Request} request
  * @param {Env} env
  * @returns {Promise<Response>}
  */
 async function handleRequest(request, env) {
-  // Handle TradingView webhook
-  if (request.method === "POST") {
-    try {
-      const data = await request.json();
+	if (request.method !== "POST") {
+		return new Response(
+			JSON.stringify({
+				success: false,
+				worker: "webhook-receiver",
+				error: "Method not allowed. Use POST.",
+			}),
+			{ status: 405, headers: { "Content-Type": "application/json" } }
+		);
+	}
 
-      // Extract authentication from the payload itself
-      const {
-        apiKey,
-        exchange,
-        action,
-        symbol,
-        quantity,
-        price,
-        leverage,
-        notify,
-      } = data;
+	try {
+		const data = await request.json();
 
-      // Validate the API key from payload against the secret binding
-      const isValidApiKey = await validateApiKey(apiKey, env);
+		// --- External Authentication --- 
+		const { apiKey, target, ...payload } = data; // Extract apiKey and target, rest is payload
 
-      if (!isValidApiKey) {
-        // Don't reveal the reason for security
-        return new Response(
-          JSON.stringify({
-            success: false,
-            worker: "webhook-receiver",
-            error: "Authentication failed",
-          }),
-          { status: 403 }
-        );
-      }
+		if (!apiKey) {
+			return new Response(
+				JSON.stringify({ success: false, worker: "webhook-receiver", error: "Missing apiKey" }),
+				{ status: 400, headers: { "Content-Type": "application/json" } }
+			);
+		}
+		const isValidApiKey = await validateApiKey(apiKey, env);
+		if (!isValidApiKey) {
+			return new Response(
+				JSON.stringify({ success: false, worker: "webhook-receiver", error: "Authentication failed" }),
+				{ status: 403, headers: { "Content-Type": "application/json" } }
+			);
+		}
 
-      // Remove the API key from the data before forwarding
-      delete data.apiKey;
+		// --- Target Worker Identification --- 
+		if (!target) {
+			return new Response(
+				JSON.stringify({ success: false, worker: "webhook-receiver", error: "Missing target worker specification" }),
+				{ status: 400, headers: { "Content-Type": "application/json" } }
+			);
+		}
 
-      // Generate tracking ID
-      const requestId = crypto.randomUUID();
+		const workerUrls = {
+			trade: env.TRADE_WORKER_URL,
+			telegram: env.TELEGRAM_WORKER_URL,
+			"home-assistant": env.HA_WORKER_URL, // Use kebab-case for consistency or choose another convention
+		};
 
-      // Process trading signal if present
-      let tradeResult = null;
-      let tradeWorkerInfo = null;
-      if (exchange && action && symbol && quantity) {
-        // Get internal key for forwarding
-        const internalKey = await env.INTERNAL_KEY_BINDING?.get();
-        if (!internalKey) {
-          console.error(
-            "INTERNAL_KEY_BINDING not configured or accessible for forwarding."
-          );
-          // Return internal error, don't expose config issue
-          return new Response(
-            JSON.stringify({
-              success: false,
-              worker: "webhook-receiver",
-              error: "Internal processing error",
-            }),
-            { status: 500 }
-          );
-        }
-        const tradeResponse = await processTrade(
-          {
-            requestId,
-            exchange,
-            action,
-            symbol,
-            quantity,
-            price,
-            leverage,
-          },
-          env,
-          internalKey
-        );
-        tradeResult = tradeResponse.result;
-        tradeWorkerInfo = {
-          success: tradeResponse.success,
-          error: tradeResponse.error,
-          worker: "trade-worker",
-        };
-      }
+		const targetUrl = workerUrls[target.toLowerCase()];
 
-      // Process notification if requested
-      let notificationResult = null;
-      let notificationWorkerInfo = null;
-      if (notify) {
-        // Get internal key for forwarding
-        const internalKey = await env.INTERNAL_KEY_BINDING?.get();
-        if (!internalKey) {
-          console.error(
-            "INTERNAL_KEY_BINDING not configured or accessible for forwarding."
-          );
-          return new Response(
-            JSON.stringify({
-              success: false,
-              worker: "webhook-receiver",
-              error: "Internal processing error",
-            }),
-            { status: 500 }
-          );
-        }
-        const notificationResponse = await processNotification(
-          {
-            requestId,
-            message: notify.message || createDefaultMessage(data),
-            chatId: notify.chatId,
-          },
-          env,
-          internalKey
-        );
-        notificationResult = notificationResponse.result;
-        notificationWorkerInfo = {
-          success: notificationResponse.success,
-          error: notificationResponse.error,
-          worker: "notification-worker",
-        };
-      }
+		if (!targetUrl) {
+			return new Response(
+				JSON.stringify({ success: false, worker: "webhook-receiver", error: `Invalid target worker specified: ${target}` }),
+				{ status: 400, headers: { "Content-Type": "application/json" } }
+			);
+		}
 
-      // Return success response with worker information
-      return new Response(
-        JSON.stringify({
-          success: true,
-          worker: "webhook-receiver",
-          requestId,
-          trade: tradeWorkerInfo
-            ? {
-                ...tradeWorkerInfo,
-                result: tradeResult,
-              }
-            : null,
-          notification: notificationWorkerInfo
-            ? {
-                ...notificationWorkerInfo,
-                result: notificationResult,
-              }
-            : null,
-        }),
-        {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    } catch (error) {
-      console.error("Error processing webhook:", error);
+		// --- Internal Authentication & Payload Preparation ---
+		const internalKey = await env.INTERNAL_KEY_BINDING?.get();
+		if (!internalKey) {
+			console.error("INTERNAL_KEY_BINDING not configured or accessible for forwarding.");
+			return new Response(
+				JSON.stringify({ success: false, worker: "webhook-receiver", error: "Internal configuration error" }),
+				{ status: 500, headers: { "Content-Type": "application/json" } }
+			);
+		}
 
-      // Generic error response with worker info
-      return new Response(
-        JSON.stringify({
-          success: false,
-          worker: "webhook-receiver",
-          error: "Internal server error",
-        }),
-        {
-          status: 500,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
-  }
+		const requestId = crypto.randomUUID();
+		const standardizedPayload = {
+			requestId: requestId,
+			internalAuthKey: internalKey,
+			payload: payload, // The rest of the original payload (excluding apiKey and target)
+		};
 
-  // Default response for other methods
-  return new Response(
-    JSON.stringify({
-      success: false,
-      worker: "webhook-receiver",
-      error: "Method not allowed",
-    }),
-    {
-      status: 405,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+		// --- Forward Request ---
+		const workerResponse = await forwardToWorker(targetUrl, standardizedPayload);
+
+		// --- Return Response --- 
+		// Echo the response from the target worker, adding receiver context
+		return new Response(
+			JSON.stringify({
+				gatewaySuccess: workerResponse.success, // Indicate if forwarding was successful
+				requestId: requestId,
+				worker: "webhook-receiver",
+				targetWorker: target,
+				targetResponse: workerResponse.data, // The actual data/result/error from the target
+			}),
+			{
+				status: workerResponse.status, // Pass through the status from the target worker
+				headers: { "Content-Type": "application/json" },
+			}
+		);
+
+	} catch (error) {
+		console.error("Error processing webhook:", error);
+		let errorMessage = "Internal server error";
+		let statusCode = 500;
+
+		if (error instanceof SyntaxError) { // Handle JSON parsing errors
+			errorMessage = "Invalid JSON payload";
+			statusCode = 400;
+		}
+
+		return new Response(
+			JSON.stringify({
+				success: false,
+				worker: "webhook-receiver",
+				error: errorMessage,
+			}),
+			{
+				status: statusCode,
+				headers: { "Content-Type": "application/json" },
+			}
+		);
+	}
 }
 
-// Secure API key validation using a fixed-time comparison
 /**
- * @param {string} apiKey From request payload
- * @param {Env} env
+ * Validates the provided API key against the configured secret.
+ * @param {string | undefined} apiKey The API key from the request payload.
+ * @param {Env} env Environment object containing secrets.
  * @returns {Promise<boolean>}
  */
 async function validateApiKey(apiKey, env) {
-  if (!apiKey) return false;
-  // Get the expected key from the secret binding
-  const expectedApiKey = await env.WEBHOOK_API_KEY_BINDING?.get();
-
-  if (!expectedApiKey) {
-    console.error(
-      "WEBHOOK_API_KEY_BINDING binding not configured or accessible"
-    );
-    return false; // Treat as invalid if secret isn't set up
-  }
-
-  // Use a hash comparison for security (example using subtle crypto if available)
-  // Or timing-safe string comparison as before
-  // const encoder = new TextEncoder();
-  // const knownKey = expectedApiKey;
-
-  // Timing-safe comparison
-  if (apiKey.length !== expectedApiKey.length) {
-    return false;
-  }
-  let result = 0;
-  for (let i = 0; i < apiKey.length; i++) {
-    result |= apiKey.charCodeAt(i) ^ expectedApiKey.charCodeAt(i);
-  }
-  return result === 0;
+	if (!apiKey) {
+		return false;
+	}
+	try {
+		const storedKey = await env.WEBHOOK_API_KEY_BINDING?.get();
+		if (!storedKey) {
+			console.error("WEBHOOK_API_KEY_BINDING not configured or accessible.");
+			return false; // Fail safely
+		}
+		// Simple string comparison - consider more secure methods (e.g., timing-safe compare) if needed
+		return apiKey === storedKey;
+	} catch (error) {
+		console.error("Error validating API key:", error);
+		return false;
+	}
 }
 
-// Forward to trade worker (pass internalKey)
 /**
- * @param {object} tradeData
- * @param {Env} env
- * @param {string} internalKey
- * @returns {Promise<object>}
+ * Forwards the standardized payload to the target worker.
+ * @param {string} targetUrl The base URL of the target worker.
+ * @param {object} standardizedPayload The payload including internal auth and worker-specific data.
+ * @returns {Promise<{success: boolean, status: number, data: any}>} The status and parsed JSON response from the target worker.
  */
-async function processTrade(tradeData, env, internalKey) {
-  try {
-    const response = await fetch(env.TRADE_WORKER_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Internal-Key": internalKey, // Use passed key
-        "X-Request-ID": tradeData.requestId,
-      },
-      body: JSON.stringify(tradeData),
-    });
+async function forwardToWorker(targetUrl, standardizedPayload) {
+	const fullUrl = `${targetUrl.replace(/\/$/, "")}${TARGET_ENDPOINT}`;
+	try {
+		console.log(`Forwarding request ID ${standardizedPayload.requestId} to: ${fullUrl}`);
+		const response = await fetch(fullUrl, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				// Consider adding a specific header for the internal key instead of putting it in the body
+				// e.g., "X-Internal-Auth-Key": standardizedPayload.internalAuthKey
+			},
+			body: JSON.stringify(standardizedPayload),
+		});
 
-    return response.json();
-  } catch (error) {
-    console.error("Error forwarding to trade service:", error);
-    return { error: "Processing error" };
-  }
+		const responseData = await response.json(); // Assume target always returns JSON
+		console.log(`Response from ${fullUrl} (Status ${response.status}):`, responseData);
+
+		return {
+			success: response.ok, // Use HTTP status to indicate success of the call itself
+			status: response.status,
+			data: responseData, // Return the full parsed response from the target
+		};
+
+	} catch (error) {
+		console.error(`Error forwarding request to ${fullUrl}:`, error);
+		// Return a standardized error structure if the fetch itself fails
+		return {
+			success: false,
+			status: 503, // Service Unavailable (or other appropriate error)
+			data: {
+				success: false, // Mirroring the expected target response structure
+				error: `Failed to connect to target worker: ${error.message}`,
+				result: null,
+			},
+		};
+	}
 }
 
-// Forward to notification worker (pass internalKey)
-/**
- * @param {object} notificationData
- * @param {Env} env
- * @param {string} internalKey
- * @returns {Promise<object>}
- */
-async function processNotification(notificationData, env, internalKey) {
-  try {
-    const response = await fetch(env.TELEGRAM_WORKER_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Internal-Key": internalKey, // Use passed key
-        "X-Request-ID": notificationData.requestId,
-      },
-      body: JSON.stringify(notificationData),
-    });
-
-    return response.json();
-  } catch (error) {
-    console.error("Error forwarding to notification service:", error);
-    return { error: "Notification error" };
-  }
-}
-
-// Create default message from trade data
-function createDefaultMessage(data) {
-  const { exchange, action, symbol, quantity, price } = data;
-  let message = `📊 Trade Alert: ${action} ${symbol}\n`;
-  message += `📈 Exchange: ${exchange}\n`;
-  message += `💰 Quantity: ${quantity}\n`;
-
-  if (price) {
-    message += `💵 Price: ${price}\n`;
-  }
-
-  return message;
-}
+// Removed processTrade function
+// Removed processNotification function
+// Removed createDefaultMessage function
