@@ -46,27 +46,12 @@ describe("Webhook Receiver", () => {
       internalKey: TEST_INTERNAL_KEY,
     });
 
-    // Mock global fetch with more detailed logging and checking
+    // Simplify fetchMock to always return 200 OK
     fetchMock = jest.fn().mockImplementation(async (url, options) => {
-      console.log(`Mock Fetch Called: ${url}`, options.method, options.headers, options.body);
-      // Simulate downstream worker success if JSON is valid
-      if (url === mockEnv.TRADE_WORKER_URL || url === mockEnv.TELEGRAM_WORKER_URL) {
-          try {
-              JSON.parse(options.body); // Check if body is valid JSON
-              // Return standardized success
-              return new Response(JSON.stringify({ success: true, result: { forwarded: true } }), {
-                  status: 200, headers: { 'Content-Type': 'application/json' }
-              });
-          } catch (e) {
-              console.error("Mock Fetch received invalid JSON body:", options.body);
-              return new Response(JSON.stringify({ success: false, error: "Invalid JSON" }), {
-                  status: 400, headers: { 'Content-Type': 'application/json' }
-              });
-          }
-      }
-      // Default unexpected call
-      console.warn(`Mock Fetch received unexpected call to: ${url}`);
-      return new Response("Mock Fetch: Not Found", { status: 404 });
+      console.log(`Simplified Mock Fetch Called: ${url}`);
+      return new Response(JSON.stringify({ success: true, result: { mockedSuccess: true } }), {
+          status: 200, headers: { 'Content-Type': 'application/json' }
+      });
     });
     global.fetch = fetchMock;
   });
@@ -168,7 +153,105 @@ describe("Webhook Receiver", () => {
     expect(fetchMock).not.toHaveBeenCalled(); 
   });
 
-  // Add test for only trade signal (no notify)
-  // Add test for only notify signal (no trade)
-  // Add test for fetch errors during forwarding
+  // --- Additions --- 
+
+  test("processes only trade signal when notify is missing", async () => {
+    const tradeOnlyPayload = { ...validWebhookPayload };
+    delete tradeOnlyPayload.notify; // Remove notify section
+
+    const request = new Request("https://webhook-receiver.workers.dev", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(tradeOnlyPayload),
+    });
+
+    const response = await webhookReceiver.fetch(request, mockEnv);
+    expect(response.status).toBe(200);
+
+    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
+    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(1); // Only called for trade
+    expect(fetchMock).toHaveBeenCalledTimes(1); // Only called for trade
+
+    // Check call to trade worker
+    const tradeCallArgs = fetchMock.mock.calls.find(
+      (call) => call[0] === mockEnv.TRADE_WORKER_URL
+    );
+    expect(tradeCallArgs).toBeDefined();
+    expect(tradeCallArgs[1].headers["X-Internal-Key"]).toBe(TEST_INTERNAL_KEY);
+
+    const responseData = await response.json();
+    expect(responseData.success).toBe(true);
+    expect(responseData.tradeResult?.success).toBe(true);
+    expect(responseData.notificationResult).toBeNull(); // No notification result
+  });
+
+  test("processes only notify signal when trade details are missing", async () => {
+    const notifyOnlyPayload = { 
+      apiKey: TEST_API_KEY, 
+      notify: validWebhookPayload.notify // Only apiKey and notify
+    };
+
+    const request = new Request("https://webhook-receiver.workers.dev", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(notifyOnlyPayload),
+    });
+
+    const response = await webhookReceiver.fetch(request, mockEnv);
+    expect(response.status).toBe(200);
+
+    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
+    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(1); // Only called for notify
+    expect(fetchMock).toHaveBeenCalledTimes(1); // Only called for notify
+
+    // Check call to notify worker
+    const notifyCallArgs = fetchMock.mock.calls.find(
+      (call) => call[0] === mockEnv.TELEGRAM_WORKER_URL
+    );
+    expect(notifyCallArgs).toBeDefined();
+    expect(notifyCallArgs[1].headers["X-Internal-Key"]).toBe(TEST_INTERNAL_KEY);
+
+    const responseData = await response.json();
+    expect(responseData.success).toBe(true);
+    expect(responseData.tradeResult).toBeNull(); // No trade result
+    expect(responseData.notificationResult?.success).toBe(true); 
+  });
+
+  test("handles fetch error when forwarding to trade service", async () => {
+    // Setup fetchMock to reject for the trade worker URL
+    fetchMock.mockImplementation(async (url, options) => {
+      if (url === mockEnv.TRADE_WORKER_URL) {
+        throw new Error("Simulated Trade Worker Fetch Error");
+      }
+      // Handle telegram worker call successfully
+      if (url === mockEnv.TELEGRAM_WORKER_URL) {
+          JSON.parse(options.body);
+          return new Response(JSON.stringify({ success: true, result: { forwarded: true } }), {
+              status: 200, headers: { 'Content-Type': 'application/json' }
+          });
+      }
+      return new Response("Mock Fetch: Not Found", { status: 404 });
+    });
+
+    const request = new Request("https://webhook-receiver.workers.dev", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(validWebhookPayload),
+    });
+
+    const response = await webhookReceiver.fetch(request, mockEnv);
+    expect(response.status).toBe(500); // Expect 500 due to downstream failure
+    
+    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
+    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(2); // Called for both attempts
+    expect(fetchMock).toHaveBeenCalledTimes(2); // Called for both attempts
+
+    const responseData = await response.json();
+    expect(responseData.success).toBe(false);
+    expect(responseData.error).toContain("Processing failed");
+    expect(responseData.error).toContain("Simulated Trade Worker Fetch Error");
+    expect(responseData.tradeResult?.success).toBe(false); // Trade failed
+    expect(responseData.notificationResult?.success).toBe(true); // Notify should still succeed
+  });
+
 });

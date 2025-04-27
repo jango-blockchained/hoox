@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    /* Base Options */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2020",
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+
+    /* Bundler Behavior */
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "noEmit": true,
+    // "allowImportingTsExtensions": true, // Not needed if imports don't use .ts
+    "isolatedModules": true,
+
+    /* Cloudflare Workers Types */
+    "types": ["@cloudflare/workers-types"],
+    "lib": ["es2020", "webworker"],
+
+    /* Path Aliases (Optional) */
+    // "baseUrl": ".",
+    // "paths": {
+    //   "@shared/*": ["../../shared/*"]
+    // }
+  },
+  "include": ["src/**/*.ts"], // Process TS files in src
+  "exclude": ["node_modules", "dist"]
+} 
