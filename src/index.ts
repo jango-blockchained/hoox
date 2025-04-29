@@ -2,6 +2,7 @@
 
 // Import Fetcher type for service bindings
 import type { Fetcher, KVNamespace } from "@cloudflare/workers-types";
+import type { Ai } from '@cloudflare/ai'; // Import the Ai type
 
 // --- Remove invalid imports ---
 // import { type Env } from "./types";
@@ -17,6 +18,7 @@ interface SecretBinding {
 
 // Define the expected environment variables and bindings from wrangler.toml
 interface Env {
+  AI: Ai; // Add the AI binding
   // Bindings
   TRADE_SERVICE: Fetcher; // Service binding to trade-worker
   TELEGRAM_SERVICE: Fetcher; // Service binding to telegram-worker
@@ -93,6 +95,15 @@ export default {
       console.error("KV Session Error:", kvError);
       // Decide if KV error should block the request or just be logged
     }
+
+    // --- Add temporary GET endpoint for testing AI ---
+    const url = new URL(request.url); // Need URL object here
+    if (request.method === "GET" && url.pathname === "/test-ai") {
+      // Ensure this endpoint is removed or secured before production!
+      console.warn("Executing temporary /test-ai endpoint...");
+      return await handleAiTest(request, env);
+    }
+    // --- End temporary test endpoint ---
 
     return await handleRequest(request, env);
   },
@@ -267,78 +278,60 @@ async function processTrade(
   tradeData: TradeData,
   env: Env
 ): Promise<ServiceResponse> {
-  if (!env.TRADE_SERVICE) {
-    console.error("TRADE_SERVICE binding is not configured.");
-    return { success: false, error: "Trade service binding not available" };
-  }
-  // Fetch internal key
-  let internalKey: string | null = null;
+  const { requestId } = tradeData;
+  console.log(`[${requestId}] processTrade: Received trade data:`, tradeData);
+
+  // --- Task 10.5: Example Inter-Worker Communication ---
+  // Example: Call trade-worker service binding
   try {
-      internalKey = await env.INTERNAL_KEY_BINDING?.get();
-      if (!internalKey) {
-          throw new Error("Internal key binding not available or configured.");
+    // Construct the request for the trade-worker
+    // The URL path and body structure depend on the trade-worker's API
+    const tradeWorkerRequest = new Request(
+      "https://trade-worker.your-domain.workers.dev/execute", // Replace with actual trade-worker endpoint
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Add any necessary internal authentication headers if required by trade-worker
+          // 'X-Internal-Auth-Key': await env.INTERNAL_KEY_BINDING?.get() || '',
+        },
+        body: JSON.stringify(tradeData), // Forward relevant data
       }
-  } catch (e: any) {
-      console.error("Failed to get internal key for trade service call:", e);
-      return { success: false, error: e.message || "Internal key retrieval failed" };
-  }
+    );
 
-  try {
-    const tradePayload = {
-      exchange: tradeData.exchange,
-      action: tradeData.action,
-      symbol: tradeData.symbol,
-      quantity: tradeData.quantity,
-      price: tradeData.price,
-      leverage: tradeData.leverage,
-    };
+    console.log(`[${requestId}] Calling TRADE_API service binding...`);
+    // const response = await env.TRADE_API.fetch(tradeWorkerRequest);
 
-    // Create a new request to send via the binding
-    // Use a path that the trade-worker will handle, e.g., "/webhook"
-    const serviceRequest = new Request(`https://trade-service/webhook`, { // Dummy base URL, important path
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Request-ID": tradeData.requestId,
-        "X-Internal-Key": internalKey, // Add internal key header
-      },
-      body: JSON.stringify(tradePayload),
-    });
+    // if (!response.ok) {
+    //   const errorText = await response.text();
+    //   console.error(
+    //     `[${requestId}] Error calling TRADE_API: ${response.status} - ${errorText}`
+    //   );
+    //   return {
+    //     success: false,
+    //     requestId,
+    //     error: `Trade service call failed: ${response.status} - ${errorText}`,
+    //   };
+    // }
 
-    console.log(`[processTrade] Calling TRADE_SERVICE for request ID: ${tradeData.requestId}`);
-     // Pass the constructed Request object, casting to RequestInfo
-    const response = await env.TRADE_SERVICE.fetch(serviceRequest as RequestInfo);
-    console.log(`[processTrade] TRADE_SERVICE response status: ${response.status}`);
+    // const result = await response.json();
+    // console.log(`[${requestId}] Response from TRADE_API:`, result);
+    // return { success: true, requestId, tradeResult: result };
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `[processTrade] Trade worker service binding returned error ${response.status}: ${errorText}`
-      );
-      return {
-        success: false,
-        requestId: tradeData.requestId,
-        error: `Trade worker failed (${response.status}): ${errorText}`,
-      };
-    }
-
-    const result: ServiceResponse = await response.json();
-    console.log(`[processTrade] Trade service response for ${tradeData.requestId}:`, result);
-    return result;
+    // Placeholder success response until binding is live
+    console.log(`[${requestId}] Skipped calling TRADE_API (placeholder).`);
+    return { success: true, requestId, tradeResult: { status: "placeholder_success" } };
 
   } catch (error: unknown) {
-    // Use unknown for caught errors
-    const errorMsg = error instanceof Error ? error.message : String(error || "Failed to call trade service");
-    console.error(
-      `[processTrade] Error calling trade service for ${tradeData.requestId}:`,
-      error
-    );
+    const errorMsg = error instanceof Error ? error.message : String(error || "Unknown error calling trade service");
+    console.error(`[${requestId}] Exception calling TRADE_API:`, errorMsg, error);
     return {
       success: false,
-      requestId: tradeData.requestId,
-      error: errorMsg,
+      requestId,
+      error: `Exception during trade service call: ${errorMsg}`,
     };
   }
+  // --- End Task 10.5 ---
 }
 
 // Forward to notification worker using Service Binding
@@ -346,69 +339,65 @@ async function processNotification(
   notificationData: NotificationData,
   env: Env
 ): Promise<ServiceResponse> {
-   // Check if the service binding exists
-  if (!env.TELEGRAM_SERVICE) {
-    console.error("TELEGRAM_SERVICE binding is not configured.");
-    return { success: false, error: "Telegram service binding not available" };
-  }
-  
-  // Fetch internal key
-  let internalKey: string | null = null;
+  const { requestId } = notificationData;
+  console.log(`[${requestId}] processNotification: Received notification data:`, notificationData);
+
+  // --- Task 10.5: Example Inter-Worker Communication ---
+  // Example: Call telegram-worker service binding
   try {
-      internalKey = await env.INTERNAL_KEY_BINDING?.get();
-      if (!internalKey) {
-          throw new Error("Internal key binding not available or configured.");
+    // Construct the request for the telegram-worker
+    // The URL path should match an endpoint handled by telegram-worker, e.g., /webhook
+    // The body should match the NotificationPayload expected by telegram-worker
+    const telegramWorkerRequest = new Request(
+      "https://telegram-worker.your-domain.workers.dev/webhook", // Replace with actual telegram-worker endpoint
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Add any necessary internal authentication headers if required by telegram-worker
+          // 'X-Internal-Auth-Key': await env.INTERNAL_KEY_BINDING?.get() || '',
+        },
+        body: JSON.stringify({
+          message: notificationData.message,
+          chatId: notificationData.chatId,
+          // Optionally include original requestId for tracing?
+        }),
       }
-  } catch (e: any) {
-      console.error("Failed to get internal key for telegram service call:", e);
-      return { success: false, error: e.message || "Internal key retrieval failed" };
-  }
+    );
 
-  try {
-    // Construct payload directly for the telegram worker
-    const notificationPayload = {
-        message: notificationData.message,
-        chatId: notificationData.chatId, // Pass chatId directly
-    };
+    console.log(`[${requestId}] Calling TELEGRAM_API service binding...`);
+    // const response = await env.TELEGRAM_API.fetch(telegramWorkerRequest);
 
-    // Create a new request to send via the binding
-    const serviceRequest = new Request(`https://telegram-service/webhook`, { // Path matches telegram-worker's webhook endpoint
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Request-ID": notificationData.requestId, // Pass request ID for tracing
-        "X-Internal-Key": internalKey, // Add internal key header
-      },
-      body: JSON.stringify(notificationPayload),
-    });
+    // if (!response.ok) {
+    //   const errorText = await response.text();
+    //   console.error(
+    //     `[${requestId}] Error calling TELEGRAM_API: ${response.status} - ${errorText}`
+    //   );
+    //   return {
+    //     success: false,
+    //     requestId,
+    //     error: `Telegram service call failed: ${response.status} - ${errorText}`,
+    //   };
+    // }
 
-    console.log(`[processNotification] Calling TELEGRAM_SERVICE for request ID: ${notificationData.requestId}`);
-    const response = await env.TELEGRAM_SERVICE.fetch(serviceRequest as RequestInfo); // Use cast like before if needed
-    console.log(`[processNotification] TELEGRAM_SERVICE response status: ${response.status}`);
+    // const result = await response.json();
+    // console.log(`[${requestId}] Response from TELEGRAM_API:`, result);
+    // return { success: true, requestId, notificationResult: result };
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `[processNotification] Telegram worker service binding returned error ${response.status}: ${errorText}`
-      );
-      return {
-        success: false,
-        requestId: notificationData.requestId,
-        error: `Telegram worker failed (${response.status}): ${errorText}`,
-      };
-    }
-    const result: ServiceResponse = await response.json(); // Assuming telegram worker returns ServiceResponse
-    console.log(`[processNotification] Telegram service response for ${notificationData.requestId}:`, result);
-    return result;
+    // Placeholder success response until binding is live
+    console.log(`[${requestId}] Skipped calling TELEGRAM_API (placeholder).`);
+    return { success: true, requestId, notificationResult: { status: "placeholder_success" } };
 
   } catch (error: unknown) {
-    const errorMsg = error instanceof Error ? error.message : String(error || "Failed to call telegram service");
-    console.error(
-      `[processNotification] Error calling telegram service for ${notificationData.requestId}:`,
-      error
-    );
-    return { success: false, requestId: notificationData.requestId, error: errorMsg };
+    const errorMsg = error instanceof Error ? error.message : String(error || "Unknown error calling telegram service");
+    console.error(`[${requestId}] Exception calling TELEGRAM_API:`, errorMsg, error);
+    return {
+      success: false,
+      requestId,
+      error: `Exception during telegram service call: ${errorMsg}`,
+    };
   }
+  // --- End Task 10.5 ---
 }
 
 // Create default message from trade data
@@ -423,4 +412,52 @@ function createDefaultMessage(data: WebhookData): string {
   }
 
   return message;
+}
+
+/**
+ * Temporary handler for testing basic Workers AI LLM calls.
+ * Expects a 'prompt' query parameter.
+ * REMOVE OR SECURE BEFORE PRODUCTION.
+ */
+async function handleAiTest(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+    const prompt = url.searchParams.get("prompt");
+
+    if (!prompt) {
+        return new Response(JSON.stringify({ success: false, error: "Missing 'prompt' query parameter" }), {
+            status: 400, headers: { "Content-Type": "application/json" }
+        });
+    }
+
+    if (!env.AI) {
+        console.error("AI binding is not configured in the environment.");
+        return new Response(JSON.stringify({ success: false, error: "AI service not available." }), {
+            status: 500, headers: { "Content-Type": "application/json" }
+        });
+    }
+
+    try {
+        console.log(`Sending prompt to AI: "${prompt}"`);
+
+        // Basic call to the LLM
+        const response = await env.AI.run('@cf/meta/llama-3-8b-instruct', { 
+            messages: [
+                // Adjust system prompt based on webhook-receiver's potential AI use case
+                { role: 'system', content: 'You are an assistant analyzing incoming data.' }, 
+                { role: 'user', content: prompt }
+            ]
+         });
+
+        console.log("Received AI response.");
+        return new Response(JSON.stringify({ success: true, result: response }), {
+            status: 200, headers: { "Content-Type": "application/json" }
+        });
+
+    } catch (error: unknown) {
+        const errorMsg = error instanceof Error ? error.message : String(error || "Unknown AI error");
+        console.error(`Error calling AI: ${errorMsg}`, error);
+         return new Response(JSON.stringify({ success: false, error: `AI request failed: ${errorMsg}` }), {
+            status: 500, headers: { "Content-Type": "application/json" }
+        });
+    }
 }
