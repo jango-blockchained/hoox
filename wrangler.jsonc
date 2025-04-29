@@ -44,5 +44,8 @@
       "binding": "VECTORIZE_INDEX",
       "index_name": "my-rag-index"
     }
-  ]
+  ],
+  "ai": {
+    "binding": "AI"
+  }
 } 

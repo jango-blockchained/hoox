@@ -1,7 +1,7 @@
 // webhook-receiver/src/index.ts - Public-facing endpoint for TradingView
 
 // Import Fetcher type for service bindings
-import type { Fetcher } from "@cloudflare/workers-types";
+import type { Fetcher, KVNamespace } from "@cloudflare/workers-types";
 
 // --- Remove invalid imports ---
 // import { type Env } from "./types";
@@ -23,6 +23,7 @@ interface Env {
   WEBHOOK_API_KEY_BINDING: SecretBinding; // Secret for incoming API key
   INTERNAL_KEY_BINDING: SecretBinding; // Secret for calling other internal services (e.g., legacy Telegram/HA)
   HA_TOKEN_BINDING?: SecretBinding; // Optional: If HA worker communication is needed
+  SESSIONS_KV: KVNamespace; // Added for session management
 
   // Variables (Consider removing if not used directly or handled by bindings)
   TELEGRAM_WORKER_URL?: string; // Keep ONLY if still needed as fallback or for other purposes
@@ -80,6 +81,19 @@ interface ServiceResponse {
 // --- Default Export (Worker Entry Point) ---
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    // Add KV Interaction for session check/update (Example)
+    const sessionId = request.headers.get('X-Session-ID') || crypto.randomUUID(); // Example session ID
+    try {
+      const sessionData = await env.SESSIONS_KV.get(sessionId);
+      console.log(`KV: Session data for ${sessionId}:`, sessionData || "New session");
+      const newSessionData = JSON.stringify({ lastSeen: new Date().toISOString() });
+      await env.SESSIONS_KV.put(sessionId, newSessionData, { expirationTtl: 3600 }); // Example: 1 hour session
+      console.log(`KV: Updated session data for ${sessionId}.`);
+    } catch (kvError) {
+      console.error("KV Session Error:", kvError);
+      // Decide if KV error should block the request or just be logged
+    }
+
     return await handleRequest(request, env);
   },
 };
