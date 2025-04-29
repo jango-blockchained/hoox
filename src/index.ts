@@ -99,11 +99,11 @@ export default {
     let ipCheckEnabled = true; // Default to enabled
     try {
       const kvValue = await env.CONFIG_KV?.get(KV_IP_CHECK_ENABLED_KEY);
-      if (kvValue !== null) {
+      if (kvValue !== null && kvValue !== undefined) { // Check for both null and undefined
         ipCheckEnabled = kvValue.toLowerCase() === 'true';
         console.log(`[KV Config] ${KV_IP_CHECK_ENABLED_KEY}: ${ipCheckEnabled} (from KV)`);
       } else {
-        console.log(`[KV Config] ${KV_IP_CHECK_ENABLED_KEY}: ${ipCheckEnabled} (default, key not found)`);
+        console.log(`[KV Config] ${KV_IP_CHECK_ENABLED_KEY}: ${ipCheckEnabled} (default, key not found or undefined)`);
       }
     } catch (kvError) {
       console.error(`[KV Config] Error reading ${KV_IP_CHECK_ENABLED_KEY}:`, kvError);
@@ -347,7 +347,8 @@ async function processTrade(
 
     // Construct the request for the trade-worker
     // Using relative path "/webhook" assuming service binding handles the base URL
-    const tradeWorkerRequest = new Request("/webhook", {
+    // --> Use a dummy absolute URL instead of just the path
+    const tradeWorkerRequest = new Request("http://trade-service/webhook", { // Dummy URL
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -445,7 +446,8 @@ async function processNotification(
 
     // Construct the request for the telegram-worker
     // Using relative path "/process" assuming service binding handles the base URL
-    const telegramWorkerRequest = new Request("/process", {
+    // --> Use a dummy absolute URL instead of just the path
+    const telegramWorkerRequest = new Request("http://telegram-service/process", { // Dummy URL
       method: "POST",
       headers: {
         "Content-Type": "application/json",

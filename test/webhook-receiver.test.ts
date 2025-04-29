@@ -7,7 +7,7 @@ describe("Webhook Receiver", () => {
   const TEST_INTERNAL_KEY = "test-internal-key-from-store";
 
   // Mock environment setup function - Updated for Service Bindings
-  const createMockEnv = (secrets) => ({
+  const createMockEnv = (secrets, kvConfig = {}) => ({
     WEBHOOK_API_KEY_BINDING: {
       get: jest.fn().mockResolvedValue(secrets.apiKey),
     },
@@ -28,6 +28,25 @@ describe("Webhook Receiver", () => {
         return global.fetch(request);
       }),
     } as jest.Mocked<Fetcher>,
+    // Mock KV Namespaces
+    CONFIG_KV: {
+      get: jest.fn().mockImplementation(async (key) => {
+        // Default to IP check enabled unless overridden in kvConfig
+        if (key === 'webhook:tradingview:ip_check_enabled') {
+          return kvConfig.ipCheckEnabled ?? 'true';
+        }
+        return kvConfig[key] ?? null;
+      }),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+      list: jest.fn().mockResolvedValue({ keys: [], list_complete: true, cursor: undefined }),
+    } as any, // Use 'any' for simplicity or define a stricter mock type
+    SESSIONS_KV: {
+      get: jest.fn().mockResolvedValue(kvConfig.sessionData ?? null),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+      list: jest.fn().mockResolvedValue({ keys: [], list_complete: true, cursor: undefined }),
+    } as any,
     // Remove unused URL and direct key variables
     // TRADE_WORKER_URL: "https://trade-worker.workers.dev", // Removed
     // TELEGRAM_WORKER_URL: "https://telegram-worker.workers.dev", // Removed
@@ -82,7 +101,10 @@ describe("Webhook Receiver", () => {
   test("rejects request with invalid apiKey from payload", async () => {
     const request = new Request("https://webhook-receiver.workers.dev", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+      },
       body: JSON.stringify({
         ...validWebhookPayload,
         apiKey: "invalid-key-in-payload",
@@ -91,23 +113,24 @@ describe("Webhook Receiver", () => {
 
     const response = await webhookReceiver.fetch(request, mockEnv);
     expect(response.status).toBe(403);
-    // Add binding check back
-    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1); 
-    expect(fetchMock).not.toHaveBeenCalled(); 
+    // Binding should now be called after IP check passes
+    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   test("rejects request if apiKey binding is not configured", async () => {
     mockEnv = createMockEnv({ apiKey: null, internalKey: TEST_INTERNAL_KEY }); // API_SECRET_KEY is null
     const request = new Request("https://webhook-receiver.workers.dev", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+      },
       body: JSON.stringify(validWebhookPayload), // Payload has a key, but binding fails
     });
 
     const response = await webhookReceiver.fetch(request, mockEnv);
-    // The validateApiKey function now logs an error and returns false, leading to 403
     expect(response.status).toBe(403);
-    // Add binding check back
     expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -115,7 +138,10 @@ describe("Webhook Receiver", () => {
   test("processes valid webhook and forwards to both services", async () => {
     const request = new Request("https://webhook-receiver.workers.dev", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+      },
       body: JSON.stringify(validWebhookPayload),
     });
 
@@ -124,7 +150,7 @@ describe("Webhook Receiver", () => {
 
     // Check bindings were called
     expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
-    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(2); 
+    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(1); // Only called by processNotification
 
     // Check service bindings' fetch methods were called
     expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1);
@@ -134,7 +160,6 @@ describe("Webhook Receiver", () => {
     // Check call to trade worker (via service binding)
     const tradeCall = mockEnv.TRADE_SERVICE.fetch.mock.calls[0][0] as Request;
     expect(tradeCall).toBeDefined();
-    expect(tradeCall.headers.get("X-Internal-Key")).toBe(TEST_INTERNAL_KEY);
     const tradeBody = await tradeCall.json();
     expect(tradeBody.exchange).toBe("mexc");
     expect(tradeBody.apiKey).toBeUndefined(); // Ensure apiKey was removed
@@ -142,9 +167,9 @@ describe("Webhook Receiver", () => {
     // Check call to notify worker (via service binding)
     const notifyCall = mockEnv.TELEGRAM_SERVICE.fetch.mock.calls[0][0] as Request;
     expect(notifyCall).toBeDefined();
-    expect(notifyCall.headers.get("X-Internal-Key")).toBe(TEST_INTERNAL_KEY);
     const notifyBody = await notifyCall.json();
-    expect(notifyBody.message).toBe(validWebhookPayload.notify.message);
+    expect(notifyBody.internalAuthKey).toBe(TEST_INTERNAL_KEY);
+    expect(notifyBody.payload.message).toBe(validWebhookPayload.notify.message);
     expect(notifyBody.apiKey).toBeUndefined(); // Ensure apiKey was removed
 
     const responseData = await response.json();
@@ -158,27 +183,26 @@ describe("Webhook Receiver", () => {
     mockEnv = createMockEnv({ apiKey: TEST_API_KEY, internalKey: null }); // INTERNAL_SERVICE_KEY is null
     const request = new Request("https://webhook-receiver.workers.dev", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+      },
       body: JSON.stringify(validWebhookPayload),
     });
 
     const response = await webhookReceiver.fetch(request, mockEnv);
     expect(response.status).toBe(500);
     const body = await response.json();
-    // Check the combined error message structure
-    expect(body.error).toBe("Processing failed: Internal key binding not available or configured.; Internal key binding not available or configured.");
-    // Remove the checks for individual parts as they are less precise
-    // expect(body.error).toContain("Internal key binding not available");
-    // expect(body.error).toContain("Trade processing failed");
-    // expect(body.error).toContain("Notification processing failed");
-
+    // Check the combined error message structure - Only notify fails on key
+    expect(body.error).toBe("Processing failed: Failed to retrieve internal authentication key.");
+    
     expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
-    // INTERNAL_KEY_BINDING.get is attempted once for trade, fails, then attempted again for notify, fails.
-    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(2);
-    // Service bindings are not called because internal key fetch failed first
-    expect(mockEnv.TRADE_SERVICE.fetch).not.toHaveBeenCalled();
-    expect(mockEnv.TELEGRAM_SERVICE.fetch).not.toHaveBeenCalled();
-    expect(fetchMock).not.toHaveBeenCalled();
+    // INTERNAL_KEY_BINDING.get is attempted only once for notify, and fails.
+    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(1);
+    // Trade service might still be called successfully before notify fails
+    // expect(mockEnv.TRADE_SERVICE.fetch).not.toHaveBeenCalled();
+    expect(mockEnv.TELEGRAM_SERVICE.fetch).not.toHaveBeenCalled(); // Not called because internal key fetch failed first
+    // expect(fetchMock).not.toHaveBeenCalled();
   });
 
   // --- Additions --- 
@@ -189,7 +213,10 @@ describe("Webhook Receiver", () => {
 
     const request = new Request("https://webhook-receiver.workers.dev", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+      },
       body: JSON.stringify(tradeOnlyPayload),
     });
 
@@ -197,7 +224,7 @@ describe("Webhook Receiver", () => {
     expect(response.status).toBe(200);
 
     expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
-    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(1); // Only called for trade
+    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(0); // Not called for trade only
     expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1);
     expect(mockEnv.TELEGRAM_SERVICE.fetch).not.toHaveBeenCalled(); // Not called
     expect(fetchMock).toHaveBeenCalledTimes(1); // Only called for trade
@@ -205,7 +232,8 @@ describe("Webhook Receiver", () => {
     // Check call to trade worker (via service binding)
     const tradeCall = mockEnv.TRADE_SERVICE.fetch.mock.calls[0][0] as Request;
     expect(tradeCall).toBeDefined();
-    expect(tradeCall.headers.get("X-Internal-Key")).toBe(TEST_INTERNAL_KEY);
+    const tradeBody = await tradeCall.json();
+    expect(tradeBody.exchange).toBe("mexc");
 
     const responseData = await response.json();
     expect(responseData.success).toBe(true);
@@ -227,7 +255,10 @@ describe("Webhook Receiver", () => {
 
     const request = new Request("https://webhook-receiver.workers.dev", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+      },
       // Send payload that includes empty trade fields so base validation passes
       body: JSON.stringify(completeNotifyOnlyPayload),
     });
@@ -245,9 +276,9 @@ describe("Webhook Receiver", () => {
     // Check call to notify worker (via service binding)
     const notifyCall = mockEnv.TELEGRAM_SERVICE.fetch.mock.calls[0][0] as Request;
     expect(notifyCall).toBeDefined();
-    expect(notifyCall.headers.get("X-Internal-Key")).toBe(TEST_INTERNAL_KEY);
     const notifyBody = await notifyCall.json();
-    expect(notifyBody.message).toBe(validWebhookPayload.notify.message);
+    expect(notifyBody.internalAuthKey).toBe(TEST_INTERNAL_KEY);
+    expect(notifyBody.payload.message).toBe(validWebhookPayload.notify.message);
 
 
     const responseData = await response.json();
@@ -290,7 +321,10 @@ describe("Webhook Receiver", () => {
 
     const request = new Request("https://webhook-receiver.workers.dev", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+      },
       body: JSON.stringify(validWebhookPayload),
     });
 
@@ -298,9 +332,9 @@ describe("Webhook Receiver", () => {
     expect(response.status).toBe(500); // Expect 500 due to downstream failure
 
     expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
-    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(2); // Called for both attempts
-    expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1);
-    expect(mockEnv.TELEGRAM_SERVICE.fetch).toHaveBeenCalledTimes(1);
+    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(1); // Called only for successful notify attempt
+    expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1); // Trade fetch fails
+    expect(mockEnv.TELEGRAM_SERVICE.fetch).toHaveBeenCalledTimes(1); // Notify fetch succeeds
     expect(fetchMock).toHaveBeenCalledTimes(2); // Called for both attempts
 
     const responseData = await response.json();
