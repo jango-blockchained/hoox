@@ -4,7 +4,6 @@
     "": {
       "name": "webhook-receiver",
       "dependencies": {
-        "@cloudflare/workers-types": "^4.20250426.0",
         "itty-router": "^5.0.18",
         "typescript": "^5.8.3",
       },

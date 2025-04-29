@@ -1,0 +1,42 @@
+{
+  "name": "webhook-receiver",
+  "account_id": "profile", // Assuming this is correct, keep if needed or remove if default
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-07", // Standardized
+  "compatibility_flags": ["nodejs_compat"], // Standardized
+  "observability": { // Standardized
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "vars": {
+    // Service URLs are no longer needed as Service Bindings are used
+    // "TRADE_WORKER_URL": "https://trade-worker.cryptolinx.workers.dev",
+    // "TELEGRAM_WORKER_URL": "https://telegram-worker.cryptolinx.workers.dev",
+    // "HA_WORKER_URL": "https://home-assistant-worker.<YOUR_DOMAIN>.workers.dev",
+
+    // Secrets must be created via `wrangler secret put`
+    // The values here are placeholders and will be populated from secrets
+    "WEBHOOK_API_KEY_BINDING": null,
+    "INTERNAL_KEY_BINDING": null,
+    "HA_TOKEN_BINDING": null
+  },
+  "services": [
+    {
+      "binding": "TRADE_SERVICE",
+      "service": "trade-worker"
+    },
+    {
+      "binding": "TELEGRAM_SERVICE",
+      "service": "telegram-worker"
+    }
+    // Note: No service binding for HA worker was present in the TOML, add if needed.
+  ],
+  // Note: Removed secrets_store_secrets definition. Secrets are now declared in vars and expected via `wrangler secret put`.
+  "kv_namespaces": [
+    {
+      "binding": "SESSIONS_KV",
+      "id": "ff70a58b492e45d79880a7a8213c745c"
+      // "preview_id": "<YOUR_PREVIEW_ID>" // Add preview ID for local dev/testing
+    }
+  ]
+} 
