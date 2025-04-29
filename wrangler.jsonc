@@ -35,8 +35,13 @@
   "kv_namespaces": [
     {
       "binding": "SESSIONS_KV",
-      "id": "ff70a58b492e45d79880a7a8213c745c"
+      "id": "ff70a58b492e45d79880a7a8213c745c",
       // "preview_id": "<YOUR_PREVIEW_ID>" // Add preview ID for local dev/testing
+    },
+    {
+      "binding": "CONFIG_KV",
+      "id": "<REPLACE_WITH_CONFIG_KV_ID>",
+      "preview_id": "<REPLACE_WITH_CONFIG_KV_PREVIEW_ID>"
     }
   ],
   "vectorize": [
