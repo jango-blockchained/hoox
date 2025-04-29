@@ -257,6 +257,17 @@ async function processTrade(
     console.error("TRADE_SERVICE binding is not configured.");
     return { success: false, error: "Trade service binding not available" };
   }
+  // Fetch internal key
+  let internalKey: string | null = null;
+  try {
+      internalKey = await env.INTERNAL_KEY_BINDING?.get();
+      if (!internalKey) {
+          throw new Error("Internal key binding not available or configured.");
+      }
+  } catch (e: any) {
+      console.error("Failed to get internal key for trade service call:", e);
+      return { success: false, error: e.message || "Internal key retrieval failed" };
+  }
 
   try {
     const tradePayload = {
@@ -275,6 +286,7 @@ async function processTrade(
       headers: {
         "Content-Type": "application/json",
         "X-Request-ID": tradeData.requestId,
+        "X-Internal-Key": internalKey, // Add internal key header
       },
       body: JSON.stringify(tradePayload),
     });
@@ -326,7 +338,17 @@ async function processNotification(
     return { success: false, error: "Telegram service binding not available" };
   }
   
-  // INTERNAL_KEY_BINDING is no longer needed for this call
+  // Fetch internal key
+  let internalKey: string | null = null;
+  try {
+      internalKey = await env.INTERNAL_KEY_BINDING?.get();
+      if (!internalKey) {
+          throw new Error("Internal key binding not available or configured.");
+      }
+  } catch (e: any) {
+      console.error("Failed to get internal key for telegram service call:", e);
+      return { success: false, error: e.message || "Internal key retrieval failed" };
+  }
 
   try {
     // Construct payload directly for the telegram worker
@@ -341,6 +363,7 @@ async function processNotification(
       headers: {
         "Content-Type": "application/json",
         "X-Request-ID": notificationData.requestId, // Pass request ID for tracing
+        "X-Internal-Key": internalKey, // Add internal key header
       },
       body: JSON.stringify(notificationPayload),
     });
