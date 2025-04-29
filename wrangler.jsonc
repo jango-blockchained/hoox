@@ -38,5 +38,11 @@
       "id": "ff70a58b492e45d79880a7a8213c745c"
       // "preview_id": "<YOUR_PREVIEW_ID>" // Add preview ID for local dev/testing
     }
+  ],
+  "vectorize": [
+    {
+      "binding": "VECTORIZE_INDEX",
+      "index_name": "my-rag-index"
+    }
   ]
 } 
