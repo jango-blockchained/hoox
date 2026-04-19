@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test, beforeEach, jest, mock } from "bun:test";
+import webhookReceiver from "../src/index";
 
 describe("Hoox Worker - Webhook Processing", () => {
   describe("Request Validation", () => {
@@ -190,6 +191,18 @@ describe("Hoox Worker - Signal Forwarding", () => {
     expect(notification.payload.message).toBe("Trade executed");
   });
 });
+
+describe("Hoox Worker Integration", () => {
+  const TEST_API_KEY = "test-api-key";
+  const TEST_INTERNAL_KEY = "test-internal-key";
+
+  const createMockEnv = (secrets: any = {}): any => ({
+    WEBHOOK_API_KEY_BINDING: { get: jest.fn().mockResolvedValue(secrets.apiKey !== undefined ? secrets.apiKey : TEST_API_KEY) },
+    INTERNAL_KEY_BINDING: { get: jest.fn().mockResolvedValue(secrets.internalKey !== undefined ? secrets.internalKey : TEST_INTERNAL_KEY) },
+    TRADE_SERVICE: { fetch: jest.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })) },
+    TELEGRAM_SERVICE: { fetch: jest.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })) },
+    SESSIONS_KV: { get: jest.fn().mockResolvedValue(null), put: jest.fn().mockResolvedValue(undefined) },
+  });
 
   let mockEnv: ReturnType<typeof createMockEnv>;
   let fetchMock: jest.Mock; // Keep global fetch mock for underlying simulation
