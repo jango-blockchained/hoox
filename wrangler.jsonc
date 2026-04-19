@@ -1,5 +1,7 @@
 {
   "name": "hoox",
+  "account_id": "debc6545e63bea36be059cbc82d80ec8",
+  "account_id": "debc6545e63bea36be059cbc82d80ec8",
   "main": "src/index.ts",
   "compatibility_date": "2025-03-07",
   "compatibility_flags": ["nodejs_compat"],
