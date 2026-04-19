@@ -91,28 +91,58 @@ interface ServiceResponse {
 
 // --- KV Configuration Keys ---
 const KV_IP_CHECK_ENABLED_KEY = "webhook:tradingview:ip_check_enabled";
+const KV_ALLOWED_IPS_KEY = "webhook:tradingview:allowed_ips";
+const KV_KILL_SWITCH_KEY = "global:kill_switch";
 
 // --- Default Export (Worker Entry Point) ---
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    
+    // --- Global Kill Switch Check ---
+    let killSwitchEnabled = false;
+    try {
+        const killSwitchVal = await env.CONFIG_KV?.get(KV_KILL_SWITCH_KEY);
+        if (killSwitchVal && killSwitchVal.toLowerCase() === 'true') {
+           killSwitchEnabled = true;
+        }
+    } catch(e) {
+        console.error("Error reading kill switch KV:", e);
+    }
+
+    if (killSwitchEnabled) {
+        console.warn("[Kill Switch] Global Kill Switch is ENABLED. Rejecting incoming webhook.");
+        return new Response(JSON.stringify({ success: false, error: "Trading is temporarily paused (Kill Switch)" }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
     // --- IP Allow-listing Check ---
     let ipCheckEnabled = true; // Default to enabled
+    let allowedIps = TRADINGVIEW_ALLOWED_IPS;
+
     try {
       const kvValue = await env.CONFIG_KV?.get(KV_IP_CHECK_ENABLED_KEY);
       if (kvValue !== null && kvValue !== undefined) { // Check for both null and undefined
         ipCheckEnabled = kvValue.toLowerCase() === 'true';
         console.log(`[KV Config] ${KV_IP_CHECK_ENABLED_KEY}: ${ipCheckEnabled} (from KV)`);
-      } else {
-        console.log(`[KV Config] ${KV_IP_CHECK_ENABLED_KEY}: ${ipCheckEnabled} (default, key not found or undefined)`);
+      }
+      
+      const customIpsStr = await env.CONFIG_KV?.get(KV_ALLOWED_IPS_KEY);
+      if (customIpsStr) {
+          const customIps = JSON.parse(customIpsStr);
+          if (Array.isArray(customIps) && customIps.length > 0) {
+              allowedIps = new Set(customIps);
+              console.log(`[KV Config] Loaded ${customIps.length} custom allowed IPs from KV`);
+          }
       }
     } catch (kvError) {
-      console.error(`[KV Config] Error reading ${KV_IP_CHECK_ENABLED_KEY}:`, kvError);
-      // Keep default 'true' if KV read fails
+      console.error(`[KV Config] Error reading KV configs:`, kvError);
     }
 
     if (ipCheckEnabled) {
       const clientIp = request.headers.get('CF-Connecting-IP');
-      if (!clientIp || !TRADINGVIEW_ALLOWED_IPS.has(clientIp)) {
+      if (!clientIp || !allowedIps.has(clientIp)) {
         console.warn(`[IP Check] Denied access to IP: ${clientIp || 'Unknown'}`);
         return new Response(JSON.stringify({ success: false, error: 'Forbidden - Invalid Source IP' }), {
           status: 403,
