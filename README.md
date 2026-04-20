@@ -2,11 +2,11 @@
 
 **Last Updated:** April 2026
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Runtime](https://img.shields.io/badge/Runtime-Bun-black?logo=bun)](https://bun.sh) [![Platform](https://img.shields.io/badge/Platform-Cloudflare%20Edge%20Workers-orange?logo=cloudflare)](https://workers.cloudflare.com/) [![License](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/) [![Build Status](https://img.shields.io/badge/Build-TODO-lightgrey?style=for-the-badge)](https://github.com/jango-blockchained/hoox-setup/actions) 
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Runtime](https://img.shields.io/badge/Runtime-Bun-black?logo=bun)](https://bun.sh) [![Platform](https://img.shields.io/badge/Platform-Cloudflare®%20Edge%20Workers-orange?logo=cloudflare)](https://workers.cloudflare.com/) [![License](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/) [![Build Status](https://img.shields.io/badge/Build-TODO-lightgrey?style=for-the-badge)](https://github.com/jango-blockchained/hoox-setup/actions) 
 
 **[Main Repository](https://github.com/jango-blockchained/hoox-setup)** 
 
-A Cloudflare Worker service that acts as the **primary gateway** for external requests (e.g., TradingView alerts, UI actions). This worker validates incoming requests, optionally performs security checks (like IP allow-listing), and forwards them to the appropriate internal worker services using Cloudflare Service Bindings.
+A Cloudflare® Worker service that acts as the **primary gateway** for external requests (e.g., TradingView alerts, UI actions). This worker validates incoming requests, optionally performs security checks (like IP allow-listing), and forwards them to the appropriate internal worker services using Cloudflare® Service Bindings.
 
 ## Features
 
@@ -22,7 +22,7 @@ A Cloudflare Worker service that acts as the **primary gateway** for external re
 - Node.js >= 16
 - Bun
 - Wrangler CLI
-- Cloudflare Workers account
+- Cloudflare® Workers account
 - Deployed target workers (e.g., `trade-worker`, `telegram-worker`) that this worker will call.
 
 ## Setup
@@ -31,8 +31,8 @@ A Cloudflare Worker service that acts as the **primary gateway** for external re
     ```bash
     bun install
     ```
-2.  Set your Cloudflare account ID in `wrangler.jsonc`.
-3.  Configure Secrets (via Cloudflare dashboard or `wrangler secret put`):
+2.  Set your Cloudflare® account ID in `wrangler.jsonc`.
+3.  Configure Secrets (via Cloudflare® dashboard or `wrangler secret put`):
     - `WEBHOOK_API_KEY`: The secret key expected in the `apiKey` field of incoming external requests.
     - `INTERNAL_KEY`: A shared secret key used for authentication _between_ this worker and the target workers it calls via service bindings. The target workers must also have this secret configured.
 4.  Configure KV Namespaces (if using configurable features like IP allow-listing):
@@ -102,3 +102,7 @@ bun run deploy
 
 - **Method:** `POST`
 - **Endpoint:** `/`
+
+---
+
+*Cloudflare® and the Cloudflare logo are trademarks and/or registered trademarks of Cloudflare, Inc. in the United States and other jurisdictions.*
