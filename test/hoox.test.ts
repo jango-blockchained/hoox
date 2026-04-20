@@ -249,7 +249,7 @@ describe("Hoox Worker Integration", () => {
   });
 
   test("rejects request with invalid apiKey from payload", async () => {
-    const request = new Request("https://webhook-receiver.workers.dev", {
+    const request = new Request("https://hoox.workers.dev", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -270,7 +270,7 @@ describe("Hoox Worker Integration", () => {
 
   test("rejects request if apiKey binding is not configured", async () => {
     mockEnv = createMockEnv({ apiKey: null, internalKey: TEST_INTERNAL_KEY }); // API_SECRET_KEY is null
-    const request = new Request("https://webhook-receiver.workers.dev", {
+    const request = new Request("https://hoox.workers.dev", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -286,7 +286,7 @@ describe("Hoox Worker Integration", () => {
   });
 
   test("processes valid webhook and forwards to both services", async () => {
-    const request = new Request("https://webhook-receiver.workers.dev", {
+    const request = new Request("https://hoox.workers.dev", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -331,7 +331,7 @@ describe("Hoox Worker Integration", () => {
 
   test("returns internal error if internal key binding fails during forwarding", async () => {
     mockEnv = createMockEnv({ apiKey: TEST_API_KEY, internalKey: null }); // INTERNAL_SERVICE_KEY is null
-    const request = new Request("https://webhook-receiver.workers.dev", {
+    const request = new Request("https://hoox.workers.dev", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -361,7 +361,7 @@ describe("Hoox Worker Integration", () => {
     const tradeOnlyPayload = { ...validWebhookPayload };
     delete tradeOnlyPayload.notify; // Remove notify section
 
-    const request = new Request("https://webhook-receiver.workers.dev", {
+    const request = new Request("https://hoox.workers.dev", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -403,7 +403,7 @@ describe("Hoox Worker Integration", () => {
     };
 
 
-    const request = new Request("https://webhook-receiver.workers.dev", {
+    const request = new Request("https://hoox.workers.dev", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -469,7 +469,7 @@ describe("Hoox Worker Integration", () => {
     mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req) => global.fetch(req));
 
 
-    const request = new Request("https://webhook-receiver.workers.dev", {
+    const request = new Request("https://hoox.workers.dev", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",

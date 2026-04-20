@@ -1,4 +1,4 @@
-// webhook-receiver/src/index.ts - Public-facing endpoint for TradingView
+// hoox/src/index.ts - Public-facing gateway for TradingView
 
 // Import Fetcher type for service bindings
 import type { Fetcher, KVNamespace } from "@cloudflare/workers-types";
@@ -565,7 +565,7 @@ async function handleAiTest(request: Request, env: Env): Promise<Response> {
         // Basic call to the LLM
         const response = await env.AI.run('@cf/meta/llama-3-8b-instruct', { 
             messages: [
-                // Adjust system prompt based on webhook-receiver's potential AI use case
+                // Adjust system prompt based on hoox's potential AI use case
                 { role: 'system', content: 'You are an assistant analyzing incoming data.' }, 
                 { role: 'user', content: prompt }
             ]
