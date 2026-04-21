@@ -42,6 +42,7 @@ interface Env {
   // Variables (Consider removing if not used directly or handled by bindings)
   TELEGRAM_WORKER_URL?: string; // Keep ONLY if still needed as fallback or for other purposes
   HA_WORKER_URL?: string;
+  ENABLE_DEBUG_ENDPOINTS?: string;
 
   // Deprecated/Remove:
   // TRADE_WORKER_URL: string;
@@ -99,6 +100,7 @@ const KV_ALLOWED_IPS_KEY = "webhook:tradingview:allowed_ips";
 // --- Default Export (Worker Entry Point) ---
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const debugEndpointsEnabled = env.ENABLE_DEBUG_ENDPOINTS === "true";
     
     // --- Global Kill Switch Check ---
     const killSwitch = await checkKillSwitch(env.CONFIG_KV);
@@ -127,6 +129,9 @@ export default {
     // --- Add temporary GET endpoint for testing AI ---
     const url = new URL(request.url); // Need URL object here
     if (request.method === "GET" && url.pathname === "/test-ai") {
+      if (!debugEndpointsEnabled) {
+        return new Response("Not Found", { status: 404 });
+      }
       // Ensure this endpoint is removed or secured before production!
       console.warn("Executing temporary /test-ai endpoint...");
       return await handleAiTest(request, env);
