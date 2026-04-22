@@ -1,6 +1,8 @@
 display_name = "Gateway"
 description = "Webhook gateway and routing"
 
+[sections]
+
 [sections.routing]
 title = "Routing"
 description = "Trade routing configuration"
@@ -26,3 +28,29 @@ priority = 20
 ip_check_enabled = true
 allowed_ips = ["52.89.214.238", "34.212.75.30", "54.218.53.128"]
 api_key_required = true
+
+[sections.global]
+title = "Global Rules"
+description = "Master settings affecting all inbound hooks"
+icon = "shield"
+priority = 10
+
+[sections.global.fields]
+kill_switch = false
+
+[sections.global.descriptions]
+kill_switch = "Master kill switch for all webhooks. If true, no incoming webhooks are processed by the gateway."
+
+[sections.webhook]
+title = "TradingView Security"
+description = "IP Allowlisting for TradingView"
+icon = "lock"
+priority = 20
+
+[sections.webhook.fields]
+tradingview:ip_check_enabled = true
+tradingview:allowed_ips = "[\"52.89.214.238\", \"34.212.75.30\", \"54.218.53.128\", \"52.32.178.7\"]"
+
+[sections.webhook.descriptions]
+tradingview:ip_check_enabled = "Enforce IP validation for incoming TradingView webhooks."
+tradingview:allowed_ips = "JSON array of allowed IP addresses for TradingView webhooks."
