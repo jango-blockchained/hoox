@@ -202,6 +202,7 @@ describe("Hoox Worker Integration", () => {
     TRADE_SERVICE: { fetch: jest.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })) },
     TELEGRAM_SERVICE: { fetch: jest.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })) },
     SESSIONS_KV: { get: jest.fn().mockResolvedValue(null), put: jest.fn().mockResolvedValue(undefined) },
+    CONFIG_KV: { get: jest.fn().mockResolvedValue(null), put: jest.fn().mockResolvedValue(undefined) },
   });
 
   let mockEnv: ReturnType<typeof createMockEnv>;

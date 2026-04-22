@@ -398,7 +398,7 @@ async function checkIdempotency(
 
     try {
         const id = env.IDEMPOTENCY_STORE.newUniqueId();
-        const stub = env.IDEMPOTENCY_STORE.get(id);
+        const stub = env.IDEMPOTENCY_STORE.get(id) as any;
         return await stub.checkAndStore(key);
     } catch (error) {
         console.error("[checkIdempotency] Error:", error);
