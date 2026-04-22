@@ -1,0 +1,28 @@
+display_name = "Gateway"
+description = "Webhook gateway and routing"
+
+[sections.routing]
+title = "Routing"
+description = "Trade routing configuration"
+icon = "router"
+priority = 10
+
+[sections.routing.fields]
+default_exchange = "mexc"
+failover_enabled = true
+default_leverage = 10
+
+[sections.routing.options]
+default_exchange = ["binance", "mexc", "bybit"]
+default_leverage = [1, 5, 10, 20, 50, 100]
+
+[sections.security]
+title = "Security"
+description = "IP allowlist and API key settings"
+icon = "shield"
+priority = 20
+
+[sections.security.fields]
+ip_check_enabled = true
+allowed_ips = ["52.89.214.238", "34.212.75.30", "54.218.53.128"]
+api_key_required = true
