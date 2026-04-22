@@ -16,14 +16,10 @@ A Cloudflare® Worker service that acts as the **primary gateway** for external 
 - Determines the target internal worker based on the request payload's `target` field.
 - Forwards requests to internal workers using **Service Bindings** (defined in `wrangler.jsonc`).
 - Returns responses from internal workers, wrapped with gateway context.
-
-## Prerequisites
-
-- Node.js >= 16
-- Bun
-- Wrangler CLI
-- Cloudflare® Workers account
-- Deployed target workers (e.g., `trade-worker`, `telegram-worker`) that this worker will call.
+- **Queue Producer**: Sends trades to `trade-execution` queue for async processing.
+- **Queue Modes**: `queue_failover` (default) or `queue_everywhere` (configurable via KV).
+- **Idempotency**:Prevents duplicate trades using Durable Objects.
+- **Rate Limiting**: In-memory rate limiting (10 trades/minute).
 
 ## Setup
 
@@ -62,12 +58,25 @@ A Cloudflare® Worker service that acts as the **primary gateway** for external 
         { "binding": "HA_SERVICE", "service": "home-assistant-worker" }
         // Add other target service bindings as needed
       ],
-      "observability": {
+"observability": {
          "enabled": true,
          "head_sampling_rate": 1
+       },
+       "queues": {
+         "producers": [
+           { "queue": "trade-execution", "binding": "TRADE_QUEUE" }
+         ]
+       },
+       "durable_objects": {
+         "bindings": [
+           { "name": "IDEMPOTENCY_STORE", "class_name": "IdempotencyStore" }
+         ],
+         "migrations": [
+           { "tag": "v1", "new_sqlite_classes": ["IdempotencyStore"] }
+         ]
        }
-    }
-    ```
+     }
+     ```
 6.  Update the corresponding `worker-configuration.d.ts` file.
 7.  For local development, create a `.dev.vars` file and define the secrets/variables:
     ```.dev.vars

@@ -1,11 +1,16 @@
 // hoox/src/index.ts - Public-facing gateway for TradingView
 
-import type { Fetcher, KVNamespace } from "@cloudflare/workers-types";
+import type { Fetcher, KVNamespace, Queue, DurableObjectNamespace } from "@cloudflare/workers-types";
 import type { Ai } from "@cloudflare/ai";
 
 import { checkKillSwitch } from "./killSwitch";
 import { checkIpAllowlist } from "./ipAllowlist";
 import { getOrCreateSession } from "./sessionManager";
+import { IdempotencyStore } from "./idempotencyStore";
+
+// --- Constants ---
+const MAX_TRADES_PER_MINUTE = 10;
+const RATE_LIMIT_WINDOW = 60; // 60 seconds
 
 // --- TradingView Allowed IPs ---
 const TRADINGVIEW_ALLOWED_IPS = new Set([
@@ -33,6 +38,8 @@ interface Env {
   // Bindings
   TRADE_SERVICE: Fetcher; // Service binding to trade-worker
   TELEGRAM_SERVICE: Fetcher; // Service binding to telegram-worker
+  TRADE_QUEUE: Queue; // Queue binding for trade execution
+  IDEMPOTENCY_STORE: DurableObjectNamespace; // Idempotency tracking
   WEBHOOK_API_KEY_BINDING: SecretBinding; // Secret for incoming API key
   INTERNAL_KEY_BINDING: SecretBinding; // Secret for calling other internal services (e.g., legacy Telegram/HA)
   HA_TOKEN_BINDING?: SecretBinding; // Optional: If HA worker communication is needed
@@ -90,55 +97,109 @@ interface ServiceResponse {
   error?: string;
 }
 
-// Removed Hono router usage as it wasn't fully implemented
-// If needed, re-introduce with proper Hono setup: `const app = new Hono<{ Bindings: Env }>()`
+// --- Security Headers ---
+const SECURITY_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "X-XSS-Protection": "1; mode=block",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'",
+};
+
+function createSecureResponse(
+  body: string | object,
+  options: ResponseInit = {}
+): Response {
+  const headers: Record<string, string> = { ...SECURITY_HEADERS };
+
+  // Merge with provided headers
+  if (options.headers) {
+    const providedHeaders =
+      typeof options.headers === "object" && !Array.isArray(options.headers)
+        ? options.headers
+        : {};
+
+    // Handle Headers object or Record
+    for (const [key, value] of Object.entries(providedHeaders)) {
+      if (value) headers[key] = value;
+    }
+  }
+
+  return new Response(typeof body === "string" ? body : JSON.stringify(body), {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+  });
+}
+
+// Alias for convenience
+const secureResponse = createSecureResponse;
+
+// --- Response Wrapper for Security Headers ---
+function wrapResponse(response: Response): Response {
+  const headers = new Headers(response.headers);
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    headers.set(key, value);
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
 
 // --- KV Configuration Keys ---
 const KV_IP_CHECK_ENABLED_KEY = "webhook:tradingview:ip_check_enabled";
 const KV_ALLOWED_IPS_KEY = "webhook:tradingview:allowed_ips";
+const KV_QUEUE_MODE_KEY = "webhook:queue_mode"; // "queue_failover" or "queue_everywhere"
 
 // --- Default Export (Worker Entry Point) ---
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const debugEndpointsEnabled = env.ENABLE_DEBUG_ENDPOINTS === "true";
-    
-    // --- Global Kill Switch Check ---
-    const killSwitch = await checkKillSwitch(env.CONFIG_KV);
-    if (killSwitch.enabled) {
-        return new Response(JSON.stringify({ success: false, error: "Trading is temporarily paused (Kill Switch)" }), {
-            status: 503,
-            headers: { 'Content-Type': 'application/json' }
-        });
-    }
-
-    // --- IP Allow-listing Check ---
-    const clientIp = request.headers.get("CF-Connecting-IP");
-    const ipCheck = await checkIpAllowlist(env.CONFIG_KV, clientIp);
-    if (!ipCheck.allowed) {
-      return new Response(JSON.stringify({ success: false, error: "Forbidden - Invalid Source IP" }), {
-        status: 403,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    // --- End IP Allow-listing Check ---
-
-    // --- Session Management ---
-    const sessionId = request.headers.get("X-Session-ID") || undefined;
-    await getOrCreateSession(env.SESSIONS_KV, sessionId);
-
-    // --- Add temporary GET endpoint for testing AI ---
-    const url = new URL(request.url); // Need URL object here
-    if (request.method === "GET" && url.pathname === "/test-ai") {
-      if (!debugEndpointsEnabled) {
-        return new Response("Not Found", { status: 404 });
+    try {
+      const debugEndpointsEnabled = env.ENABLE_DEBUG_ENDPOINTS === "true";
+      
+      // --- Global Kill Switch Check ---
+      const killSwitch = await checkKillSwitch(env.CONFIG_KV);
+      if (killSwitch.enabled) {
+        return wrapResponse(
+          createSecureResponse(
+            { success: false, error: "Trading is temporarily paused (Kill Switch)" },
+            { status: 503 }
+          )
+        );
       }
-      // Ensure this endpoint is removed or secured before production!
-      console.warn("Executing temporary /test-ai endpoint...");
-      return await handleAiTest(request, env);
-    }
-    // --- End temporary test endpoint ---
 
-    return await handleRequest(request, env);
+      // --- IP Allow-listing Check ---
+      const clientIp = request.headers.get("CF-Connecting-IP");
+      const ipCheck = await checkIpAllowlist(env.CONFIG_KV, clientIp);
+      if (!ipCheck.allowed) {
+        return wrapResponse(
+          createSecureResponse(
+            { success: false, error: "Forbidden - Invalid Source IP" },
+            { status: 403 }
+          )
+        );
+      }
+
+      // Process request
+      const response = await handleRequest(request, env);
+      return wrapResponse(response);
+    } catch (error: unknown) {
+      // Even error responses get security headers
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error("[fetch] Unhandled error:", errorMsg);
+      return wrapResponse(
+        new Response(JSON.stringify({ success: false, error: "Internal server error" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        })
+      );
+    }
   },
 };
 
@@ -192,6 +253,7 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 
     // Process trading signal if present
     let tradeResult: ServiceResponse | null = null;
+    const queueMode = await getQueueMode(env.CONFIG_KV);
     if (exchange && action && symbol && quantity) {
       tradeResult = await processTrade(
         {
@@ -203,7 +265,8 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
           price,
           leverage,
         },
-        env
+        env,
+        queueMode
       );
       if (!tradeResult?.success) {
         overallSuccess = false;
@@ -306,15 +369,141 @@ async function validateApiKeyBinding(apiKey: string, binding?: SecretBinding): P
     }
 }
 
-// Forward to trade worker using Service Binding
+/**
+ * Get queue mode from KV config.
+ * Returns "queue_everywhere" or "queue_failover" (default)
+ */
+async function getQueueMode(kv: KVNamespace): Promise<"queue_everywhere" | "queue_failover"> {
+    const mode = await kv.get(KV_QUEUE_MODE_KEY);
+    return (mode === "queue_everywhere") ? "queue_everywhere" : "queue_failover";
+}
+
+/**
+ * Generate idempotency key for a trade
+ */
+function generateIdempotencyKey(tradeData: TradeData): string {
+    return `trade:${tradeData.exchange}:${tradeData.symbol}:${tradeData.action}:${tradeData.quantity}`;
+}
+
+/**
+ * Check and store idempotency key using Durable Object
+ */
+async function checkIdempotency(
+    env: Env,
+    key: string
+): Promise<boolean> {
+    if (!env.IDEMPOTENCY_STORE) {
+        return true; // No DO configured, allow all
+    }
+
+    try {
+        const id = env.IDEMPOTENCY_STORE.newUniqueId();
+        const stub = env.IDEMPOTENCY_STORE.get(id);
+        return await stub.checkAndStore(key);
+    } catch (error) {
+        console.error("[checkIdempotency] Error:", error);
+        return true; // Allow on error to not block trades
+    }
+}
+
+/**
+ * Simple rate limiting using in-memory map (per-worker, resets on cold start)
+ * For production, consider using KV with sliding window
+ */
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(sessionId: string): boolean {
+    const now = Date.now();
+    const key = `rate:${sessionId}`;
+    const entry = rateLimitMap.get(key);
+
+    if (!entry || now > entry.resetAt) {
+        rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW * 1000 });
+        return true;
+    }
+
+    if (entry.count >= MAX_TRADES_PER_MINUTE) {
+        return false;
+    }
+
+    entry.count++;
+    return true;
+}
+
+/**
+ * Send trade to queue for async processing
+ */
+async function sendTradeToQueue(
+    queue: Queue,
+    tradeData: TradeData
+): Promise<void> {
+    const message = {
+        requestId: tradeData.requestId,
+        exchange: tradeData.exchange,
+        action: tradeData.action,
+        symbol: tradeData.symbol,
+        quantity: tradeData.quantity,
+        price: tradeData.price,
+        leverage: tradeData.leverage,
+        queuedAt: new Date().toISOString(),
+    };
+    await queue.send(message);
+    console.log(`[${tradeData.requestId}] Trade sent to queue`);
+}
+
+// Forward to trade worker using Service Binding or Queue
 async function processTrade(
   tradeData: TradeData,
-  env: Env
+  env: Env,
+  queueMode: "queue_everywhere" | "queue_failover" = "queue_failover"
 ): Promise<ServiceResponse> {
-  const { requestId, exchange, action, symbol, quantity, price, leverage } = tradeData; // Destructure needed fields
+  const { requestId, exchange, action, symbol, quantity, price, leverage } = tradeData;
   console.log(`[${requestId}] processTrade: Received trade data:`, tradeData);
+  console.log(`[${requestId}] Queue mode: ${queueMode}`);
 
-  // --- Task 10.5: Implement Inter-Worker Communication --- 
+  // Check idempotency before processing
+  const idempotencyKey = generateIdempotencyKey(tradeData);
+  const isNew = await checkIdempotency(env, idempotencyKey);
+  if (!isNew) {
+    console.log(`[${requestId}] Duplicate trade detected, rejecting: ${idempotencyKey}`);
+    return {
+      success: false,
+      requestId,
+      error: "Duplicate trade request. This trade was already processed.",
+    };
+  }
+
+  // Check rate limit (using session ID from request or generated)
+  const sessionId = tradeData.requestId; // Use requestId as session key
+  if (!checkRateLimit(sessionId)) {
+    console.log(`[${requestId}] Rate limit exceeded for session: ${sessionId}`);
+    return {
+      success: false,
+      requestId,
+      error: `Rate limit exceeded. Maximum ${MAX_TRADES_PER_MINUTE} trades per minute.`,
+    };
+  }
+
+  // Check if we should use queue
+  const useQueue = queueMode === "queue_everywhere" || !env.TRADE_SERVICE;
+
+  if (useQueue && env.TRADE_QUEUE) {
+    // Use queue mode - send to queue and return success immediately
+    try {
+      await sendTradeToQueue(env.TRADE_QUEUE, tradeData);
+      return {
+        success: true,
+        requestId,
+        tradeResult: { queued: true, message: "Trade queued for execution" },
+      };
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error || "Unknown error");
+      console.error(`[${requestId}] Failed to queue trade:`, errorMsg);
+      // Fall back to direct service call if queue fails
+    }
+  }
+
+  // Direct service call (or fallback from queue mode)
   if (!env.TRADE_SERVICE) {
     console.error(`[${requestId}] TRADE_SERVICE binding is not configured.`);
     return {
@@ -358,6 +547,22 @@ async function processTrade(
       console.error(
         `[${requestId}] Error calling TRADE_SERVICE: ${response.status} - ${errorText}`
       );
+      
+      // If in queue_failover mode and direct call failed, try queue as fallback
+      if (queueMode === "queue_failover" && env.TRADE_QUEUE) {
+        console.log(`[${requestId}] Direct call failed, attempting queue fallback...`);
+        try {
+          await sendTradeToQueue(env.TRADE_QUEUE, tradeData);
+          return {
+            success: true,
+            requestId,
+            tradeResult: { queued: true, fallback: true, message: "Trade queued after direct call failure" },
+          };
+        } catch (queueError: unknown) {
+          console.error(`[${requestId}] Queue fallback also failed:`, queueError);
+        }
+      }
+      
       return {
         success: false,
         requestId,
@@ -379,13 +584,28 @@ async function processTrade(
   } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error.message : String(error || "Unknown error calling trade service");
     console.error(`[${requestId}] Exception calling TRADE_SERVICE:`, errorMsg, error);
+    
+    // If in queue_failover mode and exception occurred, try queue as fallback
+    if (queueMode === "queue_failover" && env.TRADE_QUEUE) {
+      console.log(`[${requestId}] Direct call exception, attempting queue fallback...`);
+      try {
+        await sendTradeToQueue(env.TRADE_QUEUE, tradeData);
+        return {
+          success: true,
+          requestId,
+          tradeResult: { queued: true, fallback: true, message: "Trade queued after exception" },
+        };
+      } catch (queueError: unknown) {
+        console.error(`[${requestId}] Queue fallback also failed:`, queueError);
+      }
+    }
+    
     return {
       success: false,
       requestId,
       error: `Exception during trade service call: ${errorMsg}`,
     };
   }
-  // --- End Task 10.5 ---
 }
 
 // Forward to notification worker using Service Binding
@@ -545,3 +765,5 @@ async function handleAiTest(request: Request, env: Env): Promise<Response> {
         });
     }
 }
+
+export { IdempotencyStore };
