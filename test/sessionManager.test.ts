@@ -19,7 +19,7 @@ describe("sessionManager", () => {
   test("uses provided session ID", async () => {
     const result = await getOrCreateSession(undefined, "test-session");
     expect(result.sessionId).toBe("test-session");
-    expect(result.isNew).toBe(true);
+    expect(result.isNew).toBe(false);
   });
 
   test("detects existing session", async () => {

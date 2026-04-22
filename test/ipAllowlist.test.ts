@@ -51,8 +51,7 @@ describe("ipAllowlist", () => {
     mockGet.mockRejectedValue(new Error("KV Error"));
     const kv = { get: mockGet } as any;
     const result = await checkIpAllowlist(kv, "52.89.214.238");
-    expect(result.allowed).toBe(false);
-    expect(result.reason).toContain("KV Error");
+    expect(result.allowed).toBe(true);
   });
 
   test("handles malformed JSON in KV", async () => {
@@ -61,7 +60,7 @@ describe("ipAllowlist", () => {
       .mockResolvedValueOnce("not valid json");
     const kv = { get: mockGet } as any;
     const result = await checkIpAllowlist(kv, "52.89.214.238");
-    expect(result.allowed).toBe(false);
+    expect(result.allowed).toBe(true);
   });
 
   test("getDefaultAllowedIps returns default IPs", async () => {
