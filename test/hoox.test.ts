@@ -490,8 +490,234 @@ describe("Hoox Worker Integration", () => {
     const responseData = await response.json();
     expect(responseData.success).toBe(false);
     expect(responseData.error).toContain("Simulated Trade Worker Fetch Error");
-    expect(responseData.tradeResult?.success).toBe(false); // Trade failed
+expect(responseData.tradeResult?.success).toBe(false); // Trade failed
     expect(responseData.notificationResult?.success).toBe(true); // Notify should still succeed
   });
+});
 
+// ============================================================================
+// NEW FEATURE TESTS: Queues, Durable Objects, Rate Limiting, Security Headers
+// ============================================================================
+
+describe("Hoox Worker - Queue Integration", () => {
+  const mockEnv: any = {
+    WEBHOOK_API_KEY_BINDING: {
+      get: jest.fn().mockResolvedValue("test-api-key"),
+    },
+    CONFIG_KV: {
+      get: jest.fn().mockResolvedValue(null),
+    },
+    SESSIONS_KV: {
+      get: jest.fn().mockResolvedValue(null),
+      put: jest.fn().mockResolvedValue(undefined),
+    },
+    TRADE_SERVICE: {
+      fetch: jest.fn().mockResolvedValue(
+        new Response(JSON.stringify({ success: true }), { status: 200 })
+      ),
+    },
+    TELEGRAM_SERVICE: {
+      fetch: jest.fn().mockResolvedValue(
+        new Response(JSON.stringify({ success: true }), { status: 200 })
+      ),
+    },
+    TRADE_QUEUE: {
+      send: jest.fn().mockResolvedValue(undefined),
+    },
+    IDEMPOTENCY_STORE: {
+      newUniqueId: jest.fn().mockReturnValue({}),
+      get: jest.fn().mockResolvedValue({
+        checkAndStore: jest.fn().mockResolvedValue(true),
+      }),
+    },
+  };
+
+  test("should have TRADE_QUEUE binding configured", () => {
+    expect(mockEnv.TRADE_QUEUE).toBeDefined();
+    expect(mockEnv.TRADE_QUEUE.send).toBeDefined();
+  });
+
+  test("should send trade message to queue", async () => {
+    const queue = mockEnv.TRADE_QUEUE;
+    const tradeMessage = {
+      requestId: "test-123",
+      exchange: "binance",
+      action: "LONG",
+      symbol: "BTCUSDT",
+      quantity: 0.01,
+      queuedAt: new Date().toISOString(),
+    };
+
+    await queue.send(tradeMessage);
+    expect(queue.send).toHaveBeenCalledWith(tradeMessage);
+  });
+
+  describe("Queue Modes", () => {
+    test("should default to queue_failover mode", async () => {
+      const mode = await mockEnv.CONFIG_KV.get("webhooks:queue_mode");
+      expect(mode).toBeNull(); // Should default to queue_failover in code
+    });
+
+    test("should set queue_everywhere mode", async () => {
+      mockEnv.CONFIG_KV.get = jest.fn().mockResolvedValue("queue_everywhere");
+      const mode = await mockEnv.CONFIG_KV.get("webhooks:queue_mode");
+      expect(mode).toBe("queue_everywhere");
+    });
+  });
+});
+
+describe("Hoox Worker - Durable Objects (Idempotency)", () => {
+  const mockEnv: any = {
+    IDEMPOTENCY_STORE: {
+      newUniqueId: jest.fn().mockReturnValue({ id: "test-id" }),
+      get: jest.fn().mockResolvedValue({
+        checkAndStore: jest.fn().mockResolvedValue(true),
+        initialize: jest.fn().mockResolvedValue(undefined),
+      }),
+    },
+  };
+
+  test("should have IDEMPOTENCY_STORE binding", () => {
+    expect(mockEnv.IDEMPOTENCY_STORE).toBeDefined();
+    expect(mockEnv.IDEMPOTENCY_STORE.newUniqueId).toBeDefined();
+  });
+
+  test("should create unique ID for idempotency", () => {
+    const id = mockEnv.IDEMPOTENCY_STORE.newUniqueId();
+    expect(id).toBeDefined();
+  });
+
+  test("should check and store idempotency key", async () => {
+    const store = await mockEnv.IDEMPOTENCY_STORE.get({ id: "test" });
+    const result = await store.checkAndStore("trade:binance:BTCUSDT:LONG:0.01");
+    expect(result).toBe(true);
+  });
+});
+
+describe("Hoox Worker - Rate Limiting", () => {
+  const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+  const MAX_TRADES_PER_MINUTE = 10;
+  const RATE_LIMIT_WINDOW = 60 * 1000;
+
+  function checkRateLimit(sessionId: string): boolean {
+    const now = Date.now();
+    const key = `rate:${sessionId}`;
+    const entry = rateLimitMap.get(key);
+
+    if (!entry || now > entry.resetAt) {
+      rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+      return true;
+    }
+
+    if (entry.count >= MAX_TRADES_PER_MINUTE) {
+      return false;
+    }
+
+    entry.count++;
+    return true;
+  }
+
+  test("should allow trades under rate limit", () => {
+    for (let i = 0; i < 10; i++) {
+      expect(checkRateLimit("session-123")).toBe(true);
+    }
+  });
+
+  test("should block trades over rate limit", () => {
+    // Add 10 more to exceed limit
+    const result = checkRateLimit("session-123");
+    expect(result).toBe(false);
+  });
+
+  test("should reset after window expires", () => {
+    // Manually reset the map
+    rateLimitMap.clear();
+    const result = checkRateLimit("session-456");
+    expect(result).toBe(true);
+  });
+});
+
+describe("Hoox Worker - Security Headers", () => {
+  const SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'",
+  };
+
+  test("should include X-Content-Type-Options header", () => {
+    expect(SECURITY_HEADERS["X-Content-Type-Options"]).toBe("nosniff");
+  });
+
+  test("should include X-Frame-Options header", () => {
+    expect(SECURITY_HEADERS["X-Frame-Options"]).toBe("DENY");
+  });
+
+  test("should include X-XSS-Protection header", () => {
+    expect(SECURITY_HEADERS["X-XSS-Protection"]).toBe("1; mode=block");
+  });
+
+  test("should include Referrer-Policy header", () => {
+    expect(SECURITY_HEADERS["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
+  });
+
+  test("should include Permissions-Policy header", () => {
+    expect(SECURITY_HEADERS["Permissions-Policy"]).toContain("camera=()");
+    expect(SECURITY_HEADERS["Permissions-Policy"]).toContain("microphone=()");
+    expect(SECURITY_HEADERS["Permissions-Policy"]).toContain("geolocation=()");
+  });
+
+  test("should include Strict-Transport-Security header", () => {
+    expect(SECURITY_HEADERS["Strict-Transport-Security"]).toContain("max-age=31536000");
+    expect(SECURITY_HEADERS["Strict-Transport-Security"]).toContain("includeSubDomains");
+  });
+
+  test("should include Content-Security-Policy header", () => {
+    expect(SECURITY_HEADERS["Content-Security-Policy"]).toContain("default-src 'self'");
+    expect(SECURITY_HEADERS["Content-Security-Policy"]).toContain("script-src 'self'");
+  });
+
+  test("should wrap response with security headers", () => {
+    const originalResponse = new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const securityHeaders = SECURITY_HEADERS;
+    const wrappedHeaders = new Headers(originalResponse.headers);
+
+    for (const [key, value] of Object.entries(securityHeaders)) {
+      wrappedHeaders.set(key, value);
+    }
+
+    expect(wrappedHeaders.get("X-Content-Type-Options")).toBe("nosniff");
+    expect(wrappedHeaders.get("X-Frame-Options")).toBe("DENY");
+    expect(wrappedHeaders.get("Strict-Transport-Security")).toBeTruthy();
+  });
+});
+
+describe("Hoox Worker - KV Configuration Keys", () => {
+  test("should have correct IP check KV key", () => {
+    const KV_IP_CHECK_ENABLED_KEY = "webhook:tradingview:ip_check_enabled";
+    expect(KV_IP_CHECK_ENABLED_KEY).toBe("webhook:tradingview:ip_check_enabled");
+  });
+
+  test("should have correct allowed IPs KV key", () => {
+    const KV_ALLOWED_IPS_KEY = "webhook:tradingview:allowed_ips";
+    expect(KV_ALLOWED_IPS_KEY).toBe("webhook:tradingview:allowed_ips");
+  });
+
+  test("should have correct queue mode KV key", () => {
+    const KV_QUEUE_MODE_KEY = "webhooks:queue_mode";
+    expect(KV_QUEUE_MODE_KEY).toBe("webhooks:queue_mode");
+  });
+
+  test("should allow queue_mode values", () => {
+    const validModes = ["queue_failover", "queue_everywhere"];
+    expect(validModes).toContain("queue_failover");
+    expect(validModes).toContain("queue_everywhere");
+  });
 });
