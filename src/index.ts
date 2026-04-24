@@ -27,11 +27,6 @@ const TRADINGVIEW_ALLOWED_IPS = new Set([
 
 // --- Type Definitions ---
 
-// Define SecretBinding structure
-interface SecretBinding {
-  get: () => Promise<string | null>;
-}
-
 // Define the expected environment variables and bindings from wrangler.toml
 interface Env {
   AI: Ai; // Add the AI binding
@@ -40,9 +35,9 @@ interface Env {
   TELEGRAM_SERVICE: Fetcher; // Service binding to telegram-worker
   TRADE_QUEUE: Queue; // Queue binding for trade execution
   IDEMPOTENCY_STORE: DurableObjectNamespace; // Idempotency tracking
-  WEBHOOK_API_KEY_BINDING: SecretBinding; // Secret for incoming API key
-  INTERNAL_KEY_BINDING: SecretBinding; // Secret for calling other internal services (e.g., legacy Telegram/HA)
-  HA_TOKEN_BINDING?: SecretBinding; // Optional: If HA worker communication is needed
+  WEBHOOK_API_KEY_BINDING: string; // Secret for incoming API key
+  INTERNAL_KEY_BINDING: string; // Secret for calling other internal services (e.g., legacy Telegram/HA)
+  HA_TOKEN_BINDING?: string; // Optional: If HA worker communication is needed
   SESSIONS_KV: KVNamespace; // Added for session management
   CONFIG_KV: KVNamespace; // Added for configuration
 
@@ -372,13 +367,13 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 /**
  * Secure API key validation using a secret binding.
  */
-async function validateApiKeyBinding(apiKey: string, binding?: SecretBinding): Promise<boolean> {
+async function validateApiKeyBinding(apiKey: string, binding?: string): Promise<boolean> {
     if (!binding) {
         console.error("[validateApiKeyBinding] WEBHOOK_API_KEY_BINDING is not configured.");
         return false;
     }
     try {
-        const expectedKey = await binding.get();
+        const expectedKey = binding;
         if (!expectedKey) {
              console.error("[validateApiKeyBinding] Failed to retrieve key from binding.");
             return false;
@@ -660,7 +655,7 @@ async function processNotification(
   }
 
   try {
-    const internalAuthKey = await env.INTERNAL_KEY_BINDING.get();
+    const internalAuthKey = env.INTERNAL_KEY_BINDING;
     if (!internalAuthKey) {
         console.error(`[${requestId}] Failed to retrieve internal key from binding.`);
         return {

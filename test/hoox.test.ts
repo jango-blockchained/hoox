@@ -197,8 +197,8 @@ describe("Hoox Worker Integration", () => {
   const TEST_INTERNAL_KEY = "test-internal-key";
 
   const createMockEnv = (secrets: any = {}): any => ({
-    WEBHOOK_API_KEY_BINDING: { get: jest.fn().mockResolvedValue(secrets.apiKey !== undefined ? secrets.apiKey : TEST_API_KEY) },
-    INTERNAL_KEY_BINDING: { get: jest.fn().mockResolvedValue(secrets.internalKey !== undefined ? secrets.internalKey : TEST_INTERNAL_KEY) },
+    WEBHOOK_API_KEY_BINDING: secrets.apiKey !== undefined ? secrets.apiKey : TEST_API_KEY,
+    INTERNAL_KEY_BINDING: secrets.internalKey !== undefined ? secrets.internalKey : TEST_INTERNAL_KEY,
     TRADE_SERVICE: { fetch: jest.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })) },
     TELEGRAM_SERVICE: { fetch: jest.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })) },
     SESSIONS_KV: { get: jest.fn().mockResolvedValue(null), put: jest.fn().mockResolvedValue(undefined), delete: jest.fn().mockResolvedValue(undefined), getWithMetadata: jest.fn().mockResolvedValue({ value: null, metadata: null }), list: jest.fn().mockResolvedValue({ keys: [] }) },
@@ -265,7 +265,6 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(request, mockEnv);
     expect(response.status).toBe(403);
     // Binding should now be called after IP check passes
-    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -282,7 +281,6 @@ describe("Hoox Worker Integration", () => {
 
     const response = await webhookReceiver.fetch(request, mockEnv);
     expect(response.status).toBe(403);
-    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -298,10 +296,6 @@ describe("Hoox Worker Integration", () => {
 
     const response = await webhookReceiver.fetch(request, mockEnv);
     expect(response.status).toBe(200);
-
-    // Check bindings were called
-    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
-    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(1); // Only called by processNotification
 
     // Check service bindings' fetch methods were called
     expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1);
@@ -345,11 +339,8 @@ describe("Hoox Worker Integration", () => {
     expect(response.status).toBe(500);
     const body = await response.json() as any;
     // Check the combined error message structure - Only notify fails on key
-    expect(body.error).toBe("Processing failed: Failed to retrieve internal authentication key.");
+    expect(body.error).toBe("Processing failed: Internal authentication key not configured.");
     
-    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
-    // INTERNAL_KEY_BINDING.get is attempted only once for notify, and fails.
-    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(1);
     // Trade service might still be called successfully before notify fails
     // expect(mockEnv.TRADE_SERVICE.fetch).not.toHaveBeenCalled();
     expect(mockEnv.TELEGRAM_SERVICE.fetch).not.toHaveBeenCalled(); // Not called because internal key fetch failed first
@@ -373,8 +364,6 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(request, mockEnv);
     expect(response.status).toBe(200);
 
-    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
-    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(0); // Not called for trade only
     expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1);
     expect(mockEnv.TELEGRAM_SERVICE.fetch).not.toHaveBeenCalled(); // Not called
     expect(fetchMock).toHaveBeenCalledTimes(1); // Only called for trade
@@ -417,8 +406,6 @@ describe("Hoox Worker Integration", () => {
      // The worker logic doesn't forward trade if fields are empty/invalid
     expect(response.status).toBe(200);
 
-    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
-    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(1); // Only called for notify
     expect(mockEnv.TRADE_SERVICE.fetch).not.toHaveBeenCalled(); // Not called
     expect(mockEnv.TELEGRAM_SERVICE.fetch).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledTimes(1); // Underlying global fetch
@@ -481,8 +468,6 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(request, mockEnv);
     expect(response.status).toBe(500); // Expect 500 due to downstream failure
 
-    expect(mockEnv.WEBHOOK_API_KEY_BINDING.get).toHaveBeenCalledTimes(1);
-    expect(mockEnv.INTERNAL_KEY_BINDING.get).toHaveBeenCalledTimes(1); // Called only for successful notify attempt
     expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1); // Trade fetch fails
     expect(mockEnv.TELEGRAM_SERVICE.fetch).toHaveBeenCalledTimes(1); // Notify fetch succeeds
     expect(fetchMock).toHaveBeenCalledTimes(2); // Called for both attempts
@@ -501,9 +486,7 @@ expect(responseData.tradeResult?.success).toBe(false); // Trade failed
 
 describe("Hoox Worker - Queue Integration", () => {
   const mockEnv: any = {
-    WEBHOOK_API_KEY_BINDING: {
-      get: jest.fn().mockResolvedValue("test-api-key"),
-    },
+    WEBHOOK_API_KEY_BINDING: "test-api-key",
     CONFIG_KV: {
       get: jest.fn().mockResolvedValue(null),
       put: jest.fn().mockResolvedValue(undefined),
