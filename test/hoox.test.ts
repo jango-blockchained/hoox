@@ -48,15 +48,15 @@ describe("Hoox Worker - Webhook Processing", () => {
     });
 
     test("should handle optional price field", () => {
-      const payload = { exchange: "binance", action: "buy", symbol: "BTCUSDT" };
+      const payload = { exchange: "binance", action: "buy", symbol: "BTCUSDT", price: undefined };
       
-      expect(payload.price).toBeUndefined();
+      expect((payload as any).price).toBeUndefined();
     });
 
     test("should handle optional leverage field", () => {
-      const payload = { exchange: "binance", action: "buy", symbol: "BTCUSDT" };
+      const payload = { exchange: "binance", action: "buy", symbol: "BTCUSDT", leverage: undefined };
       
-      expect(payload.leverage).toBeUndefined();
+      expect((payload as any).leverage).toBeUndefined();
     });
   });
 
@@ -112,7 +112,7 @@ describe("Hoox Worker - Webhook Processing", () => {
         quantity: 100
       };
       
-      expect(payload.notify).toBeUndefined();
+      expect((payload as any).notify).toBeUndefined();
     });
   });
 
@@ -174,7 +174,7 @@ describe("Hoox Worker - Signal Forwarding", () => {
     };
     
     const { apiKey, ...forwardPayload } = payload;
-    expect(forwardPayload.apiKey).toBeUndefined();
+    expect((forwardPayload as any).apiKey).toBeUndefined();
     expect(forwardPayload.exchange).toBe("binance");
   });
 
@@ -201,8 +201,8 @@ describe("Hoox Worker Integration", () => {
     INTERNAL_KEY_BINDING: { get: jest.fn().mockResolvedValue(secrets.internalKey !== undefined ? secrets.internalKey : TEST_INTERNAL_KEY) },
     TRADE_SERVICE: { fetch: jest.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })) },
     TELEGRAM_SERVICE: { fetch: jest.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })) },
-    SESSIONS_KV: { get: jest.fn().mockResolvedValue(null), put: jest.fn().mockResolvedValue(undefined) },
-    CONFIG_KV: { get: jest.fn().mockResolvedValue(null), put: jest.fn().mockResolvedValue(undefined) },
+    SESSIONS_KV: { get: jest.fn().mockResolvedValue(null), put: jest.fn().mockResolvedValue(undefined), delete: jest.fn().mockResolvedValue(undefined), getWithMetadata: jest.fn().mockResolvedValue({ value: null, metadata: null }), list: jest.fn().mockResolvedValue({ keys: [] }) },
+    CONFIG_KV: { get: jest.fn().mockResolvedValue(null), put: jest.fn().mockResolvedValue(undefined), delete: jest.fn().mockResolvedValue(undefined), getWithMetadata: jest.fn().mockResolvedValue({ value: null, metadata: null }), list: jest.fn().mockResolvedValue({ keys: [] }) },
   });
 
   let mockEnv: ReturnType<typeof createMockEnv>;
@@ -231,12 +231,12 @@ describe("Hoox Worker Integration", () => {
     });
 
     // Reset and setup the global fetch mock for downstream calls
-    fetchMock = jest.fn();
-    global.fetch = fetchMock;
+    fetchMock = jest.fn() as any;
+    (global as any).fetch = fetchMock;
 
     // Default successful fetch behavior (can be overridden per test)
     fetchMock.mockImplementation(async (request: Request | URL | string) => {
-        const url = typeof request === 'string' ? request : request.url;
+        const url = typeof request === 'string' ? request : request instanceof Request ? request.url : String(request);
         console.log(`Global Mock Fetch Called: ${url}`);
         // Default success response
         return new Response(JSON.stringify({ success: true, result: { mockedSuccess: true } }), {
@@ -311,19 +311,19 @@ describe("Hoox Worker Integration", () => {
     // Check call to trade worker (via service binding)
     const tradeCall = mockEnv.TRADE_SERVICE.fetch.mock.calls[0][0] as Request;
     expect(tradeCall).toBeDefined();
-    const tradeBody = await tradeCall.json();
+    const tradeBody = await tradeCall.json() as any;
     expect(tradeBody.exchange).toBe("mexc");
     expect(tradeBody.apiKey).toBeUndefined(); // Ensure apiKey was removed
 
     // Check call to notify worker (via service binding)
     const notifyCall = mockEnv.TELEGRAM_SERVICE.fetch.mock.calls[0][0] as Request;
     expect(notifyCall).toBeDefined();
-    const notifyBody = await notifyCall.json();
+    const notifyBody = await notifyCall.json() as any;
     expect(notifyBody.internalAuthKey).toBe(TEST_INTERNAL_KEY);
     expect(notifyBody.payload.message).toBe(validWebhookPayload.notify.message);
     expect(notifyBody.apiKey).toBeUndefined(); // Ensure apiKey was removed
 
-    const responseData = await response.json();
+    const responseData = await response.json() as any;
     expect(responseData.success).toBe(true);
     expect(responseData.requestId).toBeDefined();
     expect(responseData.tradeResult?.success).toBe(true);
@@ -343,7 +343,7 @@ describe("Hoox Worker Integration", () => {
 
     const response = await webhookReceiver.fetch(request, mockEnv);
     expect(response.status).toBe(500);
-    const body = await response.json();
+    const body = await response.json() as any;
     // Check the combined error message structure - Only notify fails on key
     expect(body.error).toBe("Processing failed: Failed to retrieve internal authentication key.");
     
@@ -359,8 +359,7 @@ describe("Hoox Worker Integration", () => {
   // --- Additions --- 
 
   test("processes only trade signal when notify is missing", async () => {
-    const tradeOnlyPayload = { ...validWebhookPayload };
-    delete tradeOnlyPayload.notify; // Remove notify section
+    const tradeOnlyPayload = { ...validWebhookPayload, notify: undefined }; // Remove notify section
 
     const request = new Request("https://hoox.workers.dev", {
       method: "POST",
@@ -383,10 +382,10 @@ describe("Hoox Worker Integration", () => {
     // Check call to trade worker (via service binding)
     const tradeCall = mockEnv.TRADE_SERVICE.fetch.mock.calls[0][0] as Request;
     expect(tradeCall).toBeDefined();
-    const tradeBody = await tradeCall.json();
+    const tradeBody = await tradeCall.json() as any;
     expect(tradeBody.exchange).toBe("mexc");
 
-    const responseData = await response.json();
+    const responseData = await response.json() as any;
     expect(responseData.success).toBe(true);
     expect(responseData.tradeResult?.success).toBe(true);
     expect(responseData.notificationResult).toBeNull(); // No notification result
@@ -427,12 +426,12 @@ describe("Hoox Worker Integration", () => {
     // Check call to notify worker (via service binding)
     const notifyCall = mockEnv.TELEGRAM_SERVICE.fetch.mock.calls[0][0] as Request;
     expect(notifyCall).toBeDefined();
-    const notifyBody = await notifyCall.json();
+    const notifyBody = await notifyCall.json() as any;
     expect(notifyBody.internalAuthKey).toBe(TEST_INTERNAL_KEY);
     expect(notifyBody.payload.message).toBe(validWebhookPayload.notify.message);
 
 
-    const responseData = await response.json();
+    const responseData = await response.json() as any;
     expect(responseData.success).toBe(true);
     expect(responseData.tradeResult).toBeNull(); // No trade result
     expect(responseData.notificationResult?.success).toBe(true);
@@ -441,7 +440,7 @@ describe("Hoox Worker Integration", () => {
   test("handles fetch error when forwarding to trade service", async () => {
     // Setup fetchMock to reject only for the trade service call
     fetchMock.mockImplementation(async (request: Request | URL | string) => {
-        const url = typeof request === 'string' ? request : request.url;
+        const url = typeof request === 'string' ? request : request instanceof Request ? request.url : String(request);
         const body = request instanceof Request ? await request.clone().text() : '';
         console.log(`Global Mock Fetch Called: ${url} with body: ${body}`);
 
@@ -488,7 +487,7 @@ describe("Hoox Worker Integration", () => {
     expect(mockEnv.TELEGRAM_SERVICE.fetch).toHaveBeenCalledTimes(1); // Notify fetch succeeds
     expect(fetchMock).toHaveBeenCalledTimes(2); // Called for both attempts
 
-    const responseData = await response.json();
+    const responseData = await response.json() as any;
     expect(responseData.success).toBe(false);
     expect(responseData.error).toContain("Simulated Trade Worker Fetch Error");
 expect(responseData.tradeResult?.success).toBe(false); // Trade failed
@@ -507,6 +506,10 @@ describe("Hoox Worker - Queue Integration", () => {
     },
     CONFIG_KV: {
       get: jest.fn().mockResolvedValue(null),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+      getWithMetadata: jest.fn().mockResolvedValue({ value: null, metadata: null }),
+      list: jest.fn().mockResolvedValue({ keys: [] }),
     },
     SESSIONS_KV: {
       get: jest.fn().mockResolvedValue(null),

@@ -1,0 +1,107 @@
+{
+  "name": "hoox",
+  // ACCOUNT_ID: Get from Cloudflare Dashboard > Overview > Account ID
+  "account_id": "YOUR_ACCOUNT_ID",
+  "main": "src/index.ts",
+  // COMPATIBILITY_DATE: Use current date or latest supported
+  "compatibility_date": "2025-03-07",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // OBSERVABILITY: Enable logging and sampling
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
+
+  // VARS: Environment variables (secrets set via `wrangler secret put`)
+  // Replace null with actual values in .dev.vars for local dev
+  "vars": {
+    // WEBHOOK_API_KEY: Your webhook authentication key
+    // Set via: wrangler secret put WEBHOOK_API_KEY_BINDING
+    "WEBHOOK_API_KEY_BINDING": null,
+    // INTERNAL_KEY: Service-to-service authentication
+    // Set via: wrangler secret put INTERNAL_KEY_BINDING
+    "INTERNAL_KEY_BINDING": null,
+    // HA_TOKEN: Home Assistant access token (optional)
+    // Set via: wrangler secret put HA_TOKEN_BINDING
+    "HA_TOKEN_BINDING": null,
+  },
+
+  // SERVICES: Service bindings to other workers
+  // TRADE_SERVICE: Points to trade-worker for executing trades
+  // TELEGRAM_SERVICE: Points to telegram-worker for notifications
+  "services": [
+    {
+      "binding": "TRADE_SERVICE",
+      "service": "trade-worker",
+    },
+    {
+      "binding": "TELEGRAM_SERVICE",
+      "service": "telegram-worker",
+    },
+  ],
+
+  // KV_NAMESPACES: Key-Value storage for config and sessions
+  // Get IDs from Cloudflare Dashboard > KV > Namespaces
+  "kv_namespaces": [
+    {
+      "binding": "SESSIONS_KV",
+      // ID: KV namespace for session storage
+      "id": "YOUR_SESSIONS_KV_ID",
+    },
+    {
+      "binding": "CONFIG_KV",
+      // ID: KV namespace for dynamic configuration
+      "id": "YOUR_CONFIG_KV_ID",
+    },
+  ],
+
+  // VECTORIZE: AI embeddings index for RAG
+  // Get index_name from Cloudflare Dashboard > Vectorize
+  "vectorize": [
+    {
+      "binding": "VECTORIZE_INDEX",
+      // INDEX_NAME: Your Vectorize index name
+      "index_name": "YOUR_INDEX_NAME",
+    },
+  ],
+
+  // AI: Cloudflare Workers AI for running AI models
+  "ai": {
+    "binding": "AI",
+  },
+
+  // QUEUES: Queue producer for trade execution
+  // QUEUE_NAME: Get from Cloudflare Dashboard > Queues
+  "queues": {
+    "producers": [
+      {
+        // QUEUE: Queue name for trade execution
+        "queue": "YOUR_TRADE_QUEUE_NAME",
+        "binding": "TRADE_QUEUE"
+      }
+    ]
+  },
+
+  // DURABLE_OBJECTS: For idempotency (duplicate trade prevention)
+  "durable_objects": {
+    "bindings": [
+      {
+        // NAME: Binding name in worker code
+        "name": "IDEMPOTENCY_STORE",
+        // CLASS_NAME: Durable Object class (must match DO class name)
+        "class_name": "IdempotencyStore"
+      }
+    ]
+  },
+
+  // MIGRATIONS: SQLite-backed Durable Object registration
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "IdempotencyStore"
+      ]
+    }
+  ]
+}

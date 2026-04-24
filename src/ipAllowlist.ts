@@ -17,7 +17,7 @@ export interface IpCheckConfig {
 
 export async function checkIpAllowlist(
   kv: KVNamespace | undefined,
-  clientIp: string | null
+  clientIp: string | null | undefined
 ): Promise<{
   allowed: boolean;
   reason?: string;

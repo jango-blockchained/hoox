@@ -97,6 +97,31 @@ interface ServiceResponse {
   error?: string;
 }
 
+interface WebhookPayload {
+  exchange: string;
+  action: "LONG" | "SHORT" | "CLOSE_LONG" | "CLOSE_SHORT";
+  symbol: string;
+  quantity: number;
+  price?: number;
+  orderType?: string;
+  leverage?: number;
+}
+
+interface ProcessRequestBody {
+  requestId?: string;
+  internalAuthKey?: string;
+  payload: {
+    message?: string;
+    chatId?: string;
+  };
+}
+
+interface StandardResponse {
+  success: boolean;
+  result?: unknown;
+  error?: string | null;
+}
+
 // --- Security Headers ---
 const SECURITY_HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -540,7 +565,7 @@ async function processTrade(
 
     console.log(`[${requestId}] Calling TRADE_SERVICE service binding with payload:`, tradeWorkerPayload);
     // Use the correct binding name: TRADE_SERVICE
-    const response = await env.TRADE_SERVICE.fetch(tradeWorkerRequest); 
+    const response = await env.TRADE_SERVICE.fetch(tradeWorkerRequest as any); 
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -577,8 +602,8 @@ async function processTrade(
     return { 
         success: result.success, 
         requestId, 
-        tradeResult: result.result, // Pass nested result
-        error: result.error // Pass nested error
+        tradeResult: result.result,
+        error: result.error ?? undefined
     }; 
 
   } catch (error: unknown) {
@@ -668,7 +693,7 @@ async function processNotification(
     });
 
     console.log(`[${requestId}] Calling TELEGRAM_SERVICE service binding with payload...`); // Don't log internal key
-    const response = await env.TELEGRAM_SERVICE.fetch(telegramWorkerRequest);
+    const response = await env.TELEGRAM_SERVICE.fetch(telegramWorkerRequest as any);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -689,7 +714,7 @@ async function processNotification(
         success: result.success,
         requestId,
         notificationResult: result.result,
-        error: result.error
+        error: result.error ?? undefined
     };
 
   } catch (error: unknown) {
