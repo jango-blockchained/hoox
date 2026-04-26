@@ -29,8 +29,8 @@ A Cloudflare® Worker service that acts as the **primary gateway** for external 
     ```
 2.  Set your Cloudflare® account ID in `wrangler.jsonc`.
 3.  Configure Secrets (via Cloudflare® dashboard or `wrangler secret put`):
-    - `WEBHOOK_API_KEY`: The secret key expected in the `apiKey` field of incoming external requests.
-    - `INTERNAL_KEY`: A shared secret key used for authentication _between_ this worker and the target workers it calls via service bindings. The target workers must also have this secret configured.
+    - `WEBHOOK_API_KEY_BINDING`: The secret key expected in the `apiKey` field of incoming external requests.
+    - `INTERNAL_KEY_BINDING`: A shared secret key used for authentication _between_ this worker and the target workers it calls via service bindings. The target workers must also have this secret configured.
 4.  Configure KV Namespaces (if using configurable features like IP allow-listing):
     ```bash
     npx wrangler kv:namespace create CONFIG_KV
@@ -44,8 +44,8 @@ A Cloudflare® Worker service that acts as the **primary gateway** for external 
       "compatibility_flags": ["nodejs_compat"],
       "account_id": "YOUR_CLOUDFLARE_ACCOUNT_ID",
       "secrets": [
-        "WEBHOOK_API_KEY",
-        "INTERNAL_KEY"
+        "WEBHOOK_API_KEY_BINDING",
+        "INTERNAL_KEY_BINDING"
       ],
       "kv_namespaces": [
         // Example: If using KV for config
@@ -81,7 +81,7 @@ A Cloudflare® Worker service that acts as the **primary gateway** for external 
 7.  For local development, create a `.dev.vars` file and define the secrets/variables:
     ```.dev.vars
     # Mock secret bindings for local dev:
-    WEBHOOK_API_KEY="your_external_api_key"
+    WEBHOOK_API_KEY_BINDING="your_external_api_key"
     INTERNAL_KEY="your_shared_internal_secret"
     # For local testing of service bindings, wrangler dev needs to run all services
     # simultaneously or you need alternative mocking strategies.
