@@ -21,10 +21,15 @@ export async function processTrade(
   tradeData: TradeData,
   tradeService: Fetcher | undefined
 ): Promise<ServiceResponse> {
-  const { requestId, exchange, action, symbol, quantity, price, leverage } = tradeData;
+  const { requestId, exchange, action, symbol, quantity, price, leverage } =
+    tradeData;
 
   if (!tradeService) {
-    return { success: false, requestId, error: "Trade service binding not available." };
+    return {
+      success: false,
+      requestId,
+      error: "Trade service binding not available.",
+    };
   }
 
   try {
@@ -39,7 +44,7 @@ export async function processTrade(
 
     const response = await tradeService.fetch("http://trade-service/webhook", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         "X-Request-ID": requestId,
       },
@@ -58,7 +63,8 @@ export async function processTrade(
     const result = await response.json();
     return { success: true, requestId, result };
   } catch (error: unknown) {
-    const errorMsg = error instanceof Error ? error.message : String(error || "Unknown error");
+    const errorMsg =
+      error instanceof Error ? error.message : String(error || "Unknown error");
     return { success: false, requestId, error: `Exception: ${errorMsg}` };
   }
 }

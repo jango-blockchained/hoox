@@ -6,9 +6,9 @@ describe("Hoox Worker - Webhook Processing", () => {
     test("should validate API key presence", () => {
       const request = new Request("https://example.com/webhook", {
         method: "POST",
-        headers: { "X-API-Key": "test-key" }
+        headers: { "X-API-Key": "test-key" },
       });
-      
+
       const hasKey = request.headers.has("X-API-Key");
       expect(hasKey).toBe(true);
     });
@@ -17,9 +17,9 @@ describe("Hoox Worker - Webhook Processing", () => {
       const request = new Request("https://example.com/webhook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ test: "data" })
+        body: JSON.stringify({ test: "data" }),
       });
-      
+
       const contentType = request.headers.get("Content-Type");
       expect(contentType?.includes("application/json")).toBe(true);
     });
@@ -39,23 +39,33 @@ describe("Hoox Worker - Webhook Processing", () => {
         symbol: "BTCUSDT",
         quantity: 100,
         price: 50000,
-        leverage: 10
+        leverage: 10,
       };
-      
+
       expect(payload.exchange).toBe("binance");
       expect(payload.action).toBe("buy");
       expect(payload.symbol).toBe("BTCUSDT");
     });
 
     test("should handle optional price field", () => {
-      const payload = { exchange: "binance", action: "buy", symbol: "BTCUSDT", price: undefined };
-      
+      const payload = {
+        exchange: "binance",
+        action: "buy",
+        symbol: "BTCUSDT",
+        price: undefined,
+      };
+
       expect((payload as any).price).toBeUndefined();
     });
 
     test("should handle optional leverage field", () => {
-      const payload = { exchange: "binance", action: "buy", symbol: "BTCUSDT", leverage: undefined };
-      
+      const payload = {
+        exchange: "binance",
+        action: "buy",
+        symbol: "BTCUSDT",
+        leverage: undefined,
+      };
+
       expect((payload as any).leverage).toBeUndefined();
     });
   });
@@ -66,9 +76,9 @@ describe("Hoox Worker - Webhook Processing", () => {
         "52.89.214.238",
         "34.212.75.30",
         "54.218.53.128",
-        "52.32.178.7"
+        "52.32.178.7",
       ]);
-      
+
       const testIP = "52.89.214.238";
       expect(allowedIPs.has(testIP)).toBe(true);
     });
@@ -76,7 +86,7 @@ describe("Hoox Worker - Webhook Processing", () => {
     test("should reject unknown IPs", () => {
       const allowedIPs = new Set(["52.89.214.238"]);
       const testIP = "192.168.1.1";
-      
+
       expect(allowedIPs.has(testIP)).toBe(false);
     });
   });
@@ -85,9 +95,9 @@ describe("Hoox Worker - Webhook Processing", () => {
     test("should route to trade service", () => {
       const services = {
         TRADE_SERVICE: { fetch: async () => ({ ok: true }) },
-        TELEGRAM_SERVICE: { fetch: async () => ({ ok: true }) }
+        TELEGRAM_SERVICE: { fetch: async () => ({ ok: true }) },
       };
-      
+
       expect(services.TRADE_SERVICE).toBeDefined();
     });
 
@@ -97,9 +107,9 @@ describe("Hoox Worker - Webhook Processing", () => {
         action: "buy",
         symbol: "BTCUSDT",
         quantity: 100,
-        notify: { message: "Trade executed", chatId: "123456" }
+        notify: { message: "Trade executed", chatId: "123456" },
       };
-      
+
       expect(payload.notify).toBeDefined();
       expect(payload.notify.chatId).toBe("123456");
     });
@@ -109,9 +119,9 @@ describe("Hoox Worker - Webhook Processing", () => {
         exchange: "binance",
         action: "buy",
         symbol: "BTCUSDT",
-        quantity: 100
+        quantity: 100,
       };
-      
+
       expect((payload as any).notify).toBeUndefined();
     });
   });
@@ -119,10 +129,10 @@ describe("Hoox Worker - Webhook Processing", () => {
   describe("KV Operations", () => {
     test("should store session data", () => {
       const kvStore = {
-        put: async (key: string, value: string) => { },
-        get: async (key: string) => null
+        put: async (key: string, value: string) => {},
+        get: async (key: string) => null,
       };
-      
+
       expect(kvStore.put).toBeDefined();
     });
 
@@ -130,7 +140,7 @@ describe("Hoox Worker - Webhook Processing", () => {
       const errorHandler = (error: Error) => {
         return { success: false, error: error.message };
       };
-      
+
       const result = errorHandler(new Error("KV error"));
       expect(result.success).toBe(false);
     });
@@ -142,18 +152,18 @@ describe("Hoox Worker - Response Handling", () => {
     const response = {
       success: true,
       requestId: "req-123",
-      tradeResult: { orderId: "order-123" }
+      tradeResult: { orderId: "order-123" },
     };
-    
+
     expect(response.success).toBe(true);
   });
 
   test("should return error response", () => {
     const response = {
       success: false,
-      error: "Invalid symbol"
+      error: "Invalid symbol",
     };
-    
+
     expect(response.success).toBe(false);
   });
 
@@ -170,9 +180,9 @@ describe("Hoox Worker - Signal Forwarding", () => {
       exchange: "binance",
       action: "buy",
       symbol: "BTCUSDT",
-      quantity: 100
+      quantity: 100,
     };
-    
+
     const { apiKey, ...forwardPayload } = payload;
     expect((forwardPayload as any).apiKey).toBeUndefined();
     expect(forwardPayload.exchange).toBe("binance");
@@ -183,10 +193,10 @@ describe("Hoox Worker - Signal Forwarding", () => {
       internalAuthKey: "internal-secret",
       payload: {
         message: "Trade executed",
-        chatId: "123456"
-      }
+        chatId: "123456",
+      },
     };
-    
+
     expect(notification.internalAuthKey).toBe("internal-secret");
     expect(notification.payload.message).toBe("Trade executed");
   });
@@ -197,12 +207,44 @@ describe("Hoox Worker Integration", () => {
   const TEST_INTERNAL_KEY = "test-internal-key";
 
   const createMockEnv = (secrets: any = {}): any => ({
-    WEBHOOK_API_KEY_BINDING: secrets.apiKey !== undefined ? secrets.apiKey : TEST_API_KEY,
-    INTERNAL_KEY_BINDING: secrets.internalKey !== undefined ? secrets.internalKey : TEST_INTERNAL_KEY,
-    TRADE_SERVICE: { fetch: jest.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })) },
-    TELEGRAM_SERVICE: { fetch: jest.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })) },
-    SESSIONS_KV: { get: jest.fn().mockResolvedValue(null), put: jest.fn().mockResolvedValue(undefined), delete: jest.fn().mockResolvedValue(undefined), getWithMetadata: jest.fn().mockResolvedValue({ value: null, metadata: null }), list: jest.fn().mockResolvedValue({ keys: [] }) },
-    CONFIG_KV: { get: jest.fn().mockResolvedValue(null), put: jest.fn().mockResolvedValue(undefined), delete: jest.fn().mockResolvedValue(undefined), getWithMetadata: jest.fn().mockResolvedValue({ value: null, metadata: null }), list: jest.fn().mockResolvedValue({ keys: [] }) },
+    WEBHOOK_API_KEY_BINDING:
+      secrets.apiKey !== undefined ? secrets.apiKey : TEST_API_KEY,
+    INTERNAL_KEY_BINDING:
+      secrets.internalKey !== undefined
+        ? secrets.internalKey
+        : TEST_INTERNAL_KEY,
+    TRADE_SERVICE: {
+      fetch: jest
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ success: true }), { status: 200 })
+        ),
+    },
+    TELEGRAM_SERVICE: {
+      fetch: jest
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ success: true }), { status: 200 })
+        ),
+    },
+    SESSIONS_KV: {
+      get: jest.fn().mockResolvedValue(null),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+      getWithMetadata: jest
+        .fn()
+        .mockResolvedValue({ value: null, metadata: null }),
+      list: jest.fn().mockResolvedValue({ keys: [] }),
+    },
+    CONFIG_KV: {
+      get: jest.fn().mockResolvedValue(null),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+      getWithMetadata: jest
+        .fn()
+        .mockResolvedValue({ value: null, metadata: null }),
+      list: jest.fn().mockResolvedValue({ keys: [] }),
+    },
   });
 
   let mockEnv: ReturnType<typeof createMockEnv>;
@@ -236,25 +278,36 @@ describe("Hoox Worker Integration", () => {
 
     // Default successful fetch behavior (can be overridden per test)
     fetchMock.mockImplementation(async (request: Request | URL | string) => {
-        const url = typeof request === 'string' ? request : request instanceof Request ? request.url : String(request);
-        console.log(`Global Mock Fetch Called: ${url}`);
-        // Default success response
-        return new Response(JSON.stringify({ success: true, result: { mockedSuccess: true } }), {
-            status: 200, headers: { 'Content-Type': 'application/json' }
-        });
+      const url =
+        typeof request === "string"
+          ? request
+          : request instanceof Request
+            ? request.url
+            : String(request);
+      console.log(`Global Mock Fetch Called: ${url}`);
+      // Default success response
+      return new Response(
+        JSON.stringify({ success: true, result: { mockedSuccess: true } }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     });
 
     // Link the service binding mocks to the global fetch mock
     mockEnv.TRADE_SERVICE.fetch.mockImplementation((req) => global.fetch(req));
-    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req) => global.fetch(req));
+    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req) =>
+      global.fetch(req)
+    );
   });
 
   test("rejects request with invalid apiKey from payload", async () => {
     const request = new Request("https://hoox.workers.dev", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+        "CF-Connecting-IP": "52.89.214.238", // Add allowed IP
       },
       body: JSON.stringify({
         ...validWebhookPayload,
@@ -272,9 +325,9 @@ describe("Hoox Worker Integration", () => {
     mockEnv = createMockEnv({ apiKey: null, internalKey: TEST_INTERNAL_KEY }); // API_SECRET_KEY is null
     const request = new Request("https://hoox.workers.dev", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+        "CF-Connecting-IP": "52.89.214.238", // Add allowed IP
       },
       body: JSON.stringify(validWebhookPayload), // Payload has a key, but binding fails
     });
@@ -287,9 +340,9 @@ describe("Hoox Worker Integration", () => {
   test("processes valid webhook and forwards to both services", async () => {
     const request = new Request("https://hoox.workers.dev", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+        "CF-Connecting-IP": "52.89.214.238", // Add allowed IP
       },
       body: JSON.stringify(validWebhookPayload),
     });
@@ -305,19 +358,20 @@ describe("Hoox Worker Integration", () => {
     // Check call to trade worker (via service binding)
     const tradeCall = mockEnv.TRADE_SERVICE.fetch.mock.calls[0][0] as Request;
     expect(tradeCall).toBeDefined();
-    const tradeBody = await tradeCall.json() as any;
+    const tradeBody = (await tradeCall.json()) as any;
     expect(tradeBody.exchange).toBe("mexc");
     expect(tradeBody.apiKey).toBeUndefined(); // Ensure apiKey was removed
 
     // Check call to notify worker (via service binding)
-    const notifyCall = mockEnv.TELEGRAM_SERVICE.fetch.mock.calls[0][0] as Request;
+    const notifyCall = mockEnv.TELEGRAM_SERVICE.fetch.mock
+      .calls[0][0] as Request;
     expect(notifyCall).toBeDefined();
-    const notifyBody = await notifyCall.json() as any;
+    const notifyBody = (await notifyCall.json()) as any;
     expect(notifyBody.internalAuthKey).toBe(TEST_INTERNAL_KEY);
     expect(notifyBody.payload.message).toBe(validWebhookPayload.notify.message);
     expect(notifyBody.apiKey).toBeUndefined(); // Ensure apiKey was removed
 
-    const responseData = await response.json() as any;
+    const responseData = (await response.json()) as any;
     expect(responseData.success).toBe(true);
     expect(responseData.requestId).toBeDefined();
     expect(responseData.tradeResult?.success).toBe(true);
@@ -328,35 +382,37 @@ describe("Hoox Worker Integration", () => {
     mockEnv = createMockEnv({ apiKey: TEST_API_KEY, internalKey: null }); // INTERNAL_SERVICE_KEY is null
     const request = new Request("https://hoox.workers.dev", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+        "CF-Connecting-IP": "52.89.214.238", // Add allowed IP
       },
       body: JSON.stringify(validWebhookPayload),
     });
 
     const response = await webhookReceiver.fetch(request, mockEnv);
     expect(response.status).toBe(500);
-    const body = await response.json() as any;
+    const body = (await response.json()) as any;
     // Check the combined error message structure - Only notify fails on key
-    expect(body.error).toBe("Processing failed: Internal authentication key not configured.");
-    
+    expect(body.error).toBe(
+      "Processing failed: Internal authentication key not configured."
+    );
+
     // Trade service might still be called successfully before notify fails
     // expect(mockEnv.TRADE_SERVICE.fetch).not.toHaveBeenCalled();
     expect(mockEnv.TELEGRAM_SERVICE.fetch).not.toHaveBeenCalled(); // Not called because internal key fetch failed first
     // expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  // --- Additions --- 
+  // --- Additions ---
 
   test("processes only trade signal when notify is missing", async () => {
     const tradeOnlyPayload = { ...validWebhookPayload, notify: undefined }; // Remove notify section
 
     const request = new Request("https://hoox.workers.dev", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+        "CF-Connecting-IP": "52.89.214.238", // Add allowed IP
       },
       body: JSON.stringify(tradeOnlyPayload),
     });
@@ -371,39 +427,41 @@ describe("Hoox Worker Integration", () => {
     // Check call to trade worker (via service binding)
     const tradeCall = mockEnv.TRADE_SERVICE.fetch.mock.calls[0][0] as Request;
     expect(tradeCall).toBeDefined();
-    const tradeBody = await tradeCall.json() as any;
+    const tradeBody = (await tradeCall.json()) as any;
     expect(tradeBody.exchange).toBe("mexc");
 
-    const responseData = await response.json() as any;
+    const responseData = (await response.json()) as any;
     expect(responseData.success).toBe(true);
     expect(responseData.tradeResult?.success).toBe(true);
     expect(responseData.notificationResult).toBeNull(); // No notification result
   });
 
   test("processes only notify signal when trade details are missing", async () => {
-    const notifyOnlyPayload = { 
-      apiKey: TEST_API_KEY, 
-      notify: validWebhookPayload.notify // Only apiKey and notify
+    const notifyOnlyPayload = {
+      apiKey: TEST_API_KEY,
+      notify: validWebhookPayload.notify, // Only apiKey and notify
     };
-     // Define required fields even if empty/default for structure
+    // Define required fields even if empty/default for structure
     const completeNotifyOnlyPayload = {
-        ...notifyOnlyPayload,
-        exchange: "", action: "", symbol: "", quantity: 0 // Add empty trade fields
+      ...notifyOnlyPayload,
+      exchange: "",
+      action: "",
+      symbol: "",
+      quantity: 0, // Add empty trade fields
     };
-
 
     const request = new Request("https://hoox.workers.dev", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+        "CF-Connecting-IP": "52.89.214.238", // Add allowed IP
       },
       // Send payload that includes empty trade fields so base validation passes
       body: JSON.stringify(completeNotifyOnlyPayload),
     });
 
     const response = await webhookReceiver.fetch(request, mockEnv);
-     // The worker logic doesn't forward trade if fields are empty/invalid
+    // The worker logic doesn't forward trade if fields are empty/invalid
     expect(response.status).toBe(200);
 
     expect(mockEnv.TRADE_SERVICE.fetch).not.toHaveBeenCalled(); // Not called
@@ -411,14 +469,14 @@ describe("Hoox Worker Integration", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1); // Underlying global fetch
 
     // Check call to notify worker (via service binding)
-    const notifyCall = mockEnv.TELEGRAM_SERVICE.fetch.mock.calls[0][0] as Request;
+    const notifyCall = mockEnv.TELEGRAM_SERVICE.fetch.mock
+      .calls[0][0] as Request;
     expect(notifyCall).toBeDefined();
-    const notifyBody = await notifyCall.json() as any;
+    const notifyBody = (await notifyCall.json()) as any;
     expect(notifyBody.internalAuthKey).toBe(TEST_INTERNAL_KEY);
     expect(notifyBody.payload.message).toBe(validWebhookPayload.notify.message);
 
-
-    const responseData = await response.json() as any;
+    const responseData = (await response.json()) as any;
     expect(responseData.success).toBe(true);
     expect(responseData.tradeResult).toBeNull(); // No trade result
     expect(responseData.notificationResult?.success).toBe(true);
@@ -427,40 +485,51 @@ describe("Hoox Worker Integration", () => {
   test("handles fetch error when forwarding to trade service", async () => {
     // Setup fetchMock to reject only for the trade service call
     fetchMock.mockImplementation(async (request: Request | URL | string) => {
-        const url = typeof request === 'string' ? request : request instanceof Request ? request.url : String(request);
-        const body = request instanceof Request ? await request.clone().text() : '';
-        console.log(`Global Mock Fetch Called: ${url} with body: ${body}`);
+      const url =
+        typeof request === "string"
+          ? request
+          : request instanceof Request
+            ? request.url
+            : String(request);
+      const body =
+        request instanceof Request ? await request.clone().text() : "";
+      console.log(`Global Mock Fetch Called: ${url} with body: ${body}`);
 
-        // Simulate error for TRADE_SERVICE fetch
-        // We need to inspect the request to know which service is being called,
-        // since service bindings don't use distinct URLs in the mock.
-        // Let's check the body content (assuming trade has 'exchange', notify has 'message')
-        if (body.includes('"exchange":')) {
-            console.log("Simulating Trade Service Fetch Error");
-            throw new Error("Simulated Trade Worker Fetch Error");
-        }
-        // Handle telegram worker call successfully
-        if (body.includes('"message":')) {
-            console.log("Simulating Telegram Service Success");
-            return new Response(JSON.stringify({ success: true, result: { forwarded: true } }), {
-                status: 200, headers: { 'Content-Type': 'application/json' }
-            });
-        }
-        // Default fallback (shouldn't be hit in this test ideally)
-        console.warn(`Global Mock Fetch: Unhandled request to ${url}`);
-        return new Response("Mock Fetch: Not Found", { status: 404 });
+      // Simulate error for TRADE_SERVICE fetch
+      // We need to inspect the request to know which service is being called,
+      // since service bindings don't use distinct URLs in the mock.
+      // Let's check the body content (assuming trade has 'exchange', notify has 'message')
+      if (body.includes('"exchange":')) {
+        console.log("Simulating Trade Service Fetch Error");
+        throw new Error("Simulated Trade Worker Fetch Error");
+      }
+      // Handle telegram worker call successfully
+      if (body.includes('"message":')) {
+        console.log("Simulating Telegram Service Success");
+        return new Response(
+          JSON.stringify({ success: true, result: { forwarded: true } }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      // Default fallback (shouldn't be hit in this test ideally)
+      console.warn(`Global Mock Fetch: Unhandled request to ${url}`);
+      return new Response("Mock Fetch: Not Found", { status: 404 });
     });
 
     // Re-link fetch mocks to use the new implementation
     mockEnv.TRADE_SERVICE.fetch.mockImplementation((req) => global.fetch(req));
-    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req) => global.fetch(req));
-
+    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req) =>
+      global.fetch(req)
+    );
 
     const request = new Request("https://hoox.workers.dev", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        'CF-Connecting-IP': '52.89.214.238' // Add allowed IP
+        "CF-Connecting-IP": "52.89.214.238", // Add allowed IP
       },
       body: JSON.stringify(validWebhookPayload),
     });
@@ -472,10 +541,10 @@ describe("Hoox Worker Integration", () => {
     expect(mockEnv.TELEGRAM_SERVICE.fetch).toHaveBeenCalledTimes(1); // Notify fetch succeeds
     expect(fetchMock).toHaveBeenCalledTimes(2); // Called for both attempts
 
-    const responseData = await response.json() as any;
+    const responseData = (await response.json()) as any;
     expect(responseData.success).toBe(false);
     expect(responseData.error).toContain("Simulated Trade Worker Fetch Error");
-expect(responseData.tradeResult?.success).toBe(false); // Trade failed
+    expect(responseData.tradeResult?.success).toBe(false); // Trade failed
     expect(responseData.notificationResult?.success).toBe(true); // Notify should still succeed
   });
 });
@@ -491,7 +560,9 @@ describe("Hoox Worker - Queue Integration", () => {
       get: jest.fn().mockResolvedValue(null),
       put: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
-      getWithMetadata: jest.fn().mockResolvedValue({ value: null, metadata: null }),
+      getWithMetadata: jest
+        .fn()
+        .mockResolvedValue({ value: null, metadata: null }),
       list: jest.fn().mockResolvedValue({ keys: [] }),
     },
     SESSIONS_KV: {
@@ -499,14 +570,18 @@ describe("Hoox Worker - Queue Integration", () => {
       put: jest.fn().mockResolvedValue(undefined),
     },
     TRADE_SERVICE: {
-      fetch: jest.fn().mockResolvedValue(
-        new Response(JSON.stringify({ success: true }), { status: 200 })
-      ),
+      fetch: jest
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ success: true }), { status: 200 })
+        ),
     },
     TELEGRAM_SERVICE: {
-      fetch: jest.fn().mockResolvedValue(
-        new Response(JSON.stringify({ success: true }), { status: 200 })
-      ),
+      fetch: jest
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ success: true }), { status: 200 })
+        ),
     },
     TRADE_QUEUE: {
       send: jest.fn().mockResolvedValue(undefined),
@@ -630,9 +705,11 @@ describe("Hoox Worker - Security Headers", () => {
     "X-Frame-Options": "DENY",
     "X-XSS-Protection": "1; mode=block",
     "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Permissions-Policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+    "Permissions-Policy":
+      "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
     "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'",
+    "Content-Security-Policy":
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'",
   };
 
   test("should include X-Content-Type-Options header", () => {
@@ -648,7 +725,9 @@ describe("Hoox Worker - Security Headers", () => {
   });
 
   test("should include Referrer-Policy header", () => {
-    expect(SECURITY_HEADERS["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
+    expect(SECURITY_HEADERS["Referrer-Policy"]).toBe(
+      "strict-origin-when-cross-origin"
+    );
   });
 
   test("should include Permissions-Policy header", () => {
@@ -658,13 +737,21 @@ describe("Hoox Worker - Security Headers", () => {
   });
 
   test("should include Strict-Transport-Security header", () => {
-    expect(SECURITY_HEADERS["Strict-Transport-Security"]).toContain("max-age=31536000");
-    expect(SECURITY_HEADERS["Strict-Transport-Security"]).toContain("includeSubDomains");
+    expect(SECURITY_HEADERS["Strict-Transport-Security"]).toContain(
+      "max-age=31536000"
+    );
+    expect(SECURITY_HEADERS["Strict-Transport-Security"]).toContain(
+      "includeSubDomains"
+    );
   });
 
   test("should include Content-Security-Policy header", () => {
-    expect(SECURITY_HEADERS["Content-Security-Policy"]).toContain("default-src 'self'");
-    expect(SECURITY_HEADERS["Content-Security-Policy"]).toContain("script-src 'self'");
+    expect(SECURITY_HEADERS["Content-Security-Policy"]).toContain(
+      "default-src 'self'"
+    );
+    expect(SECURITY_HEADERS["Content-Security-Policy"]).toContain(
+      "script-src 'self'"
+    );
   });
 
   test("should wrap response with security headers", () => {
@@ -689,7 +776,9 @@ describe("Hoox Worker - Security Headers", () => {
 describe("Hoox Worker - KV Configuration Keys", () => {
   test("should have correct IP check KV key", () => {
     const KV_IP_CHECK_ENABLED_KEY = "webhook:tradingview:ip_check_enabled";
-    expect(KV_IP_CHECK_ENABLED_KEY).toBe("webhook:tradingview:ip_check_enabled");
+    expect(KV_IP_CHECK_ENABLED_KEY).toBe(
+      "webhook:tradingview:ip_check_enabled"
+    );
   });
 
   test("should have correct allowed IPs KV key", () => {

@@ -1,5 +1,9 @@
 import { describe, expect, test, beforeEach, jest } from "bun:test";
-import { checkIpAllowlist, loadIpConfig, getDefaultAllowedIps } from "../src/ipAllowlist";
+import {
+  checkIpAllowlist,
+  loadIpConfig,
+  getDefaultAllowedIps,
+} from "../src/ipAllowlist";
 
 describe("ipAllowlist", () => {
   let mockGet: jest.Mock;

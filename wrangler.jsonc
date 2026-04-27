@@ -46,24 +46,22 @@
     "producers": [
       {
         "queue": "trade-execution",
-        "binding": "TRADE_QUEUE"
-      }
-    ]
+        "binding": "TRADE_QUEUE",
+      },
+    ],
   },
   "durable_objects": {
     "bindings": [
       {
         "name": "IDEMPOTENCY_STORE",
-        "class_name": "IdempotencyStore"
-      }
-    ]
+        "class_name": "IdempotencyStore",
+      },
+    ],
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": [
-        "IdempotencyStore"
-      ]
-    }
-  ]
+      "new_sqlite_classes": ["IdempotencyStore"],
+    },
+  ],
 }

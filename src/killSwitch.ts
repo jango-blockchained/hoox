@@ -20,7 +20,9 @@ export async function checkKillSwitch(
   }
 }
 
-export async function isTradingPaused(kv: KVNamespace | undefined): Promise<boolean> {
+export async function isTradingPaused(
+  kv: KVNamespace | undefined
+): Promise<boolean> {
   const result = await checkKillSwitch(kv);
   return result.enabled;
 }

@@ -1,6 +1,11 @@
 // hoox/src/index.ts - Public-facing gateway for TradingView
 
-import type { Fetcher, KVNamespace, Queue, DurableObjectNamespace } from "@cloudflare/workers-types";
+import type {
+  Fetcher,
+  KVNamespace,
+  Queue,
+  DurableObjectNamespace,
+} from "@cloudflare/workers-types";
 import type { Ai } from "@cloudflare/ai";
 
 import { checkKillSwitch } from "./killSwitch";
@@ -14,10 +19,10 @@ const RATE_LIMIT_WINDOW = 60; // 60 seconds
 
 // --- TradingView Allowed IPs ---
 const TRADINGVIEW_ALLOWED_IPS = new Set([
-	'52.89.214.238',
-	'34.212.75.30',
-	'54.218.53.128',
-	'52.32.178.7',
+  "52.89.214.238",
+  "34.212.75.30",
+  "54.218.53.128",
+  "52.32.178.7",
 ]);
 
 // --- Remove invalid imports ---
@@ -51,7 +56,7 @@ interface Env {
   // API_SECRET_KEY: string; // Use WEBHOOK_API_KEY_BINDING instead
 }
 
-// --- Other interfaces (WebhookData, TradeData, etc.) remain the same --- 
+// --- Other interfaces (WebhookData, TradeData, etc.) remain the same ---
 // ... existing interfaces ...
 interface WebhookData {
   apiKey?: string;
@@ -123,9 +128,11 @@ const SECURITY_HEADERS = {
   "X-Frame-Options": "DENY",
   "X-XSS-Protection": "1; mode=block",
   "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Permissions-Policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+  "Permissions-Policy":
+    "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-  "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'",
+  "Content-Security-Policy":
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'",
 };
 
 function createSecureResponse(
@@ -182,13 +189,16 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     try {
       const debugEndpointsEnabled = env.ENABLE_DEBUG_ENDPOINTS === "true";
-      
+
       // --- Global Kill Switch Check ---
       const killSwitch = await checkKillSwitch(env.CONFIG_KV);
       if (killSwitch.enabled) {
         return wrapResponse(
           createSecureResponse(
-            { success: false, error: "Trading is temporarily paused (Kill Switch)" },
+            {
+              success: false,
+              error: "Trading is temporarily paused (Kill Switch)",
+            },
             { status: 503 }
           )
         );
@@ -214,10 +224,13 @@ export default {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error("[fetch] Unhandled error:", errorMsg);
       return wrapResponse(
-        new Response(JSON.stringify({ success: false, error: "Internal server error" }), {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        })
+        new Response(
+          JSON.stringify({ success: false, error: "Internal server error" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          }
+        )
       );
     }
   },
@@ -227,7 +240,9 @@ export default {
 
 async function handleRequest(request: Request, env: Env): Promise<Response> {
   if (request.method !== "POST") {
-    console.log(`[handleRequest] Returning METHOD NOT ALLOWED response (status 405)`);
+    console.log(
+      `[handleRequest] Returning METHOD NOT ALLOWED response (status 405)`
+    );
     return new Response("Method not allowed", { status: 405 });
   }
 
@@ -238,19 +253,28 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     const { apiKey } = data;
     if (!apiKey) {
       console.warn("[handleRequest] apiKey missing from payload");
-      return new Response(JSON.stringify({ success: false, error: "Forbidden" }), {
-        status: 403,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ success: false, error: "Forbidden" }),
+        {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
-    const isValid = await validateApiKeyBinding(apiKey, env.WEBHOOK_API_KEY_BINDING);
+    const isValid = await validateApiKeyBinding(
+      apiKey,
+      env.WEBHOOK_API_KEY_BINDING
+    );
     if (!isValid) {
-        console.warn("[handleRequest] Invalid apiKey provided");
-        return new Response(JSON.stringify({ success: false, error: "Forbidden" }), {
-            status: 403,
-            headers: { "Content-Type": "application/json" },
-        });
+      console.warn("[handleRequest] Invalid apiKey provided");
+      return new Response(
+        JSON.stringify({ success: false, error: "Forbidden" }),
+        {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Remove the API key from the data before processing/forwarding
@@ -261,15 +285,8 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     let overallSuccess = true; // Track overall status
     const errorMessages: string[] = [];
 
-    const {
-        exchange,
-        action,
-        symbol,
-        quantity,
-        price,
-        leverage,
-        notify,
-      } = data;
+    const { exchange, action, symbol, quantity, price, leverage, notify } =
+      data;
 
     // Process trading signal if present
     let tradeResult: ServiceResponse | null = null;
@@ -352,10 +369,12 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
-
   } catch (error: unknown) {
     // Type guard for error message
-    const errorMsg = error instanceof Error ? error.message : String(error || "Internal Server Error");
+    const errorMsg =
+      error instanceof Error
+        ? error.message
+        : String(error || "Internal Server Error");
     console.error(`[handleRequest] Uncaught error: ${errorMsg}`, error);
     return new Response(JSON.stringify({ success: false, error: errorMsg }), {
       status: 500,
@@ -367,63 +386,70 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 /**
  * Secure API key validation using a secret binding.
  */
-async function validateApiKeyBinding(apiKey: string, binding?: string): Promise<boolean> {
-    if (!binding) {
-        console.error("[validateApiKeyBinding] WEBHOOK_API_KEY_BINDING is not configured.");
-        return false;
+async function validateApiKeyBinding(
+  apiKey: string,
+  binding?: string
+): Promise<boolean> {
+  if (!binding) {
+    console.error(
+      "[validateApiKeyBinding] WEBHOOK_API_KEY_BINDING is not configured."
+    );
+    return false;
+  }
+  try {
+    const expectedKey = binding;
+    if (!expectedKey) {
+      console.error(
+        "[validateApiKeyBinding] Failed to retrieve key from binding."
+      );
+      return false;
     }
-    try {
-        const expectedKey = binding;
-        if (!expectedKey) {
-             console.error("[validateApiKeyBinding] Failed to retrieve key from binding.");
-            return false;
-        }
-        // Basic string comparison (consider timing attacks if critical)
-        const isValid = apiKey === expectedKey;
-        console.log(`[validateApiKeyBinding] Validation result: ${isValid}`);
-        return isValid;
-    } catch (e: unknown) {
-         const errorMsg = e instanceof Error ? e.message : String(e || "Error retrieving secret");
-         console.error("[validateApiKeyBinding] Error retrieving secret:", errorMsg);
-         return false;
-    }
+    // Basic string comparison (consider timing attacks if critical)
+    const isValid = apiKey === expectedKey;
+    console.log(`[validateApiKeyBinding] Validation result: ${isValid}`);
+    return isValid;
+  } catch (e: unknown) {
+    const errorMsg =
+      e instanceof Error ? e.message : String(e || "Error retrieving secret");
+    console.error("[validateApiKeyBinding] Error retrieving secret:", errorMsg);
+    return false;
+  }
 }
 
 /**
  * Get queue mode from KV config.
  * Returns "queue_everywhere" or "queue_failover" (default)
  */
-async function getQueueMode(kv: KVNamespace): Promise<"queue_everywhere" | "queue_failover"> {
-    const mode = await kv.get(KV_QUEUE_MODE_KEY);
-    return (mode === "queue_everywhere") ? "queue_everywhere" : "queue_failover";
+async function getQueueMode(
+  kv: KVNamespace
+): Promise<"queue_everywhere" | "queue_failover"> {
+  const mode = await kv.get(KV_QUEUE_MODE_KEY);
+  return mode === "queue_everywhere" ? "queue_everywhere" : "queue_failover";
 }
 
 /**
  * Generate idempotency key for a trade
  */
 function generateIdempotencyKey(tradeData: TradeData): string {
-    return `trade:${tradeData.exchange}:${tradeData.symbol}:${tradeData.action}:${tradeData.quantity}`;
+  return `trade:${tradeData.exchange}:${tradeData.symbol}:${tradeData.action}:${tradeData.quantity}`;
 }
 
 /**
  * Check and store idempotency key using Durable Object
  */
-async function checkIdempotency(
-    env: Env,
-    key: string
-): Promise<boolean> {
-    if (!env.IDEMPOTENCY_STORE) {
-        return true; // No DO configured, allow all
-    }
+async function checkIdempotency(env: Env, key: string): Promise<boolean> {
+  if (!env.IDEMPOTENCY_STORE) {
+    return true; // No DO configured, allow all
+  }
 
-    try {
-        const id = env.IDEMPOTENCY_STORE.newUniqueId();
-        const stub = env.IDEMPOTENCY_STORE.get(id) as any;
-        return await stub.checkAndStore(key);
-    } catch (error) {
-        console.error("[checkIdempotency] Error:", error);
-        return true; // Allow on error to not block trades
-    }
+  try {
+    const id = env.IDEMPOTENCY_STORE.newUniqueId();
+    const stub = env.IDEMPOTENCY_STORE.get(id) as any;
+    return await stub.checkAndStore(key);
+  } catch (error) {
+    console.error("[checkIdempotency] Error:", error);
+    return true; // Allow on error to not block trades
+  }
 }
 
 /**
@@ -433,42 +459,45 @@ async function checkIdempotency(
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 function checkRateLimit(sessionId: string): boolean {
-    const now = Date.now();
-    const key = `rate:${sessionId}`;
-    const entry = rateLimitMap.get(key);
+  const now = Date.now();
+  const key = `rate:${sessionId}`;
+  const entry = rateLimitMap.get(key);
 
-    if (!entry || now > entry.resetAt) {
-        rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW * 1000 });
-        return true;
-    }
-
-    if (entry.count >= MAX_TRADES_PER_MINUTE) {
-        return false;
-    }
-
-    entry.count++;
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(key, {
+      count: 1,
+      resetAt: now + RATE_LIMIT_WINDOW * 1000,
+    });
     return true;
+  }
+
+  if (entry.count >= MAX_TRADES_PER_MINUTE) {
+    return false;
+  }
+
+  entry.count++;
+  return true;
 }
 
 /**
  * Send trade to queue for async processing
  */
 async function sendTradeToQueue(
-    queue: Queue,
-    tradeData: TradeData
+  queue: Queue,
+  tradeData: TradeData
 ): Promise<void> {
-    const message = {
-        requestId: tradeData.requestId,
-        exchange: tradeData.exchange,
-        action: tradeData.action,
-        symbol: tradeData.symbol,
-        quantity: tradeData.quantity,
-        price: tradeData.price,
-        leverage: tradeData.leverage,
-        queuedAt: new Date().toISOString(),
-    };
-    await queue.send(message);
-    console.log(`[${tradeData.requestId}] Trade sent to queue`);
+  const message = {
+    requestId: tradeData.requestId,
+    exchange: tradeData.exchange,
+    action: tradeData.action,
+    symbol: tradeData.symbol,
+    quantity: tradeData.quantity,
+    price: tradeData.price,
+    leverage: tradeData.leverage,
+    queuedAt: new Date().toISOString(),
+  };
+  await queue.send(message);
+  console.log(`[${tradeData.requestId}] Trade sent to queue`);
 }
 
 // Forward to trade worker using Service Binding or Queue
@@ -477,7 +506,8 @@ async function processTrade(
   env: Env,
   queueMode: "queue_everywhere" | "queue_failover" = "queue_failover"
 ): Promise<ServiceResponse> {
-  const { requestId, exchange, action, symbol, quantity, price, leverage } = tradeData;
+  const { requestId, exchange, action, symbol, quantity, price, leverage } =
+    tradeData;
   console.log(`[${requestId}] processTrade: Received trade data:`, tradeData);
   console.log(`[${requestId}] Queue mode: ${queueMode}`);
 
@@ -485,7 +515,9 @@ async function processTrade(
   const idempotencyKey = generateIdempotencyKey(tradeData);
   const isNew = await checkIdempotency(env, idempotencyKey);
   if (!isNew) {
-    console.log(`[${requestId}] Duplicate trade detected, rejecting: ${idempotencyKey}`);
+    console.log(
+      `[${requestId}] Duplicate trade detected, rejecting: ${idempotencyKey}`
+    );
     return {
       success: false,
       requestId,
@@ -517,7 +549,10 @@ async function processTrade(
         tradeResult: { queued: true, message: "Trade queued for execution" },
       };
     } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : String(error || "Unknown error");
+      const errorMsg =
+        error instanceof Error
+          ? error.message
+          : String(error || "Unknown error");
       console.error(`[${requestId}] Failed to queue trade:`, errorMsg);
       // Fall back to direct service call if queue fails
     }
@@ -536,19 +571,20 @@ async function processTrade(
   try {
     // Construct the payload expected by trade-worker's /webhook endpoint
     const tradeWorkerPayload: WebhookPayload = {
-        exchange: exchange,
-        // Ensure action matches the expected enum in trade-worker (LONG, SHORT, etc.)
-        action: action.toUpperCase() as WebhookPayload['action'], 
-        symbol: symbol,
-        quantity: quantity,
-        price: price,
-        leverage: leverage,
+      exchange: exchange,
+      // Ensure action matches the expected enum in trade-worker (LONG, SHORT, etc.)
+      action: action.toUpperCase() as WebhookPayload["action"],
+      symbol: symbol,
+      quantity: quantity,
+      price: price,
+      leverage: leverage,
     };
 
     // Construct the request for the trade-worker
     // Using relative path "/webhook" assuming service binding handles the base URL
     // --> Use a dummy absolute URL instead of just the path
-    const tradeWorkerRequest = new Request("http://trade-service/webhook", { // Dummy URL
+    const tradeWorkerRequest = new Request("http://trade-service/webhook", {
+      // Dummy URL
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -558,31 +594,43 @@ async function processTrade(
       body: JSON.stringify(tradeWorkerPayload),
     });
 
-    console.log(`[${requestId}] Calling TRADE_SERVICE service binding with payload:`, tradeWorkerPayload);
+    console.log(
+      `[${requestId}] Calling TRADE_SERVICE service binding with payload:`,
+      tradeWorkerPayload
+    );
     // Use the correct binding name: TRADE_SERVICE
-    const response = await env.TRADE_SERVICE.fetch(tradeWorkerRequest as any); 
+    const response = await env.TRADE_SERVICE.fetch(tradeWorkerRequest as any);
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
         `[${requestId}] Error calling TRADE_SERVICE: ${response.status} - ${errorText}`
       );
-      
+
       // If in queue_failover mode and direct call failed, try queue as fallback
       if (queueMode === "queue_failover" && env.TRADE_QUEUE) {
-        console.log(`[${requestId}] Direct call failed, attempting queue fallback...`);
+        console.log(
+          `[${requestId}] Direct call failed, attempting queue fallback...`
+        );
         try {
           await sendTradeToQueue(env.TRADE_QUEUE, tradeData);
           return {
             success: true,
             requestId,
-            tradeResult: { queued: true, fallback: true, message: "Trade queued after direct call failure" },
+            tradeResult: {
+              queued: true,
+              fallback: true,
+              message: "Trade queued after direct call failure",
+            },
           };
         } catch (queueError: unknown) {
-          console.error(`[${requestId}] Queue fallback also failed:`, queueError);
+          console.error(
+            `[${requestId}] Queue fallback also failed:`,
+            queueError
+          );
         }
       }
-      
+
       return {
         success: false,
         requestId,
@@ -591,35 +639,47 @@ async function processTrade(
     }
 
     // Assuming trade-worker returns a StandardResponse { success: boolean, result?, error? }
-    const result: StandardResponse = await response.json(); 
+    const result: StandardResponse = await response.json();
     console.log(`[${requestId}] Response from TRADE_SERVICE:`, result);
     // Adapt response based on trade-worker's actual return structure
-    return { 
-        success: result.success, 
-        requestId, 
-        tradeResult: result.result,
-        error: result.error ?? undefined
-    }; 
-
+    return {
+      success: result.success,
+      requestId,
+      tradeResult: result.result,
+      error: result.error ?? undefined,
+    };
   } catch (error: unknown) {
-    const errorMsg = error instanceof Error ? error.message : String(error || "Unknown error calling trade service");
-    console.error(`[${requestId}] Exception calling TRADE_SERVICE:`, errorMsg, error);
-    
+    const errorMsg =
+      error instanceof Error
+        ? error.message
+        : String(error || "Unknown error calling trade service");
+    console.error(
+      `[${requestId}] Exception calling TRADE_SERVICE:`,
+      errorMsg,
+      error
+    );
+
     // If in queue_failover mode and exception occurred, try queue as fallback
     if (queueMode === "queue_failover" && env.TRADE_QUEUE) {
-      console.log(`[${requestId}] Direct call exception, attempting queue fallback...`);
+      console.log(
+        `[${requestId}] Direct call exception, attempting queue fallback...`
+      );
       try {
         await sendTradeToQueue(env.TRADE_QUEUE, tradeData);
         return {
           success: true,
           requestId,
-          tradeResult: { queued: true, fallback: true, message: "Trade queued after exception" },
+          tradeResult: {
+            queued: true,
+            fallback: true,
+            message: "Trade queued after exception",
+          },
         };
       } catch (queueError: unknown) {
         console.error(`[${requestId}] Queue fallback also failed:`, queueError);
       }
     }
-    
+
     return {
       success: false,
       requestId,
@@ -634,61 +694,76 @@ async function processNotification(
   env: Env
 ): Promise<ServiceResponse> {
   const { requestId, message, chatId } = notificationData;
-  console.log(`[${requestId}] processNotification: Received notification data:`, notificationData);
+  console.log(
+    `[${requestId}] processNotification: Received notification data:`,
+    notificationData
+  );
 
-  // --- Task 10.5: Implement Inter-Worker Communication --- 
+  // --- Task 10.5: Implement Inter-Worker Communication ---
   if (!env.TELEGRAM_SERVICE) {
-      console.error(`[${requestId}] TELEGRAM_SERVICE binding is not configured.`);
-      return {
-        success: false,
-        requestId,
-        error: "Telegram service binding not available.",
-      };
+    console.error(`[${requestId}] TELEGRAM_SERVICE binding is not configured.`);
+    return {
+      success: false,
+      requestId,
+      error: "Telegram service binding not available.",
+    };
   }
   if (!env.INTERNAL_KEY_BINDING) {
-      console.error(`[${requestId}] INTERNAL_KEY_BINDING is not configured for Telegram call auth.`);
-      return {
-        success: false,
-        requestId,
-        error: "Internal authentication key not configured.",
-      };
+    console.error(
+      `[${requestId}] INTERNAL_KEY_BINDING is not configured for Telegram call auth.`
+    );
+    return {
+      success: false,
+      requestId,
+      error: "Internal authentication key not configured.",
+    };
   }
 
   try {
     const internalAuthKey = env.INTERNAL_KEY_BINDING;
     if (!internalAuthKey) {
-        console.error(`[${requestId}] Failed to retrieve internal key from binding.`);
-        return {
-          success: false,
-          requestId,
-          error: "Failed to retrieve internal authentication key.",
-        };
+      console.error(
+        `[${requestId}] Failed to retrieve internal key from binding.`
+      );
+      return {
+        success: false,
+        requestId,
+        error: "Failed to retrieve internal authentication key.",
+      };
     }
 
     // Construct the payload expected by telegram-worker's /process endpoint
     const telegramWorkerPayload: ProcessRequestBody = {
-        requestId: requestId, // Pass the ID
-        internalAuthKey: internalAuthKey,
-        payload: {
-            message: message,
-            chatId: chatId, // Pass chatId (telegram-worker will use default if undefined)
-        }
+      requestId: requestId, // Pass the ID
+      internalAuthKey: internalAuthKey,
+      payload: {
+        message: message,
+        chatId: chatId, // Pass chatId (telegram-worker will use default if undefined)
+      },
     };
 
     // Construct the request for the telegram-worker
     // Using relative path "/process" assuming service binding handles the base URL
     // --> Use a dummy absolute URL instead of just the path
-    const telegramWorkerRequest = new Request("http://telegram-service/process", { // Dummy URL
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // No need for X-Request-ID header as it's in the body
-      },
-      body: JSON.stringify(telegramWorkerPayload),
-    });
+    const telegramWorkerRequest = new Request(
+      "http://telegram-service/process",
+      {
+        // Dummy URL
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // No need for X-Request-ID header as it's in the body
+        },
+        body: JSON.stringify(telegramWorkerPayload),
+      }
+    );
 
-    console.log(`[${requestId}] Calling TELEGRAM_SERVICE service binding with payload...`); // Don't log internal key
-    const response = await env.TELEGRAM_SERVICE.fetch(telegramWorkerRequest as any);
+    console.log(
+      `[${requestId}] Calling TELEGRAM_SERVICE service binding with payload...`
+    ); // Don't log internal key
+    const response = await env.TELEGRAM_SERVICE.fetch(
+      telegramWorkerRequest as any
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -706,15 +781,21 @@ async function processNotification(
     const result: StandardResponse = await response.json();
     console.log(`[${requestId}] Response from TELEGRAM_SERVICE:`, result);
     return {
-        success: result.success,
-        requestId,
-        notificationResult: result.result,
-        error: result.error ?? undefined
+      success: result.success,
+      requestId,
+      notificationResult: result.result,
+      error: result.error ?? undefined,
     };
-
   } catch (error: unknown) {
-    const errorMsg = error instanceof Error ? error.message : String(error || "Unknown error calling telegram service");
-    console.error(`[${requestId}] Exception calling TELEGRAM_SERVICE:`, errorMsg, error);
+    const errorMsg =
+      error instanceof Error
+        ? error.message
+        : String(error || "Unknown error calling telegram service");
+    console.error(
+      `[${requestId}] Exception calling TELEGRAM_SERVICE:`,
+      errorMsg,
+      error
+    );
     return {
       success: false,
       requestId,

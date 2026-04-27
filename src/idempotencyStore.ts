@@ -6,7 +6,10 @@ export class IdempotencyStore {
     this.sql = { execute: async () => {} };
   }
 
-  async checkAndStore(key: string, ttlSeconds: number = 3600): Promise<boolean> {
+  async checkAndStore(
+    key: string,
+    ttlSeconds: number = 3600
+  ): Promise<boolean> {
     if (!this.sql) await this.initialize();
 
     const now = Math.floor(Date.now() / 1000);

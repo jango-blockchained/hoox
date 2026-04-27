@@ -2,9 +2,9 @@
 
 **Last Updated:** April 2026
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Runtime](https://img.shields.io/badge/Runtime-Bun-black?logo=bun)](https://bun.sh) [![Platform](https://img.shields.io/badge/Platform-Cloudflare®%20Edge%20Workers-orange?logo=cloudflare)](https://workers.cloudflare.com/) [![License](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/) [![Build Status](https://github.com/jango-blockchained/hoox-setup/actions/workflows/opencode.yml/badge.svg)](https://github.com/jango-blockchained/hoox-setup/actions/workflows/opencode.yml) 
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Runtime](https://img.shields.io/badge/Runtime-Bun-black?logo=bun)](https://bun.sh) [![Platform](https://img.shields.io/badge/Platform-Cloudflare®%20Edge%20Workers-orange?logo=cloudflare)](https://workers.cloudflare.com/) [![License](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/) [![Build Status](https://github.com/jango-blockchained/hoox-setup/actions/workflows/opencode.yml/badge.svg)](https://github.com/jango-blockchained/hoox-setup/actions/workflows/opencode.yml)
 
-**[Main Repository](https://github.com/jango-blockchained/hoox-setup)** 
+**[Main Repository](https://github.com/jango-blockchained/hoox-setup)**
 
 A Cloudflare® Worker service that acts as the **primary gateway** for external requests (e.g., TradingView alerts, UI actions). This worker validates incoming requests, optionally performs security checks (like IP allow-listing), and forwards them to the appropriate internal worker services using Cloudflare® Service Bindings.
 
@@ -36,7 +36,7 @@ A Cloudflare® Worker service that acts as the **primary gateway** for external 
     npx wrangler kv:namespace create CONFIG_KV
     ```
 5.  Update `wrangler.jsonc` with necessary bindings (Secrets, KV, Service Bindings). Example:
-    ```jsonc
+    `jsonc
     {
       "name": "hoox",
       "main": "src/index.ts",
@@ -76,7 +76,7 @@ A Cloudflare® Worker service that acts as the **primary gateway** for external 
          ]
        }
      }
-     ```
+     `
 6.  Update the corresponding `worker-configuration.d.ts` file.
 7.  For local development, create a `.dev.vars` file and define the secrets/variables:
     ```.dev.vars
@@ -114,4 +114,4 @@ bun run deploy
 
 ---
 
-*Cloudflare® and the Cloudflare logo are trademarks and/or registered trademarks of Cloudflare, Inc. in the United States and other jurisdictions.*
+_Cloudflare® and the Cloudflare logo are trademarks and/or registered trademarks of Cloudflare, Inc. in the United States and other jurisdictions._

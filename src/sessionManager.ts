@@ -40,9 +40,13 @@ export async function updateSession(
   if (!kv) return;
 
   try {
-    await kv.put(sessionId, JSON.stringify({ lastSeen: new Date().toISOString() }), {
-      expirationTtl: SESSION_TTL,
-    });
+    await kv.put(
+      sessionId,
+      JSON.stringify({ lastSeen: new Date().toISOString() }),
+      {
+        expirationTtl: SESSION_TTL,
+      }
+    );
   } catch (e) {
     console.error("KV Session Error:", e);
   }
