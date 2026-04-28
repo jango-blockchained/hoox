@@ -42,13 +42,13 @@ interface Env {
   IDEMPOTENCY_STORE: DurableObjectNamespace; // Idempotency tracking
   WEBHOOK_API_KEY_BINDING: string; // Secret for incoming API key
   INTERNAL_KEY_BINDING: string; // Secret for calling other internal services (e.g., legacy Telegram/HA)
-  HA_TOKEN_BINDING?: string; // Optional: If HA worker communication is needed
+
   SESSIONS_KV: KVNamespace; // Added for session management
   CONFIG_KV: KVNamespace; // Added for configuration
 
   // Variables (Consider removing if not used directly or handled by bindings)
   TELEGRAM_WORKER_URL?: string; // Keep ONLY if still needed as fallback or for other purposes
-  HA_WORKER_URL?: string;
+
   ENABLE_DEBUG_ENDPOINTS?: string;
 
   // Deprecated/Remove:

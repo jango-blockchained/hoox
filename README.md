@@ -55,7 +55,7 @@ A Cloudflare® Worker service that acts as the **primary gateway** for external 
         // Bindings to the workers this receiver calls
         { "binding": "TRADE_SERVICE", "service": "trade-worker" }, // 'trade-worker' must be the name defined in its own wrangler.jsonc
         { "binding": "TELEGRAM_SERVICE", "service": "telegram-worker" },
-        { "binding": "HA_SERVICE", "service": "home-assistant-worker" }
+
         // Add other target service bindings as needed
       ],
 "observability": {
