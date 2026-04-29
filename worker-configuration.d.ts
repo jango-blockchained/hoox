@@ -13,7 +13,6 @@ declare namespace Cloudflare {
 		TRADE_QUEUE: Queue;
 		AI: Ai;
 		INTERNAL_KEY_BINDING: null;
-		HA_TOKEN_BINDING: null;
 		WEBHOOK_API_KEY_BINDING: string;
 		IDEMPOTENCY_STORE: DurableObjectNamespace<import("./src/index").IdempotencyStore>;
 		TRADE_SERVICE: Fetcher /* trade-worker */;
