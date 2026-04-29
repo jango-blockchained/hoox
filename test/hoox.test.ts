@@ -296,8 +296,8 @@ describe("Hoox Worker Integration", () => {
     });
 
     // Link the service binding mocks to the global fetch mock
-    mockEnv.TRADE_SERVICE.fetch.mockImplementation((req) => global.fetch(req));
-    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req) =>
+    mockEnv.TRADE_SERVICE.fetch.mockImplementation((req: Request) => global.fetch(req));
+    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req: Request) =>
       global.fetch(req)
     );
   });
@@ -520,8 +520,8 @@ describe("Hoox Worker Integration", () => {
     });
 
     // Re-link fetch mocks to use the new implementation
-    mockEnv.TRADE_SERVICE.fetch.mockImplementation((req) => global.fetch(req));
-    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req) =>
+    mockEnv.TRADE_SERVICE.fetch.mockImplementation((req: Request) => global.fetch(req));
+    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req: Request) =>
       global.fetch(req)
     );
 
