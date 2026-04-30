@@ -1,0 +1,62 @@
+{
+  "display_name": "Gateway",
+  "description": "Webhook gateway and routing",
+  "sections": {
+    "global": {
+      "title": "Global Rules",
+      "description": "Master settings affecting all inbound hooks",
+      "icon": "shield",
+      "priority": 10,
+      "fields": {
+        "kill_switch": false
+      },
+      "descriptions": {
+        "kill_switch": "Master kill switch for all webhooks. If true, no incoming webhooks are processed by the gateway."
+      }
+    },
+    "webhook": {
+      "title": "TradingView Security",
+      "description": "IP Allowlisting for TradingView",
+      "icon": "shield",
+      "priority": 20,
+      "fields": {
+        "tradingview_ip_check_enabled": true,
+        "tradingview_allowed_ips": "[\"52.89.214.238\", \"34.212.75.30\", \"54.218.53.128\", \"52.32.178.7\"]"
+      },
+      "descriptions": {
+        "tradingview_ip_check_enabled": "Enforce IP validation for incoming TradingView webhooks.",
+        "tradingview_allowed_ips": "JSON array of allowed IP addresses for TradingView webhooks."
+      }
+    },
+    "routing": {
+      "title": "Routing",
+      "description": "Trade routing configuration",
+      "icon": "router",
+      "priority": 30,
+      "fields": {
+        "default_exchange": "mexc",
+        "failover_enabled": true,
+        "default_leverage": 10
+      },
+      "options": {
+        "default_exchange": [
+          "binance",
+          "mexc",
+          "bybit"
+        ],
+        "default_leverage": [
+          1,
+          5,
+          10,
+          20,
+          50,
+          100
+        ]
+      },
+      "descriptions": {
+        "default_exchange": "Default exchange for trade execution when not specified in the signal.",
+        "failover_enabled": "Enable automatic failover to secondary exchanges when primary fails."
+      }
+    }
+  }
+}
