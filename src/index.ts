@@ -12,6 +12,11 @@ import { checkKillSwitch } from "./killSwitch";
 import { checkIpAllowlist } from "./ipAllowlist";
 import { getOrCreateSession } from "./sessionManager";
 import { IdempotencyStore } from "./idempotencyStore";
+import { createErrorResponse, Errors } from '@hoox/shared/errors';
+import { createLogger, withRequestLog } from '@hoox/shared/middleware';
+import { createRouter } from '@hoox/shared/router';
+import type { Handler } from '@hoox/shared/types/router';
+import type { WebhookPayload, StandardResponse } from '@hoox/shared/types';
 
 // --- Constants ---
 const MAX_TRADES_PER_MINUTE = 10;
@@ -97,16 +102,6 @@ interface ServiceResponse {
   error?: string;
 }
 
-interface WebhookPayload {
-  exchange: string;
-  action: "LONG" | "SHORT" | "CLOSE_LONG" | "CLOSE_SHORT";
-  symbol: string;
-  quantity: number;
-  price?: number;
-  orderType?: string;
-  leverage?: number;
-}
-
 interface ProcessRequestBody {
   requestId?: string;
   internalAuthKey?: string;
@@ -114,12 +109,6 @@ interface ProcessRequestBody {
     message?: string;
     chatId?: string;
   };
-}
-
-interface StandardResponse {
-  success: boolean;
-  result?: unknown;
-  error?: string | null;
 }
 
 // --- Security Headers ---
@@ -185,55 +174,30 @@ const KV_ALLOWED_IPS_KEY = "webhook:tradingview:allowed_ips";
 const KV_QUEUE_MODE_KEY = "webhook:queue_mode"; // "queue_failover" or "queue_everywhere"
 
 // --- Default Export (Worker Entry Point) ---
+
+const logger = createLogger({ service: 'hoox-gateway', module: 'router' });
+
+const router = createRouter<Env>();
+
+// Define routes
+router.post('/webhook', async (request: Request, env: Env, ctx: ExecutionContext) => {
+  return await handleRequest(request, env);
+});
+
+router.get('/health', async (request: Request, env: Env, ctx: ExecutionContext) => {
+  return createSecureResponse(
+    {
+      status: "ok",
+      timestamp: new Date().toISOString(),
+    },
+    { status: 200 }
+  );
+});
+
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    try {
-      const debugEndpointsEnabled = env.ENABLE_DEBUG_ENDPOINTS === "true";
-
-      // --- Global Kill Switch Check ---
-      const killSwitch = await checkKillSwitch(env.CONFIG_KV);
-      if (killSwitch.enabled) {
-        return wrapResponse(
-          createSecureResponse(
-            {
-              success: false,
-              error: "Trading is temporarily paused (Kill Switch)",
-            },
-            { status: 503 }
-          )
-        );
-      }
-
-      // --- IP Allow-listing Check ---
-      const clientIp = request.headers.get("CF-Connecting-IP");
-      const ipCheck = await checkIpAllowlist(env.CONFIG_KV, clientIp);
-      if (!ipCheck.allowed) {
-        return wrapResponse(
-          createSecureResponse(
-            { success: false, error: "Forbidden - Invalid Source IP" },
-            { status: 403 }
-          )
-        );
-      }
-
-      // Process request
-      const response = await handleRequest(request, env);
-      return wrapResponse(response);
-    } catch (error: unknown) {
-      // Even error responses get security headers
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error("[fetch] Unhandled error:", errorMsg);
-      return wrapResponse(
-        new Response(
-          JSON.stringify({ success: false, error: "Internal server error" }),
-          {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          }
-        )
-      );
-    }
-  },
+  fetch: withRequestLog((request: Request, env: Env, ctx: ExecutionContext) => {
+    return router.handle(request, env, ctx);
+  }, { service: 'hoox-gateway', module: 'router' }),
 };
 
 // --- Request Handling Logic ---

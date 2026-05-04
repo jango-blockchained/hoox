@@ -303,7 +303,7 @@ describe("Hoox Worker Integration", () => {
   });
 
   test("rejects request with invalid apiKey from payload", async () => {
-    const request = new Request("https://hoox.workers.dev", {
+    const request = new Request("https://hoox.workers.dev/webhook", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -315,7 +315,7 @@ describe("Hoox Worker Integration", () => {
       }),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv);
+    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
     expect(response.status).toBe(403);
     // Binding should now be called after IP check passes
     expect(fetchMock).not.toHaveBeenCalled();
@@ -323,7 +323,7 @@ describe("Hoox Worker Integration", () => {
 
   test("rejects request if apiKey binding is not configured", async () => {
     mockEnv = createMockEnv({ apiKey: null, internalKey: TEST_INTERNAL_KEY }); // API_SECRET_KEY is null
-    const request = new Request("https://hoox.workers.dev", {
+    const request = new Request("https://hoox.workers.dev/webhook", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -332,13 +332,13 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(validWebhookPayload), // Payload has a key, but binding fails
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv);
+    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
     expect(response.status).toBe(403);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
   test("processes valid webhook and forwards to both services", async () => {
-    const request = new Request("https://hoox.workers.dev", {
+    const request = new Request("https://hoox.workers.dev/webhook", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -347,7 +347,7 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(validWebhookPayload),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv);
+    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
     expect(response.status).toBe(200);
 
     // Check service bindings' fetch methods were called
@@ -380,7 +380,7 @@ describe("Hoox Worker Integration", () => {
 
   test("returns internal error if internal key binding fails during forwarding", async () => {
     mockEnv = createMockEnv({ apiKey: TEST_API_KEY, internalKey: null }); // INTERNAL_SERVICE_KEY is null
-    const request = new Request("https://hoox.workers.dev", {
+    const request = new Request("https://hoox.workers.dev/webhook", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -389,7 +389,7 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(validWebhookPayload),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv);
+    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
     expect(response.status).toBe(500);
     const body = (await response.json()) as any;
     // Check the combined error message structure - Only notify fails on key
@@ -408,7 +408,7 @@ describe("Hoox Worker Integration", () => {
   test("processes only trade signal when notify is missing", async () => {
     const tradeOnlyPayload = { ...validWebhookPayload, notify: undefined }; // Remove notify section
 
-    const request = new Request("https://hoox.workers.dev", {
+    const request = new Request("https://hoox.workers.dev/webhook", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -417,7 +417,7 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(tradeOnlyPayload),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv);
+    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
     expect(response.status).toBe(200);
 
     expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1);
@@ -450,7 +450,7 @@ describe("Hoox Worker Integration", () => {
       quantity: 0, // Add empty trade fields
     };
 
-    const request = new Request("https://hoox.workers.dev", {
+    const request = new Request("https://hoox.workers.dev/webhook", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -460,7 +460,7 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(completeNotifyOnlyPayload),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv);
+    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
     // The worker logic doesn't forward trade if fields are empty/invalid
     expect(response.status).toBe(200);
 
@@ -525,7 +525,7 @@ describe("Hoox Worker Integration", () => {
       global.fetch(req)
     );
 
-    const request = new Request("https://hoox.workers.dev", {
+    const request = new Request("https://hoox.workers.dev/webhook", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -534,7 +534,7 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(validWebhookPayload),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv);
+    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
     expect(response.status).toBe(500); // Expect 500 due to downstream failure
 
     expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1); // Trade fetch fails

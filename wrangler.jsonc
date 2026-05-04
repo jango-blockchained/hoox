@@ -6,62 +6,62 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true,
-    "head_sampling_rate": 1,
+    "head_sampling_rate": 1
   },
   "vars": {
     "WEBHOOK_API_KEY_BINDING": null,
     "INTERNAL_KEY_BINDING": null,
-    "HA_TOKEN_BINDING": null,
+    "HA_TOKEN_BINDING": null
   },
   "services": [
     {
       "binding": "TRADE_SERVICE",
-      "service": "trade-worker",
+      "service": "trade-worker"
     },
     {
       "binding": "TELEGRAM_SERVICE",
-      "service": "telegram-worker",
-    },
+      "service": "telegram-worker"
+    }
   ],
   "kv_namespaces": [
     {
       "binding": "SESSIONS_KV",
-      "id": "ff70a58b492e45d79880a7a8213c745c",
+      "id": "ff70a58b492e45d79880a7a8213c745c"
     },
     {
       "binding": "CONFIG_KV",
-      "id": "c5917667a21745e390ff969f32b1847d",
-    },
+      "id": "c5917667a21745e390ff969f32b1847d"
+    }
   ],
   "vectorize": [
     {
       "binding": "VECTORIZE_INDEX",
-      "index_name": "my-rag-index",
-    },
+      "index_name": "my-rag-index"
+    }
   ],
   "ai": {
-    "binding": "AI",
+    "binding": "AI"
   },
   "queues": {
     "producers": [
       {
         "queue": "trade-execution",
-        "binding": "TRADE_QUEUE",
-      },
-    ],
+        "binding": "TRADE_QUEUE"
+      }
+    ]
   },
   "durable_objects": {
     "bindings": [
       {
         "name": "IDEMPOTENCY_STORE",
-        "class_name": "IdempotencyStore",
-      },
-    ],
+        "class_name": "IdempotencyStore"
+      }
+    ]
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["IdempotencyStore"],
-    },
-  ],
+      "new_sqlite_classes": ["IdempotencyStore"]
+    }
+  ]
 }

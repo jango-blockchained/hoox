@@ -71,22 +71,26 @@ export async function loadIpConfig(
     return { enabled: ipCheckEnabled, allowedIps };
   }
 
-  try {
-    const kvValue = await kv.get(KV_IP_CHECK_ENABLED_KEY);
-    if (kvValue !== null && kvValue !== undefined) {
-      ipCheckEnabled = kvValue.toLowerCase() === "true";
-    }
-
-    const customIpsStr = await kv.get(KV_ALLOWED_IPS_KEY);
-    if (customIpsStr) {
-      const customIps = JSON.parse(customIpsStr);
-      if (Array.isArray(customIps) && customIps.length > 0) {
-        allowedIps = new Set(customIps);
+    try {
+      const kvValue = await kv.get(KV_IP_CHECK_ENABLED_KEY);
+      if (kvValue !== null && kvValue !== undefined) {
+        ipCheckEnabled = kvValue.toLowerCase() === "true";
       }
+
+      const customIpsStr = await kv.get(KV_ALLOWED_IPS_KEY);
+      if (customIpsStr) {
+        try {
+          const customIps = JSON.parse(customIpsStr);
+          if (Array.isArray(customIps) && customIps.length > 0) {
+            allowedIps = new Set(customIps);
+          }
+        } catch (parseError) {
+          console.error("Error parsing IP config JSON from KV:", parseError);
+        }
+      }
+    } catch (e) {
+      console.error("Error loading IP config from KV:", e);
     }
-  } catch (e) {
-    console.error("Error loading IP config from KV:", e);
-  }
 
   return { enabled: ipCheckEnabled, allowedIps };
 }
