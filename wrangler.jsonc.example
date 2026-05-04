@@ -3,6 +3,13 @@
   // ACCOUNT_ID: Get from Cloudflare Dashboard > Overview > Account ID
   "account_id": "YOUR_ACCOUNT_ID",
   "main": "src/index.ts",
+  "alias": {
+    "@hoox/shared/errors": "../../packages/shared/src/errors.ts",
+    "@hoox/shared/middleware": "../../packages/shared/src/middleware/index.ts",
+    "@hoox/shared/router": "../../packages/shared/src/router.ts",
+    "@hoox/shared/types": "../../packages/shared/src/types.ts",
+    "@hoox/shared/types/router": "../../packages/shared/src/types/router.ts"
+  },
   // COMPATIBILITY_DATE: Use current date or latest supported
   "compatibility_date": "2025-03-07",
   "compatibility_flags": ["nodejs_compat"],
