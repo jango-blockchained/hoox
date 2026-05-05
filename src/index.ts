@@ -50,6 +50,7 @@ interface Env {
 
   SESSIONS_KV: KVNamespace; // Added for session management
   CONFIG_KV: KVNamespace; // Added for configuration
+  ANALYTICS_SERVICE?: Fetcher;
 
   // Variables (Consider removing if not used directly or handled by bindings)
   TELEGRAM_WORKER_URL?: string; // Keep ONLY if still needed as fallback or for other purposes
@@ -173,6 +174,26 @@ const KV_IP_CHECK_ENABLED_KEY = "webhook:tradingview:ip_check_enabled";
 const KV_ALLOWED_IPS_KEY = "webhook:tradingview:allowed_ips";
 const KV_QUEUE_MODE_KEY = "webhook:queue_mode"; // "queue_failover" or "queue_everywhere"
 
+// Analytics tracking helper
+async function trackAnalytics(
+  env: Env,
+  endpoint: string,
+  body: Record<string, any>
+): Promise<void> {
+  if (!env.ANALYTICS_SERVICE) return;
+  try {
+    await env.ANALYTICS_SERVICE.fetch(
+      new Request("http://analytics-service" + endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }) as any
+    );
+  } catch (e) {
+    console.error("Analytics tracking failed:", e);
+  }
+}
+
 // --- Default Export (Worker Entry Point) ---
 
 const logger = createLogger({ service: 'hoox-gateway', module: 'router' });
@@ -203,6 +224,8 @@ export default {
 // --- Request Handling Logic ---
 
 async function handleRequest(request: Request, env: Env): Promise<Response> {
+  const startTime = Date.now();
+
   if (request.method !== "POST") {
     console.log(
       `[handleRequest] Returning METHOD NOT ALLOWED response (status 405)`
@@ -301,6 +324,15 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
         );
       }
     }
+
+    // Track webhook API call (non-blocking)
+    const latencyMs = Date.now() - startTime;
+    trackAnalytics(env, "/track/api-call", {
+      worker: "hoox",
+      endpoint: "/webhook",
+      latencyMs,
+      success: overallSuccess,
+    });
 
     // --- Construct Response ---
     if (overallSuccess) {
