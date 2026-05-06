@@ -14,9 +14,9 @@ export async function checkKillSwitch(
       return { enabled: true };
     }
     return { enabled: false };
-  } catch (e) {
-    console.error("Error reading kill switch KV:", e);
-    return { enabled: false, error: String(e) };
+  } catch (error: unknown) {
+    console.error("Error reading kill switch KV:", error);
+    return { enabled: false, error: String(error) };
   }
 }
 

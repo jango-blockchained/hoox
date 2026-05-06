@@ -27,8 +27,8 @@ export async function getOrCreateSession(
     }
 
     return { sessionId: id, isNew };
-  } catch (e) {
-    console.error("KV Session Error:", e);
+  } catch (error: unknown) {
+    console.error("KV Session Error:", error);
     return { sessionId: id, isNew: !sessionId };
   }
 }
@@ -47,7 +47,7 @@ export async function updateSession(
         expirationTtl: SESSION_TTL,
       }
     );
-  } catch (e) {
-    console.error("KV Session Error:", e);
+  } catch (error: unknown) {
+    console.error("KV Session Error:", error);
   }
 }

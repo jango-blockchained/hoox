@@ -51,11 +51,11 @@ export async function checkIpAllowlist(
       reason: `IP ${clientIp} not in allowlist`,
       config,
     };
-  } catch (e) {
-    console.error("Error checking IP allowlist:", e);
+  } catch (error: unknown) {
+    console.error("Error checking IP allowlist:", error);
     return {
       allowed: false,
-      reason: String(e),
+      reason: String(error),
       config: defaultConfig,
     };
   }
