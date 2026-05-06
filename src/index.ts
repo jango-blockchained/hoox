@@ -16,7 +16,9 @@ import { createErrorResponse, Errors } from '@hoox/shared/errors';
 import { createLogger, withRequestLog } from '@hoox/shared/middleware';
 import { createRouter } from '@hoox/shared/router';
 import type { Handler } from '@hoox/shared/types/router';
-import type { WebhookPayload, StandardResponse } from '@hoox/shared/types';
+import type { WebhookPayload, StandardResponse, ProcessRequestBody } from '@hoox/shared/types';
+import { trackAnalytics } from '@hoox/shared/analytics';
+import type { AnalyticsEnv } from '@hoox/shared/analytics';
 
 // --- Constants ---
 const MAX_TRADES_PER_MINUTE = 10;
@@ -38,7 +40,7 @@ const TRADINGVIEW_ALLOWED_IPS = new Set([
 // --- Type Definitions ---
 
 // Define the expected environment variables and bindings from wrangler.toml
-interface Env {
+interface Env extends AnalyticsEnv {
   AI: Ai; // Add the AI binding
   // Bindings
   TRADE_SERVICE: Fetcher; // Service binding to trade-worker
@@ -50,7 +52,6 @@ interface Env {
 
   SESSIONS_KV: KVNamespace; // Added for session management
   CONFIG_KV: KVNamespace; // Added for configuration
-  ANALYTICS_SERVICE?: Fetcher;
 
   // Variables (Consider removing if not used directly or handled by bindings)
   TELEGRAM_WORKER_URL?: string; // Keep ONLY if still needed as fallback or for other purposes
@@ -103,14 +104,7 @@ interface ServiceResponse {
   error?: string;
 }
 
-interface ProcessRequestBody {
-  requestId?: string;
-  internalAuthKey?: string;
-  payload: {
-    message?: string;
-    chatId?: string;
-  };
-}
+type HooxProcessRequestBody = ProcessRequestBody<{ message?: string; chatId?: string }>;
 
 // --- Security Headers ---
 const SECURITY_HEADERS = {
@@ -173,26 +167,6 @@ function wrapResponse(response: Response): Response {
 const KV_IP_CHECK_ENABLED_KEY = "webhook:tradingview:ip_check_enabled";
 const KV_ALLOWED_IPS_KEY = "webhook:tradingview:allowed_ips";
 const KV_QUEUE_MODE_KEY = "webhook:queue_mode"; // "queue_failover" or "queue_everywhere"
-
-// Analytics tracking helper
-async function trackAnalytics(
-  env: Env,
-  endpoint: string,
-  body: Record<string, any>
-): Promise<void> {
-  if (!env.ANALYTICS_SERVICE) return;
-  try {
-    await env.ANALYTICS_SERVICE.fetch(
-      new Request("http://analytics-service" + endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      }) as any
-    );
-  } catch (e) {
-    console.error("Analytics tracking failed:", e);
-  }
-}
 
 // --- Default Export (Worker Entry Point) ---
 
@@ -372,10 +346,7 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
         ? error.message
         : String(error || "Internal Server Error");
     console.error(`[handleRequest] Uncaught error: ${errorMsg}`, error);
-    return new Response(JSON.stringify({ success: false, error: errorMsg }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return Errors.internal(errorMsg);
   }
 }
 
@@ -729,7 +700,7 @@ async function processNotification(
     }
 
     // Construct the payload expected by telegram-worker's /process endpoint
-    const telegramWorkerPayload: ProcessRequestBody = {
+    const telegramWorkerPayload: HooxProcessRequestBody = {
       requestId: requestId, // Pass the ID
       internalAuthKey: internalAuthKey,
       payload: {
