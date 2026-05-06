@@ -11,13 +11,16 @@
     "test:coverage": "bun test --coverage"
   },
   "dependencies": {
+    "@hoox/shared": "workspace:*",
     "itty-router": "^5.0.23",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "wrangler": "^4.83.0",
-    "bun-types": "^1.3.13",
+    "@cloudflare/ai": "^1.2.2",
+    "@cloudflare/workers-types": "^4.20260506.1",
     "@types/jest": "^29.5.14",
-    "jest-mock": "^29.7.0"
+    "bun-types": "^1.3.13",
+    "jest-mock": "^29.7.0",
+    "wrangler": "^4.83.0"
   }
 }
