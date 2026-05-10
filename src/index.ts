@@ -12,13 +12,25 @@ import { checkKillSwitch } from "./killSwitch";
 import { checkIpAllowlist } from "./ipAllowlist";
 import { getOrCreateSession } from "./sessionManager";
 import { IdempotencyStore } from "./idempotencyStore";
-import { createErrorResponse, Errors } from '@hoox/shared/errors';
-import { createLogger, withRequestLog } from '@hoox/shared/middleware';
-import { createRouter } from '@hoox/shared/router';
-import type { Handler } from '@hoox/shared/types/router';
-import type { WebhookPayload, StandardResponse, ProcessRequestBody } from '@hoox/shared/types';
-import { trackAnalytics } from '@hoox/shared/analytics';
-import type { AnalyticsEnv } from '@hoox/shared/analytics';
+import {
+  createErrorResponse,
+  Errors,
+} from "@jango-blockchained/hoox-shared/errors";
+import {
+  createLogger,
+  withRequestLog,
+} from "@jango-blockchained/hoox-shared/middleware";
+import { createRouter } from "@jango-blockchained/hoox-shared/router";
+import type { Handler } from "@jango-blockchained/hoox-shared/types/router";
+import type {
+  WebhookPayload,
+  StandardResponse,
+  ProcessRequestBody,
+} from "@jango-blockchained/hoox-shared/types";
+import { trackAnalytics } from "@jango-blockchained/hoox-shared/analytics";
+import type { AnalyticsEnv } from "@jango-blockchained/hoox-shared/analytics";
+import { healthCheck } from "@jango-blockchained/hoox-shared/health";
+import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
 
 // --- Constants ---
 const MAX_TRADES_PER_MINUTE = 10;
@@ -104,7 +116,10 @@ interface ServiceResponse {
   error?: string;
 }
 
-type HooxProcessRequestBody = ProcessRequestBody<{ message?: string; chatId?: string }>;
+type HooxProcessRequestBody = ProcessRequestBody<{
+  message?: string;
+  chatId?: string;
+}>;
 
 // --- Security Headers ---
 const SECURITY_HEADERS = {
@@ -164,35 +179,38 @@ function wrapResponse(response: Response): Response {
 }
 
 // --- KV Configuration Keys ---
-const KV_IP_CHECK_ENABLED_KEY = "webhook:tradingview:ip_check_enabled";
-const KV_ALLOWED_IPS_KEY = "webhook:tradingview:allowed_ips";
-const KV_QUEUE_MODE_KEY = "webhook:queue_mode"; // "queue_failover" or "queue_everywhere"
+const KV_IP_CHECK_ENABLED_KEY = KVKeys.KV_WEBHOOK_IP_CHECK_ENABLED;
+const KV_ALLOWED_IPS_KEY = KVKeys.KV_WEBHOOK_ALLOWED_IPS;
 
 // --- Default Export (Worker Entry Point) ---
 
-const logger = createLogger({ service: 'hoox-gateway', module: 'router' });
+const logger = createLogger({ service: "hoox-gateway", module: "router" });
 
 const router = createRouter<Env>();
 
 // Define routes
-router.post('/webhook', async (request: Request, env: Env, ctx: ExecutionContext) => {
-  return await handleRequest(request, env);
-});
+router.post(
+  "/webhook",
+  async (request: Request, env: Env, ctx: ExecutionContext) => {
+    return await handleRequest(request, env);
+  }
+);
 
-router.get('/health', async (request: Request, env: Env, ctx: ExecutionContext) => {
-  return createSecureResponse(
-    {
-      status: "ok",
-      timestamp: new Date().toISOString(),
-    },
-    { status: 200 }
-  );
-});
+router.get(
+  "/health",
+  async (request: Request, env: Env, ctx: ExecutionContext) => {
+    const response = healthCheck({ worker: "hoox" });
+    return wrapResponse(response);
+  }
+);
 
 export default {
-  fetch: withRequestLog((request: Request, env: Env, ctx: ExecutionContext) => {
-    return router.handle(request, env, ctx);
-  }, { service: 'hoox-gateway', module: 'router' }),
+  fetch: withRequestLog(
+    (request: Request, env: Env, ctx: ExecutionContext) => {
+      return router.handle(request, env, ctx);
+    },
+    { service: "hoox-gateway", module: "router" }
+  ),
 };
 
 // --- Request Handling Logic ---
@@ -390,7 +408,7 @@ async function validateApiKeyBinding(
 async function getQueueMode(
   kv: KVNamespace
 ): Promise<"queue_everywhere" | "queue_failover"> {
-  const mode = await kv.get(KV_QUEUE_MODE_KEY);
+  const mode = await kv.get(KVKeys.KV_WEBHOOK_QUEUE_MODE);
   return mode === "queue_everywhere" ? "queue_everywhere" : "queue_failover";
 }
 

@@ -11,7 +11,7 @@
     "test:coverage": "bun test --coverage"
   },
   "dependencies": {
-    "@hoox/shared": "workspace:*",
+    "@jango-blockchained/hoox-shared": "workspace:*",
     "typescript": "^5.9.3"
   },
   "devDependencies": {

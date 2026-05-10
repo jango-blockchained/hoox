@@ -38,45 +38,47 @@ A Cloudflare® Worker service that acts as the **primary gateway** for external 
 5.  Update `wrangler.jsonc` with necessary bindings (Secrets, KV, Service Bindings). Example:
     `jsonc
     {
-      "name": "hoox",
-      "main": "src/index.ts",
-      "compatibility_date": "2025-03-07",
-      "compatibility_flags": ["nodejs_compat"],
-      "account_id": "YOUR_CLOUDFLARE_ACCOUNT_ID",
-      "secrets": [
-        "WEBHOOK_API_KEY_BINDING",
-        "INTERNAL_KEY_BINDING"
-      ],
-      "kv_namespaces": [
-        // Example: If using KV for config
-        { "binding": "CONFIG_KV", "id": "<CONFIG_KV_ID>", "preview_id": "<CONFIG_KV_PREVIEW_ID>" }
-      ],
-      "services": [
-        // Bindings to the workers this receiver calls
-        { "binding": "TRADE_SERVICE", "service": "trade-worker" }, // 'trade-worker' must be the name defined in its own wrangler.jsonc
-        { "binding": "TELEGRAM_SERVICE", "service": "telegram-worker" },
+    "name": "hoox",
+    "main": "src/index.ts",
+    "compatibility_date": "2025-03-07",
+    "compatibility_flags": ["nodejs_compat"],
+    "account_id": "YOUR_CLOUDFLARE_ACCOUNT_ID",
+    "secrets": [
+    "WEBHOOK_API_KEY_BINDING",
+    "INTERNAL_KEY_BINDING"
+    ],
+    "kv_namespaces": [
+    // Example: If using KV for config
+    { "binding": "CONFIG_KV", "id": "<CONFIG_KV_ID>", "preview_id": "<CONFIG_KV_PREVIEW_ID>" }
+    ],
+    "services": [
+    // Bindings to the workers this receiver calls
+    { "binding": "TRADE_SERVICE", "service": "trade-worker" }, // 'trade-worker' must be the name defined in its own wrangler.jsonc
+    { "binding": "TELEGRAM_SERVICE", "service": "telegram-worker" },
 
-        // Add other target service bindings as needed
-      ],
-"observability": {
-         "enabled": true,
-         "head_sampling_rate": 1
-       },
-       "queues": {
-         "producers": [
-           { "queue": "trade-execution", "binding": "TRADE_QUEUE" }
-         ]
-       },
-       "durable_objects": {
-         "bindings": [
-           { "name": "IDEMPOTENCY_STORE", "class_name": "IdempotencyStore" }
-         ],
-         "migrations": [
-           { "tag": "v1", "new_sqlite_classes": ["IdempotencyStore"] }
-         ]
-       }
-     }
-     `
+            // Add other target service bindings as needed
+          ],
+
+    "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+    },
+    "queues": {
+    "producers": [
+    { "queue": "trade-execution", "binding": "TRADE_QUEUE" }
+    ]
+    },
+    "durable_objects": {
+    "bindings": [
+    { "name": "IDEMPOTENCY_STORE", "class_name": "IdempotencyStore" }
+    ],
+    "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["IdempotencyStore"] }
+    ]
+    }
+    }
+    `
+
 6.  Update the corresponding `worker-configuration.d.ts` file.
 7.  For local development, create a `.dev.vars` file and define the secrets/variables:
     ```.dev.vars

@@ -296,7 +296,9 @@ describe("Hoox Worker Integration", () => {
     });
 
     // Link the service binding mocks to the global fetch mock
-    mockEnv.TRADE_SERVICE.fetch.mockImplementation((req: Request) => global.fetch(req));
+    mockEnv.TRADE_SERVICE.fetch.mockImplementation((req: Request) =>
+      global.fetch(req)
+    );
     mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req: Request) =>
       global.fetch(req)
     );
@@ -315,7 +317,11 @@ describe("Hoox Worker Integration", () => {
       }),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
+    const response = await webhookReceiver.fetch(
+      request,
+      mockEnv,
+      {} as ExecutionContext
+    );
     expect(response.status).toBe(403);
     // Binding should now be called after IP check passes
     expect(fetchMock).not.toHaveBeenCalled();
@@ -332,7 +338,11 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(validWebhookPayload), // Payload has a key, but binding fails
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
+    const response = await webhookReceiver.fetch(
+      request,
+      mockEnv,
+      {} as ExecutionContext
+    );
     expect(response.status).toBe(403);
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -347,7 +357,11 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(validWebhookPayload),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
+    const response = await webhookReceiver.fetch(
+      request,
+      mockEnv,
+      {} as ExecutionContext
+    );
     expect(response.status).toBe(200);
 
     // Check service bindings' fetch methods were called
@@ -389,7 +403,11 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(validWebhookPayload),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
+    const response = await webhookReceiver.fetch(
+      request,
+      mockEnv,
+      {} as ExecutionContext
+    );
     expect(response.status).toBe(500);
     const body = (await response.json()) as any;
     // Check the combined error message structure - Only notify fails on key
@@ -417,7 +435,11 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(tradeOnlyPayload),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
+    const response = await webhookReceiver.fetch(
+      request,
+      mockEnv,
+      {} as ExecutionContext
+    );
     expect(response.status).toBe(200);
 
     expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1);
@@ -460,7 +482,11 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(completeNotifyOnlyPayload),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
+    const response = await webhookReceiver.fetch(
+      request,
+      mockEnv,
+      {} as ExecutionContext
+    );
     // The worker logic doesn't forward trade if fields are empty/invalid
     expect(response.status).toBe(200);
 
@@ -520,7 +546,9 @@ describe("Hoox Worker Integration", () => {
     });
 
     // Re-link fetch mocks to use the new implementation
-    mockEnv.TRADE_SERVICE.fetch.mockImplementation((req: Request) => global.fetch(req));
+    mockEnv.TRADE_SERVICE.fetch.mockImplementation((req: Request) =>
+      global.fetch(req)
+    );
     mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req: Request) =>
       global.fetch(req)
     );
@@ -534,7 +562,11 @@ describe("Hoox Worker Integration", () => {
       body: JSON.stringify(validWebhookPayload),
     });
 
-    const response = await webhookReceiver.fetch(request, mockEnv, {} as ExecutionContext);
+    const response = await webhookReceiver.fetch(
+      request,
+      mockEnv,
+      {} as ExecutionContext
+    );
     expect(response.status).toBe(500); // Expect 500 due to downstream failure
 
     expect(mockEnv.TRADE_SERVICE.fetch).toHaveBeenCalledTimes(1); // Trade fetch fails
