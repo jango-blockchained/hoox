@@ -12,16 +12,12 @@ import { checkKillSwitch } from "./killSwitch";
 import { checkIpAllowlist } from "./ipAllowlist";
 import { getOrCreateSession } from "./sessionManager";
 import { IdempotencyStore } from "./idempotencyStore";
-import {
-  createErrorResponse,
-  Errors,
-} from "@jango-blockchained/hoox-shared/errors";
+import { Errors } from "@jango-blockchained/hoox-shared/errors";
 import {
   createLogger,
   withRequestLog,
 } from "@jango-blockchained/hoox-shared/middleware";
 import { createRouter } from "@jango-blockchained/hoox-shared/router";
-import type { Handler } from "@jango-blockchained/hoox-shared/types/router";
 import type {
   WebhookPayload,
   StandardResponse,
