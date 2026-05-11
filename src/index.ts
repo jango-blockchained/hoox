@@ -12,7 +12,11 @@ import { checkKillSwitch } from "./killSwitch";
 import { checkIpAllowlist } from "./ipAllowlist";
 import { getOrCreateSession } from "./sessionManager";
 import { IdempotencyStore } from "./idempotencyStore";
-import { Errors } from "@jango-blockchained/hoox-shared/errors";
+import {
+  Errors,
+  toError,
+  createJsonResponse,
+} from "@jango-blockchained/hoox-shared/errors";
 import {
   createLogger,
   withRequestLog,
@@ -215,7 +219,7 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
   const startTime = Date.now();
 
   if (request.method !== "POST") {
-    console.log(
+    logger.info(
       `[handleRequest] Returning METHOD NOT ALLOWED response (status 405)`
     );
     return new Response("Method not allowed", { status: 405 });
@@ -227,14 +231,8 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     // Validate the API key using the secret binding
     const { apiKey } = data;
     if (!apiKey) {
-      console.warn("[handleRequest] apiKey missing from payload");
-      return new Response(
-        JSON.stringify({ success: false, error: "Forbidden" }),
-        {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      logger.warn("[handleRequest] apiKey missing from payload");
+      return createJsonResponse({ success: false, error: "Forbidden" }, 403);
     }
 
     const isValid = await validateApiKeyBinding(
@@ -242,14 +240,8 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       env.WEBHOOK_API_KEY_BINDING
     );
     if (!isValid) {
-      console.warn("[handleRequest] Invalid apiKey provided");
-      return new Response(
-        JSON.stringify({ success: false, error: "Forbidden" }),
-        {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      logger.warn("[handleRequest] Invalid apiKey provided");
+      return createJsonResponse({ success: false, error: "Forbidden" }, 403);
     }
 
     // Remove the API key from the data before processing/forwarding
@@ -283,9 +275,9 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       if (!tradeResult?.success) {
         overallSuccess = false;
         errorMessages.push(tradeResult?.error || "Trade processing failed");
-        console.error(
-          `Trade processing failed for ${requestId}:`,
-          tradeResult?.error
+        logger.error(
+          `Trade processing failed for ${requestId}`,
+          { error: tradeResult?.error }
         );
       }
     }
@@ -306,9 +298,9 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
         errorMessages.push(
           notificationResult?.error || "Notification processing failed"
         );
-        console.error(
-          `Notification processing failed for ${requestId}:`,
-          notificationResult?.error
+        logger.error(
+          `Notification processing failed for ${requestId}`,
+          { error: notificationResult?.error }
         );
       }
     }
@@ -324,42 +316,38 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 
     // --- Construct Response ---
     if (overallSuccess) {
-      console.log(
+      logger.info(
         `[handleRequest] Returning SUCCESS response (status 200) for ${requestId}`
       );
-      return new Response(
-        JSON.stringify({
+      return createJsonResponse(
+        {
           success: true,
           requestId,
           tradeResult,
           notificationResult,
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
+        },
+        200
       );
     } else {
-      console.log(
+      logger.info(
         `[handleRequest] Returning FAILURE response (status 500) for ${requestId} due to: ${errorMessages.join(
           "; "
         )}`
       );
-      return new Response(
-        JSON.stringify({
+      return createJsonResponse(
+        {
           success: false,
           requestId,
           error: `Processing failed: ${errorMessages.join("; ")}`,
           tradeResult, // Include partial results/errors
           notificationResult,
-        }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        },
+        500
       );
     }
   } catch (error: unknown) {
-    // Type guard for error message
-    const errorMsg =
-      error instanceof Error
-        ? error.message
-        : String(error || "Internal Server Error");
-    console.error(`[handleRequest] Uncaught error: ${errorMsg}`, error);
+    const errorMsg = toError(error, "Internal Server Error");
+    logger.error(`[handleRequest] Uncaught error: ${errorMsg}`, { error: toError(error) });
     return Errors.internal(errorMsg);
   }
 }
@@ -372,7 +360,7 @@ async function validateApiKeyBinding(
   binding?: string
 ): Promise<boolean> {
   if (!binding) {
-    console.error(
+    logger.error(
       "[validateApiKeyBinding] WEBHOOK_API_KEY_BINDING is not configured."
     );
     return false;
@@ -380,19 +368,18 @@ async function validateApiKeyBinding(
   try {
     const expectedKey = binding;
     if (!expectedKey) {
-      console.error(
+      logger.error(
         "[validateApiKeyBinding] Failed to retrieve key from binding."
       );
       return false;
     }
     // Basic string comparison (consider timing attacks if critical)
     const isValid = apiKey === expectedKey;
-    console.log(`[validateApiKeyBinding] Validation result: ${isValid}`);
+    logger.info(`[validateApiKeyBinding] Validation result: ${isValid}`);
     return isValid;
   } catch (e: unknown) {
-    const errorMsg =
-      e instanceof Error ? e.message : String(e || "Error retrieving secret");
-    console.error("[validateApiKeyBinding] Error retrieving secret:", errorMsg);
+    const errorMsg = toError(e, "Error retrieving secret");
+    logger.error("[validateApiKeyBinding] Error retrieving secret:", { error: errorMsg });
     return false;
   }
 }
@@ -425,10 +412,10 @@ async function checkIdempotency(env: Env, key: string): Promise<boolean> {
 
   try {
     const id = env.IDEMPOTENCY_STORE.newUniqueId();
-    const stub = env.IDEMPOTENCY_STORE.get(id) as any;
+    const stub = env.IDEMPOTENCY_STORE.get(id) as unknown as IdempotencyStore;
     return await stub.checkAndStore(key);
   } catch (error) {
-    console.error("[checkIdempotency] Error:", error);
+    logger.error("[checkIdempotency] Error:", { error: toError(error) });
     return true; // Allow on error to not block trades
   }
 }
@@ -478,7 +465,7 @@ async function sendTradeToQueue(
     queuedAt: new Date().toISOString(),
   };
   await queue.send(message);
-  console.log(`[${tradeData.requestId}] Trade sent to queue`);
+  logger.info(`[${tradeData.requestId}] Trade sent to queue`);
 }
 
 // Forward to trade worker using Service Binding or Queue
@@ -489,14 +476,14 @@ async function processTrade(
 ): Promise<ServiceResponse> {
   const { requestId, exchange, action, symbol, quantity, price, leverage } =
     tradeData;
-  console.log(`[${requestId}] processTrade: Received trade data:`, tradeData);
-  console.log(`[${requestId}] Queue mode: ${queueMode}`);
+  logger.info(`[${requestId}] processTrade: Received trade data`, { tradeData });
+  logger.info(`[${requestId}] Queue mode: ${queueMode}`);
 
   // Check idempotency before processing
   const idempotencyKey = generateIdempotencyKey(tradeData);
   const isNew = await checkIdempotency(env, idempotencyKey);
   if (!isNew) {
-    console.log(
+    logger.info(
       `[${requestId}] Duplicate trade detected, rejecting: ${idempotencyKey}`
     );
     return {
@@ -509,7 +496,7 @@ async function processTrade(
   // Check rate limit (using session ID from request or generated)
   const sessionId = tradeData.requestId; // Use requestId as session key
   if (!checkRateLimit(sessionId)) {
-    console.log(`[${requestId}] Rate limit exceeded for session: ${sessionId}`);
+    logger.info(`[${requestId}] Rate limit exceeded for session: ${sessionId}`);
     return {
       success: false,
       requestId,
@@ -530,18 +517,15 @@ async function processTrade(
         tradeResult: { queued: true, message: "Trade queued for execution" },
       };
     } catch (error: unknown) {
-      const errorMsg =
-        error instanceof Error
-          ? error.message
-          : String(error || "Unknown error");
-      console.error(`[${requestId}] Failed to queue trade:`, errorMsg);
+      const errorMsg = toError(error, "Unknown error");
+      logger.error(`[${requestId}] Failed to queue trade:`, { error: errorMsg });
       // Fall back to direct service call if queue fails
     }
   }
 
   // Direct service call (or fallback from queue mode)
   if (!env.TRADE_SERVICE) {
-    console.error(`[${requestId}] TRADE_SERVICE binding is not configured.`);
+    logger.error(`[${requestId}] TRADE_SERVICE binding is not configured.`);
     return {
       success: false,
       requestId,
@@ -575,22 +559,22 @@ async function processTrade(
       body: JSON.stringify(tradeWorkerPayload),
     });
 
-    console.log(
-      `[${requestId}] Calling TRADE_SERVICE service binding with payload:`,
-      tradeWorkerPayload
+    logger.info(
+      `[${requestId}] Calling TRADE_SERVICE service binding with payload`,
+      { payload: tradeWorkerPayload }
     );
     // Use the correct binding name: TRADE_SERVICE
-    const response = await env.TRADE_SERVICE.fetch(tradeWorkerRequest as any);
+    const response = await env.TRADE_SERVICE.fetch(tradeWorkerRequest as unknown as Request);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(
+      logger.error(
         `[${requestId}] Error calling TRADE_SERVICE: ${response.status} - ${errorText}`
       );
 
       // If in queue_failover mode and direct call failed, try queue as fallback
       if (queueMode === "queue_failover" && env.TRADE_QUEUE) {
-        console.log(
+        logger.info(
           `[${requestId}] Direct call failed, attempting queue fallback...`
         );
         try {
@@ -605,9 +589,9 @@ async function processTrade(
             },
           };
         } catch (queueError: unknown) {
-          console.error(
+          logger.error(
             `[${requestId}] Queue fallback also failed:`,
-            queueError
+            { error: toError(queueError) }
           );
         }
       }
@@ -621,7 +605,7 @@ async function processTrade(
 
     // Assuming trade-worker returns a StandardResponse { success: boolean, result?, error? }
     const result: StandardResponse = await response.json();
-    console.log(`[${requestId}] Response from TRADE_SERVICE:`, result);
+    logger.info(`[${requestId}] Response from TRADE_SERVICE`, { result });
     // Adapt response based on trade-worker's actual return structure
     return {
       success: result.success,
@@ -630,19 +614,15 @@ async function processTrade(
       error: result.error ?? undefined,
     };
   } catch (error: unknown) {
-    const errorMsg =
-      error instanceof Error
-        ? error.message
-        : String(error || "Unknown error calling trade service");
-    console.error(
-      `[${requestId}] Exception calling TRADE_SERVICE:`,
-      errorMsg,
-      error
+    const errorMsg = toError(error, "Unknown error calling trade service");
+    logger.error(
+      `[${requestId}] Exception calling TRADE_SERVICE: ${errorMsg}`,
+      { error: toError(error) }
     );
 
     // If in queue_failover mode and exception occurred, try queue as fallback
     if (queueMode === "queue_failover" && env.TRADE_QUEUE) {
-      console.log(
+      logger.info(
         `[${requestId}] Direct call exception, attempting queue fallback...`
       );
       try {
@@ -657,7 +637,7 @@ async function processTrade(
           },
         };
       } catch (queueError: unknown) {
-        console.error(`[${requestId}] Queue fallback also failed:`, queueError);
+        logger.error(`[${requestId}] Queue fallback also failed:`, { error: toError(queueError) });
       }
     }
 
@@ -675,14 +655,14 @@ async function processNotification(
   env: Env
 ): Promise<ServiceResponse> {
   const { requestId, message, chatId } = notificationData;
-  console.log(
-    `[${requestId}] processNotification: Received notification data:`,
-    notificationData
+  logger.info(
+    `[${requestId}] processNotification: Received notification data`,
+    { notificationData }
   );
 
   // --- Task 10.5: Implement Inter-Worker Communication ---
   if (!env.TELEGRAM_SERVICE) {
-    console.error(`[${requestId}] TELEGRAM_SERVICE binding is not configured.`);
+    logger.error(`[${requestId}] TELEGRAM_SERVICE binding is not configured.`);
     return {
       success: false,
       requestId,
@@ -690,7 +670,7 @@ async function processNotification(
     };
   }
   if (!env.INTERNAL_KEY_BINDING) {
-    console.error(
+    logger.error(
       `[${requestId}] INTERNAL_KEY_BINDING is not configured for Telegram call auth.`
     );
     return {
@@ -703,7 +683,7 @@ async function processNotification(
   try {
     const internalAuthKey = env.INTERNAL_KEY_BINDING;
     if (!internalAuthKey) {
-      console.error(
+      logger.error(
         `[${requestId}] Failed to retrieve internal key from binding.`
       );
       return {
@@ -739,16 +719,16 @@ async function processNotification(
       }
     );
 
-    console.log(
-      `[${requestId}] Calling TELEGRAM_SERVICE service binding with payload...`
+    logger.info(
+      `[${requestId}] Calling TELEGRAM_SERVICE service binding...`
     ); // Don't log internal key
     const response = await env.TELEGRAM_SERVICE.fetch(
-      telegramWorkerRequest as any
+      telegramWorkerRequest as unknown as Request
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(
+      logger.error(
         `[${requestId}] Error calling TELEGRAM_SERVICE: ${response.status} - ${errorText}`
       );
       return {
@@ -760,7 +740,7 @@ async function processNotification(
 
     // Assuming telegram-worker returns a StandardResponse { success: boolean, result?, error? }
     const result: StandardResponse = await response.json();
-    console.log(`[${requestId}] Response from TELEGRAM_SERVICE:`, result);
+    logger.info(`[${requestId}] Response from TELEGRAM_SERVICE`, { result });
     return {
       success: result.success,
       requestId,
@@ -768,14 +748,10 @@ async function processNotification(
       error: result.error ?? undefined,
     };
   } catch (error: unknown) {
-    const errorMsg =
-      error instanceof Error
-        ? error.message
-        : String(error || "Unknown error calling telegram service");
-    console.error(
-      `[${requestId}] Exception calling TELEGRAM_SERVICE:`,
-      errorMsg,
-      error
+    const errorMsg = toError(error, "Unknown error calling telegram service");
+    logger.error(
+      `[${requestId}] Exception calling TELEGRAM_SERVICE: ${errorMsg}`,
+      { error: toError(error) }
     );
     return {
       success: false,
