@@ -58,7 +58,8 @@
     },
   ],
 
-  // KV_NAMESPACES: Key-Value storage for config and sessions
+  // KV_NAMESPACES: Key-Value storage for config, sessions, and rate limiting
+  // CONFIG_KV is also used by the KV-backed rate limiter for persistence across cold starts
   // Get IDs from Cloudflare Dashboard > KV > Namespaces
   "kv_namespaces": [
     {
@@ -68,7 +69,7 @@
     },
     {
       "binding": "CONFIG_KV",
-      // ID: KV namespace for dynamic configuration
+      // ID: KV namespace for dynamic configuration and rate limiting
       "id": "YOUR_CONFIG_KV_ID",
     },
   ],

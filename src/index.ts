@@ -12,6 +12,7 @@ import { checkKillSwitch } from "./killSwitch";
 import { checkIpAllowlist } from "./ipAllowlist";
 import { getOrCreateSession } from "./sessionManager";
 import { IdempotencyStore } from "./idempotencyStore";
+import { checkRateLimit as kvRateLimit } from "./rateLimiter";
 import {
   Errors,
   toError,
@@ -32,7 +33,7 @@ import type { AnalyticsEnv } from "@jango-blockchained/hoox-shared/analytics";
 import { healthCheck } from "@jango-blockchained/hoox-shared/health";
 import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
 
-// --- Constants ---
+// --- Rate limiting limits (passed to KV-backed rate limiter) ---
 const MAX_TRADES_PER_MINUTE = 10;
 const RATE_LIMIT_WINDOW = 60; // 60 seconds
 
@@ -421,30 +422,14 @@ async function checkIdempotency(env: Env, key: string): Promise<boolean> {
 }
 
 /**
- * Simple rate limiting using in-memory map (per-worker, resets on cold start)
- * For production, consider using KV with sliding window
+ * Rate limiting delegation — uses KV-backed rate limiter when available,
+ * falls back to in-memory (per-isolation, resets on cold start).
  */
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(sessionId: string): boolean {
-  const now = Date.now();
-  const key = `rate:${sessionId}`;
-  const entry = rateLimitMap.get(key);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(key, {
-      count: 1,
-      resetAt: now + RATE_LIMIT_WINDOW * 1000,
-    });
-    return true;
-  }
-
-  if (entry.count >= MAX_TRADES_PER_MINUTE) {
-    return false;
-  }
-
-  entry.count++;
-  return true;
+async function checkRateLimit(sessionId: string, env: Env): Promise<boolean> {
+  return kvRateLimit(env.CONFIG_KV ?? null, `session:${sessionId}`, {
+    maxRequests: MAX_TRADES_PER_MINUTE,
+    windowSeconds: RATE_LIMIT_WINDOW,
+  });
 }
 
 /**
@@ -495,7 +480,7 @@ async function processTrade(
 
   // Check rate limit (using session ID from request or generated)
   const sessionId = tradeData.requestId; // Use requestId as session key
-  if (!checkRateLimit(sessionId)) {
+  if (!(await checkRateLimit(sessionId, env))) {
     logger.info(`[${requestId}] Rate limit exceeded for session: ${sessionId}`);
     return {
       success: false,
