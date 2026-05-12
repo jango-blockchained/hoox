@@ -1,40 +1,87 @@
-export class IdempotencyStore {
-  private sql: any = null;
+import { DurableObject } from "cloudflare:workers";
 
-  async initialize(): Promise<void> {
-    // This would normally set up SQL but for testing we skip it
-    this.sql = { execute: async () => {} };
-  }
+const DEFAULT_TTL_MS = 300_000; // 5 minutes
 
-  async checkAndStore(
-    key: string,
-    ttlSeconds: number = 3600
-  ): Promise<boolean> {
-    if (!this.sql) await this.initialize();
+interface StoredEntry {
+  storedAt: number;
+}
 
-    const now = Math.floor(Date.now() / 1000);
-    const expiresAt = now + ttlSeconds;
-
-    // Mock: check if key exists (in real implementation, would query SQL)
-    const keyExists = false;
-
-    if (keyExists) {
-      console.log(`[IdempotencyStore] Key exists: ${key}`);
-      return false;
+/**
+ * IdempotencyStore — Durable Object for exactly-once trade execution.
+ *
+ * Prevents duplicate trade submissions within a configurable TTL window.
+ * Uses DO SQLite-backed storage for persistence and alarm-based cleanup.
+ */
+export class IdempotencyStore extends DurableObject {
+  /**
+   * Check if a key is new (not recently seen) and store it atomically.
+   *
+   * @param key  — Unique idempotency key (e.g. "trade:binance:BTCUSDT:LONG:0.01")
+   * @param ttlMs — Time-to-live in milliseconds (default 5 min)
+   * @returns `true` if the key was stored (new request), `false` if duplicate
+   */
+  async checkAndStore(key: string, ttlMs: number = DEFAULT_TTL_MS): Promise<boolean> {
+    const existing = await this.ctx.storage.get<StoredEntry>(key);
+    if (existing && Date.now() - existing.storedAt < ttlMs) {
+      return false; // Duplicate — still within TTL window
     }
 
-    console.log(`[IdempotencyStore] Key stored: ${key}`);
+    // Store with current timestamp
+    await this.ctx.storage.put(key, { storedAt: Date.now() });
+
+    // Schedule alarm for TTL-based cleanup
+    const currentAlarm = await this.ctx.storage.getAlarm();
+    const nextCleanup = Date.now() + ttlMs;
+    if (!currentAlarm || nextCleanup < currentAlarm) {
+      await this.ctx.storage.setAlarm(nextCleanup);
+    }
+
     return true;
   }
 
+  /**
+   * Check whether a previously stored key has expired.
+   */
   async expired(key: string): Promise<boolean> {
-    const now = Math.floor(Date.now() / 1000);
-    // Mock: always return false (not expired)
-    return false;
+    const entry = await this.ctx.storage.get<StoredEntry>(key);
+    if (!entry) return true;
+    return Date.now() - entry.storedAt >= DEFAULT_TTL_MS;
   }
 
-  async cleanup(): Promise<void> {
-    // Mock cleanup
-    console.log(`[IdempotencyStore] Cleanup called`);
+  /**
+   * Alarm handler — cleans up expired entries.
+   */
+  async alarm(): Promise<void> {
+    const all = await this.ctx.storage.list<StoredEntry>();
+    const now = Date.now();
+    let earliestRemaining = Infinity;
+
+    for (const [key, entry] of all) {
+      if (now - entry.storedAt >= DEFAULT_TTL_MS) {
+        await this.ctx.storage.delete(key);
+      } else {
+        // Track earliest still-valid entry for next alarm
+        const remaining = entry.storedAt + DEFAULT_TTL_MS - now;
+        if (remaining < earliestRemaining) {
+          earliestRemaining = remaining;
+        }
+      }
+    }
+
+    // Schedule next alarm if there are still entries to expire
+    if (earliestRemaining < Infinity) {
+      await this.ctx.storage.setAlarm(Date.now() + earliestRemaining);
+    }
+  }
+
+  /**
+   * Remove all stored keys (for testing/admin).
+   */
+  async clear(): Promise<void> {
+    const all = await this.ctx.storage.list();
+    const keys = [...all.keys()];
+    if (keys.length > 0) {
+      await this.ctx.storage.delete(keys);
+    }
   }
 }
