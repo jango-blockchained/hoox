@@ -14,6 +14,11 @@
   "compatibility_date": "2025-03-07",
   "compatibility_flags": ["nodejs_compat"],
 
+  // PLACEMENT: Smart Placement for reduced latency (free, all plans)
+  "placement": {
+    "mode": "smart",
+  },
+
   // OBSERVABILITY: Enable logging and sampling
   "observability": {
     "enabled": true,
@@ -37,7 +42,12 @@
   // SERVICES: Service bindings to other workers
   // TRADE_SERVICE: Points to trade-worker for executing trades
   // TELEGRAM_SERVICE: Points to telegram-worker for notifications
+  // ANALYTICS_SERVICE: Points to analytics-worker for event tracking
   "services": [
+    {
+      "binding": "ANALYTICS_SERVICE",
+      "service": "analytics-worker",
+    },
     {
       "binding": "TRADE_SERVICE",
       "service": "trade-worker",
