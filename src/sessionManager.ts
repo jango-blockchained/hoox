@@ -1,4 +1,7 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
+import { createLogger } from "@jango-blockchained/hoox-shared/middleware";
+
+const logger = createLogger({ service: "hoox", module: "sessionManager" });
 
 const SESSION_TTL = 3600;
 
@@ -28,7 +31,7 @@ export async function getOrCreateSession(
 
     return { sessionId: id, isNew };
   } catch (error: unknown) {
-    console.error("KV Session Error:", error);
+    logger.error("KV Session Error", { error });
     return { sessionId: id, isNew: !sessionId };
   }
 }
@@ -48,6 +51,6 @@ export async function updateSession(
       }
     );
   } catch (error: unknown) {
-    console.error("KV Session Error:", error);
+    logger.error("KV Session Error", { error });
   }
 }

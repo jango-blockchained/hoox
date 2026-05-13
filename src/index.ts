@@ -21,12 +21,14 @@ import {
 import {
   createLogger,
   withRequestLog,
+  validateJson,
 } from "@jango-blockchained/hoox-shared/middleware";
 import { createRouter } from "@jango-blockchained/hoox-shared/router";
-import type {
-  WebhookPayload,
-  StandardResponse,
-  ProcessRequestBody,
+import {
+  WebhookPayloadSchema,
+  type WebhookPayload,
+  type StandardResponse,
+  type ProcessRequestBody,
 } from "@jango-blockchained/hoox-shared/types";
 import { trackAnalytics } from "@jango-blockchained/hoox-shared/analytics";
 import type { AnalyticsEnv } from "@jango-blockchained/hoox-shared/analytics";
@@ -52,28 +54,9 @@ const TRADINGVIEW_ALLOWED_IPS = new Set([
 
 // --- Type Definitions ---
 
-// Define the expected environment variables and bindings from wrangler.toml
-interface Env extends AnalyticsEnv {
-  AI: Ai; // Add the AI binding
-  // Bindings
-  TRADE_SERVICE: Fetcher; // Service binding to trade-worker
-  TELEGRAM_SERVICE: Fetcher; // Service binding to telegram-worker
-  TRADE_QUEUE: Queue; // Queue binding for trade execution
-  IDEMPOTENCY_STORE: DurableObjectNamespace; // Idempotency tracking
-  WEBHOOK_API_KEY_BINDING: string; // Secret for incoming API key
-  INTERNAL_KEY_BINDING: string; // Secret for calling other internal services (e.g., legacy Telegram/HA)
-
-  SESSIONS_KV: KVNamespace; // Added for session management
-  CONFIG_KV: KVNamespace; // Added for configuration
-
-  // Variables (Consider removing if not used directly or handled by bindings)
-  TELEGRAM_WORKER_URL?: string; // Keep ONLY if still needed as fallback or for other purposes
-
+interface Env extends Cloudflare.Env, AnalyticsEnv {
   ENABLE_DEBUG_ENDPOINTS?: string;
-
-  // Deprecated/Remove:
-  // TRADE_WORKER_URL: string;
-  // API_SECRET_KEY: string; // Use WEBHOOK_API_KEY_BINDING instead
+  TELEGRAM_WORKER_URL?: string;
 }
 
 // --- Other interfaces (WebhookData, TradeData, etc.) remain the same ---
@@ -193,7 +176,7 @@ const router = createRouter<Env>();
 router.post(
   "/webhook",
   async (request: Request, env: Env, ctx: ExecutionContext) => {
-    return await handleRequest(request, env);
+    return await handleRequest(request, env, ctx);
   }
 );
 
@@ -216,7 +199,7 @@ export default {
 
 // --- Request Handling Logic ---
 
-async function handleRequest(request: Request, env: Env): Promise<Response> {
+async function handleRequest(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const startTime = Date.now();
 
   if (request.method !== "POST") {
@@ -260,6 +243,15 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     let tradeResult: ServiceResponse | null = null;
     const queueMode = await getQueueMode(env.CONFIG_KV);
     if (exchange && action && symbol && quantity) {
+      // Validate trade payload with Zod schema
+      const tradePayload = { exchange, action, symbol, quantity, price, leverage };
+      const validation = validateJson(WebhookPayloadSchema, tradePayload);
+      if (!validation.ok) {
+        return createJsonResponse(
+          { success: false, error: `Invalid trade payload: ${validation.error}` },
+          400
+        );
+      }
       tradeResult = await processTrade(
         {
           requestId,
@@ -308,12 +300,12 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 
     // Track webhook API call (non-blocking)
     const latencyMs = Date.now() - startTime;
-    trackAnalytics(env, "/track/api-call", {
+    ctx.waitUntil(trackAnalytics(env, "/track/api-call", {
       worker: "hoox",
       endpoint: "/webhook",
       latencyMs,
       success: overallSuccess,
-    });
+    }));
 
     // --- Construct Response ---
     if (overallSuccess) {

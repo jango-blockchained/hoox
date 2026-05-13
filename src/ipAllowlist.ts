@@ -1,4 +1,7 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
+import { createLogger } from "@jango-blockchained/hoox-shared/middleware";
+
+const logger = createLogger({ service: "hoox", module: "ipAllowlist" });
 
 const TRADINGVIEW_ALLOWED_IPS = new Set([
   "52.89.214.238",
@@ -52,7 +55,7 @@ export async function checkIpAllowlist(
       config,
     };
   } catch (error: unknown) {
-    console.error("Error checking IP allowlist:", error);
+    logger.error("Error checking IP allowlist", { error });
     return {
       allowed: false,
       reason: String(error),
@@ -85,11 +88,11 @@ export async function loadIpConfig(
           allowedIps = new Set(customIps);
         }
       } catch (parseError) {
-        console.error("Error parsing IP config JSON from KV:", parseError);
+        logger.error("Error parsing IP config JSON from KV", { error: parseError });
       }
     }
   } catch (e) {
-    console.error("Error loading IP config from KV:", e);
+    logger.error("Error loading IP config from KV", { error: e });
   }
 
   return { enabled: ipCheckEnabled, allowedIps };

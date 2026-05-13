@@ -250,6 +250,10 @@ describe("Hoox Worker Integration", () => {
   let mockEnv: ReturnType<typeof createMockEnv>;
   let fetchMock: jest.Mock; // Keep global fetch mock for underlying simulation
 
+  // Mock ExecutionContext with waitUntil (needed by hoox handler after refactoring)
+  const mockCtx = (): ExecutionContext =>
+    ({ waitUntil: jest.fn() }) as unknown as ExecutionContext;
+
   const validWebhookPayload = {
     apiKey: TEST_API_KEY, // Use the key expected from the binding
     exchange: "mexc",
@@ -320,7 +324,7 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(
       request,
       mockEnv,
-      {} as ExecutionContext
+      mockCtx()
     );
     expect(response.status).toBe(403);
     // Binding should now be called after IP check passes
@@ -341,7 +345,7 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(
       request,
       mockEnv,
-      {} as ExecutionContext
+      mockCtx()
     );
     expect(response.status).toBe(403);
     expect(fetchMock).not.toHaveBeenCalled();
@@ -360,7 +364,7 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(
       request,
       mockEnv,
-      {} as ExecutionContext
+      mockCtx()
     );
     expect(response.status).toBe(200);
 
@@ -406,7 +410,7 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(
       request,
       mockEnv,
-      {} as ExecutionContext
+      mockCtx()
     );
     expect(response.status).toBe(500);
     const body = (await response.json()) as any;
@@ -438,7 +442,7 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(
       request,
       mockEnv,
-      {} as ExecutionContext
+      mockCtx()
     );
     expect(response.status).toBe(200);
 
@@ -485,7 +489,7 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(
       request,
       mockEnv,
-      {} as ExecutionContext
+      mockCtx()
     );
     // The worker logic doesn't forward trade if fields are empty/invalid
     expect(response.status).toBe(200);
@@ -565,7 +569,7 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(
       request,
       mockEnv,
-      {} as ExecutionContext
+      mockCtx()
     );
     expect(response.status).toBe(500); // Expect 500 due to downstream failure
 

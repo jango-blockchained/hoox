@@ -12,8 +12,9 @@ declare namespace Cloudflare {
     VECTORIZE_INDEX: VectorizeIndex;
     TRADE_QUEUE: Queue;
     AI: Ai;
-    INTERNAL_KEY_BINDING: null;
     WEBHOOK_API_KEY_BINDING: string;
+    INTERNAL_KEY_BINDING: string;
+    HA_TOKEN_BINDING: string;
     IDEMPOTENCY_STORE: DurableObjectNamespace<
       import("./src/index").IdempotencyStore
     >;
