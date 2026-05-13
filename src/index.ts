@@ -31,7 +31,6 @@ import {
   type ProcessRequestBody,
 } from "@jango-blockchained/hoox-shared/types";
 import { trackAnalytics } from "@jango-blockchained/hoox-shared/analytics";
-import type { AnalyticsEnv } from "@jango-blockchained/hoox-shared/analytics";
 import { healthCheck } from "@jango-blockchained/hoox-shared/health";
 import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
 
@@ -199,7 +198,11 @@ export default {
 
 // --- Request Handling Logic ---
 
-async function handleRequest(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+async function handleRequest(
+  request: Request,
+  env: Env,
+  ctx: ExecutionContext
+): Promise<Response> {
   const startTime = Date.now();
 
   if (request.method !== "POST") {
@@ -244,11 +247,21 @@ async function handleRequest(request: Request, env: Env, ctx: ExecutionContext):
     const queueMode = await getQueueMode(env.CONFIG_KV);
     if (exchange && action && symbol && quantity) {
       // Validate trade payload with Zod schema
-      const tradePayload = { exchange, action, symbol, quantity, price, leverage };
+      const tradePayload = {
+        exchange,
+        action,
+        symbol,
+        quantity,
+        price,
+        leverage,
+      };
       const validation = validateJson(WebhookPayloadSchema, tradePayload);
       if (!validation.ok) {
         return createJsonResponse(
-          { success: false, error: `Invalid trade payload: ${validation.error}` },
+          {
+            success: false,
+            error: `Invalid trade payload: ${validation.error}`,
+          },
           400
         );
       }
@@ -268,10 +281,9 @@ async function handleRequest(request: Request, env: Env, ctx: ExecutionContext):
       if (!tradeResult?.success) {
         overallSuccess = false;
         errorMessages.push(tradeResult?.error || "Trade processing failed");
-        logger.error(
-          `Trade processing failed for ${requestId}`,
-          { error: tradeResult?.error }
-        );
+        logger.error(`Trade processing failed for ${requestId}`, {
+          error: tradeResult?.error,
+        });
       }
     }
 
@@ -291,21 +303,22 @@ async function handleRequest(request: Request, env: Env, ctx: ExecutionContext):
         errorMessages.push(
           notificationResult?.error || "Notification processing failed"
         );
-        logger.error(
-          `Notification processing failed for ${requestId}`,
-          { error: notificationResult?.error }
-        );
+        logger.error(`Notification processing failed for ${requestId}`, {
+          error: notificationResult?.error,
+        });
       }
     }
 
     // Track webhook API call (non-blocking)
     const latencyMs = Date.now() - startTime;
-    ctx.waitUntil(trackAnalytics(env, "/track/api-call", {
-      worker: "hoox",
-      endpoint: "/webhook",
-      latencyMs,
-      success: overallSuccess,
-    }));
+    ctx.waitUntil(
+      trackAnalytics(env, "/track/api-call", {
+        worker: "hoox",
+        endpoint: "/webhook",
+        latencyMs,
+        success: overallSuccess,
+      })
+    );
 
     // --- Construct Response ---
     if (overallSuccess) {
@@ -340,7 +353,9 @@ async function handleRequest(request: Request, env: Env, ctx: ExecutionContext):
     }
   } catch (error: unknown) {
     const errorMsg = toError(error, "Internal Server Error");
-    logger.error(`[handleRequest] Uncaught error: ${errorMsg}`, { error: toError(error) });
+    logger.error(`[handleRequest] Uncaught error: ${errorMsg}`, {
+      error: toError(error),
+    });
     return Errors.internal(errorMsg);
   }
 }
@@ -372,7 +387,9 @@ async function validateApiKeyBinding(
     return isValid;
   } catch (e: unknown) {
     const errorMsg = toError(e, "Error retrieving secret");
-    logger.error("[validateApiKeyBinding] Error retrieving secret:", { error: errorMsg });
+    logger.error("[validateApiKeyBinding] Error retrieving secret:", {
+      error: errorMsg,
+    });
     return false;
   }
 }
@@ -453,7 +470,9 @@ async function processTrade(
 ): Promise<ServiceResponse> {
   const { requestId, exchange, action, symbol, quantity, price, leverage } =
     tradeData;
-  logger.info(`[${requestId}] processTrade: Received trade data`, { tradeData });
+  logger.info(`[${requestId}] processTrade: Received trade data`, {
+    tradeData,
+  });
   logger.info(`[${requestId}] Queue mode: ${queueMode}`);
 
   // Check idempotency before processing
@@ -495,7 +514,9 @@ async function processTrade(
       };
     } catch (error: unknown) {
       const errorMsg = toError(error, "Unknown error");
-      logger.error(`[${requestId}] Failed to queue trade:`, { error: errorMsg });
+      logger.error(`[${requestId}] Failed to queue trade:`, {
+        error: errorMsg,
+      });
       // Fall back to direct service call if queue fails
     }
   }
@@ -541,7 +562,9 @@ async function processTrade(
       { payload: tradeWorkerPayload }
     );
     // Use the correct binding name: TRADE_SERVICE
-    const response = await env.TRADE_SERVICE.fetch(tradeWorkerRequest as unknown as Request);
+    const response = await env.TRADE_SERVICE.fetch(
+      tradeWorkerRequest as unknown as Request
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -566,10 +589,9 @@ async function processTrade(
             },
           };
         } catch (queueError: unknown) {
-          logger.error(
-            `[${requestId}] Queue fallback also failed:`,
-            { error: toError(queueError) }
-          );
+          logger.error(`[${requestId}] Queue fallback also failed:`, {
+            error: toError(queueError),
+          });
         }
       }
 
@@ -614,7 +636,9 @@ async function processTrade(
           },
         };
       } catch (queueError: unknown) {
-        logger.error(`[${requestId}] Queue fallback also failed:`, { error: toError(queueError) });
+        logger.error(`[${requestId}] Queue fallback also failed:`, {
+          error: toError(queueError),
+        });
       }
     }
 
@@ -696,9 +720,7 @@ async function processNotification(
       }
     );
 
-    logger.info(
-      `[${requestId}] Calling TELEGRAM_SERVICE service binding...`
-    ); // Don't log internal key
+    logger.info(`[${requestId}] Calling TELEGRAM_SERVICE service binding...`); // Don't log internal key
     const response = await env.TELEGRAM_SERVICE.fetch(
       telegramWorkerRequest as unknown as Request
     );

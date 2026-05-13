@@ -30,7 +30,7 @@ export interface RateLimiterConfig {
 export async function checkRateLimit(
   kv: KVNamespace | null,
   key: string,
-  opts: RateLimiterConfig = {},
+  opts: RateLimiterConfig = {}
 ): Promise<boolean> {
   const maxRequests = opts.maxRequests ?? DEFAULT_MAX_REQUESTS;
   const windowSeconds = opts.windowSeconds ?? DEFAULT_WINDOW_SECONDS;
@@ -51,7 +51,7 @@ function checkMemoryRateLimit(
   key: string,
   maxRequests: number,
   windowSeconds: number,
-  now: number,
+  now: number
 ): boolean {
   const entry = memMap.get(key);
   if (!entry || now > entry.resetAt) {
@@ -70,7 +70,7 @@ async function checkKvRateLimit(
   key: string,
   maxRequests: number,
   windowSeconds: number,
-  now: number,
+  now: number
 ): Promise<boolean> {
   const kvKey = KV_PREFIX + key;
   const stored = await kv.get<RateLimitEntry>(kvKey, "json");

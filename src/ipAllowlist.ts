@@ -88,7 +88,9 @@ export async function loadIpConfig(
           allowedIps = new Set(customIps);
         }
       } catch (parseError) {
-        logger.error("Error parsing IP config JSON from KV", { error: parseError });
+        logger.error("Error parsing IP config JSON from KV", {
+          error: parseError,
+        });
       }
     }
   } catch (e) {

@@ -24,7 +24,9 @@ describe("IdempotencyStore", () => {
           }
           return mockStorage.delete(key);
         },
-        list: async <T>(opts?: { prefix?: string }): Promise<Map<string, T>> => {
+        list: async <T>(opts?: {
+          prefix?: string;
+        }): Promise<Map<string, T>> => {
           const result = new Map<string, T>();
           for (const [k, v] of mockStorage) {
             if (!opts?.prefix || k.startsWith(opts.prefix)) {

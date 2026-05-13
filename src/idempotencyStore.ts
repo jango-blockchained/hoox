@@ -20,7 +20,10 @@ export class IdempotencyStore extends DurableObject {
    * @param ttlMs — Time-to-live in milliseconds (default 5 min)
    * @returns `true` if the key was stored (new request), `false` if duplicate
    */
-  async checkAndStore(key: string, ttlMs: number = DEFAULT_TTL_MS): Promise<boolean> {
+  async checkAndStore(
+    key: string,
+    ttlMs: number = DEFAULT_TTL_MS
+  ): Promise<boolean> {
     const existing = await this.ctx.storage.get<StoredEntry>(key);
     if (existing && Date.now() - existing.storedAt < ttlMs) {
       return false; // Duplicate — still within TTL window
