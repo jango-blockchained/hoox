@@ -22,6 +22,7 @@ import {
   createLogger,
   withRequestLog,
   validateJson,
+  requireInternalAuth,
 } from "@jango-blockchained/hoox-shared/middleware";
 import { createRouter } from "@jango-blockchained/hoox-shared/router";
 import {
@@ -33,6 +34,11 @@ import {
 import { trackAnalytics } from "@jango-blockchained/hoox-shared/analytics";
 import { healthCheck } from "@jango-blockchained/hoox-shared/health";
 import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
+import { serviceFetch } from "@jango-blockchained/hoox-shared/service-bindings";
+import {
+  DISCLAIMER,
+  DISCLAIMER_HEADER,
+} from "@jango-blockchained/hoox-shared/legal";
 
 // --- Rate limiting limits (passed to KV-backed rate limiter) ---
 const MAX_TRADES_PER_MINUTE = 10;
@@ -136,6 +142,9 @@ function createSecureResponse(
     }
   }
 
+  // Always attach disclaimer header
+  headers[DISCLAIMER_HEADER] = DISCLAIMER;
+
   return new Response(typeof body === "string" ? body : JSON.stringify(body), {
     ...options,
     headers: {
@@ -154,6 +163,7 @@ function wrapResponse(response: Response): Response {
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     headers.set(key, value);
   }
+  headers.set(DISCLAIMER_HEADER, DISCLAIMER);
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
@@ -543,27 +553,24 @@ async function processTrade(
       leverage: leverage,
     };
 
-    // Construct the request for the trade-worker
-    // Using relative path "/webhook" assuming service binding handles the base URL
-    // --> Use a dummy absolute URL instead of just the path
-    const tradeWorkerRequest = new Request("http://trade-service/webhook", {
-      // Dummy URL
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Request-ID": requestId, // Pass request ID for tracing
-        // We assume /webhook doesn't need the internal key, unlike /process
-      },
-      body: JSON.stringify(tradeWorkerPayload),
-    });
+    const internalAuthKey = env.INTERNAL_KEY_BINDING;
 
     logger.info(
       `[${requestId}] Calling TRADE_SERVICE service binding with payload`,
       { payload: tradeWorkerPayload }
     );
-    // Use the correct binding name: TRADE_SERVICE
-    const response = await env.TRADE_SERVICE.fetch(
-      tradeWorkerRequest as unknown as Request
+    const response = await serviceFetch(
+      env.TRADE_SERVICE,
+      "/webhook",
+      tradeWorkerPayload,
+      {
+        headers: {
+          "X-Request-ID": requestId,
+          ...(internalAuthKey
+            ? { "X-Internal-Auth-Key": internalAuthKey as string }
+            : {}),
+        },
+      }
     );
 
     if (!response.ok) {
@@ -695,34 +702,22 @@ async function processNotification(
     }
 
     // Construct the payload expected by telegram-worker's /process endpoint
-    const telegramWorkerPayload: HooxProcessRequestBody = {
-      requestId: requestId, // Pass the ID
-      internalAuthKey: internalAuthKey,
+    const payload = {
+      requestId: requestId,
       payload: {
         message: message,
-        chatId: chatId, // Pass chatId (telegram-worker will use default if undefined)
+        chatId: chatId,
       },
     };
 
-    // Construct the request for the telegram-worker
-    // Using relative path "/process" assuming service binding handles the base URL
-    // --> Use a dummy absolute URL instead of just the path
-    const telegramWorkerRequest = new Request(
-      "http://telegram-service/process",
+    logger.info(`[${requestId}] Calling TELEGRAM_SERVICE service binding...`);
+    const response = await serviceFetch(
+      env.TELEGRAM_SERVICE,
+      "/process",
+      payload,
       {
-        // Dummy URL
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // No need for X-Request-ID header as it's in the body
-        },
-        body: JSON.stringify(telegramWorkerPayload),
+        headers: { "X-Internal-Auth-Key": internalAuthKey as string },
       }
-    );
-
-    logger.info(`[${requestId}] Calling TELEGRAM_SERVICE service binding...`); // Don't log internal key
-    const response = await env.TELEGRAM_SERVICE.fetch(
-      telegramWorkerRequest as unknown as Request
     );
 
     if (!response.ok) {

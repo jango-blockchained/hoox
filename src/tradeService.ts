@@ -1,4 +1,5 @@
 import type { Fetcher } from "@cloudflare/workers-types";
+import { serviceFetch } from "@jango-blockchained/hoox-shared/service-bindings";
 
 export interface TradeData {
   requestId: string;
@@ -42,13 +43,8 @@ export async function processTrade(
       leverage,
     };
 
-    const response = await tradeService.fetch("http://trade-service/webhook", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Request-ID": requestId,
-      },
-      body: JSON.stringify(tradeWorkerPayload),
+    const response = await serviceFetch(tradeService, "/webhook", tradeWorkerPayload, {
+      headers: { "X-Request-ID": requestId },
     });
 
     if (!response.ok) {
