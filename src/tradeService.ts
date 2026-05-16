@@ -43,9 +43,14 @@ export async function processTrade(
       leverage,
     };
 
-    const response = await serviceFetch(tradeService, "/webhook", tradeWorkerPayload, {
-      headers: { "X-Request-ID": requestId },
-    });
+    const response = await serviceFetch(
+      tradeService,
+      "/webhook",
+      tradeWorkerPayload,
+      {
+        headers: { "X-Request-ID": requestId },
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
