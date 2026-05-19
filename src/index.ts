@@ -61,7 +61,7 @@ const TRADINGVIEW_ALLOWED_IPS = new Set([
 
 interface Env extends Cloudflare.Env, AnalyticsEnv {
   ENABLE_DEBUG_ENDPOINTS?: string;
-  TELEGRAM_WORKER_URL?: string;
+  TELEGRAM_SERVICE?: string;
 }
 
 // --- Other interfaces (WebhookData, TradeData, etc.) remain the same ---

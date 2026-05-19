@@ -328,7 +328,7 @@ describe("Hoox Worker Integration", () => {
   });
 
   test("rejects request if apiKey binding is not configured", async () => {
-    mockEnv = createMockEnv({ apiKey: null, internalKey: TEST_INTERNAL_KEY }); // API_SECRET_KEY is null
+    mockEnv = createMockEnv({ apiKey: null, internalKey: TEST_INTERNAL_KEY }); // WEBHOOK_API_KEY_BINDING is null
     const request = new Request("https://hoox.workers.dev/webhook", {
       method: "POST",
       headers: {
@@ -385,7 +385,7 @@ describe("Hoox Worker Integration", () => {
   });
 
   test("returns internal error if internal key binding fails during forwarding", async () => {
-    mockEnv = createMockEnv({ apiKey: TEST_API_KEY, internalKey: null }); // INTERNAL_SERVICE_KEY is null
+    mockEnv = createMockEnv({ apiKey: TEST_API_KEY, internalKey: null }); // INTERNAL_KEY_BINDING is null
     const request = new Request("https://hoox.workers.dev/webhook", {
       method: "POST",
       headers: {

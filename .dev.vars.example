@@ -1,8 +1,8 @@
 # Webhook Receiver Environment Variables
-INTERNAL_SERVICE_KEY=your_internal_service_key_here
-API_SECRET_KEY=your_api_secret_key_here
-TRADE_WORKER_URL=http://localhost:8788
-TELEGRAM_WORKER_URL=http://localhost:8790
+INTERNAL_KEY_BINDING=your_internal_key_binding_here
+WEBHOOK_API_KEY_BINDING=your_api_secret_key_here
+TRADE_SERVICE=http://localhost:8788
+TELEGRAM_SERVICE=http://localhost:8790
 
 # Note: This file provides example values for local development.
 # Copy this file to .dev.vars and replace with your actual values.
