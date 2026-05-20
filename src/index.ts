@@ -6,7 +6,6 @@ import type {
   Queue,
   DurableObjectNamespace,
 } from "@cloudflare/workers-types";
-import type { Ai } from "@cloudflare/ai";
 
 import { checkKillSwitch } from "./killSwitch";
 import { checkIpAllowlist } from "./ipAllowlist";
@@ -44,24 +43,10 @@ import {
 const MAX_TRADES_PER_MINUTE = 10;
 const RATE_LIMIT_WINDOW = 60; // 60 seconds
 
-// --- TradingView Allowed IPs ---
-const TRADINGVIEW_ALLOWED_IPS = new Set([
-  "52.89.214.238",
-  "34.212.75.30",
-  "54.218.53.128",
-  "52.32.178.7",
-]);
-
-// --- Remove invalid imports ---
-// import { type Env } from "./types";
-// import { type TradeSignal, type WorkerResponse } from "./types";
-// ... other unused imports ...
-
 // --- Type Definitions ---
 
 interface Env extends Cloudflare.Env, AnalyticsEnv {
-  ENABLE_DEBUG_ENDPOINTS?: string;
-  TELEGRAM_SERVICE?: string;
+  TELEGRAM_SERVICE?: Fetcher;
 }
 
 // --- Other interfaces (WebhookData, TradeData, etc.) remain the same ---
@@ -219,7 +204,20 @@ async function handleRequest(
     logger.info(
       `[handleRequest] Returning METHOD NOT ALLOWED response (status 405)`
     );
-    return new Response("Method not allowed", { status: 405 });
+    return wrapResponse(new Response("Method not allowed", { status: 405 }));
+  }
+
+  // Check IP allowlist (TradingView IP restriction)
+  const clientIp = request.headers.get("CF-Connecting-IP") || "";
+  const ipCheck = await checkIpAllowlist(env.CONFIG_KV, clientIp);
+  if (!ipCheck.allowed) {
+    logger.warn(`[handleRequest] IP ${clientIp} rejected: ${ipCheck.reason}`);
+    return wrapResponse(
+      createJsonResponse(
+        { success: false, error: `Access denied: ${ipCheck.reason}` },
+        403
+      )
+    );
   }
 
   try {
@@ -229,7 +227,9 @@ async function handleRequest(
     const { apiKey } = data;
     if (!apiKey) {
       logger.warn("[handleRequest] apiKey missing from payload");
-      return createJsonResponse({ success: false, error: "Forbidden" }, 403);
+      return wrapResponse(
+        createJsonResponse({ success: false, error: "Forbidden" }, 403)
+      );
     }
 
     const isValid = await validateApiKeyBinding(
@@ -238,11 +238,16 @@ async function handleRequest(
     );
     if (!isValid) {
       logger.warn("[handleRequest] Invalid apiKey provided");
-      return createJsonResponse({ success: false, error: "Forbidden" }, 403);
+      return wrapResponse(
+        createJsonResponse({ success: false, error: "Forbidden" }, 403)
+      );
     }
 
     // Remove the API key from the data before processing/forwarding
     delete data.apiKey;
+
+    // Get or create session for tracking (use the validated apiKey before it was removed)
+    const session = await getOrCreateSession(env.SESSIONS_KV, apiKey);
 
     // Generate tracking ID
     const requestId = crypto.randomUUID();
@@ -267,12 +272,14 @@ async function handleRequest(
       };
       const validation = validateJson(WebhookPayloadSchema, tradePayload);
       if (!validation.ok) {
-        return createJsonResponse(
-          {
-            success: false,
-            error: `Invalid trade payload: ${validation.error}`,
-          },
-          400
+        return wrapResponse(
+          createJsonResponse(
+            {
+              success: false,
+              error: `Invalid trade payload: ${validation.error}`,
+            },
+            400
+          )
         );
       }
       tradeResult = await processTrade(
@@ -335,14 +342,16 @@ async function handleRequest(
       logger.info(
         `[handleRequest] Returning SUCCESS response (status 200) for ${requestId}`
       );
-      return createJsonResponse(
-        {
-          success: true,
-          requestId,
-          tradeResult,
-          notificationResult,
-        },
-        200
+      return wrapResponse(
+        createJsonResponse(
+          {
+            success: true,
+            requestId,
+            tradeResult,
+            notificationResult,
+          },
+          200
+        )
       );
     } else {
       logger.info(
@@ -350,15 +359,17 @@ async function handleRequest(
           "; "
         )}`
       );
-      return createJsonResponse(
-        {
-          success: false,
-          requestId,
-          error: `Processing failed: ${errorMessages.join("; ")}`,
-          tradeResult, // Include partial results/errors
-          notificationResult,
-        },
-        500
+      return wrapResponse(
+        createJsonResponse(
+          {
+            success: false,
+            requestId,
+            error: `Processing failed: ${errorMessages.join("; ")}`,
+            tradeResult, // Include partial results/errors
+            notificationResult,
+          },
+          500
+        )
       );
     }
   } catch (error: unknown) {
@@ -366,7 +377,7 @@ async function handleRequest(
     logger.error(`[handleRequest] Uncaught error: ${errorMsg}`, {
       error: toError(error),
     });
-    return Errors.internal(errorMsg);
+    return wrapResponse(Errors.internal(errorMsg));
   }
 }
 
@@ -431,7 +442,7 @@ async function checkIdempotency(env: Env, key: string): Promise<boolean> {
   }
 
   try {
-    const id = env.IDEMPOTENCY_STORE.newUniqueId();
+    const id = env.IDEMPOTENCY_STORE.idFromName(key);
     const stub = env.IDEMPOTENCY_STORE.get(id) as unknown as IdempotencyStore;
     return await stub.checkAndStore(key);
   } catch (error) {

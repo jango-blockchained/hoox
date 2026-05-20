@@ -1,5 +1,6 @@
 import { describe, expect, test, beforeEach, jest, mock } from "bun:test";
 import webhookReceiver from "../src/index";
+import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
 
 describe("Hoox Worker - Webhook Processing", () => {
   describe("Request Validation", () => {
@@ -624,13 +625,13 @@ describe("Hoox Worker - Queue Integration", () => {
 
   describe("Queue Modes", () => {
     test("should default to queue_failover mode", async () => {
-      const mode = await mockEnv.CONFIG_KV.get("webhooks:queue_mode");
+      const mode = await mockEnv.CONFIG_KV.get(KVKeys.KV_WEBHOOK_QUEUE_MODE);
       expect(mode).toBeNull(); // Should default to queue_failover in code
     });
 
     test("should set queue_everywhere mode", async () => {
       mockEnv.CONFIG_KV.get = jest.fn().mockResolvedValue("queue_everywhere");
-      const mode = await mockEnv.CONFIG_KV.get("webhooks:queue_mode");
+      const mode = await mockEnv.CONFIG_KV.get(KVKeys.KV_WEBHOOK_QUEUE_MODE);
       expect(mode).toBe("queue_everywhere");
     });
   });
@@ -795,8 +796,8 @@ describe("Hoox Worker - KV Configuration Keys", () => {
   });
 
   test("should have correct queue mode KV key", () => {
-    const KV_QUEUE_MODE_KEY = "webhooks:queue_mode";
-    expect(KV_QUEUE_MODE_KEY).toBe("webhooks:queue_mode");
+    const KV_QUEUE_MODE_KEY = KVKeys.KV_WEBHOOK_QUEUE_MODE;
+    expect(KV_QUEUE_MODE_KEY).toBe(KVKeys.KV_WEBHOOK_QUEUE_MODE);
   });
 
   test("should allow queue_mode values", () => {
