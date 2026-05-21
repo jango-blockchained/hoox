@@ -46,6 +46,7 @@ const RATE_LIMIT_WINDOW = 60; // 60 seconds
 // --- Type Definitions ---
 
 interface Env extends Cloudflare.Env, AnalyticsEnv {
+  [key: string]: unknown;
   TELEGRAM_SERVICE?: Fetcher;
 }
 
