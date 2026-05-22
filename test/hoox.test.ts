@@ -282,7 +282,7 @@ describe("Hoox Worker Integration", () => {
     (global as any).fetch = fetchMock;
 
     // Default successful fetch behavior (can be overridden per test)
-    fetchMock.mockImplementation(async (request: Request | URL | string) => {
+    fetchMock.mockImplementation(async (request: any, init?: RequestInit) => {
       const url =
         typeof request === "string"
           ? request
@@ -301,11 +301,12 @@ describe("Hoox Worker Integration", () => {
     });
 
     // Link the service binding mocks to the global fetch mock
-    mockEnv.TRADE_SERVICE.fetch.mockImplementation((req: Request) =>
-      global.fetch(req)
+    // serviceFetch passes (urlString, initObj) — forward both to global.fetch
+    mockEnv.TRADE_SERVICE.fetch.mockImplementation(
+      (url: string, init?: RequestInit) => global.fetch(url, init)
     );
-    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req: Request) =>
-      global.fetch(req)
+    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation(
+      (url: string, init?: RequestInit) => global.fetch(url, init)
     );
   });
 
@@ -363,18 +364,20 @@ describe("Hoox Worker Integration", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
 
     // Check call to trade worker (via service binding)
-    const tradeCall = mockEnv.TRADE_SERVICE.fetch.mock.calls[0][0] as Request;
-    expect(tradeCall).toBeDefined();
-    const tradeBody = (await tradeCall.json()) as any;
+    // serviceFetch passes URL string as arg[0] and RequestInit as arg[1]
+    const tradeFetchInit = mockEnv.TRADE_SERVICE.fetch.mock.calls[0][1];
+    expect(tradeFetchInit).toBeDefined();
+    const tradeBody = JSON.parse(tradeFetchInit.body);
     expect(tradeBody.exchange).toBe("mexc");
     expect(tradeBody.apiKey).toBeUndefined(); // Ensure apiKey was removed
 
     // Check call to notify worker (via service binding)
-    const notifyCall = mockEnv.TELEGRAM_SERVICE.fetch.mock
-      .calls[0][0] as Request;
-    expect(notifyCall).toBeDefined();
-    const notifyBody = (await notifyCall.json()) as any;
-    expect(notifyBody.internalAuthKey).toBe(TEST_INTERNAL_KEY);
+    const notifyFetchInit = mockEnv.TELEGRAM_SERVICE.fetch.mock.calls[0][1];
+    expect(notifyFetchInit).toBeDefined();
+    const notifyBody = JSON.parse(notifyFetchInit.body);
+    expect(notifyFetchInit.headers["X-Internal-Auth-Key"]).toBe(
+      TEST_INTERNAL_KEY
+    );
     expect(notifyBody.payload.message).toBe(validWebhookPayload.notify.message);
     expect(notifyBody.apiKey).toBeUndefined(); // Ensure apiKey was removed
 
@@ -432,9 +435,9 @@ describe("Hoox Worker Integration", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1); // Only called for trade
 
     // Check call to trade worker (via service binding)
-    const tradeCall = mockEnv.TRADE_SERVICE.fetch.mock.calls[0][0] as Request;
-    expect(tradeCall).toBeDefined();
-    const tradeBody = (await tradeCall.json()) as any;
+    const tradeFetchInit = mockEnv.TRADE_SERVICE.fetch.mock.calls[0][1];
+    expect(tradeFetchInit).toBeDefined();
+    const tradeBody = JSON.parse(tradeFetchInit.body);
     expect(tradeBody.exchange).toBe("mexc");
 
     const responseData = (await response.json()) as any;
@@ -476,11 +479,12 @@ describe("Hoox Worker Integration", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1); // Underlying global fetch
 
     // Check call to notify worker (via service binding)
-    const notifyCall = mockEnv.TELEGRAM_SERVICE.fetch.mock
-      .calls[0][0] as Request;
-    expect(notifyCall).toBeDefined();
-    const notifyBody = (await notifyCall.json()) as any;
-    expect(notifyBody.internalAuthKey).toBe(TEST_INTERNAL_KEY);
+    const notifyFetchInit = mockEnv.TELEGRAM_SERVICE.fetch.mock.calls[0][1];
+    expect(notifyFetchInit).toBeDefined();
+    const notifyBody = JSON.parse(notifyFetchInit.body);
+    expect(notifyFetchInit.headers["X-Internal-Auth-Key"]).toBe(
+      TEST_INTERNAL_KEY
+    );
     expect(notifyBody.payload.message).toBe(validWebhookPayload.notify.message);
 
     const responseData = (await response.json()) as any;
@@ -491,7 +495,7 @@ describe("Hoox Worker Integration", () => {
 
   test("handles fetch error when forwarding to trade service", async () => {
     // Setup fetchMock to reject only for the trade service call
-    fetchMock.mockImplementation(async (request: Request | URL | string) => {
+    fetchMock.mockImplementation(async (request: any, init?: RequestInit) => {
       const url =
         typeof request === "string"
           ? request
@@ -499,7 +503,11 @@ describe("Hoox Worker Integration", () => {
             ? request.url
             : String(request);
       const body =
-        request instanceof Request ? await request.clone().text() : "";
+        request instanceof Request
+          ? await request.clone().text()
+          : init?.body
+            ? String(init.body)
+            : "";
       console.log(`Global Mock Fetch Called: ${url} with body: ${body}`);
 
       // Simulate error for TRADE_SERVICE fetch
@@ -527,11 +535,12 @@ describe("Hoox Worker Integration", () => {
     });
 
     // Re-link fetch mocks to use the new implementation
-    mockEnv.TRADE_SERVICE.fetch.mockImplementation((req: Request) =>
-      global.fetch(req)
+    // serviceFetch passes (urlString, initObj) — forward both to global.fetch
+    mockEnv.TRADE_SERVICE.fetch.mockImplementation(
+      (url: string, init?: RequestInit) => global.fetch(url, init)
     );
-    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation((req: Request) =>
-      global.fetch(req)
+    mockEnv.TELEGRAM_SERVICE.fetch.mockImplementation(
+      (url: string, init?: RequestInit) => global.fetch(url, init)
     );
 
     const request = new Request("https://hoox.workers.dev/webhook", {

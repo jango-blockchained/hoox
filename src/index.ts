@@ -22,6 +22,7 @@ import {
   withRequestLog,
   validateJson,
   requireInternalAuth,
+  timingSafeEqual,
 } from "@jango-blockchained/hoox-shared/middleware";
 import { createRouter } from "@jango-blockchained/hoox-shared/router";
 import {
@@ -403,8 +404,8 @@ async function validateApiKeyBinding(
       );
       return false;
     }
-    // Basic string comparison (consider timing attacks if critical)
-    const isValid = apiKey === expectedKey;
+    // Constant-time comparison to prevent timing attacks on API key
+    const isValid = timingSafeEqual(apiKey, expectedKey);
     logger.info(`[validateApiKeyBinding] Validation result: ${isValid}`);
     return isValid;
   } catch (e: unknown) {
