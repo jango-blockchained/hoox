@@ -1,5 +1,26 @@
-import { describe, expect, test, beforeEach } from "bun:test";
-import { IdempotencyStore } from "../src/idempotencyStore";
+// Mock the cloudflare:workers built-in module before any imports
+const { mock } = await import("bun:test");
+mock.module("cloudflare:workers", () => ({
+  DurableObject: class MockDurableObject {
+    ctx: any;
+    state: any;
+    constructor(ctx: any, state: any) {
+      this.ctx = ctx;
+      this.state = state;
+    }
+    fetch() {}
+    alarm() {}
+  },
+}));
+
+const { IdempotencyStore } = await import("../src/idempotencyStore");
+const {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  mock: _mock,
+} = await import("bun:test");
 
 describe("IdempotencyStore", () => {
   let store: IdempotencyStore;

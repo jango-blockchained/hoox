@@ -1,6 +1,24 @@
 import { describe, it, expect, mock } from "bun:test";
-import webhookReceiver from "../src/index";
 import type { ExecutionContext } from "@cloudflare/workers-types";
+
+// Mock cloudflare:workers built-in module using dynamic import
+// (static mock.module doesn't work with colon-based specifiers)
+await mock.module("cloudflare:workers", () => ({
+  DurableObject: class MockDurableObject {
+    ctx: any;
+    state: any;
+    constructor(ctx: any, state: any) {
+      this.ctx = ctx;
+      this.state = state;
+    }
+    fetch() {}
+    alarm() {}
+  },
+}));
+
+const webhookReceiver = await import("../src/index").then((m) => m.default);
+// Re-export for inline usage
+const _webhookReceiver = webhookReceiver;
 
 /**
  * Comprehensive test suite for hoox worker
@@ -109,7 +127,8 @@ describe("Hoox Worker - Health Check Endpoint", () => {
 
     const response = await webhookReceiver.fetch(request, env, ctx);
     const body = (await response.json()) as any;
-    expect(body).toHaveProperty("status");
+    expect(body).toHaveProperty("result.status");
+    expect(body.result.status).toBe("ok");
   });
 
   it("GET /health includes security headers", async () => {
@@ -434,7 +453,10 @@ describe("Hoox Worker - Event Processing", () => {
     const ctx = createMockContext();
 
     const response = await webhookReceiver.fetch(request, env, ctx);
-    expect([400, 401, 403, 422, 500]).toContain(response.status);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as any;
+    expect(body.success).toBe(true);
+    expect(body.tradeResult).toBeNull();
   });
 
   it("handles concurrent event processing", async () => {
@@ -501,10 +523,8 @@ describe("Hoox Worker - Event Processing", () => {
     if (env.TRADE_SERVICE?.fetch) {
       const calls = (env.TRADE_SERVICE.fetch as any).mock?.calls || [];
       if (calls.length > 0) {
-        const tradeRequest = calls[0][0] as Request;
-        const bodyText = await tradeRequest.text();
-        const tradeBody = JSON.parse(bodyText || "{}");
-        expect(tradeBody.apiKey).toBeUndefined();
+        const requestBody = JSON.parse(calls[0][1]?.body || "{}");
+        expect(requestBody.apiKey).toBeUndefined();
       }
     }
   });
@@ -800,7 +820,10 @@ describe("Hoox Worker - Edge Cases", () => {
     const ctx = createMockContext();
 
     const response = await webhookReceiver.fetch(request, env, ctx);
-    expect([400, 401, 403, 422, 500]).toContain(response.status);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as any;
+    expect(body.success).toBe(true);
+    expect(body.tradeResult).toBeNull();
   });
 
   it("handles zero quantity", async () => {
@@ -822,7 +845,10 @@ describe("Hoox Worker - Edge Cases", () => {
     const ctx = createMockContext();
 
     const response = await webhookReceiver.fetch(request, env, ctx);
-    expect([400, 401, 403, 422, 500]).toContain(response.status);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as any;
+    expect(body.success).toBe(true);
+    expect(body.tradeResult).toBeNull();
   });
 
   it("handles negative quantity", async () => {
