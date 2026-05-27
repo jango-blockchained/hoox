@@ -1,4 +1,4 @@
-import type { KVNamespace } from "@cloudflare/workers-types";
+// KVNamespace is globally available from worker-configuration.d.ts
 import { createLogger } from "@jango-blockchained/hoox-shared/middleware";
 
 const logger = createLogger({ service: "hoox", module: "sessionManager" });

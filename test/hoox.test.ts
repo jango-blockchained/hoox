@@ -306,7 +306,6 @@ describe("Hoox Worker Integration", () => {
           : request instanceof Request
             ? request.url
             : String(request);
-      console.log(`Global Mock Fetch Called: ${url}`);
       // Default success response
       return new Response(
         JSON.stringify({ success: true, result: { mockedSuccess: true } }),
@@ -525,19 +524,15 @@ describe("Hoox Worker Integration", () => {
           : init?.body
             ? String(init.body)
             : "";
-      console.log(`Global Mock Fetch Called: ${url} with body: ${body}`);
-
       // Simulate error for TRADE_SERVICE fetch
       // We need to inspect the request to know which service is being called,
       // since service bindings don't use distinct URLs in the mock.
       // Let's check the body content (assuming trade has 'exchange', notify has 'message')
       if (body.includes('"exchange":')) {
-        console.log("Simulating Trade Service Fetch Error");
         throw new Error("Simulated Trade Worker Fetch Error");
       }
       // Handle telegram worker call successfully
       if (body.includes('"message":')) {
-        console.log("Simulating Telegram Service Success");
         return new Response(
           JSON.stringify({ success: true, result: { forwarded: true } }),
           {
