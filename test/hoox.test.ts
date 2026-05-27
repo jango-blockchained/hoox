@@ -394,7 +394,7 @@ describe("Hoox Worker Integration", () => {
     expect(notifyFetchInit.headers["X-Internal-Auth-Key"]).toBe(
       TEST_INTERNAL_KEY
     );
-    expect(notifyBody.payload.message).toBe(validWebhookPayload.notify.message);
+    expect(notifyBody.message).toBe(validWebhookPayload.notify.message);
     expect(notifyBody.apiKey).toBeUndefined(); // Ensure apiKey was removed
 
     const responseData = (await response.json()) as any;
@@ -501,7 +501,7 @@ describe("Hoox Worker Integration", () => {
     expect(notifyFetchInit.headers["X-Internal-Auth-Key"]).toBe(
       TEST_INTERNAL_KEY
     );
-    expect(notifyBody.payload.message).toBe(validWebhookPayload.notify.message);
+    expect(notifyBody.message).toBe(validWebhookPayload.notify.message);
 
     const responseData = (await response.json()) as any;
     expect(responseData.success).toBe(true);
