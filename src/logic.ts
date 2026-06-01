@@ -18,8 +18,9 @@ import { IdempotencyStore } from "./idempotencyStore";
  */
 export async function getQueueMode(
   kv: KVNamespace
-): Promise<"queue_everywhere" | "queue_failover"> {
+): Promise<"queue_everywhere" | "queue_failover" | "queue_disabled"> {
   const mode = await kv.get(KVKeys.KV_WEBHOOK_QUEUE_MODE);
+  if (mode === "queue_disabled") return "queue_disabled";
   return mode === "queue_everywhere" ? "queue_everywhere" : "queue_failover";
 }
 
@@ -83,7 +84,6 @@ export async function processTrade(
   logger: any,
   options: {
     checkIdempotency: (env: any, key: string, logger: any) => Promise<boolean>;
-    checkRateLimit: (sessionId: string, env: any) => Promise<boolean>;
     sendTradeToQueue: (
       queue: Queue,
       data: TradeData,
@@ -91,15 +91,13 @@ export async function processTrade(
     ) => Promise<void>;
     MAX_TRADES_PER_MINUTE: number;
   },
-  queueMode: "queue_everywhere" | "queue_failover" = "queue_failover"
+  queueMode:
+    | "queue_everywhere"
+    | "queue_failover"
+    | "queue_disabled" = "queue_failover"
 ): Promise<ServiceResponse> {
   const { requestId } = tradeData;
-  const {
-    checkIdempotency,
-    checkRateLimit,
-    sendTradeToQueue,
-    MAX_TRADES_PER_MINUTE,
-  } = options;
+  const { checkIdempotency, sendTradeToQueue, MAX_TRADES_PER_MINUTE } = options;
 
   // Check idempotency before processing
   const idempotencyKey = generateIdempotencyKey(tradeData);
@@ -115,18 +113,10 @@ export async function processTrade(
     };
   }
 
-  // Check rate limit
-  if (!(await checkRateLimit(requestId, env))) {
-    logger.info(`[${requestId}] Rate limit exceeded for session: ${requestId}`);
-    return {
-      success: false,
-      requestId,
-      error: `Rate limit exceeded. Maximum ${MAX_TRADES_PER_MINUTE} trades per minute.`,
-    };
-  }
-
-  // Check if we should use queue
-  const useQueue = queueMode === "queue_everywhere" || !env.TRADE_SERVICE;
+  // Check if we should use queue (queue_disabled skips queue entirely)
+  const useQueue =
+    queueMode !== "queue_disabled" &&
+    (queueMode === "queue_everywhere" || !env.TRADE_SERVICE);
 
   if (useQueue && env.TRADE_QUEUE) {
     try {
@@ -209,7 +199,7 @@ export async function processNotification(
   try {
     const res = await serviceFetch(
       env.TELEGRAM_SERVICE,
-      "/webhook",
+      "/alert",
       notificationData,
       {
         headers: { "X-Internal-Auth-Key": internalKey },

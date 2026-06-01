@@ -1,8 +1,5 @@
 // hoox/src/index.ts - Public-facing gateway for TradingView
 
-import { checkKillSwitch } from "./killSwitch";
-import { checkIpAllowlist } from "./ipAllowlist";
-import { getOrCreateSession } from "./sessionManager";
 import { IdempotencyStore } from "./idempotencyStore";
 import { createRateLimiter } from "@jango-blockchained/hoox-shared/middleware";
 import {
@@ -31,17 +28,11 @@ import {
   DISCLAIMER_HEADER,
 } from "@jango-blockchained/hoox-shared/legal";
 
-import {
-  WebhookData,
-  TradeData,
-  NotificationData,
-  ServiceResponse,
-} from "./types";
+import { TradeData, NotificationData, ServiceResponse } from "./types";
 import { validateApiKeyBinding } from "./utils/security";
 import { handleRequest } from "./handlers/webhook";
 import {
   getQueueMode,
-  generateIdempotencyKey,
   checkIdempotency,
   sendTradeToQueue,
   processTrade,
@@ -80,7 +71,6 @@ router.post(
           {
             checkIdempotency: (env, key, logger) =>
               checkIdempotency(env, key, logger),
-            checkRateLimit,
             sendTradeToQueue: (queue, data, logger) =>
               sendTradeToQueue(queue, data, logger),
             MAX_TRADES_PER_MINUTE,

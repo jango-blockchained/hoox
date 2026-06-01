@@ -10,6 +10,7 @@ import { serviceFetch } from "@jango-blockchained/hoox-shared/service-bindings";
 import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
 
 import { checkIpAllowlist } from "../ipAllowlist";
+import { checkKillSwitch } from "../killSwitch";
 import { getOrCreateSession } from "../sessionManager";
 import { validateApiKeyBinding } from "../utils/security";
 import {
@@ -53,6 +54,18 @@ export async function handleRequest(
     createDefaultMessage,
   } = options;
 
+  // Check kill switch first (before any KV reads or processing)
+  const ksCheck = await checkKillSwitch(env.CONFIG_KV);
+  if (ksCheck.enabled) {
+    logger.warn("[handleRequest] Kill switch active — rejecting request");
+    return wrapResponse(
+      createJsonResponse(
+        { success: false, error: "Service temporarily disabled" },
+        503
+      )
+    );
+  }
+
   // Check IP allowlist (TradingView IP restriction)
   const clientIp = request.headers.get("CF-Connecting-IP") || "";
   const ipCheck = await checkIpAllowlist(env.CONFIG_KV, clientIp);
@@ -63,6 +76,19 @@ export async function handleRequest(
         { success: false, error: `Access denied: ${ipCheck.reason}` },
         403
       )
+    );
+  }
+
+  // Check request body size before parsing (prevent oversized payloads)
+  const MAX_PAYLOAD_SIZE = 100_000;
+  const contentLength = parseInt(
+    request.headers.get("Content-Length") || "0",
+    10
+  );
+  if (contentLength > MAX_PAYLOAD_SIZE) {
+    logger.warn(`[handleRequest] Payload too large: ${contentLength} bytes`);
+    return wrapResponse(
+      createJsonResponse({ success: false, error: "Payload too large" }, 413)
     );
   }
 
@@ -90,11 +116,22 @@ export async function handleRequest(
       );
     }
 
+    // Get or create session for tracking (use validated apiKey before it's removed)
+    const session = await getOrCreateSession(env.SESSIONS_KV, apiKey);
+
+    // Check rate limit using session ID (not request UUID — was broken before)
+    if (!(await checkRateLimit(session.sessionId, env))) {
+      logger.warn("[handleRequest] Rate limit exceeded");
+      return wrapResponse(
+        createJsonResponse(
+          { success: false, error: "Rate limit exceeded. Try again later." },
+          429
+        )
+      );
+    }
+
     // Remove the API key from the data before processing/forwarding
     delete data.apiKey;
-
-    // Get or create session for tracking (use the validated apiKey before it was removed)
-    await getOrCreateSession(env.SESSIONS_KV, apiKey);
 
     // Generate tracking ID
     const requestId = crypto.randomUUID();

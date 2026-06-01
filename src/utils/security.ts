@@ -25,7 +25,6 @@ export async function validateApiKeyBinding(
     }
     // Constant-time comparison to prevent timing attacks on API key
     const isValid = timingSafeEqual(apiKey, expectedKey);
-    logger?.info(`[validateApiKeyBinding] Validation result: ${isValid}`);
     return isValid;
   } catch (e: unknown) {
     const errorMsg = toError(e, "Error retrieving secret");

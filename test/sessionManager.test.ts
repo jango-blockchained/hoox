@@ -1,13 +1,13 @@
-import { describe, expect, test, beforeEach, jest } from "bun:test";
-import { getOrCreateSession, updateSession } from "../src/sessionManager";
+import { describe, expect, test, beforeEach, mock } from "bun:test";
+import { getOrCreateSession } from "../src/sessionManager";
 
 describe("sessionManager", () => {
-  let mockGet: jest.Mock;
-  let mockPut: jest.Mock;
+  let mockGet: ReturnType<typeof mock>;
+  let mockPut: ReturnType<typeof mock>;
 
   beforeEach(() => {
-    mockGet = jest.fn();
-    mockPut = jest.fn();
+    mockGet = mock(() => {});
+    mockPut = mock(() => {});
   });
 
   test("creates new session when KV undefined", async () => {
@@ -42,16 +42,5 @@ describe("sessionManager", () => {
     const kv = { get: mockGet, put: mockPut } as any;
     const result = await getOrCreateSession(kv, "test-session");
     expect(result.sessionId).toBe("test-session");
-  });
-
-  test("updateSession does nothing when KV undefined", async () => {
-    await updateSession(undefined, "test-session");
-  });
-
-  test("updateSession updates session", async () => {
-    mockPut.mockResolvedValue(undefined);
-    const kv = { put: mockPut } as any;
-    await updateSession(kv, "test-session");
-    expect(mockPut).toHaveBeenCalled();
   });
 });

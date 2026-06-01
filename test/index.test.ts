@@ -569,6 +569,71 @@ describe("Hoox Worker - Event Processing", () => {
 });
 
 // ============================================================================
+// Kill Switch Integration Tests
+// ============================================================================
+
+describe("Hoox Worker - Kill Switch", () => {
+  const validPayload = {
+    apiKey: "test-api-key",
+    exchange: "binance",
+    action: "LONG",
+    symbol: "BTCUSDT",
+    quantity: 0.1,
+  };
+
+  it("rejects requests when kill switch is enabled", async () => {
+    const env = createMockEnv({
+      CONFIG_KV: {
+        get: mock(async () => "true"),
+        put: mock(async () => undefined),
+        delete: mock(async () => undefined),
+        getWithMetadata: mock(async () => ({ value: "true", metadata: null })),
+        list: mock(async () => ({ keys: [] })),
+      },
+    });
+    const request = new Request("https://example.com/webhook", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "CF-Connecting-IP": "52.89.214.238",
+      },
+      body: JSON.stringify(validPayload),
+    });
+    const ctx = createMockContext();
+
+    const response = await webhookReceiver.fetch(request, env, ctx);
+    expect(response.status).toBe(503);
+    const body = (await response.json()) as any;
+    expect(body.error).toContain("Service temporarily disabled");
+  });
+
+  it("allows requests when kill switch is disabled", async () => {
+    const env = createMockEnv({
+      CONFIG_KV: {
+        get: mock(async () => "false"),
+        put: mock(async () => undefined),
+        delete: mock(async () => undefined),
+        getWithMetadata: mock(async () => ({ value: "false", metadata: null })),
+        list: mock(async () => ({ keys: [] })),
+      },
+    });
+    const request = new Request("https://example.com/webhook", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "CF-Connecting-IP": "52.89.214.238",
+      },
+      body: JSON.stringify(validPayload),
+    });
+    const ctx = createMockContext();
+
+    const response = await webhookReceiver.fetch(request, env, ctx);
+    // Should not be 503 (kill switch is disabled) — will be processed normally
+    expect(response.status).not.toBe(503);
+  });
+});
+
+// ============================================================================
 // Error Handling Tests
 // ============================================================================
 
@@ -592,7 +657,7 @@ describe("Hoox Worker - Error Handling", () => {
     const ctx = createMockContext();
 
     const response = await webhookReceiver.fetch(request, env, ctx);
-    expect([404, 405]).toContain(response.status);
+    expect(response.status).toBe(405);
   });
 
   it("returns 405 for GET on /webhook", async () => {
@@ -603,7 +668,7 @@ describe("Hoox Worker - Error Handling", () => {
     const ctx = createMockContext();
 
     const response = await webhookReceiver.fetch(request, env, ctx);
-    expect([404, 405]).toContain(response.status);
+    expect(response.status).toBe(405);
   });
 
   it("handles invalid JSON", async () => {

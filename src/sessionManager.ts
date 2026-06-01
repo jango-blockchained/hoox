@@ -35,22 +35,3 @@ export async function getOrCreateSession(
     return { sessionId: id, isNew: !sessionId };
   }
 }
-
-export async function updateSession(
-  kv: KVNamespace | undefined,
-  sessionId: string
-): Promise<void> {
-  if (!kv) return;
-
-  try {
-    await kv.put(
-      sessionId,
-      JSON.stringify({ lastSeen: new Date().toISOString() }),
-      {
-        expirationTtl: SESSION_TTL,
-      }
-    );
-  } catch (error: unknown) {
-    logger.error("KV Session Error", { error });
-  }
-}
