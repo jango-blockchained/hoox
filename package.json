@@ -9,6 +9,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "test": "bun test",
+    "typecheck": "tsc --noEmit",
     "test:watch": "bun test --watch",
     "test:coverage": "bun test --coverage"
   },
