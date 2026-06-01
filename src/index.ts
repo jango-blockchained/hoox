@@ -46,8 +46,10 @@ const RATE_LIMIT_WINDOW = 60; // 60 seconds
 
 // --- Type Definitions ---
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Env extends Cloudflare.Env {
   // Bindings are inherited from Cloudflare.Env in worker-configuration.d.ts
+  // This empty interface exists as a placeholder for future custom bindings
 }
 
 // --- Default Export (Worker Entry Point) ---
