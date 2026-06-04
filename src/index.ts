@@ -91,7 +91,20 @@ router.get(
 
 export default {
   fetch: withRequestLog<Env>(
-    (request: Request, env: Env, ctx: ExecutionContext) => {
+    async (request: Request, env: Env, ctx: ExecutionContext) => {
+      // Proxy /wallet/* paths to web3-wallet-worker via service binding
+      const url = new URL(request.url);
+      if (url.pathname.startsWith("/wallet")) {
+        const internalPath = url.pathname.replace(/^\/wallet/, "") || "/";
+        const response = await env.WEB3_WALLET_SERVICE.fetch(
+          new Request(`http://internal${internalPath}`, {
+            method: request.method,
+            headers: request.headers,
+            body: request.body,
+          })
+        );
+        return wrapResponse(response);
+      }
       return router.handle(request, env, ctx);
     },
     { service: "hoox-gateway", module: "router" }
