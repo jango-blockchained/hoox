@@ -18,6 +18,7 @@ import {
   TradeData,
   NotificationData,
   ServiceResponse,
+  QueueMode,
 } from "../types";
 
 /**
@@ -34,13 +35,13 @@ export async function handleRequest(
     processTrade: (
       data: TradeData,
       env: any,
-      mode: string
+      mode: QueueMode
     ) => Promise<ServiceResponse>;
     processNotification: (
       data: NotificationData,
       env: any
     ) => Promise<ServiceResponse>;
-    getQueueMode: (kv: KVNamespace) => Promise<string>;
+    getQueueMode: (kv: KVNamespace) => Promise<QueueMode>;
     createDefaultMessage: (data: WebhookData) => string;
   }
 ): Promise<Response> {

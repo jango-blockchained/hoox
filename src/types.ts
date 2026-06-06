@@ -29,6 +29,11 @@ export interface NotificationData {
   chatId: string;
 }
 
+export type QueueMode =
+  | "queue_everywhere"
+  | "queue_failover"
+  | "queue_disabled";
+
 export interface ServiceResponse {
   success: boolean;
   requestId?: string;
