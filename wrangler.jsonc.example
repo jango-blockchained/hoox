@@ -1,6 +1,6 @@
 {
+  // Hoox Gateway Worker — public webhook entry point
   "name": "hoox",
-  // ACCOUNT_ID: Get from Cloudflare Dashboard > Overview > Account ID
   "account_id": "YOUR_ACCOUNT_ID",
   "main": "src/index.ts",
   "alias": {
@@ -10,116 +10,70 @@
     "@jango-blockchained/hoox-shared/types": "../../packages/shared/src/types.ts",
     "@jango-blockchained/hoox-shared/types/router": "../../packages/shared/src/types/router.ts"
   },
-  // COMPATIBILITY_DATE: Use current date or latest supported
-  "compatibility_date": "2025-03-07",
+  "compatibility_date": "2026-06-08",
   "compatibility_flags": ["nodejs_compat"],
-
-  // PLACEMENT: Smart Placement for reduced latency (free, all plans)
   "placement": {
-    "mode": "smart",
+    "mode": "smart"
   },
-
-  // OBSERVABILITY: Enable logging and sampling
   "observability": {
     "enabled": true,
-    "head_sampling_rate": 1,
+    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.01 }
   },
-
-  // VARS: Environment variables (secrets set via `wrangler secret put`)
-  // Replace null with actual values in .dev.vars for local dev
+  // NOTE: Secrets must be created via `wrangler secret put <NAME>`.
+  // Never commit actual secret values.
   "vars": {
-    // WEBHOOK_API_KEY: Your webhook authentication key
-    // Set via: wrangler secret put WEBHOOK_API_KEY_BINDING
-    "WEBHOOK_API_KEY_BINDING": null,
-    // INTERNAL_KEY: Service-to-service authentication
-    // Set via: wrangler secret put INTERNAL_KEY_BINDING
-    "INTERNAL_KEY_BINDING": null,
-    // HA_TOKEN: Home Assistant access token (optional)
-    // Set via: wrangler secret put HA_TOKEN_BINDING
-    "HA_TOKEN_BINDING": null,
+    // Secrets - create via: wrangler secret put WEBHOOK_API_KEY_BINDING
+    //            wrangler secret put INTERNAL_KEY_BINDING
   },
-
-  // SERVICES: Service bindings to other workers
-  // TRADE_SERVICE: Points to trade-worker for executing trades
-  // TELEGRAM_SERVICE: Points to telegram-worker for notifications
-  // ANALYTICS_SERVICE: Points to analytics-worker for event tracking
   "services": [
     {
-      "binding": "ANALYTICS_SERVICE",
-      "service": "analytics-worker",
-    },
-    {
       "binding": "TRADE_SERVICE",
-      "service": "trade-worker",
+      "service": "trade-worker"
     },
     {
       "binding": "TELEGRAM_SERVICE",
-      "service": "telegram-worker",
+      "service": "telegram-worker"
     },
+    {
+      "binding": "ANALYTICS_SERVICE",
+      "service": "analytics-worker"
+    },
+    {
+      "binding": "WEB3_WALLET_SERVICE",
+      "service": "web3-wallet-worker"
+    }
   ],
-
-  // KV_NAMESPACES: Key-Value storage for config, sessions, and rate limiting
-  // CONFIG_KV is also used by the KV-backed rate limiter for persistence across cold starts
-  // Get IDs from Cloudflare Dashboard > KV > Namespaces
   "kv_namespaces": [
     {
       "binding": "SESSIONS_KV",
-      // ID: KV namespace for session storage
-      "id": "YOUR_SESSIONS_KV_ID",
+      "id": "YOUR_SESSIONS_KV_ID"
     },
     {
       "binding": "CONFIG_KV",
-      // ID: KV namespace for dynamic configuration and rate limiting
-      "id": "YOUR_CONFIG_KV_ID",
-    },
+      "id": "YOUR_CONFIG_KV_ID"
+    }
   ],
-
-  // VECTORIZE: AI embeddings index for RAG
-  // Get index_name from Cloudflare Dashboard > Vectorize
-  "vectorize": [
-    {
-      "binding": "VECTORIZE_INDEX",
-      // INDEX_NAME: Your Vectorize index name
-      "index_name": "YOUR_INDEX_NAME",
-    },
-  ],
-
-  // AI: Cloudflare Workers AI for running AI models
-  "ai": {
-    "binding": "AI",
-  },
-
-  // QUEUES: Queue producer for trade execution
-  // QUEUE_NAME: Get from Cloudflare Dashboard > Queues
   "queues": {
     "producers": [
       {
-        // QUEUE: Queue name for trade execution
-        "queue": "YOUR_TRADE_QUEUE_NAME",
+        "queue": "trade-execution",
         "binding": "TRADE_QUEUE"
       }
     ]
   },
-
-  // DURABLE_OBJECTS: For idempotency (duplicate trade prevention)
   "durable_objects": {
     "bindings": [
       {
-        // NAME: Binding name in worker code
         "name": "IDEMPOTENCY_STORE",
-        // CLASS_NAME: Durable Object class (must match DO class name)
         "class_name": "IdempotencyStore"
       }
     ]
   },
-
-  // MIGRATIONS: SQLite-backed Durable Object registration
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": [
-        "IdempotencyStore"
-      ]
+      "new_sqlite_classes": ["IdempotencyStore"]
     }
   ]
 }
