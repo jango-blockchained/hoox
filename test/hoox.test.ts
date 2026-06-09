@@ -1,7 +1,10 @@
 import { describe, expect, test, beforeEach, jest, mock } from "bun:test";
 
-// Mock cloudflare:workers - using explicit top-level registation
-// This must run before the static import of webhookReceiver
+// Mock cloudflare:workers - using explicit top-level registation.
+// This MUST run before the dynamic import of webhookReceiver below.
+// Note: a static `import` would be hoisted above this call by the ES module
+// loader, so the mock would not be in place when the import resolves. Use
+// dynamic import instead.
 mock.module("cloudflare:workers", () => ({
   DurableObject: class MockDurableObject {
     ctx: any;
@@ -15,9 +18,9 @@ mock.module("cloudflare:workers", () => ({
   },
 }));
 
-// Use dynamic import to ensure mock is registered first
-import webhookReceiver from "../src/index";
-import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
+// Dynamic imports so the cloudflare:workers mock above is registered first.
+const { default: webhookReceiver } = await import("../src/index");
+const { KVKeys } = await import("@jango-blockchained/hoox-shared/kvKeys");
 
 describe("Hoox Worker - Webhook Processing", () => {
   describe("Request Validation", () => {
