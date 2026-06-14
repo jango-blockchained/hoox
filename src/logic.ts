@@ -13,15 +13,37 @@ import {
 } from "./types";
 import { IdempotencyStore } from "./idempotencyStore";
 
+// --- Queue mode cache (config rarely changes, 60s TTL) ---
+let cachedQueueMode:
+  | "queue_everywhere"
+  | "queue_failover"
+  | "queue_disabled"
+  | null = null;
+let queueModeCacheExpiry = 0;
+const QUEUE_MODE_CACHE_TTL_MS = 60_000;
+
 /**
- * Get queue mode from KV config.
+ * Get queue mode from KV config (cached for 60s).
  */
 export async function getQueueMode(
   kv: KVNamespace
 ): Promise<"queue_everywhere" | "queue_failover" | "queue_disabled"> {
+  const now = Date.now();
+  if (cachedQueueMode && now < queueModeCacheExpiry) {
+    return cachedQueueMode;
+  }
+
   const mode = await kv.get(KVKeys.KV_WEBHOOK_QUEUE_MODE);
-  if (mode === "queue_disabled") return "queue_disabled";
-  return mode === "queue_everywhere" ? "queue_everywhere" : "queue_failover";
+  const resolved =
+    mode === "queue_disabled"
+      ? "queue_disabled"
+      : mode === "queue_everywhere"
+        ? "queue_everywhere"
+        : "queue_failover";
+
+  cachedQueueMode = resolved;
+  queueModeCacheExpiry = now + QUEUE_MODE_CACHE_TTL_MS;
+  return resolved;
 }
 
 /**

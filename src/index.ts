@@ -117,6 +117,7 @@ export default {
             method: request.method,
             headers: request.headers,
             body: request.body,
+            signal: AbortSignal.timeout(10_000),
           })
         );
         return wrapResponse(response);

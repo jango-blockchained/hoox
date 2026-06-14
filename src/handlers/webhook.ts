@@ -55,31 +55,6 @@ export async function handleRequest(
     createDefaultMessage,
   } = options;
 
-  // Check kill switch first (before any KV reads or processing)
-  const ksCheck = await checkKillSwitch(env.CONFIG_KV);
-  if (ksCheck.enabled) {
-    logger.warn("[handleRequest] Kill switch active — rejecting request");
-    return wrapResponse(
-      createJsonResponse(
-        { success: false, error: "Service temporarily disabled" },
-        503
-      )
-    );
-  }
-
-  // Check IP allowlist (TradingView IP restriction)
-  const clientIp = request.headers.get("CF-Connecting-IP") || "";
-  const ipCheck = await checkIpAllowlist(env.CONFIG_KV, clientIp);
-  if (!ipCheck.allowed) {
-    logger.warn(`[handleRequest] IP ${clientIp} rejected: ${ipCheck.reason}`);
-    return wrapResponse(
-      createJsonResponse(
-        { success: false, error: `Access denied: ${ipCheck.reason}` },
-        403
-      )
-    );
-  }
-
   // Check request body size before parsing (prevent oversized payloads)
   const MAX_PAYLOAD_SIZE = 100_000;
   const contentLength = parseInt(
@@ -96,7 +71,7 @@ export async function handleRequest(
   try {
     const data: WebhookData = await request.json();
 
-    // Validate the API key using the secret binding
+    // Extract API key early for parallel validation
     const { apiKey } = data;
     if (!apiKey) {
       logger.warn("[handleRequest] apiKey missing from payload");
@@ -105,11 +80,36 @@ export async function handleRequest(
       );
     }
 
-    const isValid = await validateApiKeyBinding(
-      apiKey,
-      env.WEBHOOK_API_KEY_BINDING,
-      logger
-    );
+    const clientIp = request.headers.get("CF-Connecting-IP") || "";
+
+    // Run independent checks in parallel (all KV reads, no dependencies)
+    const [ksCheck, ipCheck, isValid] = await Promise.all([
+      checkKillSwitch(env.CONFIG_KV),
+      checkIpAllowlist(env.CONFIG_KV, clientIp),
+      validateApiKeyBinding(apiKey, env.WEBHOOK_API_KEY_BINDING, logger),
+    ]);
+
+    // Evaluate in priority order (fail-fast)
+    if (ksCheck.enabled) {
+      logger.warn("[handleRequest] Kill switch active — rejecting request");
+      return wrapResponse(
+        createJsonResponse(
+          { success: false, error: "Service temporarily disabled" },
+          503
+        )
+      );
+    }
+
+    if (!ipCheck.allowed) {
+      logger.warn(`[handleRequest] IP ${clientIp} rejected: ${ipCheck.reason}`);
+      return wrapResponse(
+        createJsonResponse(
+          { success: false, error: `Access denied: ${ipCheck.reason}` },
+          403
+        )
+      );
+    }
+
     if (!isValid) {
       logger.warn("[handleRequest] Invalid apiKey provided");
       return wrapResponse(
@@ -144,9 +144,14 @@ export async function handleRequest(
 
     // Process trading signal if present
     let tradeResult: ServiceResponse | null = null;
+    let notificationResult: ServiceResponse | null = null;
     const queueMode = await getQueueMode(env.CONFIG_KV);
-    if (exchange && action && symbol && quantity) {
-      // Validate trade payload with Zod schema
+    const hasTrade = exchange && action && symbol && quantity;
+    const hasNotification = !!notify;
+
+    // Build trade promise (validates payload first)
+    let tradePromise: Promise<ServiceResponse> | null = null;
+    if (hasTrade) {
       const tradePayload = {
         exchange,
         action,
@@ -167,7 +172,7 @@ export async function handleRequest(
           )
         );
       }
-      tradeResult = await processTrade(
+      tradePromise = processTrade(
         {
           requestId,
           exchange,
@@ -180,6 +185,29 @@ export async function handleRequest(
         env,
         queueMode
       );
+    }
+
+    // Build notification promise
+    let notificationPromise: Promise<ServiceResponse> | null = null;
+    if (hasNotification) {
+      notificationPromise = processNotification(
+        {
+          requestId,
+          message: notify!.message || createDefaultMessage(data),
+          chatId: notify!.chatId,
+        },
+        env
+      );
+    }
+
+    // Run trade + notification in parallel when both are needed
+    if (tradePromise && notificationPromise) {
+      const [tradeRes, notifRes] = await Promise.all([
+        tradePromise,
+        notificationPromise,
+      ]);
+      tradeResult = tradeRes;
+      notificationResult = notifRes;
       if (!tradeResult?.success) {
         overallSuccess = false;
         errorMessages.push(tradeResult?.error || "Trade processing failed");
@@ -187,19 +215,6 @@ export async function handleRequest(
           error: tradeResult?.error,
         });
       }
-    }
-
-    // Process notification if requested
-    let notificationResult: ServiceResponse | null = null;
-    if (notify) {
-      notificationResult = await processNotification(
-        {
-          requestId,
-          message: notify.message || createDefaultMessage(data),
-          chatId: notify.chatId,
-        },
-        env
-      );
       if (!notificationResult?.success) {
         overallSuccess = false;
         errorMessages.push(
@@ -208,6 +223,30 @@ export async function handleRequest(
         logger.error(`Notification processing failed for ${requestId}`, {
           error: notificationResult?.error,
         });
+      }
+    } else {
+      // Single operation or none
+      if (tradePromise) {
+        tradeResult = await tradePromise;
+        if (!tradeResult?.success) {
+          overallSuccess = false;
+          errorMessages.push(tradeResult?.error || "Trade processing failed");
+          logger.error(`Trade processing failed for ${requestId}`, {
+            error: tradeResult?.error,
+          });
+        }
+      }
+      if (notificationPromise) {
+        notificationResult = await notificationPromise;
+        if (!notificationResult?.success) {
+          overallSuccess = false;
+          errorMessages.push(
+            notificationResult?.error || "Notification processing failed"
+          );
+          logger.error(`Notification processing failed for ${requestId}`, {
+            error: notificationResult?.error,
+          });
+        }
       }
     }
 
