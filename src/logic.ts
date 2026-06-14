@@ -5,6 +5,7 @@ import {
 } from "@jango-blockchained/hoox-shared/errors";
 import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
 import { serviceFetch } from "@jango-blockchained/hoox-shared/service-bindings";
+import type { Logger } from "@jango-blockchained/hoox-shared/middleware";
 import {
   WebhookData,
   TradeData,
@@ -12,6 +13,24 @@ import {
   ServiceResponse,
 } from "./types";
 import { IdempotencyStore } from "./idempotencyStore";
+
+// --- Minimal env interfaces for logic functions ---
+// Each function declares only the bindings it actually reads.
+
+interface IdempotencyEnv {
+  IDEMPOTENCY_STORE?: DurableObjectNamespace;
+}
+
+interface TradeEnv extends IdempotencyEnv {
+  TRADE_SERVICE?: Fetcher;
+  TRADE_QUEUE?: Queue;
+  INTERNAL_KEY_BINDING?: string;
+}
+
+interface NotificationEnv {
+  TELEGRAM_SERVICE?: Fetcher;
+  INTERNAL_KEY_BINDING?: string;
+}
 
 // --- Queue mode cache (config rarely changes, 60s TTL) ---
 let cachedQueueMode:
@@ -57,9 +76,9 @@ export function generateIdempotencyKey(tradeData: TradeData): string {
  * Check and store idempotency key using Durable Object
  */
 export async function checkIdempotency(
-  env: any,
+  env: IdempotencyEnv,
   key: string,
-  logger: any
+  logger: Logger
 ): Promise<boolean> {
   if (!env.IDEMPOTENCY_STORE) {
     return true; // No DO configured, allow all
@@ -67,6 +86,7 @@ export async function checkIdempotency(
 
   try {
     const id = env.IDEMPOTENCY_STORE.idFromName(key);
+    // DurableObjectStub is an RPC proxy — cast to the DO class interface
     const stub = env.IDEMPOTENCY_STORE.get(id) as unknown as IdempotencyStore;
     return await stub.checkAndStore(key);
   } catch (error) {
@@ -81,7 +101,7 @@ export async function checkIdempotency(
 export async function sendTradeToQueue(
   queue: Queue,
   tradeData: TradeData,
-  logger: any
+  logger: Logger
 ): Promise<void> {
   const message = {
     requestId: tradeData.requestId,
@@ -102,14 +122,18 @@ export async function sendTradeToQueue(
  */
 export async function processTrade(
   tradeData: TradeData,
-  env: any,
-  logger: any,
+  env: TradeEnv,
+  logger: Logger,
   options: {
-    checkIdempotency: (env: any, key: string, logger: any) => Promise<boolean>;
+    checkIdempotency: (
+      env: IdempotencyEnv,
+      key: string,
+      logger: Logger
+    ) => Promise<boolean>;
     sendTradeToQueue: (
       queue: Queue,
       data: TradeData,
-      logger: any
+      logger: Logger
     ) => Promise<void>;
     MAX_TRADES_PER_MINUTE: number;
   },
@@ -167,6 +191,14 @@ export async function processTrade(
 
   try {
     const internalKey = env.INTERNAL_KEY_BINDING;
+    if (!internalKey) {
+      logger.error(`[${requestId}] INTERNAL_KEY_BINDING not configured.`);
+      return {
+        success: false,
+        requestId,
+        error: "Internal authentication key not configured.",
+      };
+    }
     const res = await serviceFetch(env.TRADE_SERVICE, "/webhook", tradeData, {
       headers: { "X-Internal-Auth-Key": internalKey },
     });
@@ -194,8 +226,8 @@ export async function processTrade(
  */
 export async function processNotification(
   notificationData: NotificationData,
-  env: any,
-  logger: any
+  env: NotificationEnv,
+  logger: Logger
 ): Promise<ServiceResponse> {
   const { requestId } = notificationData;
 

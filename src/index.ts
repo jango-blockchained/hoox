@@ -49,7 +49,10 @@ import {
 const MAX_TRADES_PER_MINUTE = 10;
 const RATE_LIMIT_WINDOW = 60; // 60 seconds
 
-async function checkRateLimit(sessionId: string, env: any): Promise<boolean> {
+async function checkRateLimit(
+  sessionId: string,
+  env: { CONFIG_KV?: KVNamespace }
+): Promise<boolean> {
   const kv = env.CONFIG_KV;
   const rateLimiter = createRateLimiter(kv, {
     maxRequests: MAX_TRADES_PER_MINUTE,
