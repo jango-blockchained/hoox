@@ -3,38 +3,18 @@
 import { IdempotencyStore } from "./idempotencyStore";
 import { createRateLimiter } from "@jango-blockchained/hoox-shared/middleware";
 import {
-  Errors,
-  toError,
-  createJsonResponse,
-} from "@jango-blockchained/hoox-shared/errors";
-import {
   createLogger,
   withRequestLog,
-  validateJson,
   secureHeaders,
 } from "@jango-blockchained/hoox-shared/middleware";
 import { createRouter } from "@jango-blockchained/hoox-shared/router";
-import {
-  WebhookPayloadSchema,
-  type WebhookPayload,
-  type StandardResponse,
-} from "@jango-blockchained/hoox-shared/types";
-import { trackAnalytics } from "@jango-blockchained/hoox-shared/analytics";
 import { healthCheck } from "@jango-blockchained/hoox-shared/health";
-import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
-import { serviceFetch } from "@jango-blockchained/hoox-shared/service-bindings";
 import {
   DISCLAIMER,
   DISCLAIMER_HEADER,
 } from "@jango-blockchained/hoox-shared/legal";
 
-import {
-  TradeData,
-  NotificationData,
-  ServiceResponse,
-  QueueMode,
-} from "./types";
-import { validateApiKeyBinding } from "./utils/security";
+import { TradeData, QueueMode } from "./types";
 import { handleRequest } from "./handlers/webhook";
 import {
   getQueueMode,

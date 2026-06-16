@@ -143,7 +143,7 @@ export async function processTrade(
     | "queue_disabled" = "queue_failover"
 ): Promise<ServiceResponse> {
   const { requestId } = tradeData;
-  const { checkIdempotency, sendTradeToQueue, MAX_TRADES_PER_MINUTE } = options;
+  const { checkIdempotency, sendTradeToQueue } = options;
 
   // Check idempotency before processing
   const idempotencyKey = generateIdempotencyKey(tradeData);

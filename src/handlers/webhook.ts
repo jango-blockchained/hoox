@@ -7,7 +7,6 @@ import { validateJson } from "@jango-blockchained/hoox-shared/middleware";
 import { WebhookPayloadSchema } from "@jango-blockchained/hoox-shared/types";
 import { trackAnalytics } from "@jango-blockchained/hoox-shared/analytics";
 import { serviceFetch } from "@jango-blockchained/hoox-shared/service-bindings";
-import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
 
 import { checkIpAllowlist } from "../ipAllowlist";
 import { checkKillSwitch } from "../killSwitch";
