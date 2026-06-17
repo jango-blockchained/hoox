@@ -421,9 +421,11 @@ describe("Hoox Worker Integration", () => {
     const response = await webhookReceiver.fetch(request, mockEnv, mockCtx());
     expect(response.status).toBe(500);
     const body = (await response.json()) as any;
-    // Check the combined error message structure - Only notify fails on key
+    // Both trade and notify services fail with the same error because
+    // INTERNAL_KEY_BINDING is null; the messages are joined with "; " in
+    // webhook.ts, producing a duplicate substring in the combined message.
     expect(body.error).toBe(
-      "Processing failed: Internal authentication key not configured."
+      "Processing failed: Internal authentication key not configured.; Internal authentication key not configured."
     );
 
     // Trade service might still be called successfully before notify fails

@@ -3,7 +3,10 @@ import {
   toError,
   createJsonResponse,
 } from "@jango-blockchained/hoox-shared/errors";
-import { validateJson } from "@jango-blockchained/hoox-shared/middleware";
+import {
+  validateJson,
+  type Logger,
+} from "@jango-blockchained/hoox-shared/middleware";
 import { WebhookPayloadSchema } from "@jango-blockchained/hoox-shared/types";
 import { trackAnalytics } from "@jango-blockchained/hoox-shared/analytics";
 
@@ -24,20 +27,20 @@ import {
  */
 export async function handleRequest(
   request: Request,
-  env: any,
+  env: Env,
   ctx: ExecutionContext,
-  logger: any,
+  logger: Logger,
   options: {
     wrapResponse: (res: Response) => Response;
-    checkRateLimit: (sessionId: string, env: any) => Promise<boolean>;
+    checkRateLimit: (sessionId: string, env: Env) => Promise<boolean>;
     processTrade: (
       data: TradeData,
-      env: any,
+      env: Env,
       mode: QueueMode
     ) => Promise<ServiceResponse>;
     processNotification: (
       data: NotificationData,
-      env: any
+      env: Env
     ) => Promise<ServiceResponse>;
     getQueueMode: (kv: KVNamespace) => Promise<QueueMode>;
     createDefaultMessage: (data: WebhookData) => string;

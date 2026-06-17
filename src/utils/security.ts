@@ -1,4 +1,7 @@
-import { timingSafeEqual } from "@jango-blockchained/hoox-shared/middleware";
+import {
+  timingSafeEqual,
+  type Logger,
+} from "@jango-blockchained/hoox-shared/middleware";
 import { toError } from "@jango-blockchained/hoox-shared/errors";
 
 /**
@@ -7,7 +10,7 @@ import { toError } from "@jango-blockchained/hoox-shared/errors";
 export async function validateApiKeyBinding(
   apiKey: string,
   binding?: string,
-  logger?: any
+  logger?: Logger
 ): Promise<boolean> {
   if (!binding) {
     logger?.error(

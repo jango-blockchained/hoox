@@ -82,7 +82,7 @@ router.post(
 
 router.get(
   "/health",
-  async (request: Request, env: Env, ctx: ExecutionContext) => {
+  async (_request: Request, _env: Env, _ctx: ExecutionContext) => {
     const response = healthCheck({ worker: "hoox" });
     return wrapResponse(response);
   }
