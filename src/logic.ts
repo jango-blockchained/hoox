@@ -141,18 +141,20 @@ export async function processTrade(
   const { requestId } = tradeData;
   const { checkIdempotency, sendTradeToQueue } = options;
 
-  // Check idempotency before processing
-  const idempotencyKey = generateIdempotencyKey(tradeData);
-  const isNew = await checkIdempotency(env, idempotencyKey, logger);
-  if (!isNew) {
-    logger.info(
-      `[${requestId}] Duplicate trade detected, rejecting: ${idempotencyKey}`
-    );
-    return {
-      success: false,
-      requestId,
-      error: "Duplicate trade request. This trade was already processed.",
-    };
+  // Check idempotency before processing (skip for probe mode)
+  if (tradeData.probe !== true) {
+    const idempotencyKey = generateIdempotencyKey(tradeData);
+    const isNew = await checkIdempotency(env, idempotencyKey, logger);
+    if (!isNew) {
+      logger.info(
+        `[${requestId}] Duplicate trade detected, rejecting: ${idempotencyKey}`
+      );
+      return {
+        success: false,
+        requestId,
+        error: "Duplicate trade request. This trade was already processed.",
+      };
+    }
   }
 
   // Check if we should use queue (queue_disabled skips queue entirely)

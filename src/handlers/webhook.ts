@@ -47,6 +47,7 @@ export async function handleRequest(
   }
 ): Promise<Response> {
   const startTime = Date.now();
+  const tHopStart = performance.now();
   const {
     wrapResponse,
     checkRateLimit,
@@ -140,8 +141,17 @@ export async function handleRequest(
     let overallSuccess = true; // Track overall status
     const errorMessages: string[] = [];
 
-    const { exchange, action, symbol, quantity, price, leverage, notify } =
-      data;
+    const {
+      exchange,
+      action,
+      symbol,
+      quantity,
+      price,
+      leverage,
+      probe,
+      probe_id,
+      notify,
+    } = data;
 
     // Process trading signal if present
     let tradeResult: ServiceResponse | null = null;
@@ -182,6 +192,8 @@ export async function handleRequest(
           quantity,
           price,
           leverage,
+          probe,
+          probe_id,
         },
         env,
         queueMode
@@ -261,6 +273,23 @@ export async function handleRequest(
         success: overallSuccess,
       })
     );
+
+    // Probe mode: per-hop log + analytics with probe_id index
+    if (probe === true && probe_id) {
+      const tHopDuration = performance.now() - tHopStart;
+      console.log(
+        `[HOOX:probe] probe_id=${probe_id} hop=hoox duration=${tHopDuration.toFixed(2)}ms`
+      );
+      ctx.waitUntil(
+        trackAnalytics(env, "/track/api-call", {
+          worker: "hoox",
+          endpoint: "/webhook",
+          latencyMs: tHopDuration,
+          success: overallSuccess,
+          indexes: [probe_id],
+        })
+      );
+    }
 
     // --- Construct Response ---
     if (overallSuccess) {

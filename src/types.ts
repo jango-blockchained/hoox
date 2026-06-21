@@ -7,6 +7,8 @@ export interface WebhookData {
   quantity: number;
   price?: number;
   leverage?: number;
+  probe?: boolean;
+  probe_id?: string;
   notify?: {
     message?: string;
     chatId: string;
@@ -21,6 +23,8 @@ export interface TradeData {
   quantity: number;
   price?: number;
   leverage?: number;
+  probe?: boolean;
+  probe_id?: string;
 }
 
 export interface NotificationData {

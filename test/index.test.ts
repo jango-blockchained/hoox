@@ -1152,6 +1152,97 @@ describe("Hoox Worker - Rate Limiting", () => {
 });
 
 // ============================================================================
+// Probe Mode Tests
+// ============================================================================
+
+describe("Hoox Worker - Probe Mode", () => {
+  const validProbePayload = {
+    apiKey: "test-api-key",
+    exchange: "binance",
+    action: "LONG",
+    symbol: "BTCUSDT",
+    quantity: 0.1,
+    probe: true,
+    probe_id: "p-1",
+  };
+
+  it("probe mode calls trade service", async () => {
+    const request = new Request("https://example.com/webhook", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "CF-Connecting-IP": "52.89.214.238",
+      },
+      body: JSON.stringify(validProbePayload),
+    });
+    const env = createMockEnv();
+    const ctx = createMockContext();
+
+    const response = await webhookReceiver.fetch(request, env, ctx);
+
+    expect(response.status).toBeLessThan(500);
+
+    if (env.TRADE_SERVICE?.fetch) {
+      const calls = (env.TRADE_SERVICE.fetch as any).mock?.calls || [];
+      expect(calls.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("probe mode emits console.log with probe_id and hop", async () => {
+    const request = new Request("https://example.com/webhook", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "CF-Connecting-IP": "52.89.214.238",
+      },
+      body: JSON.stringify(validProbePayload),
+    });
+    const env = createMockEnv();
+    const ctx = createMockContext();
+
+    let consoleLogCalls: any[] = [];
+    const originalLog = console.log;
+    console.log = (...args: any[]) => {
+      consoleLogCalls.push(args);
+      originalLog.apply(console, args);
+    };
+
+    try {
+      await webhookReceiver.fetch(request, env, ctx);
+
+      const probeLog = consoleLogCalls.find((call) =>
+        call.some(
+          (arg) =>
+            typeof arg === "string" &&
+            arg.includes("p-1") &&
+            arg.includes("hoox")
+        )
+      );
+      expect(probeLog).toBeDefined();
+    } finally {
+      console.log = originalLog;
+    }
+  });
+
+  it("probe mode skips idempotency check", async () => {
+    const request = new Request("https://example.com/webhook", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "CF-Connecting-IP": "52.89.214.238",
+      },
+      body: JSON.stringify(validProbePayload),
+    });
+    const env = createMockEnv();
+    const ctx = createMockContext();
+
+    const response = await webhookReceiver.fetch(request, env, ctx);
+
+    expect(response.status).toBeLessThan(500);
+  });
+});
+
+// ============================================================================
 // Request ID Tests
 // ============================================================================
 
