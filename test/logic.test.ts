@@ -609,6 +609,35 @@ describe("processTrade", () => {
     expect(service.fetch).toHaveBeenCalledTimes(1);
     expect(logger.error).toHaveBeenCalled();
   });
+
+  test("should forward X-Request-ID to TRADE_SERVICE for distributed tracing", async () => {
+    // Arrange — queue_disabled forces the direct service branch so we
+    // can assert what processTrade sends in the fetch RequestInit.
+    const store = createMockIdempotencyStore(true);
+    const service = createMockServiceBinding();
+    const env = {
+      IDEMPOTENCY_STORE: store,
+      TRADE_SERVICE: service,
+      INTERNAL_KEY_BINDING: "test-internal-key",
+    };
+
+    // Act
+    await processTrade(
+      validTradeData,
+      env as Parameters<typeof processTrade>[1],
+      logger,
+      realOptions,
+      "queue_disabled"
+    );
+
+    // Assert — `serviceFetch` calls `binding.fetch(string, RequestInit)`,
+    // so the headers live on the second argument, not on a Request.
+    expect(service.fetch).toHaveBeenCalledTimes(1);
+    const init = service.fetch.mock.calls[0]?.[1] as RequestInit;
+    const headers = init.headers as Record<string, string>;
+    expect(headers["X-Request-ID"]).toBe("req-123");
+    expect(headers["X-Internal-Auth-Key"]).toBe("test-internal-key");
+  });
 });
 
 // ---------------------------------------------------------------------------

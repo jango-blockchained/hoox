@@ -196,7 +196,10 @@ export async function processTrade(
       };
     }
     const res = await serviceFetch(env.TRADE_SERVICE, "/webhook", tradeData, {
-      headers: { "X-Internal-Auth-Key": internalKey },
+      headers: {
+        "X-Internal-Auth-Key": internalKey,
+        "X-Request-ID": requestId,
+      },
     });
     const result = await res.json();
     return {
