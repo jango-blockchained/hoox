@@ -1,9 +1,16 @@
 // KVNamespace is globally available from worker-configuration.d.ts
 import { createLogger } from "@jango-blockchained/hoox-shared/middleware";
+import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
 
 const logger = createLogger({ service: "hoox", module: "killSwitch" });
 
-const KV_KILL_SWITCH_KEY = "global:kill_switch";
+// Use the canonical kill switch key from the shared registry so the
+// hoox gateway reads the same key the trade-worker reads (and the
+// agent-worker / telegram-worker write). Previously this was the
+// "global:kill_switch" string, which meant the gateway rejected
+// signals but the trade-worker kept executing them. See the
+// 2026-06-27 worker audit S-1 finding.
+const KV_KILL_SWITCH_KEY = KVKeys.KV_TRADE_KILL_SWITCH;
 
 export async function checkKillSwitch(
   kv: KVNamespace | undefined
