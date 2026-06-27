@@ -271,7 +271,9 @@ export async function handleRequest(
         endpoint: "/webhook",
         latencyMs,
         success: overallSuccess,
-      })
+      }).catch((err) =>
+        logger.error("trackAnalytics failed", { error: String(err) })
+      )
     );
 
     // Probe mode: per-hop log + analytics with probe_id index
@@ -287,7 +289,9 @@ export async function handleRequest(
           latencyMs: tHopDuration,
           success: overallSuccess,
           indexes: [probe_id],
-        })
+        }).catch((err) =>
+          logger.error("trackAnalytics failed", { error: String(err) })
+        )
       );
     }
 
