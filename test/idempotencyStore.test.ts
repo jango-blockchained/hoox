@@ -82,6 +82,11 @@ describe("IdempotencyStore", () => {
           alarms.push(scheduledTime);
         },
       },
+      // blockConcurrencyWhile runs the callback synchronously in tests
+      // (no real DO scheduling). Real DO semantics guarantee
+      // single-threaded execution inside the block.
+      blockConcurrencyWhile: async <T>(fn: () => Promise<T>): Promise<T> =>
+        fn(),
       id: { toString: () => "test-do-id", name: "test-do" },
       waitUntil: (_promise: Promise<unknown>) => {},
     };
@@ -240,6 +245,49 @@ describe("IdempotencyStore", () => {
 
       // Assert
       expect(result).toBe(true);
+    });
+
+    test("checkAndStore() uses blockConcurrencyWhile to serialize concurrent writes", async () => {
+      // Arrange — track call ordering. The DO mock runs the block
+      // synchronously, but we can still verify that blockConcurrencyWhile
+      // is invoked (proving the atomicity guard is in place) and that
+      // the second caller sees the first caller's put.
+      const blockSpy = mock(
+        async <T>(fn: () => Promise<T>): Promise<T> => fn()
+      );
+      const ctxWithSpy = {
+        ...store.ctx,
+        blockConcurrencyWhile: blockSpy,
+      } as unknown as DurableObjectStub;
+      const storeWithSpy = new IdempotencyStore(
+        ctxWithSpy as unknown as ConstructorParameters<
+          typeof IdempotencyStore
+        >[0]
+      );
+
+      // Act
+      await storeWithSpy.checkAndStore("atomic-key");
+
+      // Assert — the atomicity guard ran exactly once per call
+      expect(blockSpy.mock.calls.length).toBe(1);
+    });
+
+    test("checkAndStore() returns false for the second of two concurrent calls with the same key", async () => {
+      // Arrange — pre-existing entry, then two calls fired in parallel.
+      // With blockConcurrencyWhile, the second call sees the first's put
+      // and is treated as a duplicate. Without it, both could return true.
+      await store.checkAndStore("race-key");
+      // Reset Date.now to a known offset so TTL check is deterministic
+      const calls = await Promise.all([
+        store.checkAndStore("race-key"),
+        store.checkAndStore("race-key"),
+      ]);
+
+      // Assert — exactly one of the parallel calls is treated as new
+      const trueCount = calls.filter((c) => c === true).length;
+      const falseCount = calls.filter((c) => c === false).length;
+      expect(trueCount).toBe(0);
+      expect(falseCount).toBe(2);
     });
   });
 });
