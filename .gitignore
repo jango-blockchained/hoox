@@ -169,3 +169,4 @@ papers/hoox-arxiv-paper-core*.pdf
 # Reddit post drafts (local only, not committed)
 .reddit/
 
+TAGLINES.md

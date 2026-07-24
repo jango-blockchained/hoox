@@ -122,6 +122,12 @@ export const REQUIRED_SECRETS: RequiredSecret[] = [
     desc: "Telegram Bot Token",
   },
   {
+    group: "Internal Auth Keys",
+    worker: "pyne-worker",
+    secret: "API_KEY",
+    desc: "Pine Script evaluation API key",
+  },
+  {
     group: "External Webhooks",
     worker: "email-worker",
     secret: "EMAIL_USER_BINDING",

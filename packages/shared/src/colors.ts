@@ -15,10 +15,10 @@ export const Colors = {
   background: "#050508",
   foreground: "#E8E8F0",
   card: "#0A0A0F",
-  border: "#1A1A24",
+  border: "#232330",
   muted: "#8B8B9E",
-  "muted-foreground": "#5C5C70",
-  dim: "#2A2A36",
+  "muted-foreground": "#6E6E84",
+  dim: "#3C3C50",
 
   // Accent — cool indigo (primary) + cyan highlight
   accent: "#818CF8",
@@ -34,7 +34,7 @@ export const Colors = {
   text: "#E8E8F0",
   "text-muted": "#8B8B9E",
   panel: "#0A0A0F",
-  divider: "#1A1A24",
+  divider: "#232330",
   highlight: "#22D3EE",
 
   /** Dialog / overlay dim only — not a surface color */

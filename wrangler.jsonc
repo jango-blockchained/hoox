@@ -62,6 +62,14 @@
         "MEXC_SECRET_BINDING"
       ]
     },
+    "pyne-worker": {
+      "enabled": true,
+      "path": "workers/pyne-worker",
+      "vars": {},
+      "secrets": [
+        "API_KEY"
+      ]
+    },
     "telegram-worker": {
       "enabled": true,
       "path": "workers/telegram-worker",

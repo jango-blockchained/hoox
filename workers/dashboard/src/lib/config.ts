@@ -10,6 +10,7 @@ export type AuthType = "basic" | "cf-access" | "none";
 const DEFAULT_SERVICE_URLS = {
   D1_SERVICE_URL: "https://d1-worker.cryptolinx.workers.dev",
   AGENT_SERVICE_URL: "https://agent-worker.cryptolinx.workers.dev",
+  PYNE_WORKER_URL: "https://pyne-worker.cryptolinx.workers.dev",
 } as const;
 
 /**
@@ -25,6 +26,7 @@ export const ENV_KEYS = {
   services: {
     d1: "D1_SERVICE_URL",
     agent: "AGENT_SERVICE_URL",
+    pyne: "PYNE_WORKER_URL",
   },
   internalAuth: {
     d1Read: "D1_READ_KEY_BINDING",
@@ -36,6 +38,7 @@ export const ENV_KEYS = {
     telegramLegacy: "TELEGRAM_INTERNAL_KEY",
     legacy: "INTERNAL_KEY_BINDING",
     api: "API_SERVICE_KEY_BINDING",
+    pyne: "PYNE_API_KEY",
   },
   cloudflare: {
     accountId: "CLOUDFLARE_ACCOUNT_ID",
@@ -76,6 +79,9 @@ export function getConfig() {
       agentService:
         getEnvVar(ENV_KEYS.services.agent) ||
         DEFAULT_SERVICE_URLS.AGENT_SERVICE_URL,
+      pyneService:
+        getEnvVar(ENV_KEYS.services.pyne) ||
+        DEFAULT_SERVICE_URLS.PYNE_WORKER_URL,
     },
     internalAuth: {
       d1Read: resolveInternalAuthKey(
@@ -92,6 +98,7 @@ export function getConfig() {
         DASHBOARD_TELEGRAM_ALERT_AUTH_KEY_FIELDS
       ),
       api: getEnvVar(ENV_KEYS.internalAuth.api),
+      pyne: getEnvVar(ENV_KEYS.internalAuth.pyne),
     },
     auth: {
       type: getAuthType(),
