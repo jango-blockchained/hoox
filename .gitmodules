@@ -6,7 +6,7 @@
 	url = https://github.com/jango-blockchained/trade-worker.git
 [submodule "workers/hoox-worker"]
 	path = workers/hoox-worker
-	url = https://github.com/jango-blockchained/hoox.git
+	url = https://github.com/jango-blockchained/hoox-worker.git
 	branch = main
 [submodule "workers/d1-worker"]
 	path = workers/d1-worker
