@@ -434,7 +434,11 @@
       "tags": ["service-binding", "trade", "execution", "inter-worker"],
       "llmContext": "Service binding to trade-worker for trade signal execution. Target endpoint: POST /webhook. Called by: hoox (queue producer fallback), email-worker (parsed email signals with X-Internal-Auth-Key + X-Source: email-worker headers), agent-worker (AI-initiated risk adjustments). Trade execution via exchange router (Binance/MEXC/Bybit) with exponential backoff retry.",
       "bindingName": "TRADE_SERVICE",
-      "usedBy": ["workers/agent-worker", "workers/email-worker", "workers/hoox-worker"]
+      "usedBy": [
+        "workers/agent-worker",
+        "workers/email-worker",
+        "workers/hoox-worker"
+      ]
     },
     "binding:D1_SERVICE": {
       "id": "infra:binding:D1_SERVICE",
