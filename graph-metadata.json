@@ -1,6 +1,6 @@
 {
   "workers": {
-    "workers/hoox": {
+    "workers/hoox-worker": {
       "description": "Gateway worker — the only public-facing entry point. Receives TradingView webhooks, validates API keys, enforces WAF rules, manages sessions via KV, deduplicates signals via Durable Objects, and routes to trade-worker via Queue.",
       "category": "gateway",
       "tags": [
@@ -309,7 +309,7 @@
         "workers/d1-worker",
         "workers/dashboard",
         "workers/email-worker",
-        "workers/hoox",
+        "workers/hoox-worker",
         "workers/telegram-worker",
         "workers/trade-worker"
       ]
@@ -323,7 +323,7 @@
       "tags": ["kv", "session", "auth"],
       "llmContext": "Session state KV for hoox gateway. Stores httpOnly cookie sessions with 24-hour TTL (expirationTtl set on write). Session data includes API key binding, rate limit state, and auth metadata. Accessed exclusively by hoox via sessionManager.",
       "bindingName": "SESSIONS_KV",
-      "usedBy": ["workers/hoox"]
+      "usedBy": ["workers/hoox-worker"]
     },
     "kv:NEXT_INC_CACHE_KV": {
       "id": "infra:kv:NEXT_INC_CACHE_KV",
@@ -345,7 +345,7 @@
       "tags": ["queue", "async", "failover", "retry", "backpressure"],
       "llmContext": "Trade execution queue — the primary async processing pipeline. hoox produces TradeQueueMessage (requestId, exchange, action, symbol, quantity, price, leverage) via sendTradeToQueue. trade-worker consumes in queue() handler with retry logic: max 5 attempts with exponential backoff [0s, 30s, 1m, 5m, 15m], msg.retry({delaySeconds}), automatic DLQ after exhaustion. Failed trades logged to D1 system_logs table and notification sent via telegram-worker. Provides backpressure handling for burst signal scenarios.",
       "bindingName": "TRADE_QUEUE",
-      "producer": "workers/hoox",
+      "producer": "workers/hoox-worker",
       "consumer": "workers/trade-worker"
     },
     "do:IDEMPOTENCY_STORE": {
@@ -355,10 +355,10 @@
       "category": "coordination",
       "description": "Durable Object for signal idempotency. Ensures each trading signal is processed exactly once — crucial for webhook reliability with TradingView retries.",
       "tags": ["durable-object", "idempotency", "deduplication", "webhook"],
-      "llmContext": "Idempotency Durable Object in hoox gateway. Prevents duplicate trade processing when TradingView retries webhook delivery. Each signal identified by idempotency key (derived from signal content), stored in DO durable storage. checkIdempotency() returns true if key already processed. DO class exported from workers/hoox/src/index.ts as export { IdempotencyStore }. Single DO instance with consistent routing based on idempotency key. Critical for webhook reliability — without this, retried webhooks would execute duplicate trades.",
+      "llmContext": "Idempotency Durable Object in hoox gateway. Prevents duplicate trade processing when TradingView retries webhook delivery. Each signal identified by idempotency key (derived from signal content), stored in DO durable storage. checkIdempotency() returns true if key already processed. DO class exported from workers/hoox-worker/src/index.ts as export { IdempotencyStore }. Single DO instance with consistent routing based on idempotency key. Critical for webhook reliability — without this, retried webhooks would execute duplicate trades.",
       "bindingName": "IDEMPOTENCY_STORE",
       "className": "IdempotencyStore",
-      "usedBy": ["workers/hoox"]
+      "usedBy": ["workers/hoox-worker"]
     },
     "ai:WORKERS_AI": {
       "id": "infra:ai:WORKERS_AI",
@@ -371,7 +371,7 @@
       "bindingName": "AI",
       "usedBy": [
         "workers/agent-worker",
-        "workers/hoox",
+        "workers/hoox-worker",
         "workers/telegram-worker"
       ]
     },
@@ -384,7 +384,7 @@
       "tags": ["vectorize", "rag", "embeddings", "search", "semantic"],
       "llmContext": "Vectorize vector search index for RAG pipeline. Used by hoox for signal context matching (find similar historical signals for validation) and telegram-worker for semantic search (find relevant context before generating notification summaries). Embeddings generated via Workers AI (runEmbedding in agent-worker, generateEmbeddings in telegram-worker). Operations: queryEmbeddings (semantic search by vector similarity), insertEmbeddings (store new embeddings), generateEmbeddings (create embeddings from text). Index name: my-rag-index.",
       "bindingName": "VECTORIZE_INDEX",
-      "usedBy": ["workers/hoox", "workers/telegram-worker"]
+      "usedBy": ["workers/hoox-worker", "workers/telegram-worker"]
     },
     "analytics:hoox-analytics": {
       "id": "infra:analytics:hoox-analytics",
@@ -419,7 +419,7 @@
       "bindingName": "TELEGRAM_SERVICE",
       "usedBy": [
         "workers/agent-worker",
-        "workers/hoox",
+        "workers/hoox-worker",
         "workers/report-worker",
         "workers/trade-worker",
         "workers/web3-wallet-worker"
@@ -434,7 +434,7 @@
       "tags": ["service-binding", "trade", "execution", "inter-worker"],
       "llmContext": "Service binding to trade-worker for trade signal execution. Target endpoint: POST /webhook. Called by: hoox (queue producer fallback), email-worker (parsed email signals with X-Internal-Auth-Key + X-Source: email-worker headers), agent-worker (AI-initiated risk adjustments). Trade execution via exchange router (Binance/MEXC/Bybit) with exponential backoff retry.",
       "bindingName": "TRADE_SERVICE",
-      "usedBy": ["workers/agent-worker", "workers/email-worker", "workers/hoox"]
+      "usedBy": ["workers/agent-worker", "workers/email-worker", "workers/hoox-worker"]
     },
     "binding:D1_SERVICE": {
       "id": "infra:binding:D1_SERVICE",
@@ -466,7 +466,7 @@
   },
   "dataFlows": [
     {
-      "source": "workers/hoox",
+      "source": "workers/hoox-worker",
       "target": "workers/trade-worker",
       "description": "Trading signal: POST /webhook → validate webhook + check kill_switch + check IP allowlist + deduplicate via IdempotencyStore DO + check rate limit → produce TradeQueueMessage to TRADE_QUEUE → trade-worker consumes from queue handler with exponential backoff retry (max 5)",
       "flowType": "signal-ingestion"
@@ -568,7 +568,7 @@
       "label": "Cloudflare Workers",
       "description": "All 10 worker services in the Hoox trading system",
       "nodeIds": [
-        "workspace:workers/hoox",
+        "workspace:workers/hoox-worker",
         "workspace:workers/trade-worker",
         "workspace:workers/agent-worker",
         "workspace:workers/d1-worker",
@@ -619,7 +619,7 @@
       "label": "Signal Processing Pipeline",
       "description": "The core trading signal flow: hoox receives webhooks → deduplicate via IdempotencyStore DO → produce to TRADE_QUEUE → trade-worker consumes with retry → execute on Binance/MEXC/Bybit → persist to D1 → notify via telegram → track via analytics-worker. Includes infrastructure nodes that enable this flow (queue, DO, D1 database).",
       "nodeIds": [
-        "workspace:workers/hoox",
+        "workspace:workers/hoox-worker",
         "workspace:workers/trade-worker",
         "workspace:workers/d1-worker",
         "workspace:workers/telegram-worker",
