@@ -34,17 +34,62 @@ export function timingSafeEqual(a: string, b: string): boolean {
 }
 
 /**
+ * Environment bindings accepted for operator Bearer auth.
+ * Prefer OPERATOR_API_KEY; INTERNAL_API_KEY remains a legacy alias.
+ */
+export interface OperatorAuthEnv {
+  OPERATOR_API_KEY?: string;
+  INTERNAL_API_KEY?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Resolve the operator API secret from Worker env.
+ * Order: OPERATOR_API_KEY → INTERNAL_API_KEY (legacy).
+ */
+export function resolveOperatorApiKey(
+  env: OperatorAuthEnv | Env
+): string | undefined {
+  const preferred = env.OPERATOR_API_KEY;
+  if (typeof preferred === "string" && preferred.length > 0) {
+    return preferred;
+  }
+  const legacy = env.INTERNAL_API_KEY;
+  if (typeof legacy === "string" && legacy.length > 0) {
+    return legacy;
+  }
+  return undefined;
+}
+
+/**
  * Require Bearer token authentication via Authorization header.
- * Use for external API endpoints that need token-based auth.
+ * Use for external operator / management API endpoints.
+ *
+ * Secret resolution: `OPERATOR_API_KEY` (preferred) or `INTERNAL_API_KEY` (legacy).
+ * Client should send the same value as `HOOX_API_TOKEN`.
  */
 export async function requireAuth(
   request: Request,
-  env: Env
+  env: Env | OperatorAuthEnv
 ): Promise<Response | null> {
-  const apiKey = env.INTERNAL_API_KEY;
+  return requireOperatorAuth(request, env);
+}
+
+/**
+ * Explicit operator-plane auth (alias of requireAuth with clearer naming).
+ * Fail-closed when no operator key is configured.
+ */
+export async function requireOperatorAuth(
+  request: Request,
+  env: OperatorAuthEnv | Env
+): Promise<Response | null> {
+  const apiKey = resolveOperatorApiKey(env);
   if (!apiKey) {
     return new Response(
-      JSON.stringify({ error: "Internal API key not configured" }),
+      JSON.stringify({
+        error: "Operator API key not configured",
+        hint: "Set OPERATOR_API_KEY (preferred) or INTERNAL_API_KEY on the Worker",
+      }),
       { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
@@ -58,6 +103,22 @@ export async function requireAuth(
     });
   }
   return null;
+}
+
+/**
+ * Router middleware that enforces operator Bearer auth.
+ * Usage: router.get("/v1/workers", handler, [createOperatorAuthMiddleware()])
+ */
+export function createOperatorAuthMiddleware(): MiddlewareHandler<OperatorAuthEnv> {
+  return async (
+    request: Request,
+    env: OperatorAuthEnv,
+    _ctx: ExecutionContext
+  ): Promise<Response | void> => {
+    const denied = await requireOperatorAuth(request, env);
+    if (denied) return denied;
+    return;
+  };
 }
 
 /**

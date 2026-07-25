@@ -160,12 +160,36 @@ export {
   writeConfigSync,
   writeConfig,
   validateConfig,
+  ensureHooxDirSecure,
+  writeSecureFileSync,
+  isUnixModeGroupOrWorldAccessible,
+  isConfigWorldOrGroupReadable,
+  formatConfigPermissionWarning,
+  HOOX_DIR_MODE,
+  HOOX_CONFIG_FILE_MODE,
 } from "./config";
-export type { HooxConfig } from "./config";
+export type { HooxConfig, HooxConfigTransport } from "./config";
 
 export { hooxFetch, WorkerAPIError } from "./api-client";
+export type { HooxFetchOptions } from "./api-client";
 export { subscribeSSE } from "./sse";
-export type { SSECallback, SSEStatusCallback } from "./sse";
+export type {
+  SSECallback,
+  SSEStatusCallback,
+  SubscribeSSEOptions,
+} from "./sse";
+export {
+  resolveOperatorTransportProfile,
+  buildOperatorAuthHeaders,
+  hasOperatorClientCredentials,
+  operatorUrl,
+} from "./operator-transport";
+export type {
+  OperatorTransport,
+  OperatorTransportProfile,
+  OperatorTransportEnv,
+  ResolveOperatorTransportOptions,
+} from "./operator-transport";
 export { restoreSession, saveSession } from "./session";
 export type { SessionState } from "./session";
 export { formatRelativeTime as formatRelativeTimeFromTime } from "./format-time";

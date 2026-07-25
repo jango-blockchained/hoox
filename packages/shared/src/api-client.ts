@@ -2,14 +2,22 @@
  * API Client — Bun fetch wrapper with AbortController timeouts, retry logic,
  * and connection-aware error handling for the Hoox TUI dashboard.
  *
+ * Auth headers come from the operator transport profile (Bearer + optional
+ * Cloudflare Access service-token headers). See `operator-transport.ts`.
+ *
  * All fetch calls include a 5s timeout via AbortController.
  * Network errors (fetch failures, timeouts) are retried with exponential backoff.
  * HTTP 401/403 errors are NOT retried — they indicate auth/config issues.
  * HTTP 429 (rate limit) triggers a backing-off warning.
  */
 
-const API_BASE = process.env.HOOX_API_URL || "http://localhost:8787";
-const API_TOKEN = process.env.HOOX_API_TOKEN || "";
+import {
+  buildOperatorAuthHeaders,
+  operatorUrl,
+  resolveOperatorTransportProfile,
+  type OperatorTransportEnv,
+  type OperatorTransportProfile,
+} from "./operator-transport";
 
 /** Default fetch timeout in milliseconds */
 const FETCH_TIMEOUT_MS = 5000;
@@ -77,7 +85,20 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function activeProfile(
+  override?: OperatorTransportProfile
+): OperatorTransportProfile {
+  return override ?? resolveOperatorTransportProfile();
+}
+
 // ─── Core Fetch ──────────────────────────────────────────────────────────────
+
+export interface HooxFetchOptions extends RequestInit {
+  /** Injected transport profile (tests / multi-tenant callers). */
+  transport?: OperatorTransportProfile;
+  /** Env override when resolving transport (tests). */
+  transportEnv?: OperatorTransportEnv;
+}
 
 /**
  * Perform an API fetch with timeout, retry logic, and error handling.
@@ -89,14 +110,22 @@ function sleep(ms: number): Promise<void> {
  * - HTTP 429 (rate limited): NO retry — fail with rate limit info.
  * - HTTP 5xx: retry once.
  *
- * @param path    API path (e.g. "/workers")
+ * @param path    API path (e.g. "/v1/workers")
  * @param options Fetch options (merged with auth header and timeout signal)
  * @returns       Parsed JSON response body
  */
 export async function hooxFetch<T = unknown>(
   path: string,
-  options?: RequestInit
+  options?: HooxFetchOptions
 ): Promise<T> {
+  const profile =
+    options?.transport ??
+    (options?.transportEnv
+      ? resolveOperatorTransportProfile(options.transportEnv)
+      : activeProfile());
+
+  const { transport: _t, transportEnv: _e, ...fetchInit } = options ?? {};
+
   let lastError: unknown;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -105,15 +134,15 @@ export async function hooxFetch<T = unknown>(
     const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
     try {
-      const url = `${API_BASE}${path}`;
+      const url = operatorUrl(profile, path);
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
-        ...(API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {}),
-        ...(options?.headers as Record<string, string> | undefined),
+        ...buildOperatorAuthHeaders(profile),
+        ...(fetchInit.headers as Record<string, string> | undefined),
       };
 
       const response = await fetch(url, {
-        ...options,
+        ...fetchInit,
         headers,
         signal: controller.signal,
       });

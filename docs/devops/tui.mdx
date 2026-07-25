@@ -107,15 +107,36 @@ Must stay aligned with `ViewId` in `packages/shared/src/types.ts`, sidebar items
 Env vars set on the TUI process: `HOOX_API_URL`, `HOOX_TUI_MODE` (`local` \| `remote`), optional `HOOX_API_TOKEN`.  
 Shared `api-client` / `sse` read `HOOX_API_URL` + `HOOX_API_TOKEN` at import time.
 
+### Security posture (operator plane)
+
+| Layer | Status |
+| ----- | ------ |
+| Client Bearer (`HOOX_API_TOKEN`) | Sent as `Authorization: Bearer …` by TUI HTTP/SSE via operator transport profile |
+| Access service token headers | Auto-attached when `CF_ACCESS_CLIENT_ID` + `CF_ACCESS_CLIENT_SECRET` are set |
+| Transport profile | `HOOX_TRANSPORT=public\|access\|mtls\|tunnel` (mtls/tunnel reserved; headers like public until certs land) |
+| Fail-closed remote launch | **Yes** — remote requires Bearer, Access env, or `--allow-insecure` |
+| Server management routes | **`/v1/*` on gateway** with `requireOperatorAuth` (`OPERATOR_API_KEY` preferred, else `INTERNAL_API_KEY`) |
+| Public liveness | `GET /health` remains unauthenticated (no secrets) |
+| Cloudflare Access / mTLS / tunnel edge | Put **Access** on a mgmt hostname; mTLS + tunnel are Enterprise / private-ingress follow-ups |
+
+**Server secret:** `wrangler secret put OPERATOR_API_KEY` (value must match client `HOOX_API_TOKEN`).
+
+**Client paths (TUI):** `GET /v1/workers`, SSE `/v1/trades/stream`, `/v1/logs/stream`, auth probe `GET /v1/health`.
+
+Prefer a **dedicated management hostname** (e.g. `mgmt.example.com`) separate from TradingView `/webhook` ingress — see [Zero Trust](/devops/deployment/zero-trust).
+
 ### Auth token UX (remote)
 
 | Surface | Behavior |
 | ------- | -------- |
-| CLI launch | Prints `Auth: set (Bearer via …)` or `missing — …`; warns if remote without token |
+| CLI launch | **Fails closed** without Bearer or Access env (unless `--allow-insecure`) |
 | CLI flags | `--token <value>` sets `HOOX_API_TOKEN` for the child only (never logged) |
+| Access env | `CF_ACCESS_CLIENT_ID` + `CF_ACCESS_CLIENT_SECRET` satisfy the launch gate |
+| Escape hatch | `--allow-insecure` remote without credentials (not recommended) |
 | Status bar | Remote without token → compact `AUTH?`; 401/403 → `AUTH!` |
 | Toasts | Mode-aware connect / lost / reconnect; auth missing & auth failed messages |
 | Startup | **REMOTE never uses CLI fallback** (gateway HTTP only); LOCAL may fall back to `cliBridge.monitorStatus()` |
+| Config file | `~/.hoox/config.json` written `0600` (may hold `apiToken`) |
 
 ### Dev logging
 
@@ -124,7 +145,7 @@ File-backed only (never stdout — would corrupt the alternate screen):
 ```bash
 hoox tui --debug
 # or: HOOX_DEBUG=1 / TUI_DEBUG=1
-# → $HOME/.hoox/.tui-state/debug.log  (JSON lines; secret-like keys redacted)
+# → $HOME/.hoox/.tui-state/debug.log  (JSON lines; secret-like keys + Bearer/env patterns redacted)
 ```
 
 Wired at startup (`main.tsx`), connection path (`app.tsx`), and CLI bridge execs.

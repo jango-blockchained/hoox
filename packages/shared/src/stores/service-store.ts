@@ -197,7 +197,7 @@ export const useServiceStore = create<ServiceState & ServiceActions>()(
     fetchWorkers: async () => {
       const { hooxFetch } = await import("../api-client");
       try {
-        const data = await hooxFetch<WorkerInfo[]>("/workers");
+        const data = await hooxFetch<WorkerInfo[]>("/v1/workers");
         set((state) => {
           state.workers = data;
           state.lastUpdated = Date.now();
@@ -266,7 +266,7 @@ export const useServiceStore = create<ServiceState & ServiceActions>()(
     streamTrades: async () => {
       const { subscribeSSE } = await import("../sse");
       try {
-        await subscribeSSE<Trade>("/trades/stream", (trade) => {
+        await subscribeSSE<Trade>("/v1/trades/stream", (trade) => {
           get().pushTrade(trade);
         });
       } catch (error) {
@@ -288,7 +288,7 @@ export const useServiceStore = create<ServiceState & ServiceActions>()(
     streamLogs: async () => {
       const { subscribeSSE } = await import("../sse");
       try {
-        await subscribeSSE<LogEntry>("/logs/stream", (log) => {
+        await subscribeSSE<LogEntry>("/v1/logs/stream", (log) => {
           get().pushLog(log);
         });
       } catch (error) {

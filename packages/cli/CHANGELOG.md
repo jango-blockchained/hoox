@@ -3,6 +3,54 @@
 All notable changes to `@jango-blockchained/hoox-cli` are documented here.
 This project adheres loosely to [Semantic Versioning](https://semver.org/).
 
+## [0.10.0] — 2026-07-26
+
+Operator security plane for remote TUI/CLI. Requires matching `@jango-blockchained/hoox-shared@1.1.0` and a gateway deploy that includes authenticated `/v1/*` routes (`OPERATOR_API_KEY`).
+
+### Added
+
+- **`hoox tui --remote` / `--api-url` / `--token` / `--debug` / `--allow-insecure`**
+  - Fail-closed remote launch: requires Bearer (`HOOX_API_TOKEN` / `--token`), Access service-token env (`CF_ACCESS_CLIENT_ID` + `CF_ACCESS_CLIENT_SECRET`), or explicit `--allow-insecure`.
+  - Forwards `HOOX_TUI_MODE`, operator token, debug flags, and optional `HOOX_TRANSPORT` from `~/.hoox/config.json`.
+- **Operator transport profile** (via shared package): `public` | `access` | `mtls` | `tunnel`
+  - Client attaches `Authorization: Bearer …` and optional Cloudflare Access service-token headers.
+  - `HOOX_TRANSPORT` env overrides; config fallbacks via `hoox config transport`.
+- **`hoox doctor --security`** — hygiene checks + optional anonymous/authed `GET /v1/health` probes (Access gate vs open surface).
+- **`hoox tunnel check`** — detect `cloudflared`, print private-ingress guidance, optional management probes.
+- **`hoox config transport` / `transport set`** — show/persist operator transport preference (`0600` config file).
+- **Management API contract** (gateway): `GET /v1/health`, `/v1/workers`, SSE `/v1/trades/stream` & `/v1/logs/stream` behind `requireOperatorAuth` (`OPERATOR_API_KEY` preferred, `INTERNAL_API_KEY` legacy).
+- **Docs:** private ingress runbook, zero-trust CLI section, TUI security posture, open-core vs Enterprise split updates.
+
+### Security
+
+- Config writes use owner-only modes (`~/.hoox` `0700`, `config.json` `0600`).
+- TUI debug log redacts nested secret keys, Bearer strings, and env-style token assignments.
+- Doctor/tunnel output never prints secret values.
+
+### Changed
+
+- TUI HTTP/SSE paths use versioned operator routes: `/v1/workers`, `/v1/trades/stream`, `/v1/logs/stream`.
+- Completion script includes `doctor` and `tunnel`.
+
+### Upgrade notes
+
+```bash
+# Worker (once per environment)
+wrangler secret put OPERATOR_API_KEY   # same value as client token
+
+# Client
+export HOOX_API_TOKEN=…
+# optional Access:
+export CF_ACCESS_CLIENT_ID=…
+export CF_ACCESS_CLIENT_SECRET=…
+export HOOX_TRANSPORT=access
+
+hoox doctor --security --api-url https://mgmt.example.com
+hoox tui --remote --api-url https://mgmt.example.com
+```
+
+Prefer a **mgmt hostname** behind Cloudflare Access; keep TradingView `/webhook` separate. See `docs/devops/deployment/private-ingress.mdx`.
+
 ## [0.9.5] — 2026-07-20
 
 ### Removed

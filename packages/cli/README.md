@@ -6,7 +6,7 @@
 
 > **Runtime requirement:** Bun ≥ 1.2. The bin shebang and bundle target are Bun-only; `npm install -g` will install the package but the CLI will not run under Node.js.
 
-**v0.9.3** — 28 top-level command groups, 800+ unit tests. Modern-minimal visual refresh, completion footer, did-you-mean suggestions, custom help, hop-level `perf fastpath` observability. **v0.9.0** had a banner version-lookup bug in global installs — fixed in 0.9.1.
+**v0.10.0** — operator security plane: fail-closed `tui --remote`, transport profile (Bearer + Access), `doctor --security`, `tunnel check`, management `/v1/*` contract. **v0.9.x** shipped hop-level `perf fastpath` observability and reliability fixes.
 
 ## Features
 

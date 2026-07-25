@@ -3,9 +3,47 @@ title: "Zero Trust & Security Hardening"
 description: "How to configure Cloudflare Access (Zero Trust), enforce Multi-Factor Authentication (MFA), and configure WAF firewall allow-lists for TradingView webhook IPs."
 ---
 
-While the Hoox dashboard features a highly secure, custom cookie-based authentication middleware, wrapping your dashboard and API endpoints inside **Cloudflare® Zero Trust (Access)** provides an enterprise-grade security perimeter.
+While the Hoox dashboard features a highly secure, custom cookie-based authentication middleware, wrapping your dashboard and **operator management APIs** inside **Cloudflare® Zero Trust (Access)** provides an enterprise-grade security perimeter.
 
 By placing your deployment behind Cloudflare Access, you can enforce Multi-Factor Authentication (MFA), restrict access to specific GitHub/Google SSO identities, evaluate device posture, and drop malicious scanner payloads at the DNS level before they ever hit your workers.
+
+### CLI / TUI remote operators
+
+`hoox tui --remote` is **fail-closed**: it requires `HOOX_API_TOKEN` / `--token`, **or** Cloudflare Access service-token env vars:
+
+```bash
+# Server (Worker secret) — must match client token
+wrangler secret put OPERATOR_API_KEY
+
+# Client
+export HOOX_API_TOKEN=…                    # Bearer → OPERATOR_API_KEY
+export CF_ACCESS_CLIENT_ID=…               # optional Access service token
+export CF_ACCESS_CLIENT_SECRET=…
+export HOOX_TRANSPORT=access               # optional; auto when Access env set
+hoox tui --remote --api-url https://mgmt.example.com
+```
+
+Management routes (all require Bearer):
+
+| Method | Path | Purpose |
+| ------ | ---- | ------- |
+| `GET` | `/v1/health` | Operator auth + plane probe |
+| `GET` | `/v1/workers` | Minimal worker list (JSON array) |
+| `GET` | `/v1/trades/stream` | SSE trades (stub → live later) |
+| `GET` | `/v1/logs/stream` | SSE logs (stub → live later) |
+
+`GET /health` stays public for liveness. Do **not** put operator Bearer on TradingView `/webhook`.
+
+Recommended layout:
+
+1. **Separate hostnames** — `gateway.example.com` for TradingView `/webhook` (IP allowlist + body apiKey); `mgmt.example.com` for `/v1/*` only.
+2. **Access application** on `mgmt.example.com` (SSO for browsers; **service token** for CLI/TUI).
+3. **Application Bearer** (`HOOX_API_TOKEN` ↔ `OPERATOR_API_KEY`) enforced by `requireOperatorAuth`.
+4. **Optional** — Cloudflare Tunnel so the origin is not on the public internet; **Enterprise** — API Shield mTLS client certificates for device-bound identity.
+
+Do **not** put long-lived full-account `CLOUDFLARE_API_TOKEN` values into TUI debug logs or world-readable config files. Prefer scoped API tokens for deploy vs read-only monitor; `~/.hoox/config.json` is written with mode `0600`.
+
+For tunnel vs Access decision tables, probe expectations, and `hoox tunnel check`, see [Private ingress](/devops/deployment/private-ingress).
 
 ---
 

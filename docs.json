@@ -240,7 +240,8 @@
                   "docs/devops/deployment/production",
                   "docs/devops/deployment/cicd",
                   "docs/devops/deployment/monitoring",
-                  "docs/devops/deployment/zero-trust"
+                  "docs/devops/deployment/zero-trust",
+                  "docs/devops/deployment/private-ingress"
                 ]
               },
               {

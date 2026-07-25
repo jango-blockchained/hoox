@@ -10,15 +10,18 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { StateStorage } from "zustand/middleware";
+import { chmodSync, mkdirSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import type { ViewId, LogFilter, NotificationPreferences } from "../types";
+import { HOOX_CONFIG_FILE_MODE, HOOX_DIR_MODE } from "../config";
 
 // ─── Custom Bun Filesystem Storage ───────────────────────────────────────────
 
 /**
  * StateStorage adapter that persists to ~/.hoox/config.json using Bun's
  * native filesystem APIs. The `name` key is ignored — the file path is fixed.
+ * Files are tightened to owner-only mode (may contain tokens / prefs).
  */
 const bunConfigStorage: StateStorage = {
   getItem: async (_name: string): Promise<string | null> => {
@@ -34,14 +37,21 @@ const bunConfigStorage: StateStorage = {
 
   setItem: async (_name: string, value: string): Promise<void> => {
     const dir = join(homedir(), ".hoox");
-    // Ensure the directory exists before writing
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true, mode: HOOX_DIR_MODE });
+    }
     try {
-      await Bun.file(dir).exists();
+      chmodSync(dir, HOOX_DIR_MODE);
     } catch {
-      // Directory doesn't exist — Bun.write will create parent dirs automatically
+      // ignore
     }
     const filePath = join(dir, "config.json");
     await Bun.write(filePath, value);
+    try {
+      chmodSync(filePath, HOOX_CONFIG_FILE_MODE);
+    } catch {
+      // ignore — platform may not support chmod
+    }
   },
 
   removeItem: async (_name: string): Promise<void> => {

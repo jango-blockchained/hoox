@@ -11,6 +11,12 @@ import { Command } from "commander";
 import { modify, applyEdits, parse } from "jsonc-parser";
 import type { FormattingOptions } from "jsonc-parser";
 
+import {
+  readConfigSync,
+  writeConfigSync,
+  resolveOperatorTransportProfile,
+  type HooxConfigTransport,
+} from "@jango-blockchained/hoox-shared";
 import { ConfigService } from "../../services/config/index.js";
 import { registerEnvCommand } from "./env-command.js";
 import { registerKvCommand } from "./kv-command.js";
@@ -26,6 +32,13 @@ import {
   getFormatOptions,
 } from "../../utils/formatters.js";
 import { theme } from "../../utils/theme.js";
+
+const TRANSPORT_VALUES = new Set<HooxConfigTransport>([
+  "public",
+  "access",
+  "mtls",
+  "tunnel",
+]);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -264,6 +277,106 @@ EXAMPLES:
   // kv subcommand group
   // ──────────────────────────────────────────────────────────────────────
   registerKvCommand(configCmd);
+
+  // ──────────────────────────────────────────────────────────────────────
+  // transport — operator plane (HOOX_TRANSPORT / ~/.hoox/config.json)
+  // ──────────────────────────────────────────────────────────────────────
+  const transportCmd = configCmd
+    .command("transport")
+    .summary("Show or set operator transport (public|access|mtls|tunnel)")
+    .description(
+      `Operator transport for remote TUI/CLI management calls.
+
+Values:
+  public  — HTTPS + Bearer (default)
+  access  — Cloudflare Access service-token headers (+ Bearer)
+  mtls    — reserved (Enterprise client certs)
+  tunnel  — reserved (private hostname; same headers as public)
+
+Env HOOX_TRANSPORT overrides ~/.hoox/config.json when set.
+Access credentials still come from CF_ACCESS_CLIENT_ID / SECRET.
+
+EXAMPLES:
+  hoox config transport
+  hoox config transport set access
+  hoox config transport set public`
+    );
+
+  transportCmd
+    .command("show", { isDefault: true })
+    .summary("Show resolved operator transport profile")
+    .action(
+      withErrorHandling(
+        async (_, cmd: Command) => {
+          const opts = getFormatOptions(cmd);
+          const file = readConfigSync();
+          const profile = resolveOperatorTransportProfile(process.env, {
+            configTransport: file.transport,
+            configApiUrl: file.apiUrl,
+            configApiToken: file.apiToken,
+          });
+          const payload = {
+            transport: profile.transport,
+            apiBase: profile.apiBase,
+            hasBearer: Boolean(profile.bearerToken),
+            hasAccessServiceToken: Boolean(
+              profile.accessClientId && profile.accessClientSecret
+            ),
+            configTransport: file.transport ?? null,
+            envTransport: process.env.HOOX_TRANSPORT ?? null,
+          };
+          if (opts.json) {
+            formatJson(payload, opts);
+            return;
+          }
+          process.stdout.write(theme.heading("\nOperator transport\n\n"));
+          formatKeyValue(
+            {
+              transport: payload.transport,
+              apiBase: payload.apiBase,
+              bearer: payload.hasBearer ? "set" : "unset",
+              accessServiceToken: payload.hasAccessServiceToken
+                ? "set"
+                : "unset",
+              "config.transport": String(
+                payload.configTransport ?? "(default)"
+              ),
+              HOOX_TRANSPORT: String(payload.envTransport ?? "(unset)"),
+            },
+            opts
+          );
+          process.stdout.write("\n");
+        },
+        { service: "config" }
+      )
+    );
+
+  transportCmd
+    .command("set")
+    .summary("Persist transport preference to ~/.hoox/config.json")
+    .argument("<value>", "public | access | mtls | tunnel")
+    .action(
+      withErrorHandling(
+        async (value: string, _, cmd: Command) => {
+          const opts = getFormatOptions(cmd);
+          const v = value.trim().toLowerCase() as HooxConfigTransport;
+          if (!TRANSPORT_VALUES.has(v)) {
+            throw new CLIError(
+              `Invalid transport "${value}". Use: public | access | mtls | tunnel`,
+              ExitCode.INVALID_USAGE
+            );
+          }
+          const file = readConfigSync();
+          file.transport = v;
+          writeConfigSync(file);
+          formatSuccess(
+            `Saved transport=${v} to ~/.hoox/config.json (mode 600). Env HOOX_TRANSPORT still wins when set.`,
+            opts
+          );
+        },
+        { service: "config" }
+      )
+    );
 
   // ──────────────────────────────────────────────────────────────────────
   // keys subcommand group (shared with top-level `hoox keys`)

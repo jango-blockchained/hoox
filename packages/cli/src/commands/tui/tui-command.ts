@@ -21,6 +21,7 @@ import {
   getHooxRepoPath,
   getTuiEntryCandidates,
   resolveHooxRuntimeRoot,
+  readConfigSync,
 } from "@jango-blockchained/hoox-shared";
 import { theme } from "../../utils/theme.js";
 import { CLIError, ExitCode } from "../../utils/errors.js";
@@ -130,6 +131,13 @@ export interface TuiLaunchOptions {
   apiUrl?: string;
   /** Connect to the deployed gateway via `resolveGatewayUrl()`. */
   remote?: boolean;
+  /**
+   * Allow remote launch without Bearer / Access credentials.
+   * Escape hatch for local debugging only — not recommended.
+   */
+  allowInsecure?: boolean;
+  /** Explicit Bearer from `--token`. */
+  token?: string;
 }
 
 export interface TuiLaunchConfig {
@@ -185,6 +193,61 @@ export function resolveTuiAuthToken(options: {
   const fromFlag = options.token?.trim();
   if (fromFlag) return fromFlag;
   return options.envToken?.trim() ?? process.env.HOOX_API_TOKEN?.trim() ?? "";
+}
+
+/**
+ * Whether Cloudflare Access service-token env vars are present.
+ * Used as an alternative to Bearer for remote operator auth (Phase 0/1).
+ */
+export function hasAccessServiceToken(
+  env: NodeJS.ProcessEnv = process.env
+): boolean {
+  const id = env.CF_ACCESS_CLIENT_ID?.trim();
+  const secret = env.CF_ACCESS_CLIENT_SECRET?.trim();
+  return Boolean(id && secret);
+}
+
+export type RemoteAuthGateResult =
+  | { ok: true; method: "bearer" | "access" | "allow-insecure" }
+  | { ok: false; reason: string };
+
+/**
+ * Fail-closed gate for remote TUI launches.
+ *
+ * Remote mode requires at least one of:
+ *   - Bearer (`--token` / `HOOX_API_TOKEN`)
+ *   - Access service token env (`CF_ACCESS_CLIENT_ID` + `CF_ACCESS_CLIENT_SECRET`)
+ *   - explicit `--allow-insecure` (escape hatch)
+ */
+export function assertRemoteAuthReady(options: {
+  tuiMode: TuiMode;
+  hasToken: boolean;
+  allowInsecure?: boolean;
+  hasAccess?: boolean;
+}): RemoteAuthGateResult {
+  if (options.tuiMode !== "remote") {
+    return { ok: true, method: "bearer" };
+  }
+  if (options.hasToken) return { ok: true, method: "bearer" };
+  if (options.hasAccess) return { ok: true, method: "access" };
+  if (options.allowInsecure) return { ok: true, method: "allow-insecure" };
+  return {
+    ok: false,
+    reason: [
+      "Remote TUI requires operator credentials (fail-closed).",
+      "",
+      "Provide one of:",
+      "  • HOOX_API_TOKEN / --token <value>   (Bearer for management API)",
+      "  • CF_ACCESS_CLIENT_ID + CF_ACCESS_CLIENT_SECRET  (Access service token)",
+      "",
+      "Escape hatch (not recommended):",
+      "  • --allow-insecure   launch without credentials (gateway may return 401)",
+      "",
+      "Note: Bearer alone is not enough until the management API enforces",
+      "requireAuth on the server. Prefer a management hostname behind",
+      "Cloudflare Access; mTLS client certs are an Enterprise follow-up.",
+    ].join("\n"),
+  };
 }
 
 /**
@@ -259,6 +322,10 @@ export function registerTUICommand(program: Command): void {
       "Bearer token for API auth (sets HOOX_API_TOKEN for this session)"
     )
     .option("--debug", "Enable TUI dev logging (HOOX_DEBUG=1 → debug.log)")
+    .option(
+      "--allow-insecure",
+      "Allow remote launch without Bearer/Access credentials (not recommended)"
+    )
     .action(
       withErrorHandling(
         async (options) => {
@@ -266,6 +333,17 @@ export function registerTUICommand(program: Command): void {
           const { apiBase, tuiMode, source } = resolveTuiLaunchConfig(options);
           const authStatus = resolveTuiAuthStatus({ token: options.token });
           const authToken = resolveTuiAuthToken({ token: options.token });
+          const accessReady = hasAccessServiceToken();
+
+          const authGate = assertRemoteAuthReady({
+            tuiMode,
+            hasToken: authStatus.hasToken,
+            allowInsecure: Boolean(options.allowInsecure),
+            hasAccess: accessReady,
+          });
+          if (!authGate.ok) {
+            throw new CLIError(authGate.reason, ExitCode.ERROR);
+          }
 
           const modeLabel = tuiMode === "remote" ? "REMOTE" : "LOCAL";
           console.log(
@@ -277,20 +355,37 @@ export function registerTUICommand(program: Command): void {
           console.log(
             theme.dim(`  Auth:  ${formatTuiAuthBanner(authStatus, tuiMode)}`)
           );
+          if (tuiMode === "remote" && accessReady && !authStatus.hasToken) {
+            console.log(
+              theme.dim(
+                `  Access: CF_ACCESS_CLIENT_ID/SECRET present (service token)`
+              )
+            );
+          }
           console.log(theme.dim(`  FPS:   ${options.fps}`));
           console.log(
             theme.dim(`  Mouse: ${options.mouse ? "enabled" : "disabled"}`)
           );
 
-          if (tuiMode === "remote" && !authStatus.hasToken) {
+          if (authGate.method === "allow-insecure") {
             console.log(
               theme.warning(
-                "\n  ⚠  Remote mode without HOOX_API_TOKEN — gateway may return 401/403."
+                "\n  ⚠  --allow-insecure: remote launch without credentials."
               )
             );
             console.log(
               theme.dim(
-                "     Set HOOX_API_TOKEN or pass --token <value> before connecting.\n"
+                "     Management API (when enabled) will reject unauthenticated requests.\n"
+              )
+            );
+          } else if (
+            tuiMode === "remote" &&
+            !authStatus.hasToken &&
+            accessReady
+          ) {
+            console.log(
+              theme.dim(
+                "\n  Using Access service token env; Bearer optional as second factor.\n"
               )
             );
           } else {
@@ -305,6 +400,15 @@ export function registerTUICommand(program: Command): void {
             );
           }
 
+          // Prefer file-backed transport when env is unset (config transport set)
+          let configTransport: string | undefined;
+          try {
+            const fileCfg = readConfigSync();
+            configTransport = fileCfg.transport;
+          } catch {
+            // ignore — config optional
+          }
+
           // Spawn the TUI as a child process — it takes over the terminal
           const child = spawn("bun", ["run", tuiEntry], {
             stdio: "inherit", // TUI gets full terminal control
@@ -316,6 +420,9 @@ export function registerTUICommand(program: Command): void {
               HOOX_TUI_MODE: tuiMode,
               ...(authToken ? { HOOX_API_TOKEN: authToken } : {}),
               ...(debugEnabled ? { HOOX_DEBUG: "1", TUI_DEBUG: "1" } : {}),
+              ...(configTransport && !process.env.HOOX_TRANSPORT
+                ? { HOOX_TRANSPORT: configTransport }
+                : {}),
             },
           });
 

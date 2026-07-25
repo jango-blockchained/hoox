@@ -171,7 +171,15 @@ export interface SettingsPayload {
  * via structural typing.
  */
 export interface Env {
-  /** Internal API key for Bearer token auth (requireAuth) */
+  /**
+   * Preferred operator Bearer secret for management APIs (`requireOperatorAuth`).
+   * Client sends the same value as `HOOX_API_TOKEN`.
+   */
+  OPERATOR_API_KEY?: string;
+  /**
+   * Legacy alias for operator Bearer auth (`requireAuth` / `requireOperatorAuth`).
+   * Prefer `OPERATOR_API_KEY` for new deployments.
+   */
   INTERNAL_API_KEY?: string;
   /** KV namespace for rate limiting (createRateLimiter) */
   CONFIG_KV?: KVNamespace;

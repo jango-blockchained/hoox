@@ -73,14 +73,17 @@ This document defines the clear boundary between the **Open Core** (public, open
 
 ### Security
 
-| Feature                              | Open Core          | Enterprise (Commercial)  | Notes |
-| ------------------------------------ | ------------------ | ------------------------ | ----- |
-| Existing 5-layer model               | Yes                | Extended                 |       |
-| Bot Management                       | Docs + basic rules | Full Enterprise features |       |
-| API Shield (basic schema validation) | Yes                | Advanced + mTLS          |       |
-| Zero Trust / Access (for dashboard)  | Examples           | Full policies + SCIM     |       |
-| AI Guardrails (basic)                | Yes                | AI Gateway at scale      |       |
-| mTLS between services                | Patterns           | Production               |       |
+| Feature                                | Open Core                                     | Enterprise (Commercial)     | Notes                |
+| -------------------------------------- | --------------------------------------------- | --------------------------- | -------------------- |
+| Existing 5-layer model                 | Yes                                           | Extended                    |                      |
+| Bot Management                         | Docs + basic rules                            | Full Enterprise features    |                      |
+| API Shield (basic schema validation)   | Yes                                           | Advanced + mTLS             |                      |
+| Zero Trust / Access (for dashboard)    | Examples                                      | Full policies + SCIM        |                      |
+| Access service tokens (CLI/TUI remote) | Supported (env + fail-closed + doctor probes) | SSO, device posture, SCIM   | Prefer mgmt hostname |
+| Tunnel runbooks (`cloudflared`)        | Docs + `hoox tunnel check`                    | Managed playbooks           | Private ingress      |
+| Operator mTLS client certs (CLI/TUI)   | Transport name reserved                       | Full lifecycle + API Shield | Defense in depth     |
+| AI Guardrails (basic)                  | Yes                                           | AI Gateway at scale         |                      |
+| mTLS between services                  | Patterns                                      | Production                  |                      |
 
 ### AI & Advanced Features
 

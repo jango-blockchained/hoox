@@ -1,13 +1,21 @@
 /**
- * SSE Streaming Client — subscribes to Server-Sent Events from hoox-setup API.
+ * SSE Streaming Client — subscribes to Server-Sent Events from the Hoox
+ * operator management API.
  *
  * Uses Bun's native fetch with ReadableStream reader for SSE parsing.
  * Supports reconnection with exponential backoff.
  * Events must be JSON-encoded in the "data:" field.
+ *
+ * Auth: operator transport profile (Bearer + optional Access service token).
  */
 
-const API_BASE = process.env.HOOX_API_URL || "http://localhost:8787";
-const API_TOKEN = process.env.HOOX_API_TOKEN || "";
+import {
+  buildOperatorAuthHeaders,
+  operatorUrl,
+  resolveOperatorTransportProfile,
+  type OperatorTransportEnv,
+  type OperatorTransportProfile,
+} from "./operator-transport";
 
 /** Reconnection backoff: 1s initial, max 16s */
 const RECONNECT_BASE_MS = 1000;
@@ -25,6 +33,11 @@ interface SSESubscription {
   abort: () => void;
 }
 
+export interface SubscribeSSEOptions {
+  transport?: OperatorTransportProfile;
+  transportEnv?: OperatorTransportEnv;
+}
+
 // ─── Core SSE Stream ─────────────────────────────────────────────────────────
 
 /**
@@ -33,28 +46,36 @@ interface SSESubscription {
  * Automatically reconnects on connection loss with exponential backoff.
  * Returns an object with an `abort()` method to cancel the subscription.
  *
- * @param path     API path (e.g. "/trades/stream")
+ * @param path     API path (e.g. "/v1/trades/stream")
  * @param callback Called with each parsed event of type T
  * @param onStatus Optional callback for connection status updates
+ * @param options  Optional transport profile override
  * @returns        Subscription controller with abort method
  */
 export function subscribeSSE<T>(
   path: string,
   callback: SSECallback<T>,
-  onStatus?: SSEStatusCallback
+  onStatus?: SSEStatusCallback,
+  options?: SubscribeSSEOptions
 ): SSESubscription {
   let aborted = false;
+
+  const profile =
+    options?.transport ??
+    (options?.transportEnv
+      ? resolveOperatorTransportProfile(options.transportEnv)
+      : resolveOperatorTransportProfile());
 
   const run = async () => {
     let attempt = 0;
 
     while (!aborted && attempt < MAX_RECONNECT_ATTEMPTS) {
       try {
-        const url = `${API_BASE}${path}`;
+        const url = operatorUrl(profile, path);
         const response = await fetch(url, {
           headers: {
             Accept: "text/event-stream",
-            ...(API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {}),
+            ...buildOperatorAuthHeaders(profile),
           },
         });
 

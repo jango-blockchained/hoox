@@ -10,6 +10,9 @@ export {
 } from "./logger";
 export {
   requireAuth,
+  requireOperatorAuth,
+  createOperatorAuthMiddleware,
+  resolveOperatorApiKey,
   requireInternalAuth,
   createInternalAuthMiddleware,
   checkInternalAuth,
@@ -17,6 +20,7 @@ export {
   collectInternalAuthKeys,
   type InternalAuthEnv,
   type InternalAuthKeyName,
+  type OperatorAuthEnv,
 } from "./auth";
 export {
   createRateLimiter,

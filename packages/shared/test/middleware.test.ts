@@ -7,6 +7,8 @@ import { describe, test, expect } from "bun:test";
 import { createLogger, withRequestLog } from "../src/middleware/logger";
 import {
   requireAuth,
+  requireOperatorAuth,
+  resolveOperatorApiKey,
   requireInternalAuth,
   checkInternalAuth,
 } from "../src/middleware/auth";
@@ -140,6 +142,48 @@ describe("Middleware", () => {
       const result = await requireAuth(req, env);
       expect(result).not.toBeNull();
       expect(result?.status).toBe(401);
+    });
+
+    test("prefer OPERATOR_API_KEY over INTERNAL_API_KEY", async () => {
+      expect(
+        resolveOperatorApiKey({
+          OPERATOR_API_KEY: "op-key",
+          INTERNAL_API_KEY: "legacy",
+        })
+      ).toBe("op-key");
+
+      const env = {
+        OPERATOR_API_KEY: "op-key",
+        INTERNAL_API_KEY: "legacy",
+      };
+      const ok = await requireOperatorAuth(
+        new Request("http://localhost/test", {
+          headers: { Authorization: "Bearer op-key" },
+        }),
+        env
+      );
+      expect(ok).toBeNull();
+
+      const denied = await requireOperatorAuth(
+        new Request("http://localhost/test", {
+          headers: { Authorization: "Bearer legacy" },
+        }),
+        env
+      );
+      expect(denied?.status).toBe(401);
+    });
+
+    test("fail-closed when no operator key configured", async () => {
+      const result = await requireOperatorAuth(
+        new Request("http://localhost/test", {
+          headers: { Authorization: "Bearer anything" },
+        }),
+        {}
+      );
+      expect(result?.status).toBe(401);
+      const body = (await result!.json()) as { error: string; hint?: string };
+      expect(body.error).toContain("Operator API key not configured");
+      expect(body.hint).toContain("OPERATOR_API_KEY");
     });
 
     test("requireInternalAuth should pass with correct header", () => {

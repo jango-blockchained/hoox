@@ -16,7 +16,7 @@ const BASH_SCRIPT = `_hoox_completion() {
   local cur prev opts
   COMPREPLY=()
   cur="\${COMP_WORDS[COMP_CWORD]}"
-    opts="--help --version --json --quiet --yes init onboard bootstrap quickstart setup clone dev deploy infra config secrets keys check db monitor repair logs test waf dashboard schema update tui disclaimer agent workers trace perf"
+    opts="--help --version --json --quiet --yes init onboard bootstrap quickstart setup clone dev deploy infra config secrets keys check db monitor repair logs test waf dashboard schema update tui disclaimer agent workers trace perf doctor tunnel"
   COMPREPLY=( $(compgen -W "\${opts}" -- \${cur}) )
   return 0
 }

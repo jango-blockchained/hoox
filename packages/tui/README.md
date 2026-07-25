@@ -14,14 +14,17 @@ bun install
 # Launch via CLI (recommended) — LOCAL → http://localhost:8787
 hoox tui
 
-# Connect to the deployed Cloudflare gateway (REMOTE)
+# Connect to remote management plane (REMOTE) — fail-closed auth
+# Server secret: wrangler secret put OPERATOR_API_KEY  (must match token)
+export HOOX_API_TOKEN=…   # required (or Access service-token env)
+# Optional Access: CF_ACCESS_CLIENT_ID + CF_ACCESS_CLIENT_SECRET
+# Optional: HOOX_TRANSPORT=access
 hoox tui --remote
-# or: hoox tui --api-url https://hoox.example.workers.dev
-# Auth for remote APIs (Bearer — never printed):
-export HOOX_API_TOKEN=…
-# or: hoox tui --remote --token "$HOOX_API_TOKEN"
+# or: hoox tui --api-url https://mgmt.example.com --token "$HOOX_API_TOKEN"
+# Escape hatch only: hoox tui --remote --allow-insecure
+# Management API: GET /v1/health, /v1/workers, SSE /v1/trades|logs/stream
 
-# Dev logging → $HOME/.hoox/.tui-state/debug.log (file-backed; safe for alternate screen)
+# Dev logging → $HOME/.hoox/.tui-state/debug.log (secrets redacted)
 hoox tui --debug
 # or: HOOX_DEBUG=1 / TUI_DEBUG=1
 

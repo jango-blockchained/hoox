@@ -3,8 +3,23 @@
  * Run with: bun test packages/shared/test/config.test.ts
  */
 
-import { describe, test, expect, beforeEach, afterEach, mock } from "bun:test";
-import { validateConfig, readConfigSync } from "../src/config";
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  afterAll,
+  mock,
+} from "bun:test";
+import {
+  validateConfig,
+  readConfigSync,
+  isUnixModeGroupOrWorldAccessible,
+  formatConfigPermissionWarning,
+  HOOX_CONFIG_FILE_MODE,
+  HOOX_DIR_MODE,
+} from "../src/config";
 
 describe("validateConfig", () => {
   test("returns empty array for valid config", () => {
@@ -75,6 +90,13 @@ describe("validateConfig", () => {
       theme: "blue" as "dark" | "light",
     });
     expect(errors).toHaveLength(3);
+  });
+
+  test("accepts transport public|access|mtls|tunnel", () => {
+    expect(validateConfig({ transport: "access" })).toHaveLength(0);
+    expect(validateConfig({ transport: "warp" as "public" })).toContain(
+      'transport must be "public" | "access" | "mtls" | "tunnel"'
+    );
   });
 
   test("only checks apiUrl when provided", () => {
@@ -156,7 +178,8 @@ describe("readConfigSync / write with mocked fs (file paths)", () => {
       readFileSync: readMock,
       writeFileSync: writeMock,
       mkdirSync: mkdirMock,
-      // other fs used? not in this module
+      chmodSync: mock(() => {}),
+      statSync: mock(() => ({ mode: 0o100600 })),
     }));
 
     // Re-import after mock to get instrumented bindings
@@ -177,6 +200,8 @@ describe("readConfigSync / write with mocked fs (file paths)", () => {
       readFileSync: readMock,
       writeFileSync: mock(() => {}),
       mkdirSync: mock(() => {}),
+      chmodSync: mock(() => {}),
+      statSync: mock(() => ({ mode: 0o100600 })),
     }));
 
     const { readConfigSync: readFresh } = await import("../src/config");
@@ -194,12 +219,15 @@ describe("readConfigSync / write with mocked fs (file paths)", () => {
     const writeMock = mock(() => {
       throw new Error("no space");
     });
+    const chmodMock = mock(() => {});
 
     mock.module("node:fs", () => ({
       existsSync: existsMock,
       readFileSync: mock(() => "{}"),
       writeFileSync: writeMock,
       mkdirSync: mkdirMock,
+      chmodSync: chmodMock,
+      statSync: mock(() => ({ mode: 0o100600 })),
     }));
 
     const { writeConfigSync: writeFresh } = await import("../src/config");
@@ -229,11 +257,46 @@ describe("readConfigSync / write with mocked fs (file paths)", () => {
       readFileSync: () => "{}",
       writeFileSync: () => {},
       mkdirSync: () => {},
+      chmodSync: () => {},
+      statSync: () => ({ mode: 0o100600 }),
     }));
 
     const mod = await import("../src/config");
     const cfg = await mod.readConfig();
     expect(cfg).toHaveProperty("apiUrl");
     await mod.writeConfig(cfg); // should not throw
+  });
+
+  afterAll(() => {
+    // Avoid leaking mock.module("node:fs") into other test files in the same process.
+    mock.restore();
+  });
+});
+
+describe("config file permissions helpers", () => {
+  test("detects group/world-readable modes", () => {
+    expect(isUnixModeGroupOrWorldAccessible(0o644)).toBe(true);
+    expect(isUnixModeGroupOrWorldAccessible(0o755)).toBe(true);
+    expect(isUnixModeGroupOrWorldAccessible(0o640)).toBe(true);
+    expect(isUnixModeGroupOrWorldAccessible(0o604)).toBe(true);
+  });
+
+  test("accepts owner-only modes", () => {
+    expect(isUnixModeGroupOrWorldAccessible(0o600)).toBe(false);
+    expect(isUnixModeGroupOrWorldAccessible(0o700)).toBe(false);
+    expect(isUnixModeGroupOrWorldAccessible(HOOX_CONFIG_FILE_MODE)).toBe(false);
+    expect(isUnixModeGroupOrWorldAccessible(HOOX_DIR_MODE)).toBe(false);
+  });
+
+  test("formatConfigPermissionWarning null when not group/world readable", () => {
+    // Missing path → not readable → no warning (uses real fs; independent of mode bit helper)
+    expect(
+      formatConfigPermissionWarning("/tmp/hoox-config-does-not-exist-xyz")
+    ).toBeNull();
+  });
+
+  test("exports expected permission constants", () => {
+    expect(HOOX_DIR_MODE).toBe(0o700);
+    expect(HOOX_CONFIG_FILE_MODE).toBe(0o600);
   });
 });

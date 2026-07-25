@@ -6,6 +6,8 @@ import {
   resolveTuiAuthStatus,
   resolveTuiAuthToken,
   formatTuiAuthBanner,
+  assertRemoteAuthReady,
+  hasAccessServiceToken,
 } from "./tui-command.js";
 import {
   findHooxSetupRoot,
@@ -157,5 +159,82 @@ describe("resolveTuiAuthStatus / token", () => {
     expect(
       formatTuiAuthBanner({ hasToken: false, source: "none" }, "remote")
     ).toContain("missing");
+  });
+});
+
+describe("assertRemoteAuthReady / hasAccessServiceToken", () => {
+  const ORIGINAL_ID = process.env.CF_ACCESS_CLIENT_ID;
+  const ORIGINAL_SECRET = process.env.CF_ACCESS_CLIENT_SECRET;
+
+  afterEach(() => {
+    if (ORIGINAL_ID === undefined) delete process.env.CF_ACCESS_CLIENT_ID;
+    else process.env.CF_ACCESS_CLIENT_ID = ORIGINAL_ID;
+    if (ORIGINAL_SECRET === undefined)
+      delete process.env.CF_ACCESS_CLIENT_SECRET;
+    else process.env.CF_ACCESS_CLIENT_SECRET = ORIGINAL_SECRET;
+  });
+
+  it("allows local mode without credentials", () => {
+    const gate = assertRemoteAuthReady({
+      tuiMode: "local",
+      hasToken: false,
+    });
+    expect(gate.ok).toBe(true);
+  });
+
+  it("blocks remote without token, access, or allow-insecure", () => {
+    const gate = assertRemoteAuthReady({
+      tuiMode: "remote",
+      hasToken: false,
+      hasAccess: false,
+      allowInsecure: false,
+    });
+    expect(gate.ok).toBe(false);
+    if (!gate.ok) {
+      expect(gate.reason).toContain("fail-closed");
+      expect(gate.reason).toContain("HOOX_API_TOKEN");
+      expect(gate.reason).toContain("--allow-insecure");
+    }
+  });
+
+  it("allows remote with Bearer", () => {
+    expect(
+      assertRemoteAuthReady({
+        tuiMode: "remote",
+        hasToken: true,
+      })
+    ).toEqual({ ok: true, method: "bearer" });
+  });
+
+  it("allows remote with Access service token", () => {
+    expect(
+      assertRemoteAuthReady({
+        tuiMode: "remote",
+        hasToken: false,
+        hasAccess: true,
+      })
+    ).toEqual({ ok: true, method: "access" });
+  });
+
+  it("allows remote with --allow-insecure", () => {
+    expect(
+      assertRemoteAuthReady({
+        tuiMode: "remote",
+        hasToken: false,
+        allowInsecure: true,
+      })
+    ).toEqual({ ok: true, method: "allow-insecure" });
+  });
+
+  it("hasAccessServiceToken requires both env vars", () => {
+    delete process.env.CF_ACCESS_CLIENT_ID;
+    delete process.env.CF_ACCESS_CLIENT_SECRET;
+    expect(hasAccessServiceToken()).toBe(false);
+
+    process.env.CF_ACCESS_CLIENT_ID = "client-id";
+    expect(hasAccessServiceToken()).toBe(false);
+
+    process.env.CF_ACCESS_CLIENT_SECRET = "client-secret";
+    expect(hasAccessServiceToken()).toBe(true);
   });
 });

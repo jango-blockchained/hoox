@@ -68,6 +68,8 @@ All workers now have authentication on their internal endpoints:
 | Worker                 | Auth Method                                  | Protected Endpoints                                              | Unprotected                                      |
 | ---------------------- | -------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------ |
 | **hoox**               | API key in body (timing-safe) + IP allowlist | `POST /webhook`                                                  | `GET /health`                                    |
+| **hoox operator plane** | Bearer `OPERATOR_API_KEY` (`requireOperatorAuth`) | `GET /v1/health`, `/v1/workers`, SSE `/v1/trades|logs/stream` | Prefer Access on mgmt hostname               |
+| **CLI/TUI operator**   | `HOOX_API_TOKEN` + optional Access service-token headers | Client transport profile (`HOOX_TRANSPORT`)                  | Fail-closed remote launch without credentials |
 | **d1-worker**          | `X-Internal-Auth-Key`                        | `POST /query`, `POST /batch`, `GET /api/*`                       | `GET /health`                                    |
 | **trade-worker**       | `X-Internal-Auth-Key`                        | `POST /webhook`, `POST /process`                                 | `GET /health`, `GET /api/signals`                |
 | **agent-worker**       | `X-Internal-Auth-Key`                        | All `POST /agent/*`, `GET /agent/status\|config\|models\|health` | `GET /`                                          |

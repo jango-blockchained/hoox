@@ -3,13 +3,27 @@
  *
  * Reports $HOME/.hoox, local vs global monorepo resolution, and TUI entry.
  * With `--fix-runtime`, clones hoox-setup into ~/.hoox/repo and installs deps.
+ * With `--security`, runs operator-plane hygiene + optional /v1/health probes.
  */
 import { Command } from "commander";
 import { spinner } from "@clack/prompts";
+import { join } from "node:path";
+import { homedir } from "node:os";
+import {
+  resolveOperatorTransportProfile,
+  type OperatorTransportEnv,
+} from "@jango-blockchained/hoox-shared";
 import {
   ensureGlobalRuntime,
   getRuntimeStatus,
 } from "../../services/runtime/index.js";
+import {
+  collectSecurityHygiene,
+  formatProbeSecurityLines,
+  probeOperatorManagement,
+  securityChecksFailed,
+  type SecurityCheckLine,
+} from "../../services/operator-security/index.js";
 import { theme, icons } from "../../utils/theme.js";
 import {
   formatJson,
@@ -20,6 +34,19 @@ import { CLIError, ExitCode } from "../../utils/errors.js";
 import { withErrorHandling } from "../../utils/error-handler.js";
 import { startTimer } from "../../utils/timer.js";
 import { formatDuration } from "../../utils/formatters.js";
+
+function printCheckIcon(severity: SecurityCheckLine["severity"]): string {
+  switch (severity) {
+    case "ok":
+      return theme.success(icons.success);
+    case "warn":
+      return theme.warning(icons.warning);
+    case "error":
+      return theme.error(icons.error);
+    default:
+      return theme.dim("·");
+  }
+}
 
 function printStatus(): number {
   const status = getRuntimeStatus();
@@ -94,11 +121,15 @@ function printStatus(): number {
   }
   process.stdout.write("\n");
 
+  // Lightweight security hygiene — never print secret values.
+  printSecurityHygieneSection();
+
   if (failed > 0 || !status.isSetupRoot) {
     process.stdout.write(
       theme.dim(
         "Tip: HOOX_HOME overrides ~/.hoox · HOOX_REPO forces the monorepo path\n" +
-          "     Outside a checkout: hoox doctor --fix-runtime\n\n"
+          "     Outside a checkout: hoox doctor --fix-runtime\n" +
+          "     Operator plane:     hoox doctor --security\n\n"
       )
     );
   }
@@ -106,10 +137,113 @@ function printStatus(): number {
   return failed === 0 ? ExitCode.SUCCESS : ExitCode.ERROR;
 }
 
+function printSecurityHygieneSection(
+  env: NodeJS.ProcessEnv = process.env
+): void {
+  const configPath = join(homedir(), ".hoox", "config.json");
+  const lines = collectSecurityHygiene(env, { configPath });
+  process.stdout.write(theme.heading("Security hygiene\n"));
+  for (const line of lines) {
+    process.stdout.write(
+      `${printCheckIcon(line.severity)} ${line.label}\n` +
+        `   ${theme.dim(line.detail)}\n`
+    );
+  }
+  process.stdout.write("\n");
+}
+
+async function runSecurityDoctor(options: {
+  apiUrl?: string;
+  probe?: boolean;
+  json?: boolean;
+}): Promise<number> {
+  const env = { ...process.env } as OperatorTransportEnv;
+  if (options.apiUrl) {
+    env.HOOX_API_URL = options.apiUrl;
+  }
+  const profile = resolveOperatorTransportProfile(env);
+  const configPath = join(homedir(), ".hoox", "config.json");
+  const hygiene = collectSecurityHygiene(env, { configPath });
+
+  const isLocal =
+    profile.apiBase.includes("localhost") ||
+    profile.apiBase.includes("127.0.0.1");
+  const shouldProbe =
+    options.probe === true || (options.probe !== false && !isLocal);
+
+  let probeLines: SecurityCheckLine[] = [];
+  let anonymous;
+  let authed;
+
+  if (shouldProbe) {
+    anonymous = await probeOperatorManagement({
+      profile,
+      anonymous: true,
+    });
+    authed = await probeOperatorManagement({ profile });
+    probeLines = formatProbeSecurityLines(authed, anonymous, profile);
+  }
+
+  const all = [...hygiene, ...probeLines];
+
+  if (options.json) {
+    formatJson(
+      {
+        transport: profile.transport,
+        apiBase: profile.apiBase,
+        hygiene,
+        probe: shouldProbe ? { anonymous, authed } : null,
+        failed: securityChecksFailed(all),
+      },
+      { json: true, quiet: false }
+    );
+    return securityChecksFailed(all) ? ExitCode.ERROR : ExitCode.SUCCESS;
+  }
+
+  process.stdout.write(theme.heading("\nHoox doctor — security\n\n"));
+  process.stdout.write(
+    theme.dim(`Transport ${profile.transport} · API ${profile.apiBase}\n\n`)
+  );
+
+  process.stdout.write(theme.heading("Hygiene\n"));
+  for (const line of hygiene) {
+    process.stdout.write(
+      `${printCheckIcon(line.severity)} ${line.label}\n` +
+        `   ${theme.dim(line.detail)}\n`
+    );
+  }
+  process.stdout.write("\n");
+
+  if (shouldProbe) {
+    process.stdout.write(theme.heading("Management probes\n"));
+    for (const line of probeLines) {
+      process.stdout.write(
+        `${printCheckIcon(line.severity)} ${line.label}\n` +
+          `   ${theme.dim(line.detail)}\n`
+      );
+    }
+    process.stdout.write("\n");
+  } else {
+    process.stdout.write(
+      theme.dim(
+        "Probes skipped (local API). Use --probe or --api-url https://mgmt…\n\n"
+      )
+    );
+  }
+
+  process.stdout.write(
+    theme.dim(
+      "Next: hoox tunnel check · docs/devops/deployment/private-ingress.mdx\n\n"
+    )
+  );
+
+  return securityChecksFailed(all) ? ExitCode.ERROR : ExitCode.SUCCESS;
+}
+
 export function registerDoctorCommand(program: Command): void {
   program
     .command("doctor")
-    .summary("Diagnose global runtime and TUI paths")
+    .summary("Diagnose global runtime, TUI paths, and operator security")
     .description(
       `Check Hoox path layout: $HOME/.hoox, local monorepo detection, and TUI entry.
 
@@ -118,9 +252,14 @@ Resolution order for the tool/runtime root:
   2. Walk up from the current directory for a hoox-setup checkout
   3. $HOME/.hoox/repo (managed global clone)
 
+SECURITY:
+  hoox doctor --security   Hygiene + optional /v1/health probes (Access / Bearer)
+
 EXAMPLES:
   hoox doctor
   hoox doctor --fix-runtime   Clone + bun install into ~/.hoox/repo
+  hoox doctor --security
+  hoox doctor --security --api-url https://mgmt.example.com
   HOOX_REPO=~/Git/hoox-setup hoox doctor`
     )
     .option(
@@ -128,16 +267,38 @@ EXAMPLES:
       "Clone hoox-setup into ~/.hoox/repo and install dependencies"
     )
     .option("--repo-url <url>", "Git URL used with --fix-runtime", undefined)
+    .option(
+      "--security",
+      "Operator-plane security hygiene + optional management probes"
+    )
+    .option(
+      "--api-url <url>",
+      "Management API base for --security probes (sets HOOX_API_URL for the check)"
+    )
+    .option("--probe", "Force /v1/health probes even for localhost")
+    .option("--no-probe", "Skip network probes with --security")
     .action(
       withErrorHandling(
         async (
           options: {
             fixRuntime?: boolean;
             repoUrl?: string;
+            security?: boolean;
+            apiUrl?: string;
+            probe?: boolean;
           },
           cmd: Command
         ) => {
           const fmt = getFormatOptions(cmd);
+
+          if (options.security) {
+            process.exitCode = await runSecurityDoctor({
+              apiUrl: options.apiUrl,
+              probe: options.probe,
+              json: fmt.json,
+            });
+            return;
+          }
 
           if (options.fixRuntime) {
             const s = spinner();

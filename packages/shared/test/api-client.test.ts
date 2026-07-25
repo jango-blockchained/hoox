@@ -29,6 +29,33 @@ describe("api-client", () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
+  it("sends Bearer and Access headers from transport profile", async () => {
+    mockFetch.mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    await hooxFetch("/v1/workers", {
+      transport: {
+        transport: "access",
+        apiBase: "https://mgmt.example.com",
+        bearerToken: "op-token",
+        accessClientId: "cid",
+        accessClientSecret: "csec",
+      },
+    });
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://mgmt.example.com/v1/workers");
+    const headers = init.headers as Record<string, string>;
+    expect(headers.Authorization).toBe("Bearer op-token");
+    expect(headers["CF-Access-Client-Id"]).toBe("cid");
+    expect(headers["CF-Access-Client-Secret"]).toBe("csec");
+  });
+
   it("throws WorkerAPIError on 401 without retrying", async () => {
     mockFetch.mockResolvedValue(new Response("Unauthorized", { status: 401 }));
 

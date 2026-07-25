@@ -8,6 +8,8 @@ import {
   isDevLogEnabled,
   resetDevLogForTests,
   tuiDevLog,
+  redactSecretsInText,
+  redactDevLogContext,
 } from "./dev-log";
 
 describe("dev-log", () => {
@@ -115,5 +117,47 @@ describe("dev-log", () => {
     expect(entry.context.apiToken).toBe("[redacted]");
     expect(entry.context.path).toBe("/health");
     expect(raw).not.toContain("super-secret-value");
+  });
+
+  it("redacts nested secret keys and message Bearer tokens", async () => {
+    process.env.HOOX_DEBUG = "1";
+    resetDevLogForTests();
+
+    await devLog(
+      "warn",
+      "http",
+      "Authorization: Bearer super-secret-value failed",
+      {
+        headers: { authorization: "Bearer super-secret-value" },
+        nested: { client_secret: "access-secret-xyz" },
+        path: "/workers",
+      }
+    );
+
+    const raw = await readFile(getDevLogPath(), "utf8");
+    expect(raw).not.toContain("super-secret-value");
+    expect(raw).not.toContain("access-secret-xyz");
+    expect(raw).toContain("[redacted]");
+  });
+
+  it("redactSecretsInText scrubs env-style assignments", () => {
+    const scrubbed = redactSecretsInText(
+      "HOOX_API_TOKEN=abc123 CF_ACCESS_CLIENT_SECRET=xyz Authorization: Bearer tok12345678"
+    );
+    expect(scrubbed).not.toContain("abc123");
+    expect(scrubbed).not.toContain("xyz");
+    expect(scrubbed).not.toContain("tok12345678");
+    expect(scrubbed).toContain("HOOX_API_TOKEN=[redacted]");
+  });
+
+  it("redactDevLogContext redacts nested client_secret", () => {
+    const out = redactDevLogContext({
+      ok: true,
+      auth: { client_secret: "s3cret", mode: "access" },
+    });
+    expect(out).toEqual({
+      ok: true,
+      auth: { client_secret: "[redacted]", mode: "access" },
+    });
   });
 });

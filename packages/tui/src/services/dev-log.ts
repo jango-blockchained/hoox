@@ -61,26 +61,81 @@ async function ensureLogDir(): Promise<string> {
   return ensureDirPromise;
 }
 
-function serializeContext(
+/** Keys that almost always carry credentials or private material. */
+const SECRET_KEY_RE =
+  /token|secret|password|passwd|authorization|api[_-]?key|private[_-]?key|client[_-]?secret|access[_-]?client|credential|cookie|session/i;
+
+/**
+ * Redact secret-looking keys in structured context (nested objects included).
+ * Exported for unit tests.
+ */
+export function redactDevLogContext(
   context?: Record<string, unknown>
 ): Record<string, unknown> | undefined {
   if (!context) return undefined;
-  const out: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(context)) {
-    if (value === undefined) continue;
-    // Avoid dumping secrets if callers slip them into context
-    if (/token|secret|password|key|authorization/i.test(key)) {
-      out[key] =
-        typeof value === "string" && value.length > 0 ? "[redacted]" : value;
-      continue;
-    }
-    if (value instanceof Error) {
-      out[key] = { name: value.name, message: value.message };
-      continue;
-    }
-    out[key] = value;
+  return redactValue(context) as Record<string, unknown>;
+}
+
+function redactValue(value: unknown): unknown {
+  if (value === undefined) return undefined;
+  if (value instanceof Error) {
+    return {
+      name: value.name,
+      message: redactSecretsInText(value.message),
+    };
   }
+  if (Array.isArray(value)) {
+    return value.map((item) => redactValue(item));
+  }
+  if (value !== null && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [key, child] of Object.entries(
+      value as Record<string, unknown>
+    )) {
+      if (child === undefined) continue;
+      if (SECRET_KEY_RE.test(key)) {
+        out[key] =
+          typeof child === "string" && child.length > 0
+            ? "[redacted]"
+            : child === null
+              ? null
+              : typeof child === "object"
+                ? "[redacted]"
+                : child;
+        continue;
+      }
+      out[key] = redactValue(child);
+    }
+    return out;
+  }
+  if (typeof value === "string") {
+    return redactSecretsInText(value);
+  }
+  return value;
+}
+
+/**
+ * Scrub common secret patterns that leak into free-form log messages.
+ * Exported for unit tests.
+ */
+export function redactSecretsInText(text: string): string {
+  let out = text;
+  // Bearer tokens in Authorization headers or prose
+  out = out.replace(/(Bearer\s+)[A-Za-z0-9._\-+/=]{8,}/gi, "$1[redacted]");
+  // Common env-style assignments
+  out = out.replace(
+    /\b(HOOX_API_TOKEN|CLOUDFLARE_API_TOKEN|CF_ACCESS_CLIENT_SECRET|CF_ACCESS_CLIENT_ID|OPERATOR_API_KEY|INTERNAL_API_KEY|INTERNAL_KEY_BINDING)\s*[=:]\s*\S+/gi,
+    "$1=[redacted]"
+  );
+  // Authorization: <scheme> <value>
+  out = out.replace(/(Authorization\s*:\s*)\S+/gi, "$1[redacted]");
   return out;
+}
+
+function serializeContext(
+  context?: Record<string, unknown>
+): Record<string, unknown> | undefined {
+  return redactDevLogContext(context);
 }
 
 /**
@@ -99,7 +154,7 @@ export async function devLog(
     ts: new Date().toISOString(),
     level,
     scope,
-    message,
+    message: redactSecretsInText(message),
     ...(context ? { context: serializeContext(context) } : {}),
   };
 
