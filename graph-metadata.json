@@ -17,7 +17,7 @@
       "llmContext": "Start here for signal ingestion flow. hoox is the ONLY public-facing worker (POST /webhook, GET /health). Exports IdempotencyStore Durable Object class for signal deduplication. Uses shared middleware: createRateLimiter (KV-backed, session-based, 10 trades/min), withRequestLog for structured logging, validateJson with Zod schemas. Session management via httpOnly cookies stored in SESSIONS_KV (24hr expiry). Security: X-Content-Type-Options, CSP, HSTS headers, kill_switch check in CONFIG_KV, TradingView IP allowlist check, timingSafeEqual for API key comparison. Produces TradeQueueMessage to TRADE_QUEUE for async processing by trade-worker. References shared types WebhookPayloadSchema, StandardResponse. Key internal functions: checkRateLimit (session-based), checkIdempotency (via DO), sendTradeToQueue, processTrade, processNotification. Rate limiter: window=60s, max=10, prefix='session'. Security headers: 7 headers including CSP default-src 'self'.",
       "cron": null,
       "isPublic": true,
-      "smartPlacement": true,
+      "smartPlacement": false,
       "entryPoints": ["POST /webhook", "GET /health"]
     },
     "workers/trade-worker": {
