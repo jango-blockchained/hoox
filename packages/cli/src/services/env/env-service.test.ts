@@ -123,7 +123,7 @@ describe("EnvService", () => {
       expect(result["workers/dashboard"].TELEGRAM_INTERNAL_KEY_BINDING).toBe(
         "tg-int-key"
       );
-      expect(result["workers/hoox"].HA_TOKEN_BINDING).toBe("ha-token");
+      expect(result["workers/hoox-worker"].HA_TOKEN_BINDING).toBe("ha-token");
       expect(result["workers/trade-worker"].API_SERVICE_KEY_BINDING).toBe(
         "api-key"
       );

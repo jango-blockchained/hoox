@@ -146,8 +146,8 @@ channels:
       keys to prevent duplicate execution. Accessed via **Cloudflare
       Durable Object RPC** (not HTTP) from the gateway's logic layer
       using the `IDEMPOTENCY_STORE` binding declared in
-      `workers/hoox/wrangler.jsonc`. The DO class name is
-      `IdempotencyStore` (`workers/hoox/src/idempotencyStore.ts`) and
+      `workers/hoox-worker/wrangler.jsonc`. The DO class name is
+      `IdempotencyStore` (`workers/hoox-worker/src/idempotencyStore.ts`) and
       the binding name in the worker env is `IDEMPOTENCY_STORE`.
     bindings:
       durable-object:

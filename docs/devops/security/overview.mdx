@@ -47,7 +47,7 @@ The `timingSafeEqual()` function was a private helper used only internally by `r
 
 ### Webhook API Key — Timing-Safe Comparison
 
-**File:** `workers/hoox/src/index.ts`
+**File:** `workers/hoox-worker/src/index.ts`
 
 The hoox gateway's webhook API key validation was changed from `===` to `timingSafeEqual()` to prevent timing side-channel attacks:
 

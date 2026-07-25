@@ -34,7 +34,7 @@ import type {
  * ```ts
  * // With home directory resolution
  * const cf = new CloudflareService(undefined, "/home/user");
- * await cf.deploy("workers/hoox");
+ * await cf.deploy("workers/hoox-worker");
  * // Resolves to: /home/user/.hoox/workers/hoox
  * ```
  */

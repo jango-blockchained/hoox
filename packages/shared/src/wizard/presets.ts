@@ -194,7 +194,7 @@ export const BASE_WORKERS: Record<
     path: "workers/d1-worker",
     vars: { database_name: "hoox-db" },
   },
-  hoox: { enabled: true, path: "workers/hoox", vars: {} },
+  hoox: { enabled: true, path: "workers/hoox-worker", vars: {} },
   "agent-worker": { enabled: true, path: "workers/agent-worker", vars: {} },
   "analytics-worker": {
     enabled: true,

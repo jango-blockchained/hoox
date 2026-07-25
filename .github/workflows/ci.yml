@@ -18,7 +18,7 @@ jobs:
       - name: Initialize git submodules (core workers)
         run: |
           git submodule update --init --recursive \
-            workers/hoox \
+            workers/hoox-worker \
             workers/trade-worker \
             workers/agent-worker \
             workers/d1-worker \
@@ -75,7 +75,7 @@ jobs:
       - name: Initialize git submodules (core workers)
         run: |
           git submodule update --init --recursive \
-            workers/hoox \
+            workers/hoox-worker \
             workers/trade-worker \
             workers/agent-worker \
             workers/d1-worker \
@@ -116,7 +116,7 @@ jobs:
       - name: Run worker unit tests
         run: |
           bun run test:trade-worker || true
-          for dir in workers/hoox workers/d1-worker workers/telegram-worker workers/agent-worker workers/web3-wallet-worker workers/email-worker workers/analytics-worker workers/report-worker; do
+          for dir in workers/hoox-worker workers/d1-worker workers/telegram-worker workers/agent-worker workers/web3-wallet-worker workers/email-worker workers/analytics-worker workers/report-worker; do
             if [ -f "$dir/package.json" ] && grep -q '"test"' "$dir/package.json"; then
               bun test --cwd "$dir" || true
             fi
@@ -146,7 +146,7 @@ jobs:
       - name: Initialize git submodules (core workers)
         run: |
           git submodule update --init --recursive \
-            workers/hoox \
+            workers/hoox-worker \
             workers/trade-worker \
             workers/agent-worker \
             workers/d1-worker \

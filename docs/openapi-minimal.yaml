@@ -6,7 +6,7 @@ info:
 
     Ingest trade signals, check system health, and manage DeFi wallet
     operations on the Cloudflare edge. All requests are handled by the
-    Hoox gateway worker (`workers/hoox`) running at the network edge.
+    Hoox gateway worker (`workers/hoox-worker`) running at the network edge.
   version: "1.0.0"
   contact:
     name: Hoox Support
@@ -1124,7 +1124,7 @@ components:
       description: |
         Webhook authentication. The API key is supplied **inside the
         JSON request body** as the `apiKey` field, not via an HTTP
-        header. This matches the runtime model in `workers/hoox` where
+        header. This matches the runtime model in `workers/hoox-worker` where
         `body.apiKey` is validated against the `WEBHOOK_API_KEY` binding
         on every request.
 

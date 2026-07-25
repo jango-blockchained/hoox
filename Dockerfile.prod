@@ -44,7 +44,7 @@ COPY --chown=bun:bun server.js scripts/cloudflare-workers-shim.js ./
 # a later COPY of a worker dir would replace the directory and destroy the
 # node_modules/@jango-blockchained/hoox-shared workspace symlink that
 # `bun install` creates, breaking `bun build` resolution below.
-COPY --chown=bun:bun workers/hoox workers/hoox
+COPY --chown=bun:bun workers/hoox-worker workers/hoox
 COPY --chown=bun:bun workers/trade-worker workers/trade-worker
 COPY --chown=bun:bun workers/telegram-worker workers/telegram-worker
 COPY --chown=bun:bun workers/d1-worker workers/d1-worker

@@ -177,7 +177,7 @@ export function parseDashboardJSONC(
 
 const BUILTIN_CONFIGS: Record<string, () => Promise<WorkerConfigManifest>> = {
   async hoox() {
-    const res = await fetch("/workers/hoox.jsonc");
+    const res = await fetch("/workers/hoox-worker.jsonc");
     if (!res.ok)
       return { worker: "hoox", displayName: "Gateway", sections: [] };
     return parseDashboardJSONC(await res.text(), "hoox");

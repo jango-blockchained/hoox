@@ -16,7 +16,7 @@
     },
     "hoox": {
       "enabled": true,
-      "path": "workers/hoox",
+      "path": "workers/hoox-worker",
       "vars": {},
       "secrets": [
         "WEBHOOK_API_KEY_BINDING"

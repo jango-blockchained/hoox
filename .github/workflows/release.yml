@@ -21,7 +21,7 @@ jobs:
       - name: Initialize git submodules (core workers)
         run: |
           git submodule update --init --recursive \
-            workers/hoox \
+            workers/hoox-worker \
             workers/trade-worker \
             workers/agent-worker \
             workers/d1-worker \

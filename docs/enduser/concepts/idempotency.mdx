@@ -30,7 +30,7 @@ Without idempotency, a typical signal failure sequence looks like this:
 
 ## 🛡️ The Hoox Solution: Durable Objects Mutex Locking
 
-To enforce exactly-once execution, Hoox implements an **atomic dedup lock** inside `workers/hoox` utilizing **Cloudflare Durable Objects**.
+To enforce exactly-once execution, Hoox implements an **atomic dedup lock** inside `workers/hoox-worker` utilizing **Cloudflare Durable Objects**.
 
 A Durable Object is a unique, single-threaded compute isolate managed by Cloudflare that maintains its own highly optimized, in-memory state and persistent on-disk SQLite storage. Because access to a specific Durable Object instance is single-threaded, it acts as an absolute **distributed lock** (mutex).
 

@@ -119,21 +119,21 @@ describe("CloudflareService", () => {
       mockSpawnWithCapture(successSpawn(stdout));
 
       const service = new CloudflareService(undefined, "/home/testuser");
-      const result = await service.deploy("workers/hoox");
+      const result = await service.deploy("workers/hoox-worker");
 
       expect(result.ok).toBe(true);
       // Spawn should use the home-dir resolved path as cwd
-      expect(lastSpawnCwd).toBe("/home/testuser/.hoox/workers/hoox");
+      expect(lastSpawnCwd).toBe("/home/testuser/.hoox/workers/hoox-worker");
     });
 
     it("resolves dev workerPath via homeDir", async () => {
       mockSpawnWithCapture(successSpawn(""));
 
       const service = new CloudflareService(undefined, "/home/testuser");
-      await service.dev("workers/hoox");
+      await service.dev("workers/hoox-worker");
 
       // Spawn should use the home-dir resolved path as cwd
-      expect(lastSpawnCwd).toBe("/home/testuser/.hoox/workers/hoox");
+      expect(lastSpawnCwd).toBe("/home/testuser/.hoox/workers/hoox-worker");
     });
 
     it("falls back to cwd resolution when no homeDir is provided", async () => {
@@ -142,10 +142,10 @@ describe("CloudflareService", () => {
       mockSpawnWithCapture(successSpawn(stdout));
 
       const service = new CloudflareService("/original/cwd");
-      const result = await service.deploy("workers/hoox");
+      const result = await service.deploy("workers/hoox-worker");
 
       expect(result.ok).toBe(true);
-      expect(lastSpawnCwd).toBe("/original/cwd/workers/hoox");
+      expect(lastSpawnCwd).toBe("/original/cwd/workers/hoox-worker");
     });
 
     it("extracts worker name from path in deploy result when using homeDir", async () => {
@@ -154,7 +154,7 @@ describe("CloudflareService", () => {
       mockSpawnWithCapture(successSpawn(stdout));
 
       const service = new CloudflareService(undefined, "/home/testuser");
-      const result = await service.deploy("workers/hoox");
+      const result = await service.deploy("workers/hoox-worker");
 
       expect(result.ok).toBe(true);
       if (result.ok) {

@@ -46,7 +46,7 @@ Purpose: concise, actionable guidance for future Copilot CLI sessions working in
   - packages/tui — terminal UI
   - workers/\* — 10 Cloudflare Workers (gateway + domain-specific workers)
   - workers/dashboard — Next.js 16 + OpenNext worker (public)
-- Communication: workers use Cloudflare Service Bindings (internal RPC); only `workers/hoox` (gateway) and dashboard are public.
+- Communication: workers use Cloudflare Service Bindings (internal RPC); only `workers/hoox-worker` (gateway) and dashboard are public.
 - Infra used: D1 (edge SQLite), R2, KV, Queues, Workers AI providers, Vectorize (RAG). Smart Placement enabled for latency-sensitive workers.
 - Constraints: workers run on Edge runtime (no Node built-ins). Secrets managed via wrangler/hoox secrets and per-worker `.dev.vars` (gitignored).
 - graph-metadata.json is the tracked semantic graph; regenerate full graph.json/graph.dot with `bun run graph` (not committed).

@@ -100,7 +100,7 @@ describe("isSubmodule", () => {
   it("returns true when path is a registered submodule", async () => {
     mockSpawnWithCapture(successSpawn(" 1234567 some/path (v1.0)"));
 
-    const result = await isSubmodule("/project", "workers/hoox");
+    const result = await isSubmodule("/project", "workers/hoox-worker");
 
     expect(result).toBe(true);
     expect(lastSpawnCmd).toEqual([
@@ -108,7 +108,7 @@ describe("isSubmodule", () => {
       "submodule",
       "status",
       "--",
-      "workers/hoox",
+      "workers/hoox-worker",
     ]);
   });
 
@@ -123,7 +123,7 @@ describe("isSubmodule", () => {
   it("returns false when git exits non-zero", async () => {
     mockSpawnWithCapture(errorSpawn("fatal: not a git repository"));
 
-    const result = await isSubmodule("/project", "workers/hoox");
+    const result = await isSubmodule("/project", "workers/hoox-worker");
 
     expect(result).toBe(false);
   });
@@ -131,7 +131,7 @@ describe("isSubmodule", () => {
   it("returns false when stdout is only whitespace", async () => {
     mockSpawnWithCapture(successSpawn("  \n  "));
 
-    const result = await isSubmodule("/project", "workers/hoox");
+    const result = await isSubmodule("/project", "workers/hoox-worker");
 
     expect(result).toBe(false);
   });
@@ -204,12 +204,12 @@ describe("gitPull", () => {
 describe("gitSubmoduleUpdate", () => {
   it("returns stdout on successful submodule update", async () => {
     mockSpawnWithCapture(
-      successSpawn("Submodule path 'workers/hoox': checked out 'abc123'")
+      successSpawn("Submodule path 'workers/hoox-worker': checked out 'abc123'")
     );
 
-    const result = await gitSubmoduleUpdate("/project", "workers/hoox");
+    const result = await gitSubmoduleUpdate("/project", "workers/hoox-worker");
 
-    expect(result).toContain("workers/hoox");
+    expect(result).toContain("workers/hoox-worker");
     expect(lastSpawnCmd).toEqual([
       "git",
       "submodule",
@@ -217,25 +217,25 @@ describe("gitSubmoduleUpdate", () => {
       "--remote",
       "--init",
       "--",
-      "workers/hoox",
+      "workers/hoox-worker",
     ]);
   });
 
   it("throws on non-zero exit", async () => {
     mockSpawnWithCapture(
-      errorSpawn("fatal: No url found for submodule path 'workers/hoox'")
+      errorSpawn("fatal: No url found for submodule path 'workers/hoox-worker'")
     );
 
     await expect(
-      gitSubmoduleUpdate("/project", "workers/hoox")
-    ).rejects.toThrow("No url found for submodule path 'workers/hoox'");
+      gitSubmoduleUpdate("/project", "workers/hoox-worker")
+    ).rejects.toThrow("No url found for submodule path 'workers/hoox-worker'");
   });
 
   it("throws with fallback message when stderr is empty", async () => {
     mockSpawnWithCapture(makeSpawnResult("", "", 1));
 
     await expect(
-      gitSubmoduleUpdate("/project", "workers/hoox")
+      gitSubmoduleUpdate("/project", "workers/hoox-worker")
     ).rejects.toThrow("git submodule update failed (exit 1)");
   });
 });

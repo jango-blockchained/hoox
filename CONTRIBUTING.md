@@ -58,7 +58,7 @@ bun install
 
 # 3. Copy the environment template and fill in required values
 cp .env.example .env.local
-cp workers/hoox/.dev.vars.example workers/hoox/.dev.vars
+cp workers/hoox-worker/.dev.vars.example workers/hoox-worker/.dev.vars
 
 # 4. Bootstrap the workspace (sets up Wrangler configs, local bindings)
 bun run setup

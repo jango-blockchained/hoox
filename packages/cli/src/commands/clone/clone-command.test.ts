@@ -188,7 +188,7 @@ describe("registerCloneCommand", () => {
 
       await writeTestConfig({
         "d1-worker": { enabled: true, path: "workers/d1-worker" },
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -219,7 +219,7 @@ describe("registerCloneCommand", () => {
       enqueueSpawn(successSpawn("https://github.com/org/repo.git"));
 
       await writeTestConfig({
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -237,7 +237,7 @@ describe("registerCloneCommand", () => {
       enqueueSpawn(successSpawn("https://github.com/org/repo.git"));
 
       await writeTestConfig({
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -262,7 +262,7 @@ describe("registerCloneCommand", () => {
 
       await writeTestConfig({
         "d1-worker": { enabled: true, path: "workers/d1-worker" },
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -282,7 +282,7 @@ describe("registerCloneCommand", () => {
 
       await writeTestConfig({
         "d1-worker": { enabled: true, path: "workers/d1-worker" },
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
       markCloned("d1-worker", "workers/d1-worker"); // already cloned
 
@@ -305,7 +305,7 @@ describe("registerCloneCommand", () => {
 
       await writeTestConfig({
         "d1-worker": { enabled: true, path: "workers/d1-worker" },
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -398,7 +398,7 @@ describe("registerCloneCommand", () => {
       enqueueSpawn(successSpawn());
 
       await writeTestConfig({
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -421,7 +421,7 @@ describe("registerCloneCommand", () => {
 
       await writeTestConfig({
         "d1-worker": { enabled: true, path: "workers/d1-worker" },
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -443,7 +443,7 @@ describe("registerCloneCommand", () => {
 
       await writeTestConfig({
         "d1-worker": { enabled: true, path: "workers/d1-worker" },
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -488,7 +488,7 @@ describe("registerCloneCommand", () => {
       enqueueSpawn(successSpawn("https://github.com/org/repo.git"));
 
       await writeTestConfig({
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -511,7 +511,7 @@ describe("registerCloneCommand", () => {
       enqueueSpawn(successSpawn("https://github.com/org/repo.git"));
 
       await writeTestConfig({
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -529,7 +529,7 @@ describe("registerCloneCommand", () => {
       enqueueSpawn(successSpawn("https://github.com/org/repo.git"));
 
       await writeTestConfig({
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();
@@ -548,7 +548,7 @@ describe("registerCloneCommand", () => {
 
       await writeTestConfig({
         "d1-worker": { enabled: true, path: "workers/d1-worker" },
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       // Mark d1-worker as cloned in home location
@@ -575,7 +575,7 @@ describe("registerCloneCommand", () => {
       enqueueSpawn(successSpawn());
 
       await writeTestConfig({
-        hoox: { enabled: true, path: "workers/hoox" },
+        hoox: { enabled: true, path: "workers/hoox-worker" },
       });
 
       const program = buildProgram();

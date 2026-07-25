@@ -150,7 +150,7 @@ describe("trade-worker Gateway Router Mocking", () => {
 Our GitHub Actions workflows enforce the following quality gates:
 
 1. **TypeScript Type Safety**: All workspaces must compile without errors using `tsc --noEmit`.
-2. **Coverage Thresholds**: The monorepo enforces a **minimum 80% coverage threshold** across all core execution paths (`packages/cli`, `packages/shared`, `workers/hoox`, `workers/trade-worker`).
+2. **Coverage Thresholds**: The monorepo enforces a **minimum 80% coverage threshold** across all core execution paths (`packages/cli`, `packages/shared`, `workers/hoox-worker`, `workers/trade-worker`).
 3. **Dependency Audit**: `bun audit` runs after tests to detect known vulnerabilities (informational, doesn't block CI).
 4. **Secret Scanning**: `gitleaks` scans all commits for hardcoded secrets on every push/PR (informational).
 5. **CodeQL**: Weekly `security-and-quality` analysis for JavaScript/TypeScript.

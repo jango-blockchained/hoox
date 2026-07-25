@@ -25,7 +25,7 @@ function deriveCalledBy(
 const manifests: Record<string, WorkerManifest> = {
   hoox: {
     name: "hoox",
-    path: "workers/hoox",
+    path: "workers/hoox-worker",
     vars: {
       WEBHOOK_API_KEY_BINDING: {
         type: "secret",

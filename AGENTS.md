@@ -18,7 +18,7 @@ Bun workspaces: `packages/*`, `workers/*`, `pages/*`.
 | `packages/cli` | CLI tool (`hoox` commands) | `bin/hoox.js` |
 | `packages/shared` | Shared middleware, types, errors, analytics, D1 schemas | `src/index.ts` (exports: `./middleware`, `./d1`, `./schemas`, `./wizard`, `./stores/*`) |
 | `packages/tui` | OpenTUI terminal dashboard | `src/main.tsx` |
-| `workers/hoox` | Gateway (webhook entry point, public) | `src/index.ts` |
+| `workers/hoox-worker` | Gateway (webhook entry point, public) | `src/index.ts` |
 | `workers/trade-worker` | Multi-exchange execution | `src/index.ts` |
 | `workers/agent-worker` | AI risk manager (5min cron) | `src/index.ts` |
 | `workers/d1-worker` | D1 database operations | `src/index.ts` |
@@ -40,7 +40,7 @@ bun test                 # all unit tests (bun native runner, 60s timeout, cover
 bun test packages/cli/   # focused: CLI tests
 bun test packages/shared/ # focused: shared package
 bun test packages/tui/   # TUI tests (preloads test-setup.ts)
-bun test workers/hoox/   # focused: single worker
+bun test workers/hoox-worker/   # focused: single worker
 bun test tests/integration/  # integration tests (vitest)
 bun test tests/live/ --jobs 1 # live tests (needs Cloudflare creds)
 bun test tests/security/ # security tests
@@ -111,7 +111,7 @@ Self-hosted production server: `bun run server.js` (Bun.serve, maps path prefixe
 
 ## Architecture
 
-10 workers communicating via Cloudflare Service Bindings (no public URLs). Gateway (`workers/hoox`) and Dashboard are the only public-facing endpoints.
+10 workers communicating via Cloudflare Service Bindings (no public URLs). Gateway (`workers/hoox-worker`) and Dashboard are the only public-facing endpoints.
 
 ```
 External Inputs → hoox (Gateway) → trade-worker → d1-worker → analytics-worker
@@ -146,10 +146,10 @@ dashboard → d1-worker, agent-worker
 bun -e "const g=require('./graph.json'); g.nodes.filter(n=>n.kind==='worker').forEach(w=>console.log(w.label,'| public:',w.isPublic,'| cron:',w.cron||'-','| eps:',w.entryPoint))"
 
 # Get worker llmContext
-bun -e "const g=require('./graph.json'); console.log(g.nodes.find(n=>n.id==='workspace:workers/hoox').llmContext)"
+bun -e "const g=require('./graph.json'); console.log(g.nodes.find(n=>n.id==='workspace:workers/hoox-worker').llmContext)"
 
 # Infrastructure bindings for a worker
-bun -e "const g=require('./graph.json'); g.edges.filter(e=>e.source==='workspace:workers/hoox'&&e.kind==='infra-binding').forEach(e=>console.log(e.label,'→',g.nodes.find(n=>n.id===e.target)?.label))"
+bun -e "const g=require('./graph.json'); g.edges.filter(e=>e.source==='workspace:workers/hoox-worker'&&e.kind==='infra-binding').forEach(e=>console.log(e.label,'→',g.nodes.find(n=>n.id===e.target)?.label))"
 
 # All workers using a specific KV binding
 bun -e "const b=require('./graph-metadata.json').infrastructure['kv:CONFIG_KV']; console.log(b.bindingName,'used by:',b.usedBy.join(', '))"

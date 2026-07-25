@@ -96,10 +96,10 @@ Because production secrets are locked inside Cloudflare's secured key vaults, Wr
 
 ```bash
 # 1. Copy the secure template
-cp workers/hoox/.dev.vars.example workers/hoox/.dev.vars
+cp workers/hoox-worker/.dev.vars.example workers/hoox-worker/.dev.vars
 
 # 2. Inject local mock keys for testing
-echo 'INTERNAL_KEY_BINDING="local_test_key"' >> workers/hoox/.dev.vars
+echo 'INTERNAL_KEY_BINDING="local_test_key"' >> workers/hoox-worker/.dev.vars
 ```
 
 <Warning>

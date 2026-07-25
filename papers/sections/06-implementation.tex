@@ -18,7 +18,7 @@ Table~\ref{tab:monorepo-layout} maps repository paths to deployable artifacts. T
     \midrule
     \texttt{packages/shared} & \texttt{hoox-shared} npm pkg & Router, middleware, KV keys, queue handler \\
     \texttt{packages/cli} & \texttt{hoox} CLI v0.9.3 & Deploy, secrets, \texttt{perf fastpath}, repair \\
-    \texttt{workers/hoox} & Gateway Worker & Public webhook ingress \\
+    \texttt{workers/hoox-worker} & Gateway Worker & Public webhook ingress \\
     \texttt{workers/trade-worker} & Execution Worker & CEX REST/WS, D1/R2 side effects \\
     \texttt{workers/*} & Nine other Workers & Agent, D1 proxy, analytics, UI, DeFi \\
     \texttt{tests/integration} & Bun + Miniflare & Gateway and probe regression suites \\

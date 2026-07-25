@@ -309,7 +309,7 @@ export class EnvService {
     vars: Record<string, string>
   ): Record<string, Record<string, string>> {
     const workerMap: Record<string, string[]> = {
-      "workers/hoox": [
+      "workers/hoox-worker": [
         "WEBHOOK_API_KEY_BINDING",
         "INTERNAL_KEY_BINDING",
         "HA_TOKEN_BINDING",

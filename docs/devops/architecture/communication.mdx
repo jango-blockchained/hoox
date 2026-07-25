@@ -20,7 +20,7 @@ Cloudflare Service Bindings allow one edge worker to call another **without ever
 - **Latency Guarantee**: Internal isolate transitions are completed in **under 1 microsecond**, making microservice communication practically instant.
 
 ```jsonc
-// Declarative bindings inside workers/hoox/wrangler.jsonc
+// Declarative bindings inside workers/hoox-worker/wrangler.jsonc
 {
   "services": [
     { "binding": "TRADE_SERVICE", "service": "trade-worker" },

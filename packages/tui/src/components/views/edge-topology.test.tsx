@@ -7,7 +7,7 @@ import { EdgeTopology } from "./edge-topology";
 
 const mockMetadata = {
   workers: {
-    "workers/hoox": {
+    "workers/hoox-worker": {
       description: "Gateway worker",
       category: "gateway",
       tags: ["webhook", "auth"],
@@ -33,7 +33,7 @@ const mockMetadata = {
   },
   dataFlows: [
     {
-      source: "workers/hoox",
+      source: "workers/hoox-worker",
       target: "workers/trade-worker",
       description: "Trading signal",
       flowType: "signal-ingestion",
@@ -44,7 +44,7 @@ const mockMetadata = {
       id: "signal-pipeline",
       label: "Signal Pipeline",
       description: "The core trading signal flow",
-      nodeIds: ["workspace:workers/hoox", "workspace:workers/trade-worker"],
+      nodeIds: ["workspace:workers/hoox-worker", "workspace:workers/trade-worker"],
     },
   ],
 };

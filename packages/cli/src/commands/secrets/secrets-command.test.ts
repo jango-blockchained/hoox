@@ -25,7 +25,7 @@ describe("registerSecretsCommand (top-level, in-process)", () => {
           },
           hoox: {
             enabled: true,
-            path: "workers/hoox",
+            path: "workers/hoox-worker",
             secrets: ["SECRET_ONE"],
           },
         },

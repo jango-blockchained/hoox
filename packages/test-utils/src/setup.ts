@@ -2,7 +2,7 @@
  * Consolidated test setup / preload for the HOOX monorepo.
  *
  * This file replaces the four near-identical preloads that previously lived at:
- *   - workers/hoox/test/setup.ts
+ *   - workers/hoox-worker/test/setup.ts
  *   - workers/email-worker/test/setup.ts
  *   - workers/telegram-worker/test/setup.ts
  *   - workers/report-worker/test/setup.ts
@@ -168,10 +168,10 @@ function createMockNode() {
 // `DurableObject` class. Worker code that extends `DurableObject` from
 // `cloudflare:workers` will inherit this stub at test time.
 //
-// The shape mirrors the previous `workers/hoox/test/setup.ts` payload
+// The shape mirrors the previous `workers/hoox-worker/test/setup.ts` payload
 // verbatim: a class that stores `ctx` and `state` on the instance. This is
 // the minimum surface the existing tests rely on; richer storage
-// stubbing is provided separately by `workers/hoox/test/mocks/cloudflare-workers.ts`
+// stubbing is provided separately by `workers/hoox-worker/test/mocks/cloudflare-workers.ts`
 // for tests that opt in.
 mock.module("cloudflare:workers", () => ({
   DurableObject: class MockDurableObject {

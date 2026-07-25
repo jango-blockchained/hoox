@@ -111,7 +111,7 @@ const WORKSPACE_COLORS: Record<
   "packages/shared": { fill: "#e1f0fa", border: "#4A90D9", font: "#1a3a5c" },
   "packages/cli": { fill: "#d4f5f5", border: "#00B4B4", font: "#004d4d" },
   "packages/tui": { fill: "#d4faf0", border: "#00BCD4", font: "#004d5c" },
-  "workers/hoox": { fill: "#e8f5e9", border: "#4CAF50", font: "#1b5e20" },
+  "workers/hoox-worker": { fill: "#e8f5e9", border: "#4CAF50", font: "#1b5e20" },
   "workers/trade-worker": {
     fill: "#f1f8e9",
     border: "#8BC34A",
@@ -1538,7 +1538,7 @@ function readDynamicWorkerData(workspaces: WorkspaceInfo[]): Map<
   >();
 
   // Known public workers
-  const publicWorkers = new Set(["workers/hoox", "workers/dashboard"]);
+  const publicWorkers = new Set(["workers/hoox-worker", "workers/dashboard"]);
 
   for (const ws of workspaces) {
     if (ws.type !== "worker") continue;
@@ -1603,7 +1603,7 @@ function enhanceWithArchitectureLayer(
   // 1. Enhance worker nodes with semantic metadata
   for (const node of graph.nodes) {
     if (node.kind !== "worker") continue;
-    const wsPath = node.filePath; // e.g., "workers/hoox"
+    const wsPath = node.filePath; // e.g., "workers/hoox-worker"
     const workerMeta = archData.workers[wsPath];
     if (!workerMeta) continue;
 
@@ -1820,7 +1820,7 @@ function regenerateMetadataFile(
   for (const edge of graph.edges) {
     if (edge.kind !== "infra-binding") continue;
     const targetId = edge.target; // infra node id, e.g., "infra:d1:trade-data-db"
-    const sourceId = edge.source; // worker node id, e.g., "workspace:workers/hoox"
+    const sourceId = edge.source; // worker node id, e.g., "workspace:workers/hoox-worker"
     const workerPath = sourceId.replace("workspace:", "");
     if (!infraUsers.has(targetId)) {
       infraUsers.set(targetId, new Set());

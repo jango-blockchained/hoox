@@ -57,7 +57,7 @@ jobs:
         # pine-worker/pyne-worker were removed from the repo and are not bundled.
         run: |
           git submodule update --init --recursive \
-            workers/hoox \
+            workers/hoox-worker \
             workers/trade-worker \
             workers/agent-worker \
             workers/d1-worker \

@@ -262,7 +262,7 @@ DASHBOARD_PASS=admin
     },
     "hoox": {
       "enabled": true,
-      "path": "workers/hoox",
+      "path": "workers/hoox-worker",
       "vars": {},
       "secrets": ["WEBHOOK_API_KEY_BINDING"],
     },
@@ -507,8 +507,8 @@ cp .env.example .env.local
 hoox secrets update-cf
 
 # Or set individually per worker:
-wrangler secret put WEBHOOK_API_KEY_BINDING --config workers/hoox/wrangler.jsonc
-wrangler secret put INTERNAL_KEY_BINDING --config workers/hoox/wrangler.jsonc
+wrangler secret put WEBHOOK_API_KEY_BINDING --config workers/hoox-worker/wrangler.jsonc
+wrangler secret put INTERNAL_KEY_BINDING --config workers/hoox-worker/wrangler.jsonc
 wrangler secret put AGENT_INTERNAL_KEY --config workers/agent-worker/wrangler.jsonc
 # ... etc for all secrets
 ```
@@ -638,7 +638,7 @@ wrangler vectorize create my-rag-index --dimensions=768 --metric=cosine
 The `hoox` worker requires a Durable Object migration:
 
 ```jsonc
-// Already defined in workers/hoox/wrangler.jsonc
+// Already defined in workers/hoox-worker/wrangler.jsonc
 "durable_objects": {
   "bindings": [
     {
@@ -838,7 +838,7 @@ hoox secrets update-cf
 For local development with `wrangler dev`, create `.dev.vars` in each worker directory:
 
 ```bash
-# workers/hoox/.dev.vars
+# workers/hoox-worker/.dev.vars
 WEBHOOK_API_KEY_BINDING=dev-webhook-key
 INTERNAL_KEY_BINDING=dev-internal-key
 
@@ -1214,7 +1214,7 @@ wrangler d1 export trade-data-db --output=backup-$(date +%Y%m%d).sql --remote
 
 | Worker               | Wrangler Config                             | Main Entry                                | Schema                            |
 | -------------------- | ------------------------------------------- | ----------------------------------------- | --------------------------------- |
-| `hoox`               | `workers/hoox/wrangler.jsonc`               | `workers/hoox/src/index.ts`               | —                                 |
+| `hoox`               | `workers/hoox-worker/wrangler.jsonc`               | `workers/hoox-worker/src/index.ts`               | —                                 |
 | `trade-worker`       | `workers/trade-worker/wrangler.jsonc`       | `workers/trade-worker/src/index.ts`       | `workers/trade-worker/schema.sql` |
 | `agent-worker`       | `workers/agent-worker/wrangler.jsonc`       | `workers/agent-worker/src/index.ts`       | —                                 |
 | `d1-worker`          | `workers/d1-worker/wrangler.jsonc`          | `workers/d1-worker/src/index.ts`          | —                                 |

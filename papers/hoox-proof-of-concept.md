@@ -212,7 +212,7 @@ export async function executeTradeRisk(...) {
 **Listing 2.** Idempotency guard (Durable Object).
 
 ```ts
-// workers/hoox/src/idempotencyStore.ts (excerpt)
+// workers/hoox-worker/src/idempotencyStore.ts (excerpt)
 export class IdempotencyStore extends DurableObject {
   async fetch(request: Request) {
     // compare-and-set on probe_id + signature window

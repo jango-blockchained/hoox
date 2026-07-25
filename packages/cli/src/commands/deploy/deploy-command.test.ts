@@ -279,7 +279,7 @@ describe("registerDeployCommand", () => {
       makeDeployFail("authentication error");
       getWorkerMock = mock(() => ({
         enabled: true,
-        path: "workers/hoox",
+        path: "workers/hoox-worker",
       }));
       (
         ConfigService.prototype as unknown as Record<string, unknown>

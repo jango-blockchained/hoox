@@ -187,7 +187,7 @@ describe("Miniflare Gateway Integration", () => {
 
     const { env, createExecutionContext, waitOnExecutionContext } =
       cloudflareTest;
-    const worker = (await import("../../workers/hoox/src/index")).default;
+    const worker = (await import("../../workers/hoox-worker/src/index")).default;
 
     const request = new Request("http://localhost/webhook", {
       method: "POST",
@@ -218,7 +218,7 @@ describe("Miniflare Gateway Integration", () => {
 
     const { env, createExecutionContext, waitOnExecutionContext } =
       cloudflareTest;
-    const worker = (await import("../../workers/hoox/src/index")).default;
+    const worker = (await import("../../workers/hoox-worker/src/index")).default;
 
     const request = new Request("http://localhost/webhook", {
       method: "POST",

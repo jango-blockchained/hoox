@@ -357,7 +357,7 @@ describe("registerDevCommand", () => {
       makeDevFail("wrangler not found");
       getWorkerMock = mock(() => ({
         enabled: true,
-        path: "workers/hoox",
+        path: "workers/hoox-worker",
       }));
       (
         ConfigService.prototype as unknown as Record<string, unknown>

@@ -101,12 +101,12 @@ beforeEach(() => {
   configLoadMock = mock(async function (this: ConfigService) {
     (this as unknown as Record<string, unknown>).config = {
       global: { cloudflare_account_id: "test-account" },
-      workers: { hoox: { enabled: true, path: "workers/hoox" } },
+      workers: { hoox: { enabled: true, path: "workers/hoox-worker" } },
     };
     return (this as unknown as Record<string, unknown>).config;
   });
   configGetWorkerMock = mock((name: string) => {
-    if (name === "hoox") return { enabled: true, path: "workers/hoox" };
+    if (name === "hoox") return { enabled: true, path: "workers/hoox-worker" };
     return undefined;
   });
 

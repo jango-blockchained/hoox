@@ -101,7 +101,7 @@ The system runs **10 Cloudflare Workers** across dedicated services: gateway, tr
 
 | Worker                 | Path                          | Purpose                            | Cron             |
 | ---------------------- | ----------------------------- | ---------------------------------- | ---------------- |
-| **hoox**               | `workers/hoox/`               | Gateway/firewall for webhooks      | -                |
+| **hoox**               | `workers/hoox-worker/`               | Gateway/firewall for webhooks      | -                |
 | **trade-worker**       | `workers/trade-worker/`       | Multi-exchange execution           | -                |
 | **agent-worker**       | `workers/agent-worker/`       | AI risk manager                    | `*/5 * * * *`    |
 | **dashboard**          | `workers/dashboard/`          | Next.js dashboard                  | -                |
@@ -490,13 +490,13 @@ bun run graph    # Runs scripts/extract-graph.ts (~25s)
 **Agent query patterns:**
 ```bash
 # Get a worker's llmContext
-bun -e "console.log(require('./graph.json').nodes.find(n=>n.id==='workspace:workers/hoox').llmContext)"
+bun -e "console.log(require('./graph.json').nodes.find(n=>n.id==='workspace:workers/hoox-worker').llmContext)"
 
 # List all workers with entry points
 bun -e "require('./graph.json').nodes.filter(n=>n.kind==='worker').forEach(w=>console.log(w.label,'→',w.entryPoint))"
 
 # Find data flows from a worker
-bun -e "const g=require('./graph.json'); g.edges.filter(e=>e.source==='workspace:workers/hoox'&&e.kind==='data-flow').forEach(e=>console.log(e.description))"
+bun -e "const g=require('./graph.json'); g.edges.filter(e=>e.source==='workspace:workers/hoox-worker'&&e.kind==='data-flow').forEach(e=>console.log(e.description))"
 ```
 
 The graph has three layers:

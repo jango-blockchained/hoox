@@ -43,11 +43,11 @@ x-worker-base: &worker-base
 services:
   hoox:
     <<: *worker-base
-    command: bunx wrangler dev -c workers/hoox/wrangler.jsonc --local --ip 0.0.0.0
+    command: bunx wrangler dev -c workers/hoox-worker/wrangler.jsonc --local --ip 0.0.0.0
     ports:
       - "8787:8787" # public gateway
     volumes:
-      - ./workers/hoox:/app/workers/hoox
+      - ./workers/hoox-worker:/app/workers/hoox
     healthcheck:
       test:
         [

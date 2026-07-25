@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const requiredWorkerDirs = [
-  "workers/hoox",
+  "workers/hoox-worker",
   "workers/trade-worker",
   "workers/agent-worker",
   "workers/d1-worker",
