@@ -18,6 +18,11 @@ export interface PanelProps {
   compact?: boolean;
   width?: number | string;
   flexGrow?: number;
+  /**
+   * Override border color (e.g. kill-switch engaged → error).
+   * When set, wins over focused cool hue / default border.
+   */
+  borderColor?: string;
   children?: ReactNode;
 }
 
@@ -28,9 +33,11 @@ export function Panel({
   compact = false,
   width,
   flexGrow,
+  borderColor,
   children,
 }: PanelProps) {
   const { color: cool } = useCoolHue(180, focused);
+  const resolvedBorder = borderColor ?? (focused ? cool : Colors.border);
 
   return (
     <box
@@ -40,7 +47,7 @@ export function Panel({
       padding={compact ? 0 : 1}
       border={true}
       borderStyle="single"
-      borderColor={focused ? cool : Colors.border}
+      borderColor={resolvedBorder}
       backgroundColor={elevated || focused ? Colors.card : Colors.background}
       title={title}
     >

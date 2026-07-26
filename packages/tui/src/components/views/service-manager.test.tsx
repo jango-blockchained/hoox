@@ -9,6 +9,7 @@
 import { describe, test, expect, beforeEach, afterEach, mock } from "bun:test";
 import { createRoot } from "@opentui/react";
 import { createCliRenderer } from "@opentui/core";
+import { Colors } from "@jango-blockchained/hoox-shared";
 import { resetCliBridgeDouble } from "../../test-utils";
 import { ServiceManager } from "./service-manager";
 import type { DialogHandle } from "@/components/ui/dialog";
@@ -22,7 +23,7 @@ async function createTestRenderer() {
     screenMode: "alternate-screen",
     exitOnCtrlC: false,
     targetFps: 30,
-    backgroundColor: "#0D1117",
+    backgroundColor: Colors.background,
   });
   return renderer;
 }

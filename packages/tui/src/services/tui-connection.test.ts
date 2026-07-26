@@ -4,6 +4,7 @@ import {
   formatAuthBanner,
   getApiBase,
   getApiHost,
+  getSettingsConnectionSnapshot,
   getTuiMode,
   hasApiToken,
   resolveTuiConnectionEnv,
@@ -89,6 +90,48 @@ describe("tui-connection", () => {
     it("describes missing remote token", () => {
       expect(formatAuthBanner(false, "remote")).toContain("missing");
       expect(formatAuthBanner(true, "remote")).toContain("set");
+    });
+  });
+
+  describe("getSettingsConnectionSnapshot", () => {
+    it("defaults to local/public with no auth", () => {
+      const snap = getSettingsConnectionSnapshot({});
+      expect(snap.mode).toBe("local");
+      expect(snap.transport).toBe("public");
+      expect(snap.authSummary).toBe("none");
+      expect(snap.apiHost).toBe("localhost:8787");
+      expect(snap.hint).toContain("hx config transport");
+    });
+
+    it("reports remote + Bearer without leaking token", () => {
+      const snap = getSettingsConnectionSnapshot({
+        HOOX_TUI_MODE: "remote",
+        HOOX_API_URL: "https://mgmt.example.com",
+        HOOX_API_TOKEN: "super-secret",
+      });
+      expect(snap.mode).toBe("remote");
+      expect(snap.apiHost).toBe("mgmt.example.com");
+      expect(snap.authSummary).toBe("Bearer");
+      expect(JSON.stringify(snap)).not.toContain("super-secret");
+    });
+
+    it("uses config transport fallback when env unset", () => {
+      const snap = getSettingsConnectionSnapshot(
+        {},
+        { transport: "access", apiUrl: "https://cfg.example.com" }
+      );
+      expect(snap.transport).toBe("access");
+      expect(snap.apiHost).toBe("cfg.example.com");
+    });
+
+    it("combines Bearer + Access in auth summary", () => {
+      const snap = getSettingsConnectionSnapshot({
+        HOOX_API_TOKEN: "tok",
+        CF_ACCESS_CLIENT_ID: "cid",
+        CF_ACCESS_CLIENT_SECRET: "sec",
+      });
+      expect(snap.authSummary).toBe("Bearer + Access");
+      expect(snap.transport).toBe("access");
     });
   });
 });

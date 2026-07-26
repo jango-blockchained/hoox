@@ -1,5 +1,6 @@
 /** @jsxImportSource @opentui/react */
 import { describe, it, expect } from "bun:test";
+import { Colors } from "@jango-blockchained/hoox-shared";
 import {
   tokenizeTomlLine,
   tokenizeJsonLine,
@@ -118,14 +119,14 @@ describe("ConfigEditor", () => {
       const tokens = tokenizeTomlLine("# this is a comment");
       expect(tokens.length).toBeGreaterThan(0);
       expect(tokens[0].text).toContain("#");
-      expect(tokens[0].color).toBe("#A0A0A0"); // Colors.muted
+      expect(tokens[0].color).toBe(Colors.muted);
     });
 
     it("highlights section headers as accent bold", async () => {
       const tokens = tokenizeTomlLine("[env.production]");
       const sectionToken = tokens.find((t) => t.text.includes("["));
       expect(sectionToken).toBeDefined();
-      expect(sectionToken!.color).toBe("#E8780A"); // Colors.accent
+      expect(sectionToken!.color).toBe(Colors.accent);
       expect(sectionToken!.bold).toBe(true);
     });
 
@@ -133,21 +134,21 @@ describe("ConfigEditor", () => {
       const tokens = tokenizeTomlLine('name = "hoox"');
       const keyToken = tokens.find((t) => t.text.trim() === "name");
       expect(keyToken).toBeDefined();
-      expect(keyToken!.color).toBe("#E8780A"); // Colors.accent
+      expect(keyToken!.color).toBe(Colors.accent);
     });
 
     it("highlights string values with info color", async () => {
       const tokens = tokenizeTomlLine('url = "https://example.com"');
       const stringToken = tokens.find((t) => t.text.includes('"'));
       expect(stringToken).toBeDefined();
-      expect(stringToken!.color).toBe("#4488FF"); // Colors.info
+      expect(stringToken!.color).toBe(Colors.info);
     });
 
     it("highlights boolean values with info color", async () => {
       const tokens = tokenizeTomlLine("enabled = true");
       const boolToken = tokens.find((t) => t.text.trim() === "true");
       expect(boolToken).toBeDefined();
-      expect(boolToken!.color).toBe("#4488FF"); // Colors.info
+      expect(boolToken!.color).toBe(Colors.info);
     });
 
     it("handles empty lines", async () => {
@@ -159,7 +160,7 @@ describe("ConfigEditor", () => {
       const tokens = tokenizeTomlLine('name = "value" # trailing comment');
       const commentToken = tokens.find((t) => t.text.includes("#"));
       expect(commentToken).toBeDefined();
-      expect(commentToken!.color).toBe("#A0A0A0"); // Colors.muted
+      expect(commentToken!.color).toBe(Colors.muted);
     });
   });
 
@@ -170,35 +171,35 @@ describe("ConfigEditor", () => {
       const tokens = tokenizeJsonLine('  "name": "value",');
       const keyToken = tokens.find((t) => t.text.includes("name"));
       expect(keyToken).toBeDefined();
-      expect(keyToken!.color).toBe("#E8780A"); // Colors.accent
+      expect(keyToken!.color).toBe(Colors.accent);
     });
 
     it("highlights JSON string values with info color", async () => {
       const tokens = tokenizeJsonLine('  "key": "hello world"');
       const valToken = tokens.find((t) => t.text.includes("hello"));
       expect(valToken).toBeDefined();
-      expect(valToken!.color).toBe("#4488FF"); // Colors.info
+      expect(valToken!.color).toBe(Colors.info);
     });
 
     it("highlights JSON numbers with foreground color", async () => {
       const tokens = tokenizeJsonLine('  "count": 42');
       const numToken = tokens.find((t) => t.text.trim() === "42");
       expect(numToken).toBeDefined();
-      expect(numToken!.color).toBe("#EEEEEE"); // Colors.foreground
+      expect(numToken!.color).toBe(Colors.foreground);
     });
 
     it("highlights JSON null with muted color", async () => {
       const tokens = tokenizeJsonLine('  "data": null');
       const nullToken = tokens.find((t) => t.text.trim() === "null");
       expect(nullToken).toBeDefined();
-      expect(nullToken!.color).toBe("#A0A0A0"); // Colors.muted
+      expect(nullToken!.color).toBe(Colors.muted);
     });
 
     it("highlights JSON booleans with info color", async () => {
       const tokens = tokenizeJsonLine('  "active": true');
       const boolToken = tokens.find((t) => t.text.trim() === "true");
       expect(boolToken).toBeDefined();
-      expect(boolToken!.color).toBe("#4488FF"); // Colors.info
+      expect(boolToken!.color).toBe(Colors.info);
     });
 
     it("handles nested braces", async () => {

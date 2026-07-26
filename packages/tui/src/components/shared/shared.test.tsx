@@ -80,13 +80,14 @@ function filterCommands(
 
 // ─── Category badge colors ────────────────────────────────────────────────────
 
+/** Mirrors command-palette.tsx — must stay aligned with Colors tokens. */
 const CATEGORY_BADGE: Record<
   CommandCategory,
   { label: string; color: string }
 > = {
-  view: { label: "view", color: "#4488FF" },
-  action: { label: "action", color: "#E8780A" },
-  setting: { label: "setting", color: "#FFAA00" },
+  view: { label: "view", color: Colors.info },
+  action: { label: "action", color: Colors.accent },
+  setting: { label: "setting", color: Colors.warning },
 };
 
 // ─── Test Data ────────────────────────────────────────────────────────────────
@@ -395,19 +396,19 @@ describe("Shared Components", () => {
     // ── Category Badges ──────────────────────────────────────────────────
 
     describe("category badges", () => {
-      it("view category has info color (blue)", () => {
+      it("view category has info color", () => {
         expect(CATEGORY_BADGE.view.label).toBe("view");
-        expect(CATEGORY_BADGE.view.color).toBe("#4488FF");
+        expect(CATEGORY_BADGE.view.color).toBe(Colors.info);
       });
 
-      it("action category has accent color (orange)", () => {
+      it("action category has accent color", () => {
         expect(CATEGORY_BADGE.action.label).toBe("action");
-        expect(CATEGORY_BADGE.action.color).toBe("#E8780A");
+        expect(CATEGORY_BADGE.action.color).toBe(Colors.accent);
       });
 
-      it("setting category has warning color (amber)", () => {
+      it("setting category has warning color", () => {
         expect(CATEGORY_BADGE.setting.label).toBe("setting");
-        expect(CATEGORY_BADGE.setting.color).toBe("#FFAA00");
+        expect(CATEGORY_BADGE.setting.color).toBe(Colors.warning);
       });
 
       it("all three categories have distinct colors", () => {

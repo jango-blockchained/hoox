@@ -6,6 +6,12 @@
  * renderer. Never log raw tokens.
  */
 
+import {
+  resolveOperatorTransportProfile,
+  type OperatorTransport,
+  type OperatorTransportEnv,
+} from "@jango-blockchained/hoox-shared";
+
 export type TuiMode = "local" | "remote";
 
 export type ConnectionErrorKind = "auth" | "rate-limit" | "network" | "unknown";
@@ -122,4 +128,54 @@ export function formatAuthBanner(hasToken: boolean, mode: TuiMode): string {
 /** Safe one-line hint when remote auth is missing. */
 export function remoteAuthMissingHint(): string {
   return "Set HOOX_API_TOKEN (or pass --token) for authenticated remote API access.";
+}
+
+/** Read-only connection snapshot for Settings (never includes secrets). */
+export interface SettingsConnectionSnapshot {
+  mode: TuiMode;
+  apiHost: string;
+  transport: OperatorTransport;
+  /** Human auth presence: none | Bearer | Access | Bearer + Access */
+  authSummary: string;
+  /** CLI hint for changing transport / probing security */
+  hint: string;
+}
+
+export interface SettingsConnectionConfigFallback {
+  transport?: string;
+  apiUrl?: string;
+  apiToken?: string;
+}
+
+/**
+ * Build a Settings-friendly connection line from env (+ optional config.json).
+ * Env always wins over config for URL/token/transport (mirrors operator profile).
+ */
+export function getSettingsConnectionSnapshot(
+  env: NodeJS.ProcessEnv = process.env,
+  config: SettingsConnectionConfigFallback = {}
+): SettingsConnectionSnapshot {
+  const conn = resolveTuiConnectionEnv(env);
+  const profile = resolveOperatorTransportProfile(env as OperatorTransportEnv, {
+    configTransport: config.transport,
+    configApiUrl: config.apiUrl,
+    configApiToken: config.apiToken,
+  });
+
+  const hasBearer = Boolean(profile.bearerToken);
+  const hasAccess = Boolean(
+    profile.accessClientId && profile.accessClientSecret
+  );
+  let authSummary = "none";
+  if (hasBearer && hasAccess) authSummary = "Bearer + Access";
+  else if (hasBearer) authSummary = "Bearer";
+  else if (hasAccess) authSummary = "Access";
+
+  return {
+    mode: conn.mode,
+    apiHost: getApiHost(profile.apiBase),
+    transport: profile.transport,
+    authSummary,
+    hint: "hx config transport · hx doctor --security",
+  };
 }

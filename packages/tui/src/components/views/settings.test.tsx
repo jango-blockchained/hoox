@@ -239,18 +239,23 @@ describe("SettingsView", () => {
 
   // ── Theme Panel ──────────────────────────────────────────────────────────
 
-  it("shows Dark selected when theme is dark", async () => {
+  it("shows dark-only theme (light not implemented)", async () => {
     useConfigStore.setState({ theme: "dark" });
-    const output = await renderSettings();
-    expect(output).toContain("(•) DARK");
-    expect(output).toContain("( ) LIGHT");
+    const output = await renderSettings(120);
+    // OpenTUI may collapse spaces in the frame capture; match stable tokens.
+    expect(output).toMatch(/\(•\)\s*DARK/);
+    expect(output).toContain("Light not implemented");
+    expect(output).not.toMatch(/\(•\)\s*LIGHT/);
+    expect(output).not.toMatch(/\( \)\s*LIGHT/);
   });
 
-  it("shows Light selected when theme is light", async () => {
-    useConfigStore.setState({ theme: "light" });
-    const output = await renderSettings();
-    expect(output).toContain("( ) DARK");
-    expect(output).toContain("(•) LIGHT");
+  it("shows connection readout without secrets", async () => {
+    const output = await renderSettings(120);
+    expect(output).toContain("CONNECTION");
+    expect(output).toMatch(/LOCAL|REMOTE/);
+    expect(output).toMatch(/public|access|mtls|tunnel/);
+    expect(output).toContain("Auth");
+    expect(output).toContain("hx config transport");
   });
 
   it("shows current refresh rate with 500ms default", async () => {
@@ -390,13 +395,10 @@ describe("SettingsView", () => {
 
   // ── Config Store Integration ─────────────────────────────────────────────
 
-  it("updates config store when dark theme is selected via mouseUp trigger text", async () => {
-    // Verify the dark theme label has the onMouseUp handler
+  it("coerces stored light theme to dark on mount", async () => {
     useConfigStore.setState({ theme: "light" });
-    const output = await renderSettings();
-    // The dark option should be present with ( ) showing it's not selected
-    expect(output).toContain("DARK");
-    expect(output).toContain("LIGHT");
+    await renderSettings();
+    expect(useConfigStore.getState().theme).toBe("dark");
   });
 
   it("shows refresh rate as 500ms when config defaults to 500", async () => {

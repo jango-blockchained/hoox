@@ -26,6 +26,7 @@ import { StatusDot } from "../shared/status-dot";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { EmptyState } from "../shared/spinner";
 import { ViewHeader } from "../shared/view-header";
+import { Panel } from "../shared/panel";
 import { showConfirm } from "../ui/dialog";
 import type { DialogHandle } from "../ui/dialog";
 import type { WorkerInfo } from "@jango-blockchained/hoox-shared/types";
@@ -109,16 +110,8 @@ function EdgeMap() {
         <text fg={Colors.muted}>{EDGE_LOCATIONS.length} sample PoPs</text>
       </box>
 
-      {/* Map grid with border */}
-      <box
-        flexDirection="column"
-        border={true}
-        borderStyle="single"
-        borderColor={Colors.border}
-        gap={0}
-        paddingX={1}
-        paddingY={0}
-      >
+      {/* Map grid (outer Panel provides border) */}
+      <box flexDirection="column" gap={0} paddingX={1} paddingY={0}>
         {Array.from({ length: MAP_HEIGHT }, (_, row) => (
           <box key={`map-row-${row}`} flexDirection="row" gap={0}>
             {Array.from({ length: MAP_WIDTH }, (_, col) => {
@@ -347,45 +340,38 @@ function BulkActions({
   const restartDim = !canAct || !!deployingWorker;
 
   return (
-    <box
-      flexDirection="row"
-      justifyContent="space-between"
-      paddingTop={0}
-      paddingLeft={1}
-      paddingRight={1}
-      border={true}
-      borderStyle="single"
-      borderColor={Colors.border}
-      paddingX={1}
-      paddingY={0}
-    >
-      {/* Status summary */}
-      <box flexDirection="row" gap={1}>
-        <text fg={Colors.success}>{operationalCount} up</text>
-        <text fg={Colors.muted}>/</text>
-        <text fg={Colors.muted}>{workers.length - operationalCount} down</text>
-      </box>
+    <Panel elevated={false} compact>
+      <box flexDirection="row" justifyContent="space-between">
+        {/* Status summary */}
+        <box flexDirection="row" gap={1}>
+          <text fg={Colors.success}>{operationalCount} up</text>
+          <text fg={Colors.muted}>/</text>
+          <text fg={Colors.muted}>
+            {workers.length - operationalCount} down
+          </text>
+        </box>
 
-      {/* Bulk action buttons */}
-      <box flexDirection="row" gap={2}>
-        <text
-          fg={canAct ? Colors.accent : Colors.muted}
-          bg={canAct ? Colors.card : undefined}
-          dim={deployDim}
-          onMouseUp={canAct ? onDeployAll : undefined}
-        >
-          {"  [Deploy All]  "}
-        </text>
-        <text
-          fg={canAct ? Colors.warning : Colors.muted}
-          bg={canAct ? Colors.card : undefined}
-          dim={restartDim}
-          onMouseUp={canAct ? onRestartAll : undefined}
-        >
-          {"  [Restart All]  "}
-        </text>
+        {/* Bulk action buttons */}
+        <box flexDirection="row" gap={2}>
+          <text
+            fg={canAct ? Colors.accent : Colors.muted}
+            bg={canAct ? Colors.card : undefined}
+            dim={deployDim}
+            onMouseUp={canAct ? onDeployAll : undefined}
+          >
+            {"  [Deploy All]  "}
+          </text>
+          <text
+            fg={canAct ? Colors.warning : Colors.muted}
+            bg={canAct ? Colors.card : undefined}
+            dim={restartDim}
+            onMouseUp={canAct ? onRestartAll : undefined}
+          >
+            {"  [Restart All]  "}
+          </text>
+        </box>
       </box>
-    </box>
+    </Panel>
   );
 }
 
@@ -535,64 +521,67 @@ function KillSwitchSection({ dialog, onAlert }: KillSwitchSectionProps) {
   const releaseDisabled = loading || !engaged;
 
   return (
-    <box
-      flexDirection="row"
-      justifyContent="space-between"
-      alignItems="center"
-      paddingLeft={1}
-      paddingRight={1}
-      border={true}
-      borderStyle="single"
-      borderColor={engaged ? Colors.error : Colors.border}
+    <Panel
+      elevated={false}
+      compact
+      borderColor={engaged ? Colors.error : undefined}
     >
-      {/* Status side — label, dot, state, timestamp */}
-      <box flexDirection="row" gap={1} alignItems="center">
-        <text fg={Colors.accent} bold>
-          KILL SWITCH
-        </text>
-        <StatusDot status={dotStatus} pulse={!engaged} />
-        <text fg={stateColor} bold>
-          {stateLabel}
-        </text>
-        {status && (
-          <text fg={Colors.muted} dim>
-            @ {formatKillSwitchTime(status.timestamp)}
+      <box
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        {/* Status side — label, dot, state, timestamp */}
+        <box flexDirection="row" gap={1} alignItems="center">
+          <text fg={Colors.accent} bold>
+            KILL SWITCH
           </text>
-        )}
-        {error && (
-          <text fg={Colors.error} dim>
-            ! {error.length > 40 ? error.slice(0, 37) + "…" : error}
+          <StatusDot status={dotStatus} pulse={!engaged} />
+          <text fg={stateColor} bold>
+            {stateLabel}
           </text>
-        )}
-      </box>
+          {status && (
+            <text fg={Colors.muted} dim>
+              @ {formatKillSwitchTime(status.timestamp)}
+            </text>
+          )}
+          {error && (
+            <text fg={Colors.error} dim>
+              ! {error.length > 40 ? error.slice(0, 37) + "…" : error}
+            </text>
+          )}
+        </box>
 
-      {/* Action side — engage / release buttons + refresh */}
-      <box flexDirection="row" gap={2}>
-        <text
-          fg={Colors.muted}
-          bg={Colors.card}
-          onMouseUp={loading ? undefined : () => void refresh()}
-        >
-          {loading ? " ..." : " [REFRESH] "}
-        </text>
-        <text
-          fg={engageDisabled ? Colors.muted : Colors.error}
-          bg={engageDisabled ? undefined : Colors.card}
-          dim={engageDisabled}
-          onMouseUp={engageDisabled ? undefined : () => void setEngaged(true)}
-        >
-          {"  ENGAGE  "}
-        </text>
-        <text
-          fg={releaseDisabled ? Colors.muted : Colors.success}
-          bg={releaseDisabled ? undefined : Colors.card}
-          dim={releaseDisabled}
-          onMouseUp={releaseDisabled ? undefined : () => void setEngaged(false)}
-        >
-          {"  RELEASE  "}
-        </text>
+        {/* Action side — engage / release buttons + refresh */}
+        <box flexDirection="row" gap={2}>
+          <text
+            fg={Colors.muted}
+            bg={Colors.card}
+            onMouseUp={loading ? undefined : () => void refresh()}
+          >
+            {loading ? " ..." : " [REFRESH] "}
+          </text>
+          <text
+            fg={engageDisabled ? Colors.muted : Colors.error}
+            bg={engageDisabled ? undefined : Colors.card}
+            dim={engageDisabled}
+            onMouseUp={engageDisabled ? undefined : () => void setEngaged(true)}
+          >
+            {"  ENGAGE  "}
+          </text>
+          <text
+            fg={releaseDisabled ? Colors.muted : Colors.success}
+            bg={releaseDisabled ? undefined : Colors.card}
+            dim={releaseDisabled}
+            onMouseUp={
+              releaseDisabled ? undefined : () => void setEngaged(false)
+            }
+          >
+            {"  RELEASE  "}
+          </text>
+        </box>
       </box>
-    </box>
+    </Panel>
   );
 }
 
@@ -817,33 +806,19 @@ export function ServiceManager({ dialog }: ServiceManagerProps) {
         {/* Main content: workers (left) + edge map (right) */}
         <box flexDirection="row" flexGrow={1} gap={1}>
           {/* Left: worker control list */}
-          <box
-            flexDirection="column"
-            width="50%"
-            flexGrow={1}
-            border={true}
-            borderStyle="single"
-            borderColor={Colors.border}
-          >
+          <Panel width="50%" flexGrow={1} elevated={false} compact>
             <WorkerControlList
               workers={workers}
               onDeploy={handleDeploy}
               onRestart={handleRestart}
               deployingWorker={deployingWorker}
             />
-          </box>
+          </Panel>
 
           {/* Right: edge location map */}
-          <box
-            flexDirection="column"
-            width="50%"
-            flexGrow={1}
-            border={true}
-            borderStyle="single"
-            borderColor={Colors.border}
-          >
+          <Panel width="50%" flexGrow={1} elevated={false} compact>
             <EdgeMap />
-          </box>
+          </Panel>
         </box>
 
         {/* Bottom: bulk actions bar */}

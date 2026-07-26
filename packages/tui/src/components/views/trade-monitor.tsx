@@ -23,6 +23,7 @@ import type { Trade, TradeSide } from "@jango-blockchained/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { Spinner, EmptyState } from "../shared/spinner";
 import { ViewHeader } from "../shared/view-header";
+import { Panel } from "../shared/panel";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -204,11 +205,12 @@ function LiveTradeFeed({ paused }: { paused: boolean }) {
   });
 
   return (
-    <box flexDirection="column" flexGrow={1}>
-      {/* Section label */}
-      <text fg={Colors.foreground} bold dim>
-        LIVE TRADE FEED {paused ? "(PAUSED)" : ""}
-      </text>
+    <Panel flexGrow={1} elevated={false} compact title="LIVE TRADE FEED">
+      {paused ? (
+        <text fg={Colors.warning} dim>
+          PAUSED
+        </text>
+      ) : null}
 
       {/* Column header */}
       <box flexDirection="row" gap={1} paddingTop={0}>
@@ -246,9 +248,6 @@ function LiveTradeFeed({ paused }: { paused: boolean }) {
           width="100%"
           flexGrow={1}
           height={14}
-          border={true}
-          borderStyle="single"
-          borderColor={Colors.border}
           paddingX={1}
           paddingY={0}
         >
@@ -326,7 +325,7 @@ function LiveTradeFeed({ paused }: { paused: boolean }) {
           ↑↓ navigate · {safeIndex + 1}/{sortedTrades.length}
         </text>
       )}
-    </box>
+    </Panel>
   );
 }
 
@@ -375,12 +374,9 @@ function OpenPositions() {
   const totalPnl = positions.reduce((sum, p) => sum + p.pnl, 0);
 
   return (
-    <box flexDirection="column">
-      {/* Section label + total P&L (stream rollup, not exchange inventory) */}
+    <Panel elevated={false} compact title="SYMBOL P&L">
+      {/* Total P&L (stream rollup, not exchange inventory) */}
       <box flexDirection="row" gap={2} alignItems="center">
-        <text fg={Colors.foreground} bold dim>
-          SYMBOL P&L
-        </text>
         <text fg={Colors.muted} dim>
           (stream)
         </text>
@@ -410,10 +406,7 @@ function OpenPositions() {
         <scrollbox
           width="100%"
           flexGrow={1}
-          height={8}
-          border={true}
-          borderStyle="single"
-          borderColor={Colors.border}
+          height={5}
           paddingX={1}
           paddingY={0}
         >
@@ -452,7 +445,7 @@ function OpenPositions() {
           </text>
         </box>
       )}
-    </box>
+    </Panel>
   );
 }
 
@@ -517,111 +510,76 @@ function PerformanceSummary() {
   // Also show overall P&L from system metrics if available
   const overallPnl = metrics?.totalPnl;
 
+  // Two metrics per row — Panel chrome costs height in the narrow right column.
+  // Never nest <text> inside <text> (OpenTUI rule).
+  const sharpeLabel = perf.totalWithPnl >= 5 ? perf.sharpe.toFixed(2) : "N/A";
+  const sharpeColor =
+    perf.totalWithPnl < 5
+      ? Colors.muted
+      : perf.sharpe >= 1
+        ? Colors.success
+        : perf.sharpe >= 0
+          ? Colors.warning
+          : Colors.error;
+
   return (
-    <box flexDirection="column" flexGrow={1}>
-      {/* Section label */}
-      <text fg={Colors.foreground} bold dim>
-        PERFORMANCE
-      </text>
-
-      <box flexDirection="column" gap={0} paddingTop={0}>
-        {/* Today P&L */}
-        <box flexDirection="row" gap={1}>
-          <text fg={Colors.muted} dim>
-            Today
-          </text>
-          <text fg={perf.todayPnl >= 0 ? Colors.success : Colors.error} bold>
-            {formatPnL(perf.todayPnl)}
-          </text>
-        </box>
-
-        {/* Week P&L */}
-        <box flexDirection="row" gap={1}>
-          <text fg={Colors.muted} dim>
-            7-Day
-          </text>
-          <text fg={perf.weekPnl >= 0 ? Colors.success : Colors.error} bold>
-            {formatPnL(perf.weekPnl)}
-          </text>
-        </box>
-
-        {/* Month P&L */}
-        <box flexDirection="row" gap={1}>
-          <text fg={Colors.muted} dim>
-            30-Day
-          </text>
-          <text fg={perf.monthPnl >= 0 ? Colors.success : Colors.error} bold>
-            {formatPnL(perf.monthPnl)}
-          </text>
-        </box>
-
-        {/* Divider */}
-        <text fg={Colors.dim} dim>
-          {"─".repeat(22)}
+    <Panel elevated={false} compact title="PERFORMANCE">
+      <box flexDirection="row" gap={1}>
+        <text fg={Colors.muted} dim>
+          Today
         </text>
-
-        {/* WinRate */}
-        <box flexDirection="row" gap={1}>
-          <text fg={Colors.muted} dim>
-            WinRate
-          </text>
-          <text fg={perf.winRate >= 0.5 ? Colors.success : Colors.warning} bold>
-            {formatPct(perf.winRate)}
-          </text>
-        </box>
-
-        {/* Sharpe ratio */}
-        <box flexDirection="row" gap={1}>
-          <text fg={Colors.muted} dim>
-            Sharpe
-          </text>
-          <text
-            fg={
-              perf.totalWithPnl < 5
-                ? Colors.muted
-                : perf.sharpe >= 1
-                  ? Colors.success
-                  : perf.sharpe >= 0
-                    ? Colors.warning
-                    : Colors.error
-            }
-            bold={perf.totalWithPnl >= 5}
-            dim={perf.totalWithPnl < 5}
-          >
-            {perf.totalWithPnl >= 5 ? perf.sharpe.toFixed(2) : "N/A"}
-          </text>
-        </box>
+        <text fg={perf.todayPnl >= 0 ? Colors.success : Colors.error} bold>
+          {formatPnL(perf.todayPnl)}
+        </text>
+        <text fg={Colors.muted} dim>
+          7-Day
+        </text>
+        <text fg={perf.weekPnl >= 0 ? Colors.success : Colors.error} bold>
+          {formatPnL(perf.weekPnl)}
+        </text>
       </box>
-
-      {/* Overall P&L from system metrics (if different) */}
-      {overallPnl !== undefined && overallPnl !== null && (
-        <box flexDirection="column" paddingTop={1}>
-          <text fg={Colors.dim} dim>
-            {"─".repeat(22)}
-          </text>
-          <box flexDirection="row" gap={1}>
+      <box flexDirection="row" gap={1}>
+        <text fg={Colors.muted} dim>
+          30-Day
+        </text>
+        <text fg={perf.monthPnl >= 0 ? Colors.success : Colors.error} bold>
+          {formatPnL(perf.monthPnl)}
+        </text>
+        <text fg={Colors.muted} dim>
+          WinRate
+        </text>
+        <text fg={perf.winRate >= 0.5 ? Colors.success : Colors.warning} bold>
+          {formatPct(perf.winRate)}
+        </text>
+      </box>
+      <box flexDirection="row" gap={1}>
+        <text fg={Colors.muted} dim>
+          Sharpe
+        </text>
+        <text
+          fg={sharpeColor}
+          bold={perf.totalWithPnl >= 5}
+          dim={perf.totalWithPnl < 5}
+        >
+          {sharpeLabel}
+        </text>
+        {overallPnl !== undefined && overallPnl !== null ? (
+          <>
             <text fg={Colors.muted} dim>
               Total P&L
             </text>
             <text fg={overallPnl >= 0 ? Colors.success : Colors.error} bold>
               {formatPnL(overallPnl)}
             </text>
-          </box>
-        </box>
-      )}
-
-      {/* Empty state */}
-      {tradeStream.length === 0 && (
-        <box
-          paddingTop={1}
-          alignItems="center"
-          justifyContent="center"
-          flexGrow={1}
-        >
-          <Spinner label="Awaiting trade data..." />
-        </box>
-      )}
-    </box>
+          </>
+        ) : null}
+      </box>
+      {tradeStream.length === 0 ? (
+        <text fg={Colors.muted} dim>
+          Awaiting trade data...
+        </text>
+      ) : null}
+    </Panel>
   );
 }
 

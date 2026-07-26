@@ -851,7 +851,7 @@ describe("useServiceStore", () => {
     it("subscribes to SSE trade stream", async () => {
       await useServiceStore.getState().streamTrades();
       expect(subscribeSSEMock).toHaveBeenCalledTimes(1);
-      expect(subscribeSSEMock.mock.calls[0][0]).toBe("/trades/stream");
+      expect(subscribeSSEMock.mock.calls[0][0]).toBe("/v1/trades/stream");
     });
 
     it("streamTrades does not throw on SSE connection failure", async () => {

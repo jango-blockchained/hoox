@@ -48,7 +48,7 @@ Stores are **not** under `packages/tui/src/stores` for production code — they 
 | ----- | ---- | -------------- |
 | UI | `packages/shared/src/stores/ui-store.ts` | activeView, sidebar, modal, palette |
 | Service | `packages/shared/src/stores/service-store.ts` | workers, trades, logs, alerts, connection, SSE |
-| Config | `packages/shared/src/stores/config-store.ts` | theme, refresh interval, notifications, shortcuts |
+| Config | `packages/shared/src/stores/config-store.ts` | theme (dark-only in TUI), refresh interval, notifications, shortcuts |
 
 Session persistence: `$HOME/.hoox/.tui-state/session.json` via shared `restoreSession` / `saveSession`.
 
@@ -56,6 +56,7 @@ Session persistence: `$HOME/.hoox/.tui-state/session.json` via shared `restoreSe
 
 - View factories, sidebar labels, keyboard shortcuts, and palette **view** commands are defined in `packages/tui/src/view-registry.tsx`.
 - Semantic status colors (`ConnectionStatusColor`, `WorkerStatusColor`, `LogLevelColor`, `AlertSeverityColor`) live in `@jango-blockchained/hoox-shared` (`packages/shared/src/colors.ts`). Do not invent local status→hex maps in views.
+- Shared chrome: `ViewHeader` + `Panel` (cool focus border). Settings uses dark-only theme (light is not implemented) and shows mode/host/transport/auth via `getSettingsConnectionSnapshot()` — never secret values.
 
 ### Test doubles (no polluting `mock.module`)
 
@@ -84,7 +85,7 @@ Must stay aligned with `ViewId` in `packages/shared/src/types.ts`, sidebar items
 | `service-manager` | `ServiceManager` | deploy/repair/rebuild/kill-switch |
 | `config-editor` | `ConfigEditor` | filesystem + `configValidate` |
 | `setup-wizard` | `SetupWizard` | wizard steps + `deployAll` |
-| `settings` | `SettingsView` | config store + `checkSetup` / `checkFix` |
+| `settings` | `SettingsView` | config store + connection snapshot + `checkSetup` / `checkFix` |
 | `queue-depth` | `QueueDepthView` | `monitorQueueDepth` |
 | `kv-viewer` | `KvViewer` | `configKvList` / `configKvGet` |
 | `secrets-viewer` | `SecretsViewer` | `configSecretsList` (names only) |

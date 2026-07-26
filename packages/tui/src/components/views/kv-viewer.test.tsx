@@ -14,8 +14,8 @@ import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { createRoot } from "@opentui/react";
 import { createCliRenderer } from "@opentui/core";
 import { KvViewer } from "./kv-viewer";
+import { Colors, type ViewId } from "@jango-blockchained/hoox-shared";
 import { useUIStore } from "@jango-blockchained/hoox-shared/stores/ui-store";
-import type { ViewId } from "@jango-blockchained/hoox-shared";
 import {
   cliBridgeDouble,
   resetCliBridgeDouble,
@@ -30,7 +30,7 @@ async function createTestRenderer() {
     screenMode: "alternate-screen",
     exitOnCtrlC: false,
     targetFps: 30,
-    backgroundColor: "#0D1117",
+    backgroundColor: Colors.background,
   });
 }
 

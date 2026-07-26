@@ -34,6 +34,7 @@ import { Colors, useUIStore } from "@jango-blockchained/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { Spinner, EmptyState } from "../shared/spinner";
 import { ViewHeader } from "../shared/view-header";
+import { Panel } from "../shared/panel";
 import { cliBridge } from "../../services/cli-bridge";
 import type { QueueDepth, QueueDepthStatus } from "../../services/cli-bridge";
 
@@ -154,26 +155,20 @@ function SummaryBar({ queues }: SummaryBarProps) {
   const paused = queues.filter((q) => q.status === "paused").length;
 
   return (
-    <box
-      flexDirection="row"
-      gap={2}
-      border={true}
-      borderStyle="single"
-      borderColor={Colors.border}
-      paddingX={1}
-      paddingY={0}
-    >
-      <text fg={Colors.muted} dim>
-        SUMMARY
-      </text>
-      <text fg={Colors.success}>{healthy} healthy</text>
-      <text fg={Colors.muted}>·</text>
-      <text fg={Colors.warning}>{backlogged} backlogged</text>
-      <text fg={Colors.muted}>·</text>
-      <text fg={Colors.error}>{critical} critical</text>
-      <text fg={Colors.muted}>·</text>
-      <text fg={Colors.muted}>{paused} paused</text>
-    </box>
+    <Panel elevated={false} compact>
+      <box flexDirection="row" gap={2}>
+        <text fg={Colors.muted} dim>
+          SUMMARY
+        </text>
+        <text fg={Colors.success}>{healthy} healthy</text>
+        <text fg={Colors.muted}>·</text>
+        <text fg={Colors.warning}>{backlogged} backlogged</text>
+        <text fg={Colors.muted}>·</text>
+        <text fg={Colors.error}>{critical} critical</text>
+        <text fg={Colors.muted}>·</text>
+        <text fg={Colors.muted}>{paused} paused</text>
+      </box>
+    </Panel>
   );
 }
 
@@ -283,15 +278,7 @@ export function QueueDepthView() {
         <SummaryBar queues={queues} />
 
         {/* Queue list */}
-        <box
-          flexDirection="column"
-          flexGrow={1}
-          border={true}
-          borderStyle="single"
-          borderColor={Colors.border}
-          paddingX={1}
-          paddingY={0}
-        >
+        <Panel flexGrow={1} elevated={false} compact>
           {loading && queues.length === 0 ? (
             <box
               padding={1}
@@ -325,7 +312,7 @@ export function QueueDepthView() {
               ))}
             </scrollbox>
           )}
-        </box>
+        </Panel>
 
         {/* Footer with refresh + last sampled timestamp */}
         <box

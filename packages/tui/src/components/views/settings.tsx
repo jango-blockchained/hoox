@@ -3,7 +3,7 @@
  * Settings View — 4-column layout for user preferences.
  *
  * Columns:
- *   1. ThemePanel    — dark/light toggle, refresh rate, default view, reset
+ *   1. ThemePanel    — dark-only note, refresh rate, default view, reset + connection readout
  *   2. NotificationsPanel — alert/trade/debug/system checkboxes, sound toggle
  *   3. KeyboardPanel — read-only shortcut reference table
  *   4. DataPanel     — cache/export/import actions + About info
@@ -21,12 +21,15 @@ import {
   useServiceStore,
   useUIStore,
   useConfigStore,
+  readConfigSync,
 } from "@jango-blockchained/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { ViewHeader } from "../shared/view-header";
+import { Panel } from "../shared/panel";
 import { showConfirm } from "../ui/dialog";
 import type { DialogHandle } from "../ui/dialog";
 import { cliBridge } from "../../services/cli-bridge";
+import { getSettingsConnectionSnapshot } from "../../services/tui-connection";
 import * as path from "path";
 import * as os from "os";
 import type {
@@ -233,44 +236,6 @@ const PANEL_COUNT = 4;
 // ─── Sub-Components ────────────────────────────────────────────────────────────
 
 /**
- * Panel wrapper — bordered card with title and content.
- * Highlights the active panel via border brightness.
- */
-function PanelBox({
-  title,
-  active,
-  width,
-  children,
-}: {
-  title: string;
-  active: boolean;
-  width: number;
-  children: unknown;
-}) {
-  return (
-    <box
-      flexDirection="column"
-      width={width}
-      flexGrow={1}
-      border={true}
-      borderStyle="single"
-      borderColor={active ? Colors.accent : Colors.border}
-      backgroundColor={Colors.card}
-      paddingX={1}
-      paddingY={0}
-      gap={0}
-    >
-      <text fg={Colors.accent} bold dim={!active}>
-        {title}
-      </text>
-      <box paddingTop={1} flexDirection="column" gap={0}>
-        {children}
-      </box>
-    </box>
-  );
-}
-
-/**
  * Toggle checkbox: "[x]" for checked, "[ ]" for unchecked.
  * Responds to Space and mouse click.
  */
@@ -302,14 +267,14 @@ function Checkbox({
 // ─── Column 1: ThemePanel ─────────────────────────────────────────────────────
 
 /**
- * ThemePanel — dark/light radio toggles, refresh rate selector,
- * default view dropdown, and [Reset to Defaults] button.
+ * ThemePanel — dark-only theme note, refresh rate, default view, reset,
+ * plus a read-only connection/transport snapshot.
  *
  * Local item indices for keyboard navigation:
- *   0 = theme dark, 1 = theme light, 2 = refresh rate,
- *   3 = default view, 4 = reset button
+ *   0 = refresh rate, 1 = default view, 2 = reset button
+ * (theme is display-only; connection is read-only)
  */
-const THEME_ITEM_COUNT = 5;
+const THEME_ITEM_COUNT = 3;
 
 function ThemePanel({
   active,
@@ -320,51 +285,46 @@ function ThemePanel({
   activeItem: number;
   onResetDefaults: () => void;
 }) {
-  const theme = useConfigStore((s) => s.theme);
   const refreshIntervalMs = useConfigStore((s) => s.refreshIntervalMs);
   const defaultView = useConfigStore((s) => s.defaultView);
-  const updateConfig = useConfigStore((s) => s.updateConfig);
 
-  const isDark = theme === "dark";
+  const connection = useMemo(() => {
+    let configFallback: {
+      transport?: string;
+      apiUrl?: string;
+      apiToken?: string;
+    } = {};
+    try {
+      const cfg = readConfigSync();
+      configFallback = {
+        transport: cfg.transport,
+        apiUrl: cfg.apiUrl,
+        apiToken: cfg.apiToken,
+      };
+    } catch {
+      // config.json may be missing — env-only snapshot is fine
+    }
+    return getSettingsConnectionSnapshot(process.env, configFallback);
+  }, []);
 
   return (
-    <box flexDirection="column" gap={0}>
-      {/* Dark/Light radio toggles */}
-      <text fg={Colors.foreground} bold dim>
-        THEME
+    <box flexDirection="column" gap={0} paddingX={1}>
+      {/* Dark-only theme (panel title is THEME; light not implemented) */}
+      <text fg={Colors.accent} bold>
+        (•) DARK
       </text>
-      <box flexDirection="row" gap={1} paddingLeft={1}>
-        <text
-          fg={isDark ? Colors.accent : Colors.muted}
-          bg={active && activeItem === 0 ? Colors.background : undefined}
-          bold={isDark}
-          dim={!isDark}
-          onMouseUp={() => updateConfig({ theme: "dark" })}
-        >
-          ({isDark ? "•" : " "}) DARK
-        </text>
-        <text
-          fg={!isDark ? Colors.accent : Colors.muted}
-          bg={active && activeItem === 1 ? Colors.background : undefined}
-          bold={!isDark}
-          dim={isDark}
-          onMouseUp={() => updateConfig({ theme: "light" })}
-        >
-          ({!isDark ? "•" : " "}) LIGHT
-        </text>
-      </box>
+      <text fg={Colors.muted} dim>
+        Light not implemented
+      </text>
 
       {/* Refresh rate selector */}
-      <box paddingTop={1}>
-        <text fg={Colors.foreground} bold dim>
-          REFRESH RATE
-        </text>
-      </box>
+      <text fg={Colors.foreground} bold dim>
+        REFRESH
+      </text>
       <text
         fg={Colors.accent}
-        bg={active && activeItem === 2 ? Colors.background : undefined}
+        bg={active && activeItem === 0 ? Colors.background : undefined}
         bold
-        paddingLeft={1}
       >
         {"◀ "}
         {formatRefreshRate(refreshIntervalMs)}
@@ -372,16 +332,13 @@ function ThemePanel({
       </text>
 
       {/* Default view dropdown */}
-      <box paddingTop={1}>
-        <text fg={Colors.foreground} bold dim>
-          DEFAULT VIEW
-        </text>
-      </box>
+      <text fg={Colors.foreground} bold dim>
+        DEFAULT VIEW
+      </text>
       <text
         fg={Colors.accent}
-        bg={active && activeItem === 3 ? Colors.background : undefined}
+        bg={active && activeItem === 1 ? Colors.background : undefined}
         bold
-        paddingLeft={1}
       >
         {"◀ "}
         {VIEW_LABELS[defaultView] ?? defaultView}
@@ -389,16 +346,35 @@ function ThemePanel({
       </text>
 
       {/* Reset to Defaults */}
-      <box paddingTop={1}>
-        <text
-          fg={Colors.warning}
-          bg={active && activeItem === 4 ? Colors.background : undefined}
-          bold
-          onMouseUp={onResetDefaults}
-        >
-          {"[ RESET TO DEFAULTS ]"}
-        </text>
-      </box>
+      <text
+        fg={Colors.warning}
+        bg={active && activeItem === 2 ? Colors.background : undefined}
+        bold
+        onMouseUp={onResetDefaults}
+      >
+        {"[ RESET TO DEFAULTS ]"}
+      </text>
+
+      {/* Connection / transport (read-only; secrets never shown) */}
+      <text fg={Colors.foreground} bold dim>
+        CONNECTION
+      </text>
+      <text
+        fg={
+          connection.mode === "remote"
+            ? Colors.info
+            : Colors["muted-foreground"]
+        }
+        bold
+      >
+        {connection.mode.toUpperCase()} · {connection.apiHost}
+      </text>
+      <text fg={Colors.accent}>
+        {connection.transport} · Auth {connection.authSummary}
+      </text>
+      <text fg={Colors.dim} dim>
+        {connection.hint}
+      </text>
     </box>
   );
 }
@@ -859,11 +835,19 @@ export function SettingsView({ dialog }: SettingsViewProps = {}) {
   });
 
   const updateConfig = useConfigStore((s) => s.updateConfig);
+  const theme = useConfigStore((s) => s.theme);
   const refreshIntervalMs = useConfigStore((s) => s.refreshIntervalMs);
   const defaultView = useConfigStore((s) => s.defaultView);
   const resetDefaults = useConfigStore((s) => s.resetDefaults);
   const toggleNotification = useConfigStore((s) => s.toggleNotification);
   const soundEnabled = useConfigStore((s) => s.soundEnabled);
+
+  // Light theme is not implemented — coerce any stored "light" to dark.
+  useEffect(() => {
+    if (theme === "light") {
+      updateConfig({ theme: "dark" });
+    }
+  }, [theme, updateConfig]);
 
   /** Fail-closed confirm helper for destructive settings actions. */
   const confirmAction = useCallback(
@@ -993,9 +977,11 @@ export function SettingsView({ dialog }: SettingsViewProps = {}) {
         throw new Error("Config must be a JSON object");
       }
 
-      // Apply config values if they match known keys
+      // Apply config values if they match known keys (light theme coerced to dark)
       if (typeof config.theme === "string")
-        updateConfig({ theme: config.theme });
+        updateConfig({
+          theme: config.theme === "light" ? "dark" : (config.theme as "dark"),
+        });
       if (typeof config.refreshIntervalMs === "number")
         updateConfig({ refreshIntervalMs: config.refreshIntervalMs });
       if (typeof config.defaultView === "string")
@@ -1285,17 +1271,9 @@ export function SettingsView({ dialog }: SettingsViewProps = {}) {
     // Panel-specific actions
     switch (activePanel) {
       case 0: {
-        // Theme panel
+        // Theme panel — items: 0 refresh, 1 default view, 2 reset
         switch (activeItem) {
-          case 0: // Dark theme
-            if (key.name === "space" || key.name === "return")
-              updateConfig({ theme: "dark" });
-            break;
-          case 1: // Light theme
-            if (key.name === "space" || key.name === "return")
-              updateConfig({ theme: "light" });
-            break;
-          case 2: {
+          case 0: {
             // Refresh rate
             const currentIdx = REFRESH_RATES.indexOf(
               refreshIntervalMs as (typeof REFRESH_RATES)[number]
@@ -1310,7 +1288,7 @@ export function SettingsView({ dialog }: SettingsViewProps = {}) {
             }
             break;
           }
-          case 3: {
+          case 1: {
             // Default view
             const currentIdx = VIEW_OPTIONS.indexOf(defaultView);
             if (key.name === "left") {
@@ -1323,7 +1301,7 @@ export function SettingsView({ dialog }: SettingsViewProps = {}) {
             }
             break;
           }
-          case 4: // Reset defaults
+          case 2: // Reset defaults
             if (key.name === "space" || key.name === "return")
               void handleResetDefaults();
             break;
@@ -1393,26 +1371,50 @@ export function SettingsView({ dialog }: SettingsViewProps = {}) {
 
         {/* 4-column layout */}
         <box flexDirection="row" flexGrow={1} gap={1}>
-          <PanelBox title="THEME" active={activePanel === 0} width={28}>
+          <Panel
+            title="THEME"
+            focused={activePanel === 0}
+            width={28}
+            flexGrow={1}
+            compact
+          >
             <ThemePanel
               active={activePanel === 0}
               activeItem={activeItem}
               onResetDefaults={() => void handleResetDefaults()}
             />
-          </PanelBox>
+          </Panel>
 
-          <PanelBox title="NOTIFICATIONS" active={activePanel === 1} width={28}>
+          <Panel
+            title="NOTIFICATIONS"
+            focused={activePanel === 1}
+            width={28}
+            flexGrow={1}
+            compact
+          >
             <NotificationsPanel
               active={activePanel === 1}
               activeItem={activeItem}
             />
-          </PanelBox>
+          </Panel>
 
-          <PanelBox title="KEYBOARD" active={activePanel === 2} width={34}>
+          <Panel
+            title="KEYBOARD"
+            focused={activePanel === 2}
+            width={34}
+            flexGrow={1}
+            compact
+          >
             <KeyboardPanel />
-          </PanelBox>
+          </Panel>
 
-          <PanelBox title="DATA" active={activePanel === 3} width={24}>
+          <Panel
+            title="DATA"
+            focused={activePanel === 3}
+            width={24}
+            flexGrow={1}
+            compact
+          >
             <DataPanel
               active={activePanel === 3}
               activeItem={activeItem}
@@ -1422,7 +1424,7 @@ export function SettingsView({ dialog }: SettingsViewProps = {}) {
               onCheckSetup={handleCheckSetup}
               onRunAutoRepair={handleRunAutoRepair}
             />
-          </PanelBox>
+          </Panel>
         </box>
 
         {/* Check Setup results panel — persists until dismissed or view change */}
