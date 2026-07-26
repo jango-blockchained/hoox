@@ -1,23 +1,23 @@
 /** @jsxImportSource @opentui/react */
 /**
- * AnimatedBorder — box wrapper with cool-spectrum focus border and
- * animated title brackets (Grok Build–style accent motion).
+ * AnimatedBorder — bordered panel chrome with static accent on focus.
+ * (Name kept for call-site compatibility; no color animation.)
  *
- * On focus: border shifts to cool indigo/cyan accent.
+ * On focus: border uses Colors.accent + double style.
  * Title: CoolBrackets around uppercase HUD label.
  */
 import { type ReactNode } from "react";
 import { Colors } from "@jango-blockchained/hoox-shared";
-import { CoolBrackets, useCoolHue } from "./cool-brackets";
+import { CoolBrackets } from "./cool-brackets";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface AnimatedBorderProps {
-  /** Content to wrap with the animated border */
+  /** Content to wrap with the border */
   children: ReactNode;
   /** Whether the contained element is focused/highlighted */
   focused?: boolean;
-  /** Optional HUD-style panel title (rendered uppercase with cool brackets) */
+  /** Optional HUD-style panel title (rendered uppercase with accent brackets) */
   title?: string;
 }
 
@@ -28,8 +28,6 @@ export function AnimatedBorder({
   focused = false,
   title,
 }: AnimatedBorderProps) {
-  const { color: coolBorder } = useCoolHue(160, focused);
-
   return (
     <box flexDirection="column" flexGrow={1}>
       {title && (
@@ -44,7 +42,7 @@ export function AnimatedBorder({
       <box
         border={true}
         borderStyle={focused ? "double" : "single"}
-        borderColor={focused ? coolBorder : Colors.border}
+        borderColor={focused ? Colors.accent : Colors.border}
         backgroundColor={Colors.card}
         flexGrow={1}
       >

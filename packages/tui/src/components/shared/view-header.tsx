@@ -33,7 +33,7 @@ export function ViewHeader({
       justifyContent="space-between"
       width="100%"
     >
-      <CoolBrackets open="┌" close="┐" gap={1} intervalMs={100}>
+      <CoolBrackets open="┌" close="┐" gap={1}>
         <text fg={Colors.accent} bold>
           {title}
         </text>

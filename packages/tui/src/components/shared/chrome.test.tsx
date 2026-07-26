@@ -5,7 +5,7 @@ import { describe, it, expect } from "bun:test";
 import { ViewHeader } from "./view-header";
 import { Panel } from "./panel";
 import { CoolBrackets, CoolGlyph, useCoolHue } from "./cool-brackets";
-import { CoolBracketPalette } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@jango-blockchained/hoox-shared";
 
 describe("chrome", () => {
   it("exports ViewHeader and Panel", () => {
@@ -13,10 +13,12 @@ describe("chrome", () => {
     expect(typeof Panel).toBe("function");
   });
 
-  it("exports cool bracket chrome", () => {
+  it("exports cool bracket chrome (static accent, no animation)", () => {
     expect(typeof CoolBrackets).toBe("function");
     expect(typeof CoolGlyph).toBe("function");
     expect(typeof useCoolHue).toBe("function");
-    expect(CoolBracketPalette.length).toBeGreaterThan(0);
+    const hue = useCoolHue(100, true);
+    expect(hue.color).toBe(Colors.accent);
+    expect(hue.index).toBe(0);
   });
 });

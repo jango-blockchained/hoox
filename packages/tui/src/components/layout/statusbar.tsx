@@ -298,7 +298,7 @@ export function StatusBar() {
         backgroundColor={Colors.card}
       >
         <box flexDirection="row" gap={1}>
-          <CoolGlyph char="┌" intervalMs={100} phase={0} />
+          <CoolGlyph char="┌" />
           <text fg={modeColor} bold>
             [{modeLabel}]
           </text>
@@ -317,7 +317,7 @@ export function StatusBar() {
           >
             {parts.join("  ")}
           </SummaryLine>
-          <CoolGlyph char="┐" intervalMs={100} phase={3} />
+          <CoolGlyph char="┐" />
         </box>
         <text fg={Colors.dim} dim>
           ^P PALETTE · ^B SIDEBAR · ^Q QUIT

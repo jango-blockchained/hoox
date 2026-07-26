@@ -7,7 +7,6 @@
  */
 import { Colors } from "@jango-blockchained/hoox-shared";
 import type { ReactNode } from "react";
-import { useCoolHue } from "./cool-brackets";
 
 export interface PanelProps {
   title?: string;
@@ -20,7 +19,7 @@ export interface PanelProps {
   flexGrow?: number;
   /**
    * Override border color (e.g. kill-switch engaged → error).
-   * When set, wins over focused cool hue / default border.
+   * When set, wins over focused accent / default border.
    */
   borderColor?: string;
   children?: ReactNode;
@@ -36,8 +35,8 @@ export function Panel({
   borderColor,
   children,
 }: PanelProps) {
-  const { color: cool } = useCoolHue(180, focused);
-  const resolvedBorder = borderColor ?? (focused ? cool : Colors.border);
+  const resolvedBorder =
+    borderColor ?? (focused ? Colors.accent : Colors.border);
 
   return (
     <box

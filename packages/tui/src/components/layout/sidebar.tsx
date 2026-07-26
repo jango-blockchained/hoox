@@ -29,7 +29,7 @@ export function Sidebar() {
       backgroundColor={Colors.card}
     >
       {/* Brand header — cool animated brackets */}
-      <CoolBrackets open="┌" close="┐" gap={1} intervalMs={95}>
+      <CoolBrackets open="┌" close="┐" gap={1}>
         <text fg={Colors.foreground} bold>
           HOOX
         </text>
@@ -37,15 +37,11 @@ export function Sidebar() {
       <text fg={Colors.dim}>─────────────────</text>
 
       {/* Navigation items */}
-      {items.map((item, i) => {
+      {items.map((item) => {
         const isActive = item.id === activeView;
         return (
           <box flexDirection="row" gap={1} key={item.id}>
-            {isActive ? (
-              <CoolGlyph char="▸" phase={i} intervalMs={130} />
-            ) : (
-              <text fg={Colors.dim}> </text>
-            )}
+            {isActive ? <CoolGlyph char="▸" /> : <text fg={Colors.dim}> </text>}
             <text
               fg={isActive ? Colors.accent : Colors.muted}
               bold={isActive}
