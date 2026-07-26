@@ -88,8 +88,15 @@ async function listSettingsFromKV(env: DashboardEnv): Promise<AllSettings> {
           : parseAgentConfigJson(raw);
       const expanded = expandAgentConfigToFieldMap(cfg);
       const bucket = (normalized["agent-worker"] ??= {});
-      for (const [fk, fv] of Object.entries(expanded)) {
-        bucket[fk] = fv;
+      for (const fk of Object.keys(expanded)) {
+        const fv = expanded[fk];
+        if (
+          typeof fv === "string" ||
+          typeof fv === "number" ||
+          typeof fv === "boolean"
+        ) {
+          bucket[fk] = fv;
+        }
       }
       // Also keep raw config string for the agent:config field itself
       if (typeof value === "string") {
