@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { KvSyncService } from "./kv-sync-service.js";
 
 // ---------------------------------------------------------------------------
@@ -384,42 +386,55 @@ describe("KvSyncService", () => {
   // -- getManifest ----------------------------------------------------------
 
   describe("getManifest", () => {
-    it("returns the KV manifest with namespace and keys", () => {
-      const manifest = KvSyncService.getManifest();
+    /** packages/cli/src/services/kv → monorepo root */
+    const monorepoRoot = resolve(
+      fileURLToPath(new URL(".", import.meta.url)),
+      "../../../../.."
+    );
+
+    it("returns the KV manifest with namespace and keys from dashboard.jsonc", () => {
+      const manifest = KvSyncService.getManifest(monorepoRoot);
 
       expect(manifest.namespace).toBe("CONFIG_KV");
       expect(Array.isArray(manifest.keys)).toBe(true);
-      expect(manifest.keys.length).toBeGreaterThan(0);
+      expect(manifest.keys.length).toBeGreaterThan(20);
     });
 
-    it("includes all expected keys", () => {
-      const manifest = KvSyncService.getManifest();
+    it("includes keys from dashboard.jsonc manifests", () => {
+      const manifest = KvSyncService.getManifest(monorepoRoot);
       const keyNames = manifest.keys.map((k) => k.key);
 
-      expect(keyNames).toContain("webhook:tradingview:ip_check_enabled");
+      expect(keyNames).toContain("webhook:tradingview_ip_check_enabled");
       expect(keyNames).toContain("trade:kill_switch");
       expect(keyNames).toContain("agent:openai_key");
-      expect(keyNames).toContain("email:scan_subject");
+      expect(keyNames).toContain("global:kill_switch");
+      expect(keyNames).toContain("routing:default_exchange");
     });
 
     it("marks secret keys with secret=true", () => {
-      const manifest = KvSyncService.getManifest();
+      const manifest = KvSyncService.getManifest(monorepoRoot);
       const secrets = manifest.keys.filter((k) => k.secret);
 
       expect(secrets.length).toBeGreaterThan(0);
       for (const secret of secrets) {
         expect(secret.secret).toBe(true);
       }
+      expect(secrets.some((s) => s.key === "agent:openai_key")).toBe(true);
     });
 
     it("provides type and default for every key", () => {
-      const manifest = KvSyncService.getManifest();
+      const manifest = KvSyncService.getManifest(monorepoRoot);
 
       for (const key of manifest.keys) {
         expect(key.type).toMatch(/^(boolean|number|string)$/);
         expect(typeof key.default).toBe("string");
         expect(typeof key.description).toBe("string");
       }
+    });
+
+    it("returns empty keys when monorepo root is missing", () => {
+      const manifest = KvSyncService.getManifest("/tmp/no-such-hoox-root");
+      expect(manifest.keys).toEqual([]);
     });
   });
 

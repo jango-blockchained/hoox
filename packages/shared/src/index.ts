@@ -247,6 +247,9 @@ export {
   stripJsonc,
   parseDashboardManifest,
   dashboardWorkerDir,
+  kvManifestFromDashboardManifests,
+  loadDashboardKvManifestFromRoot,
+  loadDashboardManifestsFromRoot,
 } from "./dashboard-manifest";
 export type {
   DashboardFieldType,
@@ -256,6 +259,8 @@ export type {
   DashboardSection,
   WorkerDashboardManifest,
   DashboardWorkerId,
+  DashboardKvManifestKey,
+  DashboardKvManifest,
 } from "./dashboard-manifest";
 
 // ── Wizard engine ──────────────────────────────────────────────────────

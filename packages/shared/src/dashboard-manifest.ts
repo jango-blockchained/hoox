@@ -3,8 +3,10 @@
  * (and the web dashboard Settings form).
  *
  * Pure parse + field helpers so CLI, TUI, and web share one source of truth
- * for structure. Loading files from disk stays in the consumer.
+ * for structure. Filesystem loaders are Node/Bun only (same as path-utils).
  */
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 export type DashboardFieldType =
   | "boolean"
@@ -85,12 +87,17 @@ export const DASHBOARD_SECTION_PREFIX: Record<string, string> = {
 /**
  * Build CONFIG_KV key from worker + composite field key (`section:field`).
  * Mirrors workers/dashboard/src/lib/settings/prefixes.ts buildKVKey.
+ *
+ * Unknown sections use `section:` as the prefix (so risk:kill_switch stays
+ * namespaced). Fields without a section use the worker default prefix.
  */
 export function buildDashboardKvKey(worker: string, fieldKey: string): string {
   if (fieldKey.includes(":")) {
     const [section, ...rest] = fieldKey.split(":");
-    const sectionPrefix = DASHBOARD_SECTION_PREFIX[section ?? ""] ?? "";
-    return `${sectionPrefix}${rest.join(":")}`;
+    const mapped = DASHBOARD_SECTION_PREFIX[section ?? ""];
+    if (mapped) return `${mapped}${rest.join(":")}`;
+    // Unknown section id → use it as the prefix itself
+    return `${section}:${rest.join(":")}`;
   }
   const workerPrefix = DASHBOARD_WORKER_PREFIX[worker] ?? "";
   return `${workerPrefix}${fieldKey}`;
@@ -293,4 +300,160 @@ export type DashboardWorkerId = (typeof DASHBOARD_WORKER_IDS)[number];
 export function dashboardWorkerDir(workerId: string): string {
   if (workerId === "hoox") return "hoox-worker";
   return workerId;
+}
+
+/** Flat CONFIG_KV key definition derived from dashboard manifests. */
+export interface DashboardKvManifestKey {
+  key: string;
+  type: "boolean" | "number" | "string";
+  default: string;
+  description: string;
+  secret?: boolean;
+  /** Source worker id (e.g. hoox, trade-worker) */
+  worker?: string;
+}
+
+export interface DashboardKvManifest {
+  namespace: string;
+  keys: DashboardKvManifestKey[];
+}
+
+function fieldTypeToKv(t: DashboardFieldType): "boolean" | "number" | "string" {
+  if (t === "boolean") return "boolean";
+  if (t === "number") return "number";
+  return "string";
+}
+
+function defaultToString(value: string | number | boolean): string {
+  if (typeof value === "string") return value;
+  return JSON.stringify(value);
+}
+
+/** Skip pseudo-fields that are API docs, not real KV keys. */
+function isDocumentationField(fieldKey: string): boolean {
+  const name = fieldKey.includes(":")
+    ? fieldKey.slice(fieldKey.indexOf(":") + 1)
+    : fieldKey;
+  return /^(GET|POST|PUT|PATCH|DELETE)\s+\//i.test(name);
+}
+
+/**
+ * Flatten worker dashboard manifests into a CONFIG_KV key list
+ * (for `hoox config kv manifest` / apply-manifest).
+ */
+export function kvManifestFromDashboardManifests(
+  manifests: WorkerDashboardManifest[]
+): DashboardKvManifest {
+  const byKey = new Map<string, DashboardKvManifestKey>();
+
+  for (const manifest of manifests) {
+    for (const section of manifest.sections) {
+      for (const field of section.fields) {
+        if (isDocumentationField(field.key)) continue;
+        const key = buildDashboardKvKey(manifest.worker, field.key);
+        if (!key || key.endsWith(":")) continue;
+        // Prefer first definition; later workers don't override
+        if (byKey.has(key)) continue;
+        byKey.set(key, {
+          key,
+          type: fieldTypeToKv(field.type),
+          default: defaultToString(field.default),
+          description:
+            field.description || `${manifest.displayName}: ${field.label}`,
+          secret: field.kind === "secret" ? true : undefined,
+          worker: manifest.worker,
+        });
+      }
+    }
+  }
+
+  const keys = [...byKey.values()].sort((a, b) => a.key.localeCompare(b.key));
+  return { namespace: "CONFIG_KV", keys };
+}
+
+/**
+ * Load dashboard.jsonc files from a monorepo root and build the KV manifest.
+ * Pure filesystem helper used by CLI; returns empty keys if root missing.
+ */
+export function loadDashboardKvManifestFromRoot(
+  root: string
+): DashboardKvManifest {
+  return kvManifestFromDashboardManifests(loadDashboardManifestsFromRoot(root));
+}
+
+function tryReadFile(path: string): string | null {
+  try {
+    if (!existsSync(path)) return null;
+    return readFileSync(path, "utf-8");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Discover workers/NAME/dashboard.jsonc under a monorepo root.
+ */
+export function loadDashboardManifestsFromRoot(
+  root: string
+): WorkerDashboardManifest[] {
+  const manifests: WorkerDashboardManifest[] = [];
+  const seen = new Set<string>();
+  const workersDir = join(root, "workers");
+  if (!existsSync(workersDir)) return manifests;
+
+  for (const workerId of DASHBOARD_WORKER_IDS) {
+    const dir = dashboardWorkerDir(workerId);
+    const path = join(workersDir, dir, "dashboard.jsonc");
+    const content = tryReadFile(path);
+    if (!content) continue;
+    const m = parseDashboardManifest(content, workerId);
+    if (m.sections.length > 0) {
+      manifests.push(m);
+      seen.add(workerId);
+    }
+  }
+
+  try {
+    for (const entry of readdirSync(workersDir)) {
+      if (entry === "dashboard") continue;
+      const workerId =
+        entry === "hoox-worker" || entry === "hoox" ? "hoox" : entry;
+      if (seen.has(workerId)) continue;
+      const path = join(workersDir, entry, "dashboard.jsonc");
+      const content = tryReadFile(path);
+      if (!content) continue;
+      const m = parseDashboardManifest(content, workerId);
+      if (m.sections.length > 0) {
+        manifests.push(m);
+        seen.add(workerId);
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+
+  // Fallback: synced public copies
+  const publicDir = join(workersDir, "dashboard", "public", "workers");
+  if (existsSync(publicDir)) {
+    try {
+      for (const file of readdirSync(publicDir)) {
+        if (!file.endsWith(".jsonc") && !file.endsWith(".json")) continue;
+        const base = file.replace(/\.jsonc?$/, "");
+        const workerId =
+          base === "hoox-worker" || base === "hoox" ? "hoox" : base;
+        if (seen.has(workerId)) continue;
+        const content = tryReadFile(join(publicDir, file));
+        if (!content) continue;
+        const m = parseDashboardManifest(content, workerId);
+        if (m.sections.length > 0) {
+          manifests.push(m);
+          seen.add(workerId);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  return manifests;
 }

@@ -1,16 +1,26 @@
+import {
+  loadDashboardKvManifestFromRoot,
+  resolveHooxRuntimeRoot,
+  findHooxSetupRoot,
+  type DashboardKvManifestKey,
+} from "@jango-blockchained/hoox-shared";
 import { extractJsonArray } from "../cloudflare/cloudflare-service.js";
 
-export interface KvManifestKey {
-  key: string;
-  type: "boolean" | "number" | "string";
-  default: string;
-  description: string;
-  secret?: boolean;
-}
+export type KvManifestKey = DashboardKvManifestKey;
 
 export interface KvManifest {
   namespace: string;
   keys: KvManifestKey[];
+}
+
+/**
+ * Resolve monorepo root for dashboard.jsonc discovery.
+ * Prefer runtime root (HOOX_REPO / cwd / ~/.hoox/repo), then walk from cwd.
+ */
+function resolveManifestRoot(): string | null {
+  const runtime = resolveHooxRuntimeRoot();
+  if (runtime.root) return runtime.root;
+  return findHooxSetupRoot(process.cwd());
 }
 
 /**
@@ -156,117 +166,21 @@ export class KvSyncService {
     }
   }
 
-  static getManifest(): KvManifest {
-    return {
-      namespace: "CONFIG_KV",
-      keys: [
-        {
-          key: "webhook:tradingview:ip_check_enabled",
-          type: "boolean",
-          default: "false",
-          description: "Enable TradingView IP allowlist check",
-        },
-        {
-          key: "webhook:allowed_ips",
-          type: "string",
-          default: "",
-          description: "Comma-separated allowed IPs for webhook",
-        },
-        {
-          key: "routing:dynamic:enabled",
-          type: "boolean",
-          default: "false",
-          description: "Enable dynamic routing",
-        },
-        {
-          key: "trade:max_daily_drawdown_percent",
-          type: "number",
-          default: "10",
-          description: "Max daily loss percentage before halt",
-        },
-        {
-          key: "trade:kill_switch",
-          type: "boolean",
-          default: "false",
-          description: "Emergency stop all trading",
-        },
-        {
-          key: "trade:watermark:{exchange}:{symbol}:{side}",
-          type: "number",
-          default: "",
-          description: "Per-market watermark (template key)",
-          secret: true,
-        },
-        {
-          key: "agent:openai_key",
-          type: "string",
-          default: "",
-          description: "OpenAI API key for AI agent",
-          secret: true,
-        },
-        {
-          key: "agent:anthropic_key",
-          type: "string",
-          default: "",
-          description: "Anthropic API key for AI agent",
-          secret: true,
-        },
-        {
-          key: "agent:google_key",
-          type: "string",
-          default: "",
-          description: "Google AI API key for agent",
-          secret: true,
-        },
-        {
-          key: "agent:azure_api_key",
-          type: "string",
-          default: "",
-          description: "Azure OpenAI API key",
-          secret: true,
-        },
-        {
-          key: "agent:azure_endpoint",
-          type: "string",
-          default: "",
-          description: "Azure OpenAI endpoint",
-          secret: true,
-        },
-        {
-          key: "email:scan_subject",
-          type: "string",
-          default: "",
-          description: "Email subject filter for signal scanning",
-        },
-        {
-          key: "email:coin_pattern",
-          type: "string",
-          default: "",
-          description: "Regex pattern to extract coin from email",
-        },
-        {
-          key: "email:action_pattern",
-          type: "string",
-          default: "",
-          description: "Regex pattern to extract action from email",
-        },
-        {
-          key: "email:quantity_multiplier",
-          type: "number",
-          default: "1",
-          description: "Multiplier for email signal quantity",
-        },
-        {
-          key: "email:use_imap",
-          type: "boolean",
-          default: "false",
-          description: "Use IMAP for email scanning",
-        },
-      ],
-    };
+  /**
+   * CONFIG_KV key manifest derived dynamically from
+   * workers/NAME/dashboard.jsonc (same source as the web dashboard and TUI).
+   *
+   * Empty keys when no monorepo or dashboard.jsonc files are found.
+   */
+  static getManifest(root?: string | null): KvManifest {
+    const resolved = root ?? resolveManifestRoot();
+    if (!resolved) {
+      return { namespace: "CONFIG_KV", keys: [] };
+    }
+    return loadDashboardKvManifestFromRoot(resolved);
   }
 
-  static getManifestKeys(): KvManifestKey[] {
-    return KvSyncService.getManifest().keys;
+  static getManifestKeys(root?: string | null): KvManifestKey[] {
+    return KvSyncService.getManifest(root).keys;
   }
 }

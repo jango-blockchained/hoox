@@ -117,21 +117,25 @@ async function handleApplyManifest(
   let setCount = 0;
   const errors: string[] = [];
 
-  for (const keyDef of manifest.keys) {
-    if (keyDef.default !== undefined && keyDef.default !== "") {
-      try {
-        await svc.set(nsId, keyDef.key, keyDef.default);
-        setCount++;
-      } catch (err) {
-        errors.push(
-          `${keyDef.key}: ${err instanceof Error ? err.message : String(err)}`
-        );
-      }
+  const applyable = manifest.keys.filter(
+    (k) => !k.secret && k.default !== undefined && k.default !== ""
+  );
+
+  for (const keyDef of applyable) {
+    try {
+      await svc.set(nsId, keyDef.key, keyDef.default);
+      setCount++;
+    } catch (err) {
+      errors.push(
+        `${keyDef.key}: ${err instanceof Error ? err.message : String(err)}`
+      );
     }
   }
 
   formatSuccess(
-    `Applied ${setCount}/${manifest.keys.length} manifest keys (${errors.length} errors)`,
+    `Applied ${setCount}/${applyable.length} dashboard.jsonc keys` +
+      ` (${manifest.keys.length - applyable.length} secrets/empty skipped,` +
+      ` ${errors.length} errors)`,
     opts
   );
 }
@@ -176,8 +180,8 @@ SUBCOMMANDS:
   get <key>         Get a key's value
   set <key> <value> Set a key's value
   delete <key>      Delete a key
-  apply-manifest    Apply manifest key defaults to KV
-  manifest          Show expected KV keys from manifest
+  apply-manifest    Apply defaults from workers/NAME/dashboard.jsonc
+  manifest          Show keys from workers/NAME/dashboard.jsonc
 
 OPTIONS:
   --namespace-id <id>  KV namespace ID (auto-detected from wrangler if omitted)
@@ -258,7 +262,9 @@ EXAMPLES:
   // -- apply-manifest
   kvCmd
     .command("apply-manifest")
-    .description("Apply manifest key defaults to the KV namespace")
+    .description(
+      "Apply key defaults from workers/NAME/dashboard.jsonc into the KV namespace"
+    )
     .action(
       withErrorHandling(
         async (_, cmd: Command) => {
@@ -273,7 +279,9 @@ EXAMPLES:
   // -- manifest
   kvCmd
     .command("manifest")
-    .description("Show expected KV keys from manifest")
+    .description(
+      "Show expected KV keys derived from workers/NAME/dashboard.jsonc"
+    )
     .action(
       withErrorHandling(
         async (_, cmd: Command) => {

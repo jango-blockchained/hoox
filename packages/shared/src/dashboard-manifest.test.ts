@@ -1,10 +1,18 @@
 import { describe, it, expect } from "bun:test";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   parseDashboardManifest,
   buildDashboardKvKey,
   stripJsonc,
   dashboardWorkerDir,
+  loadDashboardKvManifestFromRoot,
 } from "./dashboard-manifest";
+
+const MONOREPO_ROOT = resolve(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../../.."
+);
 
 const SAMPLE = `{
   "display_name": "Gateway",
@@ -76,10 +84,24 @@ describe("dashboard-manifest", () => {
     expect(buildDashboardKvKey("trade-worker", "trade:max_position_size")).toBe(
       "trade:max_position_size"
     );
+    // Unknown section keeps section:name (not bare name)
+    expect(buildDashboardKvKey("agent-worker", "risk:kill_switch")).toBe(
+      "risk:kill_switch"
+    );
   });
 
   it("dashboardWorkerDir maps hoox → hoox-worker", () => {
     expect(dashboardWorkerDir("hoox")).toBe("hoox-worker");
     expect(dashboardWorkerDir("trade-worker")).toBe("trade-worker");
+  });
+
+  it("loadDashboardKvManifestFromRoot builds keys from monorepo", () => {
+    const m = loadDashboardKvManifestFromRoot(MONOREPO_ROOT);
+    expect(m.namespace).toBe("CONFIG_KV");
+    expect(m.keys.length).toBeGreaterThan(20);
+    expect(m.keys.some((k) => k.key === "trade:kill_switch")).toBe(true);
+    expect(m.keys.some((k) => k.key === "global:kill_switch")).toBe(true);
+    // API-doc pseudo fields must not appear
+    expect(m.keys.every((k) => !/^POST\s+\//i.test(k.key))).toBe(true);
   });
 });
