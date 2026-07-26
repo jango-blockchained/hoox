@@ -1,7 +1,7 @@
 /** @jsxImportSource @opentui/react */
 /**
  * Worker Settings View — same options as the web dashboard Settings form,
- * driven by workers/&lt;name&gt;/dashboard.jsonc manifests.
+ * driven by workers/<name>/dashboard.jsonc manifests.
  *
  * Layout:
  *   Header
@@ -10,11 +10,18 @@
  * Values load from CONFIG_KV via `hoox config kv get`; saves use
  * `hoox config kv set`. Secret fields are read-only (CLI command shown).
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useKeyboard } from "@opentui/react";
 import {
   Colors,
+  AGENT_CONFIG_KV_KEY,
+  applyAgentConfigFieldUpdates,
   buildDashboardKvKey,
+  getAgentConfigEmbeddedValue,
+  isAgentConfigEmbeddedField,
+  isDashboardSectionEditable,
+  parseAgentConfigJson,
+  serializeAgentConfigForKv,
   useUIStore,
   type DashboardSettingField,
   type WorkerDashboardManifest,
@@ -50,16 +57,12 @@ function parseKvValue(
   return typeof v === "string" ? v : String(v);
 }
 
+/**
+ * Wire format for CONFIG_KV — match CLI apply-manifest / worker readers:
+ * plain strings stored raw; booleans/numbers as JSON literals.
+ */
 function formatForKv(value: string | number | boolean): string {
-  if (typeof value === "string") {
-    // Keep JSON strings as-is; wrap plain strings as JSON string
-    try {
-      JSON.parse(value);
-      return value;
-    } catch {
-      return JSON.stringify(value);
-    }
-  }
+  if (typeof value === "string") return value;
   return JSON.stringify(value);
 }
 
@@ -82,6 +85,8 @@ export function WorkerSettingsView() {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** Monotonic generation so out-of-order loadValues results are ignored. */
+  const loadGeneration = useRef(0);
 
   const selected = manifests[workerIndex] ?? null;
 
@@ -98,11 +103,15 @@ export function WorkerSettingsView() {
       kvKey: string;
     }> = [];
     for (const section of selected.sections) {
+      if (!isDashboardSectionEditable(section.id)) continue;
       for (const field of section.fields) {
+        const embedded = isAgentConfigEmbeddedField(field.key);
         out.push({
           sectionTitle: section.title,
           field,
-          kvKey: buildDashboardKvKey(selected.worker, field.key),
+          kvKey: embedded
+            ? `${AGENT_CONFIG_KV_KEY} · ${field.key}`
+            : buildDashboardKvKey(selected.worker, field.key),
         });
       }
     }
@@ -110,21 +119,46 @@ export function WorkerSettingsView() {
   }, [selected]);
 
   const loadValues = useCallback(async (manifest: WorkerDashboardManifest) => {
-    const next: Record<string, string | number | boolean> = {};
+    const gen = ++loadGeneration.current;
+    const fields: DashboardSettingField[] = [];
     for (const section of manifest.sections) {
-      for (const field of section.fields) {
-        const kvKey = buildDashboardKvKey(manifest.worker, field.key);
-        if (field.kind === "secret") {
-          next[field.key] = field.default;
-          continue;
-        }
-        const result = await cliBridge.configKvGet(kvKey);
-        next[field.key] = parseKvValue(
-          result.success ? result.data : null,
-          field
-        );
-      }
+      if (!isDashboardSectionEditable(section.id)) continue;
+      for (const field of section.fields) fields.push(field);
     }
+
+    const needsAgentConfig = fields.some((f) =>
+      isAgentConfigEmbeddedField(f.key)
+    );
+    let agentConfig: Record<string, unknown> = {};
+    if (needsAgentConfig) {
+      const cfgResult = await cliBridge.configKvGet(AGENT_CONFIG_KV_KEY);
+      agentConfig = parseAgentConfigJson(
+        cfgResult.success ? cfgResult.data : null
+      );
+    }
+
+    // Parallel gets for flat keys; agent:config fields read from one blob.
+    const entries = await Promise.all(
+      fields.map(async (field) => {
+        if (field.kind === "secret") {
+          return [field.key, field.default] as const;
+        }
+        if (isAgentConfigEmbeddedField(field.key)) {
+          const v = getAgentConfigEmbeddedValue(agentConfig, field.key);
+          return [field.key, v ?? field.default] as const;
+        }
+        const kvKey = buildDashboardKvKey(manifest.worker, field.key);
+        const result = await cliBridge.configKvGet(kvKey);
+        return [
+          field.key,
+          parseKvValue(result.success ? result.data : null, field),
+        ] as const;
+      })
+    );
+
+    if (gen !== loadGeneration.current) return;
+    const next: Record<string, string | number | boolean> = {};
+    for (const [k, v] of entries) next[k] = v;
     setValues(next);
   }, []);
 
@@ -165,7 +199,8 @@ export function WorkerSettingsView() {
       try {
         await loadValues(manifests[idx]!);
       } finally {
-        setLoading(false);
+        // Only clear loading if this is still the latest load
+        if (loadGeneration.current > 0) setLoading(false);
       }
     },
     [manifests, loadValues]
@@ -230,13 +265,46 @@ export function WorkerSettingsView() {
     setStatus(null);
     try {
       const value = values[row.field.key] ?? row.field.default;
-      const result = await cliBridge.configKvSet(row.kvKey, formatForKv(value));
-      if (!result.success) {
-        setStatus(
-          `Save failed: ${result.stderr || result.stdout || "unknown error"}`
+
+      if (isAgentConfigEmbeddedField(row.field.key)) {
+        const cfgResult = await cliBridge.configKvGet(AGENT_CONFIG_KV_KEY);
+        const current = parseAgentConfigJson(
+          cfgResult.success ? cfgResult.data : null
         );
+        const next = applyAgentConfigFieldUpdates(current, {
+          [row.field.key]: value,
+        });
+        const result = await cliBridge.configKvSet(
+          AGENT_CONFIG_KV_KEY,
+          serializeAgentConfigForKv(next)
+        );
+        if (!result.success) {
+          setStatus(
+            `Save failed: ${result.stderr || result.stdout || "unknown error"}`
+          );
+        } else {
+          setStatus(
+            `Saved ${AGENT_CONFIG_KV_KEY} (${row.field.key}) = ${displayValue(value)}`
+          );
+        }
+        // risk:* also dual-write trade:* flat keys when they map (except embedded-only take_profit)
+        if (
+          row.field.key === "risk:max_daily_drawdown_percent" ||
+          row.field.key === "risk:trailing_stop_percent"
+        ) {
+          const flatKey = buildDashboardKvKey(selected.worker, row.field.key);
+          await cliBridge.configKvSet(flatKey, formatForKv(value));
+        }
       } else {
-        setStatus(`Saved ${row.kvKey} = ${displayValue(value)}`);
+        const flatKey = buildDashboardKvKey(selected.worker, row.field.key);
+        const result = await cliBridge.configKvSet(flatKey, formatForKv(value));
+        if (!result.success) {
+          setStatus(
+            `Save failed: ${result.stderr || result.stdout || "unknown error"}`
+          );
+        } else {
+          setStatus(`Saved ${flatKey} = ${displayValue(value)}`);
+        }
       }
     } catch (err) {
       setStatus(err instanceof Error ? err.message : String(err));
@@ -338,6 +406,12 @@ export function WorkerSettingsView() {
               {selected?.description ? (
                 <text fg={Colors.dim} dim>
                   {selected.description}
+                </text>
+              ) : null}
+              {selected?.worker === "agent-worker" ? (
+                <text fg={Colors.muted} dim>
+                  Providers/models/risk numerics write agent:config ·
+                  cron/behavior not wired · secrets via CLI
                 </text>
               ) : null}
 

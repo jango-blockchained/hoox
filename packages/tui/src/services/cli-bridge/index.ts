@@ -1143,9 +1143,9 @@ class CliBridgeImpl {
    *
    * Security note: this method returns *names* and metadata only. To
    * fetch an individual value the caller should use
-   * {@link CliBridgeImpl.configKvGet}. The KV viewer is intentionally
-   * read-only — write operations are not exposed in the TUI; use the
-   * `hoox config kv set` / `hoox config kv delete` commands instead.
+   * {@link CliBridgeImpl.configKvGet}. The KV *viewer* is read-only;
+   * worker-settings may write non-secret keys via
+   * {@link CliBridgeImpl.configKvSet}. Secrets remain CLI-only.
    *
    * @returns A CliResult with `data` containing a {@link KvKeySnapshot}.
    *          `data` is `null` on failure (CLI binary not found, wrangler
@@ -1200,9 +1200,9 @@ class CliBridgeImpl {
    * Fetch the value of a single KV key via `hoox config kv get <key>`.
    *
    * This is a separate method (not bundled into `configKvList`) so the
-   * viewer can lazy-load individual values only when the user expands a
-   * row. It is the read-only counterpart to the write operations
-   * intentionally *not* exposed in the TUI.
+   * viewer / worker-settings can lazy-load individual values. Writes for
+   * non-secret settings go through {@link CliBridgeImpl.configKvSet}
+   * (worker-settings view only).
    *
    * @param key - The KV key name to look up.
    * @returns A CliResult with `data` containing the string value

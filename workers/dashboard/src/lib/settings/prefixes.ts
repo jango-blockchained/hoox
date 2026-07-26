@@ -38,13 +38,53 @@ export const SECTION_PREFIX_MAP = {
   agent: "agent:",
   bot: "bot:",
   email: "email:",
+  /** Email worker dashboard section for signal parse patterns. */
+  signal: "email:",
   database: "database:",
   retention: "retention:",
   cron: "cron:",
   behavior: "behavior:",
+  /** Agent risk UI → trade:* keys workers actually read. */
+  risk: "trade:",
   exchanges: "trade:",
   fees: "trade:",
+  providers: "agent:",
+  models: "agent:",
+  ai: "ai:",
+  report: "report:",
 } as const;
+
+/**
+ * Composite field keys → exact CONFIG_KV keys (mirrors packages/shared
+ * DASHBOARD_FIELD_KV_OVERRIDES). Keep both maps in sync.
+ */
+export const FIELD_KV_OVERRIDES: Record<string, string> = {
+  "webhook:tradingview_ip_check_enabled":
+    "webhook:tradingview:ip_check_enabled",
+  "webhook:tradingview_allowed_ips": "webhook:tradingview:allowed_ips",
+  "exchanges:binance_enabled": "exchange:binance:enabled",
+  "exchanges:mexc_enabled": "exchange:mexc:enabled",
+  "exchanges:bybit_enabled": "exchange:bybit:enabled",
+};
+
+/**
+ * Sections that must not be written as flat CONFIG_KV keys
+ * (mirrors packages/shared DASHBOARD_SECTIONS_NOT_FLAT_KV).
+ * providers/models are handled via agent:config merge in the settings API.
+ */
+export const SECTIONS_NOT_FLAT_KV = new Set([
+  "providers",
+  "models",
+  "cron",
+  "behavior",
+]);
+
+/** True when composite field key's section maps to flat CONFIG_KV. */
+export function isFlatKvSectionKey(fieldKey: string): boolean {
+  if (!fieldKey.includes(":")) return true;
+  const section = fieldKey.split(":")[0] ?? "";
+  return !SECTIONS_NOT_FLAT_KV.has(section);
+}
 
 /**
  * Reverse map: KV prefix -> worker name.
@@ -83,11 +123,21 @@ export type WorkerName = keyof typeof WORKER_PREFIX_MAP;
  * the worker's default prefix is used.
  */
 export function buildKVKey(worker: string, key: string): string {
+  const override = FIELD_KV_OVERRIDES[key];
+  if (override) return override;
+
   if (key.includes(":")) {
     const [section, ...rest] = key.split(":");
+    const fieldName = rest.join(":");
+    if (section === "exchanges" && fieldName.endsWith("_enabled")) {
+      const exchange = fieldName.slice(0, -"_enabled".length);
+      if (exchange) return `exchange:${exchange}:enabled`;
+    }
     const sectionPrefix =
       (SECTION_PREFIX_MAP as Record<string, string>)[section ?? ""] ?? "";
-    return `${sectionPrefix}${rest.join(":")}`;
+    // Prefer mapped prefix; unknown sections keep section:name (not bare)
+    if (sectionPrefix) return `${sectionPrefix}${fieldName}`;
+    return `${section}:${fieldName}`;
   }
   const workerPrefix =
     (WORKER_PREFIX_MAP as Record<string, string>)[worker] ?? "";

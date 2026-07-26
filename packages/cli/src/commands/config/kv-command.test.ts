@@ -18,7 +18,7 @@ describe("kv command", () => {
       expect(keys.some((k) => k.key === "agent:openai_key")).toBe(true);
       expect(keys.some((k) => k.key === "global:kill_switch")).toBe(true);
       expect(
-        keys.some((k) => k.key === "webhook:tradingview_ip_check_enabled")
+        keys.some((k) => k.key === "webhook:tradingview:ip_check_enabled")
       ).toBe(true);
     });
 

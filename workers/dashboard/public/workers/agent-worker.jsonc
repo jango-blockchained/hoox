@@ -1,6 +1,6 @@
 {
   "display_name": "Agent Worker",
-  "description": "AI risk manager and autonomous agent - runs every 5 minutes to monitor positions, enforce risk limits, and optimize position exits",
+  "description": "AI risk manager and autonomous agent - runs every 5 minutes to monitor positions, enforce risk limits, and optimize position exits. Provider/model/risk numeric fields merge into agent:config; secrets via CLI; cron/behavior are not wired to KV.",
   "sections": {
     "agent": {
       "title": "AI Configuration",

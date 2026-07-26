@@ -404,11 +404,13 @@ describe("KvSyncService", () => {
       const manifest = KvSyncService.getManifest(monorepoRoot);
       const keyNames = manifest.keys.map((k) => k.key);
 
-      expect(keyNames).toContain("webhook:tradingview_ip_check_enabled");
+      expect(keyNames).toContain("webhook:tradingview:ip_check_enabled");
       expect(keyNames).toContain("trade:kill_switch");
       expect(keyNames).toContain("agent:openai_key");
       expect(keyNames).toContain("global:kill_switch");
       expect(keyNames).toContain("routing:default_exchange");
+      expect(keyNames).toContain("email:coin_pattern");
+      expect(keyNames).toContain("exchange:mexc:enabled");
     });
 
     it("marks secret keys with secret=true", () => {

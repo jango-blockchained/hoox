@@ -1,7 +1,6 @@
 import {
   loadDashboardKvManifestFromRoot,
   resolveHooxRuntimeRoot,
-  findHooxSetupRoot,
   type DashboardKvManifestKey,
 } from "@jango-blockchained/hoox-shared";
 import { extractJsonArray } from "../cloudflare/cloudflare-service.js";
@@ -15,12 +14,11 @@ export interface KvManifest {
 
 /**
  * Resolve monorepo root for dashboard.jsonc discovery.
- * Prefer runtime root (HOOX_REPO / cwd / ~/.hoox/repo), then walk from cwd.
+ * Prefer runtime root (HOOX_REPO / cwd / ~/.hoox/repo). Runtime resolution
+ * already walks from cwd, so a second findHooxSetupRoot pass is unnecessary.
  */
 function resolveManifestRoot(): string | null {
-  const runtime = resolveHooxRuntimeRoot();
-  if (runtime.root) return runtime.root;
-  return findHooxSetupRoot(process.cwd());
+  return resolveHooxRuntimeRoot().root;
 }
 
 /**
@@ -170,17 +168,29 @@ export class KvSyncService {
    * CONFIG_KV key manifest derived dynamically from
    * workers/NAME/dashboard.jsonc (same source as the web dashboard and TUI).
    *
-   * Empty keys when no monorepo or dashboard.jsonc files are found.
+   * When `root` is omitted, resolves the monorepo via HOOX_REPO / cwd.
+   * Throws if the root cannot be resolved (callers should not treat an empty
+   * manifest as success when discovery failed). Explicit `root` may return
+   * empty keys (e.g. tests against a temp dir with no workers).
    */
   static getManifest(root?: string | null): KvManifest {
-    const resolved = root ?? resolveManifestRoot();
+    const resolved =
+      root !== undefined && root !== null ? root : resolveManifestRoot();
     if (!resolved) {
-      return { namespace: "CONFIG_KV", keys: [] };
+      throw new Error(
+        "Could not resolve monorepo root for dashboard.jsonc. " +
+          "Set HOOX_REPO or run from the hoox checkout."
+      );
     }
     return loadDashboardKvManifestFromRoot(resolved);
   }
 
   static getManifestKeys(root?: string | null): KvManifestKey[] {
     return KvSyncService.getManifest(root).keys;
+  }
+
+  /** Resolved monorepo root used for dashboard.jsonc discovery (null if none). */
+  static resolveRoot(): string | null {
+    return resolveManifestRoot();
   }
 }

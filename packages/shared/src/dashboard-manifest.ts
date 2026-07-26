@@ -64,7 +64,7 @@ export const DASHBOARD_WORKER_PREFIX: Record<string, string> = {
   "report-worker": "report:",
 };
 
-/** Section id → CONFIG_KV prefix. */
+/** Section id → CONFIG_KV prefix (must stay in sync with web SECTION_PREFIX_MAP). */
 export const DASHBOARD_SECTION_PREFIX: Record<string, string> = {
   global: "global:",
   webhook: "webhook:",
@@ -74,30 +74,101 @@ export const DASHBOARD_SECTION_PREFIX: Record<string, string> = {
   agent: "agent:",
   bot: "bot:",
   email: "email:",
+  /** Email worker dashboard uses section id `signal` for parse patterns. */
+  signal: "email:",
   database: "database:",
   retention: "retention:",
   cron: "cron:",
   behavior: "behavior:",
+  /**
+   * Agent risk limits are stored under trade:* (same keys workers read:
+   * trade:kill_switch, trade:trailing_stop_percent, …).
+   */
+  risk: "trade:",
   exchanges: "trade:",
   fees: "trade:",
+  providers: "agent:",
+  models: "agent:",
   ai: "ai:",
   report: "report:",
 };
 
 /**
- * Build CONFIG_KV key from worker + composite field key (`section:field`).
- * Mirrors workers/dashboard/src/lib/settings/prefixes.ts buildKVKey.
+ * Composite field keys (`section:field`) → exact CONFIG_KV keys when the
+ * section prefix + field name would not match what workers read.
  *
- * Unknown sections use `section:` as the prefix (so risk:kill_switch stays
- * namespaced). Fields without a section use the worker default prefix.
+ * Prefer fixing dashboard.jsonc field names when possible; use this for
+ * nested paths (e.g. webhook:tradingview:…) and exchange enable flags.
+ */
+export const DASHBOARD_FIELD_KV_OVERRIDES: Record<string, string> = {
+  "webhook:tradingview_ip_check_enabled":
+    "webhook:tradingview:ip_check_enabled",
+  "webhook:tradingview_allowed_ips": "webhook:tradingview:allowed_ips",
+  "exchanges:binance_enabled": "exchange:binance:enabled",
+  "exchanges:mexc_enabled": "exchange:mexc:enabled",
+  "exchanges:bybit_enabled": "exchange:bybit:enabled",
+};
+
+/**
+ * Section ids that must not appear as flat CONFIG_KV keys in apply-manifest.
+ *
+ * - providers/models: edited via `agent:config` (see agent-config-fields.ts)
+ * - cron: wrangler trigger schedule, not KV
+ * - behavior: not read as flat behavior:* keys by the agent worker
+ */
+export const DASHBOARD_SECTIONS_NOT_FLAT_KV: ReadonlySet<string> = new Set([
+  "providers",
+  "models",
+  "cron",
+  "behavior",
+]);
+
+/**
+ * Sections that are not editable as flat or agent:config fields
+ * (no worker consumer yet).
+ */
+export const DASHBOARD_SECTIONS_UI_SKIP: ReadonlySet<string> = new Set([
+  "cron",
+  "behavior",
+]);
+
+/** True when a section should map to flat CONFIG_KV get/set / apply-manifest. */
+export function isDashboardSectionFlatKv(sectionId: string): boolean {
+  return !DASHBOARD_SECTIONS_NOT_FLAT_KV.has(sectionId);
+}
+
+/**
+ * True when the section can be shown/edited in TUI/web worker settings.
+ * Includes agent:config-backed sections (providers/models) and flat KV.
+ */
+export function isDashboardSectionEditable(sectionId: string): boolean {
+  return !DASHBOARD_SECTIONS_UI_SKIP.has(sectionId);
+}
+
+/**
+ * Build CONFIG_KV key from worker + composite field key (`section:field`).
+ * Aligns with workers/dashboard prefixes + worker-facing keys in kvKeys.ts.
+ *
+ * Unknown sections keep `section:field` (namespaced) so bare keys like
+ * `kill_switch` are not written by accident. Mapped sections (including
+ * risk → trade:, signal → email:) produce worker-readable keys.
  */
 export function buildDashboardKvKey(worker: string, fieldKey: string): string {
+  const override = DASHBOARD_FIELD_KV_OVERRIDES[fieldKey];
+  if (override) return override;
+
   if (fieldKey.includes(":")) {
     const [section, ...rest] = fieldKey.split(":");
+    const fieldName = rest.join(":");
+    // exchanges:binance_enabled → exchange:binance:enabled (generic pattern)
+    if (section === "exchanges" && fieldName.endsWith("_enabled")) {
+      const exchange = fieldName.slice(0, -"_enabled".length);
+      if (exchange) return `exchange:${exchange}:enabled`;
+    }
     const mapped = DASHBOARD_SECTION_PREFIX[section ?? ""];
-    if (mapped) return `${mapped}${rest.join(":")}`;
-    // Unknown section id → use it as the prefix itself
-    return `${section}:${rest.join(":")}`;
+    if (mapped) return `${mapped}${fieldName}`;
+    // Unknown section id → keep section as namespace (safer than bare name)
+    return `${section}:${fieldName}`;
   }
   const workerPrefix = DASHBOARD_WORKER_PREFIX[worker] ?? "";
   return `${workerPrefix}${fieldKey}`;
@@ -190,10 +261,15 @@ interface RawManifest {
 
 /**
  * Parse dashboard.jsonc content into a worker settings manifest.
+ *
+ * On parse/schema failure returns an empty-sections stub and optionally
+ * reports via `onError` (CLI/TUI should log; silent empty used to hide
+ * broken manifests from discovery).
  */
 export function parseDashboardManifest(
   content: string,
-  workerName: string
+  workerName: string,
+  onError?: (message: string) => void
 ): WorkerDashboardManifest {
   try {
     const raw = JSON.parse(stripJsonc(content)) as RawManifest;
@@ -268,7 +344,10 @@ export function parseDashboardManifest(
       description,
       sections: sections.sort((a, b) => a.priority - b.priority),
     };
-  } catch {
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : `parse failed: ${String(err)}`;
+    onError?.(`dashboard.jsonc for ${workerName}: ${message}`);
     return {
       worker: workerName,
       displayName: workerName,
@@ -340,6 +419,10 @@ function isDocumentationField(fieldKey: string): boolean {
 /**
  * Flatten worker dashboard manifests into a CONFIG_KV key list
  * (for `hoox config kv manifest` / apply-manifest).
+ *
+ * First definition wins for duplicate keys (worker order follows
+ * `DASHBOARD_WORKER_IDS` then filesystem discovery). Prefer richer
+ * description/secret when a later duplicate is more complete.
  */
 export function kvManifestFromDashboardManifests(
   manifests: WorkerDashboardManifest[]
@@ -348,13 +431,12 @@ export function kvManifestFromDashboardManifests(
 
   for (const manifest of manifests) {
     for (const section of manifest.sections) {
+      if (!isDashboardSectionFlatKv(section.id)) continue;
       for (const field of section.fields) {
         if (isDocumentationField(field.key)) continue;
         const key = buildDashboardKvKey(manifest.worker, field.key);
         if (!key || key.endsWith(":")) continue;
-        // Prefer first definition; later workers don't override
-        if (byKey.has(key)) continue;
-        byKey.set(key, {
+        const next: DashboardKvManifestKey = {
           key,
           type: fieldTypeToKv(field.type),
           default: defaultToString(field.default),
@@ -362,7 +444,20 @@ export function kvManifestFromDashboardManifests(
             field.description || `${manifest.displayName}: ${field.label}`,
           secret: field.kind === "secret" ? true : undefined,
           worker: manifest.worker,
-        });
+        };
+        const prev = byKey.get(key);
+        if (!prev) {
+          byKey.set(key, next);
+          continue;
+        }
+        // Enrich first-wins entry when later source has secret/description
+        if (!prev.secret && next.secret) prev.secret = true;
+        if (
+          (!prev.description || prev.description.length < 8) &&
+          next.description
+        ) {
+          prev.description = next.description;
+        }
       }
     }
   }
@@ -376,9 +471,12 @@ export function kvManifestFromDashboardManifests(
  * Pure filesystem helper used by CLI; returns empty keys if root missing.
  */
 export function loadDashboardKvManifestFromRoot(
-  root: string
+  root: string,
+  onError?: (message: string) => void
 ): DashboardKvManifest {
-  return kvManifestFromDashboardManifests(loadDashboardManifestsFromRoot(root));
+  return kvManifestFromDashboardManifests(
+    loadDashboardManifestsFromRoot(root, onError)
+  );
 }
 
 function tryReadFile(path: string): string | null {
@@ -392,24 +490,35 @@ function tryReadFile(path: string): string | null {
 
 /**
  * Discover workers/NAME/dashboard.jsonc under a monorepo root.
+ * Broken JSONC files are skipped (empty sections) after `onError` warning.
  */
 export function loadDashboardManifestsFromRoot(
-  root: string
+  root: string,
+  onError?: (message: string) => void
 ): WorkerDashboardManifest[] {
   const manifests: WorkerDashboardManifest[] = [];
   const seen = new Set<string>();
   const workersDir = join(root, "workers");
   if (!existsSync(workersDir)) return manifests;
 
+  const warn =
+    onError ??
+    ((message: string) => {
+      // Default: surface parse failures so CLI/TUI do not silently drop files
+      console.warn(`[dashboard-manifest] ${message}`);
+    });
+
   for (const workerId of DASHBOARD_WORKER_IDS) {
     const dir = dashboardWorkerDir(workerId);
     const path = join(workersDir, dir, "dashboard.jsonc");
     const content = tryReadFile(path);
     if (!content) continue;
-    const m = parseDashboardManifest(content, workerId);
+    const m = parseDashboardManifest(content, workerId, warn);
     if (m.sections.length > 0) {
       manifests.push(m);
       seen.add(workerId);
+    } else if (m.description === "Failed to load configuration") {
+      // already reported via onError
     }
   }
 
@@ -422,7 +531,7 @@ export function loadDashboardManifestsFromRoot(
       const path = join(workersDir, entry, "dashboard.jsonc");
       const content = tryReadFile(path);
       if (!content) continue;
-      const m = parseDashboardManifest(content, workerId);
+      const m = parseDashboardManifest(content, workerId, warn);
       if (m.sections.length > 0) {
         manifests.push(m);
         seen.add(workerId);
@@ -444,7 +553,7 @@ export function loadDashboardManifestsFromRoot(
         if (seen.has(workerId)) continue;
         const content = tryReadFile(join(publicDir, file));
         if (!content) continue;
-        const m = parseDashboardManifest(content, workerId);
+        const m = parseDashboardManifest(content, workerId, warn);
         if (m.sections.length > 0) {
           manifests.push(m);
           seen.add(workerId);

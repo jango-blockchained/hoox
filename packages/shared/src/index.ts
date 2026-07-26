@@ -242,8 +242,13 @@ export type {
 export {
   DASHBOARD_WORKER_PREFIX,
   DASHBOARD_SECTION_PREFIX,
+  DASHBOARD_FIELD_KV_OVERRIDES,
+  DASHBOARD_SECTIONS_NOT_FLAT_KV,
+  DASHBOARD_SECTIONS_UI_SKIP,
   DASHBOARD_WORKER_IDS,
   buildDashboardKvKey,
+  isDashboardSectionFlatKv,
+  isDashboardSectionEditable,
   stripJsonc,
   parseDashboardManifest,
   dashboardWorkerDir,
@@ -262,6 +267,23 @@ export type {
   DashboardKvManifestKey,
   DashboardKvManifest,
 } from "./dashboard-manifest";
+
+// ── Agent config embedded fields (dashboard → agent:config) ───────────
+
+export {
+  AGENT_CONFIG_KV_KEY,
+  AGENT_CONFIG_EMBEDDED_FIELDS,
+  DASHBOARD_SECTIONS_AGENT_CONFIG,
+  isAgentConfigEmbeddedField,
+  isAgentConfigSection,
+  parseAgentConfigJson,
+  serializeAgentConfigForKv,
+  getAgentConfigEmbeddedValue,
+  setAgentConfigEmbeddedValue,
+  expandAgentConfigToFieldMap,
+  applyAgentConfigFieldUpdates,
+} from "./agent-config-fields";
+export type { AgentConfigFieldSpec } from "./agent-config-fields";
 
 // ── Wizard engine ──────────────────────────────────────────────────────
 

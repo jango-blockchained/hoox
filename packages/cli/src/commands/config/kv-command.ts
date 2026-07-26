@@ -113,7 +113,22 @@ async function handleApplyManifest(
   nsId: string
 ): Promise<void> {
   const svc = new KvSyncService();
-  const manifest = KvSyncService.getManifest();
+  let manifest;
+  try {
+    manifest = KvSyncService.getManifest();
+  } catch (err) {
+    throw new CLIError(
+      err instanceof Error ? err.message : String(err),
+      ExitCode.ERROR
+    );
+  }
+  if (manifest.keys.length === 0) {
+    throw new CLIError(
+      "No dashboard.jsonc keys found under workers/*/dashboard.jsonc. " +
+        "Set HOOX_REPO or run from the monorepo root.",
+      ExitCode.ERROR
+    );
+  }
   let setCount = 0;
   const errors: string[] = [];
 
@@ -145,13 +160,31 @@ async function handleApplyManifest(
 // ---------------------------------------------------------------------------
 
 async function handleManifest(opts: FormatOptions): Promise<void> {
-  const manifest = KvSyncService.getManifest();
+  let manifest;
+  try {
+    manifest = KvSyncService.getManifest();
+  } catch (err) {
+    throw new CLIError(
+      err instanceof Error ? err.message : String(err),
+      ExitCode.ERROR
+    );
+  }
+  if (manifest.keys.length === 0) {
+    throw new CLIError(
+      "No dashboard.jsonc keys found under workers/*/dashboard.jsonc. " +
+        "Set HOOX_REPO or run from the monorepo root.",
+      ExitCode.ERROR
+    );
+  }
 
   if (opts.json) {
     formatJson(manifest, opts);
   } else if (!opts.quiet) {
+    const root = KvSyncService.resolveRoot();
     process.stdout.write(
-      `${theme.heading(`KV Manifest: ${manifest.namespace}`)}\n\n`
+      `${theme.heading(`KV Manifest: ${manifest.namespace}`)}` +
+        (root ? ` ${theme.muted(`(${root})`)}` : "") +
+        `\n\n`
     );
     const rows = manifest.keys.map((k) => ({
       Key: k.key,

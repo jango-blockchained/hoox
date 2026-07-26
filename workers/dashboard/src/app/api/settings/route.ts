@@ -3,7 +3,16 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { DashboardEnv } from "@/lib/env";
 import { z } from "zod";
 import {
+  AGENT_CONFIG_KV_KEY,
+  applyAgentConfigFieldUpdates,
+  expandAgentConfigToFieldMap,
+  isAgentConfigEmbeddedField,
+  parseAgentConfigJson,
+  serializeAgentConfigForKv,
+} from "@jango-blockchained/hoox-shared";
+import {
   buildKVKey,
+  isFlatKvSectionKey,
   stripWorkerPrefix,
   workerForKVKey,
   READ_PREFIXES,
@@ -64,6 +73,33 @@ async function listSettingsFromKV(env: DashboardEnv): Promise<AllSettings> {
     const worker = workerForKVKey(key);
     if (!worker) continue;
     const cleanKey = stripWorkerPrefix(key, worker);
+
+    // Expand agent:config JSON into providers:*/models:*/risk:* field keys
+    if (key === AGENT_CONFIG_KV_KEY || cleanKey === "config") {
+      const raw =
+        typeof value === "string"
+          ? value
+          : value && typeof value === "object"
+            ? JSON.stringify(value)
+            : null;
+      const cfg =
+        typeof value === "object" && value !== null && !Array.isArray(value)
+          ? (value as Record<string, unknown>)
+          : parseAgentConfigJson(raw);
+      const expanded = expandAgentConfigToFieldMap(cfg);
+      const bucket = (normalized["agent-worker"] ??= {});
+      for (const [fk, fv] of Object.entries(expanded)) {
+        bucket[fk] = fv;
+      }
+      // Also keep raw config string for the agent:config field itself
+      if (typeof value === "string") {
+        bucket["config"] = value;
+      } else if (value && typeof value === "object") {
+        bucket["config"] = JSON.stringify(value);
+      }
+      continue;
+    }
+
     if (
       typeof value === "string" ||
       typeof value === "number" ||
@@ -197,8 +233,75 @@ export async function POST(
   );
 }
 
+async function readAgentConfigRaw(env: DashboardEnv): Promise<string | null> {
+  if (env.CONFIG_KV) {
+    return env.CONFIG_KV.get(AGENT_CONFIG_KV_KEY);
+  }
+  return null;
+}
+
+async function writeAgentConfigEmbedded(
+  env: DashboardEnv,
+  updates: Record<string, string | number | boolean>
+): Promise<{ kvKey: string }> {
+  const raw = await readAgentConfigRaw(env);
+  const current = parseAgentConfigJson(raw);
+  const next = applyAgentConfigFieldUpdates(current, updates);
+  const payload = serializeAgentConfigForKv(next);
+  if (env.CONFIG_KV) {
+    // Store as raw JSON string (agent-worker JSON.parse's the value)
+    await env.CONFIG_KV.put(AGENT_CONFIG_KV_KEY, payload);
+  } else {
+    await postToD1Service(env, "agent-worker", AGENT_CONFIG_KV_KEY, payload);
+  }
+  return { kvKey: AGENT_CONFIG_KV_KEY };
+}
+
 async function handleSingleUpdate(input: z.infer<typeof SingleUpdateSchema>) {
   const env = getCloudflareContext().env as DashboardEnv;
+
+  // providers/models/risk numerics → merge into agent:config
+  if (isAgentConfigEmbeddedField(input.key)) {
+    try {
+      const { kvKey } = await writeAgentConfigEmbedded(env, {
+        [input.key]: input.value,
+      });
+      // Dual-write trade:* for risk fields the trade path may also read
+      if (
+        input.key === "risk:max_daily_drawdown_percent" ||
+        input.key === "risk:trailing_stop_percent"
+      ) {
+        const flatKey = buildKVKey(input.worker, input.key);
+        if (env.CONFIG_KV) {
+          await putToKV(env, flatKey, input.value);
+        }
+      }
+      return NextResponse.json({
+        success: true,
+        worker: input.worker,
+        key: input.key,
+        value: input.value,
+        kvKey,
+      });
+    } catch (err) {
+      console.error("settings POST agent:config error:", err);
+      return NextResponse.json(
+        { error: "Failed to save agent:config field" },
+        { status: 500 }
+      );
+    }
+  }
+
+  if (!isFlatKvSectionKey(input.key)) {
+    return NextResponse.json(
+      {
+        error:
+          "This setting is not a flat CONFIG_KV key (cron/behavior are not wired).",
+        key: input.key,
+      },
+      { status: 400 }
+    );
+  }
   const kvKey = buildKVKey(input.worker, input.key);
 
   try {
@@ -246,17 +349,54 @@ async function handleBatchedUpdate(
     value: unknown;
   }> = [];
 
+  const skipped: string[] = [];
+  const agentConfigUpdates: Record<string, string | number | boolean> = {};
+
   for (const [worker, fields] of Object.entries(settings)) {
     for (const [key, value] of Object.entries(fields)) {
+      if (isAgentConfigEmbeddedField(key)) {
+        agentConfigUpdates[key] = value;
+        // Dual-write risk trade:* keys alongside agent:config
+        if (
+          key === "risk:max_daily_drawdown_percent" ||
+          key === "risk:trailing_stop_percent"
+        ) {
+          writes.push({
+            worker,
+            key,
+            kvKey: buildKVKey(worker, key),
+            value,
+          });
+        }
+        continue;
+      }
+      if (!isFlatKvSectionKey(key)) {
+        skipped.push(`${worker}.${key}`);
+        continue;
+      }
       writes.push({ worker, key, kvKey: buildKVKey(worker, key), value });
     }
   }
 
-  if (writes.length === 0) {
-    return NextResponse.json({ success: true, written: 0 });
-  }
-
   try {
+    let agentWritten = 0;
+    if (Object.keys(agentConfigUpdates).length > 0) {
+      await writeAgentConfigEmbedded(env, agentConfigUpdates);
+      agentWritten = 1;
+    }
+
+    if (writes.length === 0 && agentWritten === 0) {
+      return NextResponse.json({
+        success: true,
+        written: 0,
+        skipped,
+        note:
+          skipped.length > 0
+            ? "Skipped unwired sections (cron/behavior)"
+            : undefined,
+      });
+    }
+
     if (env.CONFIG_KV) {
       // Parallel writes — KV is consistent and supports concurrent puts
       await Promise.all(writes.map((w) => putToKV(env, w.kvKey, w.value)));
@@ -275,7 +415,11 @@ async function handleBatchedUpdate(
         }
       }
     }
-    return NextResponse.json({ success: true, written: writes.length });
+    return NextResponse.json({
+      success: true,
+      written: writes.length + agentWritten,
+      skipped: skipped.length > 0 ? skipped : undefined,
+    });
   } catch (err) {
     console.error("settings batched POST error:", err);
     return NextResponse.json(
