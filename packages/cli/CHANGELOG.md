@@ -3,6 +3,17 @@
 All notable changes to `@jango-blockchained/hoox-cli` are documented here.
 This project adheres loosely to [Semantic Versioning](https://semver.org/).
 
+## [0.10.1] — 2026-07-26
+
+### Added
+
+- Outside-repo TUI resolution: global `@jango-blockchained/hoox-tui` install, bun/npm global paths, `hoox-tui` on PATH.
+- `hoox doctor --fix-runtime` clones `github.com/jango-blockchained/hoox` (auto-removes broken `~/.hoox/repo` symlinks).
+
+### Fixed
+
+- Clearer TUI missing-entry guidance (`bun add -g @jango-blockchained/hoox-tui` or fix-runtime).
+
 ## [0.10.0] — 2026-07-26
 
 Operator security plane for remote TUI/CLI. Requires matching `@jango-blockchained/hoox-shared@1.1.0` and a gateway deploy that includes authenticated `/v1/*` routes (`OPERATOR_API_KEY`).
