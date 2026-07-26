@@ -92,6 +92,7 @@ function applyDefaults(): void {
     })
   );
   cliBridgeDouble.configKvGet.mockImplementation(() => okCliResult(null));
+  cliBridgeDouble.configKvSet.mockImplementation(() => okCliResult(null));
   cliBridgeDouble.configSecretsList.mockImplementation(() =>
     okCliResult({ secrets: [], timestamp: new Date().toISOString() })
   );
@@ -141,6 +142,7 @@ export const cliBridgeDouble = {
     })
   ),
   configKvGet: mock(() => okCliResult(null)),
+  configKvSet: mock(() => okCliResult(null)),
   configSecretsList: mock(() =>
     okCliResult({ secrets: [], timestamp: new Date().toISOString() })
   ),

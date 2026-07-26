@@ -28,6 +28,7 @@ export const ALL_VIEWS = [
   "db-query",
   "ai-chat",
   "edge-topology",
+  "worker-settings",
 ] as const;
 
 export type ViewId = (typeof ALL_VIEWS)[number];
@@ -48,6 +49,7 @@ export const VIEW_LABELS: Record<ViewId, string> = {
   "db-query": "DB QUERY",
   "ai-chat": "AI CHAT",
   "edge-topology": "TOPOLOGY",
+  "worker-settings": "W SETTINGS",
 };
 
 export const VIEW_ORDER: ViewId[] = [
@@ -66,6 +68,7 @@ export const VIEW_ORDER: ViewId[] = [
   "db-query",
   "ai-chat",
   "edge-topology",
+  "worker-settings",
 ];
 
 export function viewIndex(view: ViewId): number {

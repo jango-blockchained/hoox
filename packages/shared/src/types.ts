@@ -251,7 +251,8 @@ export type ViewId =
   | "secrets-viewer"
   | "db-query"
   | "ai-chat"
-  | "edge-topology";
+  | "edge-topology"
+  | "worker-settings";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Extension points for Open Core + Enterprise

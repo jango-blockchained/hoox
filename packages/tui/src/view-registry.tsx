@@ -22,6 +22,7 @@ import { SecretsViewer } from "./components/views/secrets-viewer";
 import { AiChatView } from "./components/views/ai-chat";
 import { DbQueryView } from "./components/views/db-query";
 import { EdgeTopology } from "./components/views/edge-topology";
+import { WorkerSettingsView } from "./components/views/worker-settings";
 
 export type ViewFactory = (dialog: DialogHandle) => React.ReactNode;
 
@@ -210,6 +211,22 @@ export const VIEW_REGISTRY: ViewRegistryEntry[] = [
     aliases: ["topology", "graph", "architecture", "map"],
     factory: () => <EdgeTopology />,
   },
+  {
+    id: "worker-settings",
+    label: "WORKER SETTINGS",
+    shortLabel: "W SETTINGS",
+    shortcut: "^W",
+    key: "w",
+    keyMod: "ctrl-alt",
+    paletteShortcut: "^#w",
+    aliases: [
+      "dashboard-settings",
+      "worker-config",
+      "dashboard.jsonc",
+      "kv-settings",
+    ],
+    factory: () => <WorkerSettingsView />,
+  },
 ];
 
 /** Compile-time exhaustiveness helper (call once at module load). */
@@ -231,6 +248,7 @@ function assertFullCoverage(entries: ViewRegistryEntry[]): void {
     "db-query",
     "ai-chat",
     "edge-topology",
+    "worker-settings",
   ];
   for (const id of required) {
     if (!ids.has(id)) throw new Error(`view-registry missing ViewId: ${id}`);

@@ -237,6 +237,27 @@ export type {
   RuntimeRootResult,
 } from "./path-utils";
 
+// ── Dashboard settings manifests (workers/*/dashboard.jsonc) ───────────
+
+export {
+  DASHBOARD_WORKER_PREFIX,
+  DASHBOARD_SECTION_PREFIX,
+  DASHBOARD_WORKER_IDS,
+  buildDashboardKvKey,
+  stripJsonc,
+  parseDashboardManifest,
+  dashboardWorkerDir,
+} from "./dashboard-manifest";
+export type {
+  DashboardFieldType,
+  DashboardFieldKind,
+  DashboardFieldOption,
+  DashboardSettingField,
+  DashboardSection,
+  WorkerDashboardManifest,
+  DashboardWorkerId,
+} from "./dashboard-manifest";
+
 // ── Wizard engine ──────────────────────────────────────────────────────
 
 export type {

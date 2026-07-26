@@ -1234,6 +1234,22 @@ class CliBridgeImpl {
   }
 
   /**
+   * Write a CONFIG_KV key via `hoox config kv set <key> <value>`.
+   * Used by the worker-settings view (dashboard.jsonc fields).
+   * Prefer for non-secret settings only — secrets stay CLI-only.
+   */
+  configKvSet(key: string, value: string): Promise<CliResult<null>> {
+    return this.exec(["config", "kv", "set", key, value], {
+      json: false,
+      timeout: 20_000,
+      tag: `config:kv:set:${key}`,
+    }).then((result) => ({
+      ...result,
+      data: null,
+    }));
+  }
+
+  /**
    * Read the list of secrets declared in wrangler.jsonc via
    * `hoox config secrets list --json`.
    *

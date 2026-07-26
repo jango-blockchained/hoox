@@ -27,6 +27,7 @@ const ALL_VIEWS: ViewId[] = [
   "db-query",
   "ai-chat",
   "edge-topology",
+  "worker-settings",
 ];
 
 describe("view-registry", () => {
@@ -51,13 +52,14 @@ describe("view-registry", () => {
     expect(map["9"]).toBe("settings");
   });
 
-  it("Ctrl+Alt chords map k/s/c/q/e", () => {
+  it("Ctrl+Alt chords map k/s/c/q/e/w", () => {
     const map = getCtrlAltViewMap();
     expect(map.k).toBe("kv-viewer");
     expect(map.s).toBe("secrets-viewer");
     expect(map.c).toBe("ai-chat");
     expect(map.q).toBe("db-query");
     expect(map.e).toBe("edge-topology");
+    expect(map.w).toBe("worker-settings");
   });
 
   it("palette view commands include all views", () => {

@@ -85,6 +85,7 @@ Persistent UI state lives under `$HOME/.hoox/.tui-state/` (session, crash log, c
 | `Ctrl+Alt+C`        | AI Chat                                  |
 | `Ctrl+Alt+Q`        | DB Query                                 |
 | `Ctrl+Alt+E`        | Edge Topology                            |
+| `Ctrl+Alt+W`        | Worker Settings (dashboard.jsonc)        |
 | `Ctrl+P`            | Open Command Palette                     |
 | `Ctrl+B`            | Toggle Sidebar                           |
 | `Ctrl+R`            | Refresh all data                         |
@@ -117,6 +118,7 @@ Persistent UI state lives under `$HOME/.hoox/.tui-state/` (session, crash log, c
 | **AI Chat**          | Streaming chat with the agent worker.                                                             |
 | **DB Query**         | Read-only D1 SQL panel (`SELECT` / `WITH` / `EXPLAIN` only).                                      |
 | **Edge Topology**    | Worker mesh / service-binding graph.                                                              |
+| **Worker Settings**  | Same settings as the web dashboard — fields from `workers/*/dashboard.jsonc` backed by CONFIG_KV. |
 
 ---
 

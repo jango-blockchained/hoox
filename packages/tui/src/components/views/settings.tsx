@@ -174,6 +174,7 @@ const VIEW_OPTIONS: ViewId[] = [
   "db-query",
   "ai-chat",
   "edge-topology",
+  "worker-settings",
 ];
 
 /** Human-readable labels for ViewId values */
@@ -193,6 +194,7 @@ const VIEW_LABELS: Record<ViewId, string> = {
   "db-query": "DB Query",
   "ai-chat": "AI Chat",
   "edge-topology": "Edge Topology",
+  "worker-settings": "Worker Settings",
 };
 
 /** Notification channel keys in display order */
@@ -220,6 +222,7 @@ interface ShortcutEntry {
 const SYSTEM_SHORTCUTS: ShortcutEntry[] = [
   { key: "Ctrl+1..9", action: "Switch to view 1-9" },
   { key: "Ctrl+0", action: "Switch to view 10" },
+  { key: "Ctrl+Alt+W", action: "Worker Settings (dashboard.jsonc)" },
   { key: "Ctrl+P", action: "Command Palette" },
   { key: "Ctrl+B", action: "Toggle Sidebar" },
   { key: "Ctrl+Q", action: "Quit" },
