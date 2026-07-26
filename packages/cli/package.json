@@ -36,7 +36,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jango-blockchained/hoox-setup.git"
+    "url": "git+https://github.com/jango-blockchained/hoox.git",
+    "directory": "packages/cli"
   },
   "keywords": [
     "cloudflare",

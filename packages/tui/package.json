@@ -1,17 +1,22 @@
 {
   "name": "@jango-blockchained/hoox-tui",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Hoox algorithmic trading terminal operations center — OpenTUI dashboard",
   "type": "module",
-  "main": "src/main.tsx",
+  "main": "./dist/main.js",
   "exports": {
-    ".": "./src/main.tsx",
+    ".": {
+      "bun": "./src/main.tsx",
+      "import": "./dist/main.js",
+      "default": "./dist/main.js"
+    },
     "./package.json": "./package.json"
   },
   "bin": {
-    "hoox-tui": "src/main.tsx"
+    "hoox-tui": "bin/hoox-tui.js"
   },
   "files": [
+    "bin",
     "src",
     "dist",
     "README.md",
@@ -20,12 +25,14 @@
   "scripts": {
     "dev": "bun run src/main.tsx",
     "build": "bun build src/main.tsx --outdir dist --target bun --packages external",
-    "start": "bun run src/main.tsx",
+    "start": "bun run bin/hoox-tui.js",
     "test": "bun test --preload ./src/test-setup.ts",
     "test:e2e": "bun test --preload ./src/test-setup.ts test/e2e/",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run typecheck && bun run build"
   },
   "dependencies": {
+    "@jango-blockchained/hoox-shared": "workspace:*",
     "@opentui-ui/dialog": "^0.1.2",
     "@opentui-ui/toast": "^0.0.5",
     "@opentui/core": "^0.4.1",
@@ -42,11 +49,24 @@
     "typescript": "^6.0.3"
   },
   "license": "Apache-2.0",
-  "peerDependencies": {
-    "@jango-blockchained/hoox-shared": "workspace:*"
+  "engines": {
+    "bun": ">=1.2"
   },
   "publishConfig": {
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jango-blockchained/hoox.git",
+    "directory": "packages/tui"
+  },
+  "keywords": [
+    "hoox",
+    "tui",
+    "opentui",
+    "terminal",
+    "trading",
+    "cloudflare"
+  ],
   "author": "jango-blockchained"
 }

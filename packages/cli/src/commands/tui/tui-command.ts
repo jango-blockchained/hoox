@@ -16,7 +16,8 @@ import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
+import { homedir } from "node:os";
 import {
   getHooxRepoPath,
   getTuiEntryCandidates,
@@ -35,7 +36,7 @@ const TUI_PKG = "@jango-blockchained/hoox-tui";
 
 /**
  * Collect candidate entry paths for the TUI main module.
- * Prefers source (dev) then dist (built package).
+ * Prefers source (dev) then dist (built / published package).
  */
 function collectTuiCandidates(): string[] {
   const candidates: string[] = [];
@@ -76,21 +77,71 @@ function collectTuiCandidates(): string[] {
     // no package.json in cwd — skip
   }
 
+  // Global bun install location (bun add -g @jango-blockchained/hoox-tui)
+  const bunGlobal = join(
+    homedir(),
+    ".bun",
+    "install",
+    "global",
+    "node_modules",
+    TUI_PKG
+  );
+  pushPackageRootEntries(candidates, bunGlobal);
+
+  // npm/yarn global prefixes when present
+  const npmGlobal = process.env.npm_config_prefix?.trim();
+  if (npmGlobal) {
+    pushPackageRootEntries(
+      candidates,
+      join(npmGlobal, "lib", "node_modules", TUI_PKG)
+    );
+  }
+
+  // hoox-tui bin on PATH (follow symlink to package root)
+  pushFromWhich(candidates, "hoox-tui");
+
   // Deduplicate while preserving order
   return [...new Set(candidates)];
+}
+
+function pushPackageRootEntries(candidates: string[], root: string): void {
+  if (!root || !existsSync(root)) return;
+  candidates.push(
+    join(root, "dist", "main.js"),
+    join(root, "src", "main.tsx"),
+    join(root, "bin", "hoox-tui.js"),
+    join(root, "src", "main.ts")
+  );
 }
 
 function pushPackageEntries(candidates: string[], req: NodeRequire): void {
   try {
     const pkgJsonPath = req.resolve(`${TUI_PKG}/package.json`);
-    const root = dirname(pkgJsonPath);
-    candidates.push(
-      join(root, "src/main.tsx"),
-      join(root, "dist/main.js"),
-      join(root, "src/main.ts")
-    );
+    pushPackageRootEntries(candidates, dirname(pkgJsonPath));
   } catch {
     // package not installed for this require context
+  }
+}
+
+/** If `hoox-tui` is on PATH, add entries next to the resolved binary. */
+function pushFromWhich(candidates: string[], binName: string): void {
+  try {
+    const which = Bun.which(binName);
+    if (!which) return;
+    let binPath = which;
+    try {
+      binPath = realpathSync(which);
+    } catch {
+      /* keep which path */
+    }
+    const binDir = dirname(binPath);
+    // …/node_modules/@jango-blockchained/hoox-tui/bin/hoox-tui.js
+    const pkgRoot = resolve(binDir, "..");
+    pushPackageRootEntries(candidates, pkgRoot);
+    // Also allow running the bin itself as the entry
+    candidates.push(binPath);
+  } catch {
+    /* ignore */
   }
 }
 
@@ -111,14 +162,19 @@ export function resolveTUIEntry(): string {
       `  Runtime root: ${runtime.root ?? "(none)"} [${runtime.source}]`,
       `  Global repo:  ${globalRepo}`,
       "",
-      "Fix options:",
-      "  • Bootstrap the global runtime:",
-      "      hoox doctor --fix-runtime",
-      "  • Or run from a hoox-setup checkout (packages/tui/src/main.tsx)",
-      "  • Or set HOOX_REPO=/path/to/hoox-setup",
-      "  • Or set HOOX_TUI_ENTRY=/path/to/main.tsx",
+      "Fix options (pick one):",
       "",
-      "Then re-run: hoox tui",
+      "  1) Lightweight — install the TUI package globally:",
+      "       bun add -g @jango-blockchained/hoox-tui",
+      "",
+      "  2) Full runtime — clone monorepo into ~/.hoox/repo:",
+      "       hoox doctor --fix-runtime",
+      "",
+      "  3) Dev — run inside a hoox checkout, or set:",
+      "       export HOOX_REPO=/path/to/hoox",
+      "       export HOOX_TUI_ENTRY=/path/to/packages/tui/src/main.tsx",
+      "",
+      "Then re-run: hx tui",
     ].join("\n"),
     ExitCode.ERROR
   );

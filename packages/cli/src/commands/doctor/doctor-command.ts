@@ -80,7 +80,7 @@ function printStatus(): number {
       required: globalRequired,
       label: "Global runtime (~/.hoox/repo)",
       detail: status.isSetupRoot
-        ? "hoox-setup markers present"
+        ? "monorepo markers present"
         : status.repoPresent
           ? "path exists but is not a setup monorepo"
           : runtime.root
@@ -128,7 +128,8 @@ function printStatus(): number {
     process.stdout.write(
       theme.dim(
         "Tip: HOOX_HOME overrides ~/.hoox · HOOX_REPO forces the monorepo path\n" +
-          "     Outside a checkout: hoox doctor --fix-runtime\n" +
+          "     Lightweight TUI:    bun add -g @jango-blockchained/hoox-tui\n" +
+          "     Full runtime:       hoox doctor --fix-runtime\n" +
           "     Operator plane:     hoox doctor --security\n\n"
       )
     );
@@ -249,22 +250,25 @@ export function registerDoctorCommand(program: Command): void {
 
 Resolution order for the tool/runtime root:
   1. HOOX_REPO environment variable
-  2. Walk up from the current directory for a hoox-setup checkout
-  3. $HOME/.hoox/repo (managed global clone)
+  2. Walk up from the current directory for a hoox monorepo checkout
+  3. $HOME/.hoox/repo (managed global clone of github.com/jango-blockchained/hoox)
+
+TUI (outside a monorepo) — preferred lightweight path:
+  bun add -g @jango-blockchained/hoox-tui
 
 SECURITY:
   hoox doctor --security   Hygiene + optional /v1/health probes (Access / Bearer)
 
 EXAMPLES:
   hoox doctor
-  hoox doctor --fix-runtime   Clone + bun install into ~/.hoox/repo
+  hoox doctor --fix-runtime   Clone monorepo + bun install into ~/.hoox/repo
   hoox doctor --security
   hoox doctor --security --api-url https://mgmt.example.com
-  HOOX_REPO=~/Git/hoox-setup hoox doctor`
+  HOOX_REPO=~/Git/hoox hoox doctor`
     )
     .option(
       "--fix-runtime",
-      "Clone hoox-setup into ~/.hoox/repo and install dependencies"
+      "Clone the Hoox monorepo into ~/.hoox/repo and install dependencies"
     )
     .option("--repo-url <url>", "Git URL used with --fix-runtime", undefined)
     .option(

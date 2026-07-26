@@ -1,10 +1,13 @@
 /**
- * Global Hoox runtime — managed clone of hoox-setup under $HOME/.hoox/repo.
+ * Global Hoox runtime — managed monorepo clone under $HOME/.hoox/repo.
  *
  * Used when the CLI runs outside a local monorepo checkout (e.g. `hx tui`
  * from an unrelated project). Bootstrap clones + installs dependencies.
+ *
+ * Preferred lightweight path for TUI-only installs:
+ *   bun add -g @jango-blockchained/hoox-tui
  */
-import { existsSync } from "node:fs";
+import { existsSync, lstatSync, readlinkSync, rmSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import {
@@ -17,8 +20,11 @@ import {
 } from "@jango-blockchained/hoox-shared";
 
 /** Default public monorepo URL for the managed global runtime. */
-export const DEFAULT_HOOX_SETUP_REPO =
-  "https://github.com/jango-blockchained/hoox-setup.git";
+export const DEFAULT_HOOX_RUNTIME_REPO =
+  "https://github.com/jango-blockchained/hoox.git";
+
+/** @deprecated Use DEFAULT_HOOX_RUNTIME_REPO */
+export const DEFAULT_HOOX_SETUP_REPO = DEFAULT_HOOX_RUNTIME_REPO;
 
 export interface RuntimeStatus {
   hooxHome: string;
@@ -30,7 +36,7 @@ export interface RuntimeStatus {
 }
 
 export interface EnsureRuntimeOptions {
-  /** Git remote (default: jango-blockchained/hoox-setup). */
+  /** Git remote (default: jango-blockchained/hoox). */
   repoUrl?: string;
   /** Skip `bun install` after clone (tests / offline). */
   skipInstall?: boolean;
@@ -89,14 +95,28 @@ async function runCommand(
 }
 
 /**
- * Ensure `$HOME/.hoox/repo` is a usable hoox-setup clone.
+ * True when path is a symlink whose target is missing (common after renames).
+ */
+function isBrokenSymlink(path: string): boolean {
+  try {
+    if (!lstatSync(path).isSymbolicLink()) return false;
+    // existsSync follows the link; false means dangling
+    return !existsSync(path);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Ensure `$HOME/.hoox/repo` is a usable Hoox monorepo clone.
  * Clones shallow if missing; runs `bun install` when needed.
+ * Removes dangling symlinks (e.g. old hoox-setup → deleted path) automatically.
  */
 export async function ensureGlobalRuntime(
   options: EnsureRuntimeOptions = {}
 ): Promise<EnsureRuntimeResult> {
   const log = options.onLog ?? (() => {});
-  const repoUrl = options.repoUrl ?? DEFAULT_HOOX_SETUP_REPO;
+  const repoUrl = options.repoUrl ?? DEFAULT_HOOX_RUNTIME_REPO;
   const repoPath = getHooxRepoPath();
   const hooxHome = getHooxHome();
 
@@ -104,24 +124,42 @@ export async function ensureGlobalRuntime(
 
   let cloned = false;
   if (!isHooxSetupRoot(repoPath)) {
-    if (existsSync(repoPath)) {
-      throw new Error(
-        `Path exists but is not a hoox-setup monorepo: ${repoPath}\n` +
-          `  Remove it or set HOOX_REPO to a valid checkout, then retry.`
-      );
+    if (existsSync(repoPath) || isBrokenSymlink(repoPath)) {
+      if (isBrokenSymlink(repoPath)) {
+        let target = "";
+        try {
+          target = readlinkSync(repoPath);
+        } catch {
+          /* ignore */
+        }
+        log(
+          `Removing broken runtime symlink ${repoPath}` +
+            (target ? ` → ${target}` : "")
+        );
+        rmSync(repoPath, { force: true });
+      } else {
+        throw new Error(
+          `Path exists but is not a Hoox monorepo: ${repoPath}\n` +
+            `  Expected wrangler.jsonc + packages/cli/package.json.\n` +
+            `  Remove it or set HOOX_REPO to a valid checkout, then retry.\n` +
+            `  Lightweight alternative: bun add -g @jango-blockchained/hoox-tui`
+        );
+      }
     }
-    log(`Cloning ${repoUrl} → ${repoPath}`);
-    const parent = hooxHome;
-    const clone = await runCommand(
-      ["git", "clone", "--depth", "1", repoUrl, repoPath],
-      parent
-    );
-    if (!clone.ok) {
-      throw new Error(
-        `git clone failed:\n${clone.stderr || clone.stdout}`.trim()
+    if (!isHooxSetupRoot(repoPath)) {
+      log(`Cloning ${repoUrl} → ${repoPath}`);
+      const parent = hooxHome;
+      const clone = await runCommand(
+        ["git", "clone", "--depth", "1", repoUrl, repoPath],
+        parent
       );
+      if (!clone.ok) {
+        throw new Error(
+          `git clone failed:\n${clone.stderr || clone.stdout}`.trim()
+        );
+      }
+      cloned = true;
     }
-    cloned = true;
   } else {
     log(`Runtime already present: ${repoPath}`);
   }

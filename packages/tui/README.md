@@ -7,6 +7,22 @@ A full-screen terminal dashboard built with [OpenTUI](https://github.com/anomaly
 
 ## Quick Start
 
+### Outside a monorepo (recommended for operators)
+
+```bash
+# CLI + TUI as global packages
+bun add -g @jango-blockchained/hoox-cli @jango-blockchained/hoox-tui
+# or after CLI is already installed:
+bun add -g @jango-blockchained/hoox-tui
+
+hx tui
+```
+
+If the TUI package is missing, `hx tui` prints install instructions.  
+Full monorepo under `~/.hoox/repo` is optional (`hx doctor --fix-runtime`).
+
+### From this monorepo
+
 ```bash
 # Install dependencies (from repo root)
 bun install
