@@ -26,7 +26,18 @@ const SUGGEST_NEXT: Record<string, Suggestion> = {
   init: { command: "hoox setup", reason: "provision infrastructure" },
   setup: { command: "hoox deploy all", reason: "ship to Cloudflare" },
   "deploy all": { command: "hoox check health", reason: "verify the deploy" },
-  "check health": { command: "hoox monitor status", reason: "keep watching" },
+  "check health": {
+    command: "hoox monitor trades",
+    reason: "watch recent trades",
+  },
+  "secrets sync": {
+    command: "hoox check health",
+    reason: "verify workers after secret push",
+  },
+  "keys generate": {
+    command: "hoox secrets sync --system",
+    reason: "push mesh keys to Cloudflare",
+  },
   "monitor kill-switch off": {
     command: "hoox check health",
     reason: "re-enable trading",

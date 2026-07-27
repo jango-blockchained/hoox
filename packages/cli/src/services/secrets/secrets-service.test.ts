@@ -3,7 +3,11 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Result } from "./types.js";
-import { SecretsService } from "./secrets-service.js";
+import {
+  SecretsService,
+  isSystemSecret,
+  SYSTEM_SECRET_NAMES,
+} from "./secrets-service.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -40,6 +44,7 @@ const WORKERS_JSONC = JSON.stringify({
       path: "workers/trade-worker",
       secrets: [
         "API_SERVICE_KEY_BINDING",
+        "INTERNAL_KEY_BINDING",
         "BINANCE_KEY_BINDING",
         "BINANCE_SECRET_BINDING",
       ],
@@ -111,6 +116,7 @@ describe("SecretsService", () => {
       const svc = await createService();
       expect(svc.listSecrets("trade-worker")).toEqual([
         "API_SERVICE_KEY_BINDING",
+        "INTERNAL_KEY_BINDING",
         "BINANCE_KEY_BINDING",
         "BINANCE_SECRET_BINDING",
       ]);
@@ -150,6 +156,7 @@ describe("SecretsService", () => {
       expect(all["telegram-worker"]).toEqual(["TG_BOT_TOKEN_BINDING"]);
       expect(all["trade-worker"]).toEqual([
         "API_SERVICE_KEY_BINDING",
+        "INTERNAL_KEY_BINDING",
         "BINANCE_KEY_BINDING",
         "BINANCE_SECRET_BINDING",
       ]);
@@ -180,10 +187,11 @@ describe("SecretsService", () => {
         expect(result.allSet).toBe(false);
         expect(result.missing).toEqual([
           "API_SERVICE_KEY_BINDING",
+          "INTERNAL_KEY_BINDING",
           "BINANCE_KEY_BINDING",
           "BINANCE_SECRET_BINDING",
         ]);
-        expect(result.secrets).toHaveLength(3);
+        expect(result.secrets).toHaveLength(4);
         for (const s of result.secrets) {
           expect(s.set).toBe(false);
         }
@@ -197,7 +205,7 @@ describe("SecretsService", () => {
       try {
         writeFileSync(
           join(dir, ".dev.vars"),
-          "API_SERVICE_KEY_BINDING=abc123\nBINANCE_KEY_BINDING=xyz789\nBINANCE_SECRET_BINDING=sec456\n"
+          "API_SERVICE_KEY_BINDING=abc123\nINTERNAL_KEY_BINDING=int999\nBINANCE_KEY_BINDING=xyz789\nBINANCE_SECRET_BINDING=sec456\n"
         );
 
         const svc = await createService();
@@ -221,7 +229,7 @@ describe("SecretsService", () => {
       try {
         writeFileSync(
           join(dir, ".dev.vars"),
-          "API_SERVICE_KEY_BINDING=placeholder_api_service_key\nBINANCE_KEY_BINDING=binance-real-key\nBINANCE_SECRET_BINDING=your_secret\n"
+          "API_SERVICE_KEY_BINDING=placeholder_api_service_key\nINTERNAL_KEY_BINDING=real-internal\nBINANCE_KEY_BINDING=binance-real-key\nBINANCE_SECRET_BINDING=your_secret\n"
         );
 
         const svc = await createService();
@@ -230,10 +238,11 @@ describe("SecretsService", () => {
 
         const result = await svc.checkLocalSecrets("trade-worker");
         expect(result.allSet).toBe(false);
-        // Only BINANCE_KEY_BINDING should be set (not placeholder)
+        // API_SERVICE placeholder + BINANCE_SECRET your_ — INTERNAL + BINANCE_KEY real
         expect(result.missing).toContain("API_SERVICE_KEY_BINDING");
         expect(result.missing).toContain("BINANCE_SECRET_BINDING");
         expect(result.missing).not.toContain("BINANCE_KEY_BINDING");
+        expect(result.missing).not.toContain("INTERNAL_KEY_BINDING");
       } finally {
         rmSync(dir, { recursive: true, force: true });
       }
@@ -244,7 +253,7 @@ describe("SecretsService", () => {
       try {
         writeFileSync(
           join(dir, ".dev.vars"),
-          "# This is a comment\nAPI_SERVICE_KEY_BINDING=real-key\n\n# Another comment\nBINANCE_KEY_BINDING=another-key\nBINANCE_SECRET_BINDING=third-key\n"
+          "# This is a comment\nAPI_SERVICE_KEY_BINDING=real-key\nINTERNAL_KEY_BINDING=int-key\n\n# Another comment\nBINANCE_KEY_BINDING=another-key\nBINANCE_SECRET_BINDING=third-key\n"
         );
 
         const svc = await createService();
@@ -361,7 +370,9 @@ describe("SecretsService", () => {
         );
 
         const result = await svc.syncToCloudflare("telegram-worker");
-        expect(expectOk(result)).toEqual(["TG_BOT_TOKEN_BINDING"]);
+        const sync = expectOk(result);
+        expect(sync.ok).toBe(true);
+        expect(sync.synced).toEqual(["TG_BOT_TOKEN_BINDING"]);
         expect(called).toEqual([["TG_BOT_TOKEN_BINDING", "my-real-token"]]);
       } finally {
         rmSync(dir, { recursive: true, force: true });
@@ -373,7 +384,7 @@ describe("SecretsService", () => {
       try {
         writeFileSync(
           join(dir, ".dev.vars"),
-          "API_SERVICE_KEY_BINDING=placeholder_api_service_key\nBINANCE_KEY_BINDING=real-binance-key\nBINANCE_SECRET_BINDING=generate_something\n"
+          "API_SERVICE_KEY_BINDING=placeholder_api_service_key\nINTERNAL_KEY_BINDING=real-internal\nBINANCE_KEY_BINDING=real-binance-key\nBINANCE_SECRET_BINDING=generate_something\n"
         );
 
         const svc = await createService();
@@ -389,17 +400,100 @@ describe("SecretsService", () => {
         );
 
         const result = await svc.syncToCloudflare("trade-worker");
-        const errMsg = expectErr(result);
-        // Only BINANCE_KEY_BINDING was synced — but errors exist, so overall result is error
-        expect(errMsg).toContain("API_SERVICE_KEY_BINDING");
-        expect(errMsg).toContain("BINANCE_SECRET_BINDING");
-        expect(called).toEqual([["BINANCE_KEY_BINDING", "real-binance-key"]]);
+        const sync = expectOk(result);
+        // Real keys synced; placeholders skipped → ok=false
+        expect(sync.ok).toBe(false);
+        expect(sync.synced).toEqual([
+          "INTERNAL_KEY_BINDING",
+          "BINANCE_KEY_BINDING",
+        ]);
+        expect(sync.skipped.map((s) => s.name)).toContain(
+          "API_SERVICE_KEY_BINDING"
+        );
+        expect(sync.skipped.map((s) => s.name)).toContain(
+          "BINANCE_SECRET_BINDING"
+        );
+        expect(called).toEqual([
+          ["INTERNAL_KEY_BINDING", "real-internal"],
+          ["BINANCE_KEY_BINDING", "real-binance-key"],
+        ]);
       } finally {
         rmSync(dir, { recursive: true, force: true });
       }
     });
 
-    it("returns error when no .dev.vars exists and all secrets are missing", async () => {
+    it("with systemOnly only syncs mesh secrets and ignores exchange keys", async () => {
+      const dir = tmpDir();
+      try {
+        writeFileSync(
+          join(dir, ".dev.vars"),
+          [
+            "API_SERVICE_KEY_BINDING=api-real",
+            "INTERNAL_KEY_BINDING=int-real",
+            "BINANCE_KEY_BINDING=placeholder_binance",
+            "BINANCE_SECRET_BINDING=",
+          ].join("\n") + "\n"
+        );
+
+        const svc = await createService();
+        (svc as any).config.workers["trade-worker"].path = dir;
+
+        const called: Array<[string, string]> = [];
+        (svc as any).execWranglerSecretPut = mock(
+          async (_path: string, name: string, value: string) => {
+            called.push([name, value]);
+          }
+        );
+
+        const result = await svc.syncToCloudflare("trade-worker", {
+          systemOnly: true,
+        });
+        const sync = expectOk(result);
+        expect(sync.ok).toBe(true);
+        expect(sync.synced).toEqual([
+          "API_SERVICE_KEY_BINDING",
+          "INTERNAL_KEY_BINDING",
+        ]);
+        expect(called).toEqual([
+          ["API_SERVICE_KEY_BINDING", "api-real"],
+          ["INTERNAL_KEY_BINDING", "int-real"],
+        ]);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    });
+
+    it("with systemOnly returns ok empty when worker has no system secrets", async () => {
+      const dir = tmpDir();
+      try {
+        writeFileSync(
+          join(dir, ".dev.vars"),
+          "TG_BOT_TOKEN_BINDING=my-real-token\n"
+        );
+
+        const svc = await createService();
+        (svc as any).config.workers["telegram-worker"].path = dir;
+
+        const called: Array<[string, string]> = [];
+        (svc as any).execWranglerSecretPut = mock(
+          async (_path: string, name: string, value: string) => {
+            called.push([name, value]);
+          }
+        );
+
+        const result = await svc.syncToCloudflare("telegram-worker", {
+          systemOnly: true,
+        });
+        const sync = expectOk(result);
+        expect(sync.ok).toBe(true);
+        expect(sync.synced).toEqual([]);
+        expect(called).toHaveLength(0);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    });
+
+    it("returns incomplete result when no .dev.vars exists", async () => {
       const dir = tmpDir();
       try {
         const svc = await createService();
@@ -415,10 +509,18 @@ describe("SecretsService", () => {
         );
 
         const result = await svc.syncToCloudflare("trade-worker");
-        const errMsg = expectErr(result);
-        expect(errMsg).toContain("API_SERVICE_KEY_BINDING");
-        expect(errMsg).toContain("BINANCE_KEY_BINDING");
-        expect(errMsg).toContain("BINANCE_SECRET_BINDING");
+        const sync = expectOk(result);
+        expect(sync.ok).toBe(false);
+        expect(sync.synced).toEqual([]);
+        expect(sync.skipped.map((s) => s.name)).toContain(
+          "API_SERVICE_KEY_BINDING"
+        );
+        expect(sync.skipped.map((s) => s.name)).toContain(
+          "INTERNAL_KEY_BINDING"
+        );
+        expect(sync.skipped.map((s) => s.name)).toContain(
+          "BINANCE_KEY_BINDING"
+        );
         expect(called).toHaveLength(0);
       } finally {
         rmSync(dir, { recursive: true, force: true });
@@ -450,7 +552,11 @@ describe("SecretsService", () => {
         });
 
         const result = await svc.syncToCloudflare("telegram-worker");
-        expect(expectErr(result)).toContain("wrangler command failed");
+        const sync = expectOk(result);
+        expect(sync.ok).toBe(false);
+        expect(sync.failed).toHaveLength(1);
+        expect(sync.failed[0].name).toBe("TG_BOT_TOKEN_BINDING");
+        expect(sync.failed[0].reason).toContain("wrangler command failed");
       } finally {
         rmSync(dir, { recursive: true, force: true });
       }
@@ -464,10 +570,29 @@ describe("SecretsService", () => {
         (svc as any).config.workers["no-secrets-worker"].path = dir;
 
         const result = await svc.syncToCloudflare("no-secrets-worker");
-        expect(expectOk(result)).toEqual([]);
+        const sync = expectOk(result);
+        expect(sync.ok).toBe(true);
+        expect(sync.synced).toEqual([]);
       } finally {
         rmSync(dir, { recursive: true, force: true });
       }
+    });
+  });
+
+  // -- isSystemSecret -------------------------------------------------------
+
+  describe("isSystemSecret / SYSTEM_SECRET_NAMES", () => {
+    it("classifies mesh keys as system", () => {
+      expect(isSystemSecret("INTERNAL_KEY_BINDING")).toBe(true);
+      expect(isSystemSecret("WEBHOOK_API_KEY_BINDING")).toBe(true);
+      expect(isSystemSecret("AGENT_INTERNAL_KEY")).toBe(true);
+      expect(isSystemSecret("SESSION_SECRET")).toBe(true);
+      expect(SYSTEM_SECRET_NAMES).toContain("API_SERVICE_KEY_BINDING");
+    });
+
+    it("excludes integration secrets", () => {
+      expect(isSystemSecret("BINANCE_KEY_BINDING")).toBe(false);
+      expect(isSystemSecret("TG_BOT_TOKEN_BINDING")).toBe(false);
     });
   });
 

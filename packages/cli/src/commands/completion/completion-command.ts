@@ -73,7 +73,7 @@ export function registerCompletionCommand(program: Command): void {
   program
     .command("completion")
     .description("Generate shell completion script")
-    .argument("[shell]", "Shell type (bash, zsh, fish)")
+    .argument("[shell]", "Shell type (bash or zsh)")
     .action(
       withErrorHandling(async (shell?: string) => {
         if (!shell) {
@@ -86,7 +86,12 @@ export function registerCompletionCommand(program: Command): void {
         if (!isSupportedShell(shell)) {
           throw new CLIError(
             `Unsupported shell "${shell}". Supported: ${SUPPORTED_SHELLS.join(", ")}.`,
-            ExitCode.INVALID_USAGE
+            ExitCode.INVALID_USAGE,
+            shell === "fish"
+              ? "Fish completions are not generated yet."
+              : undefined,
+            true,
+            `Try: hoox completion bash  or  hoox completion zsh`
           );
         }
 

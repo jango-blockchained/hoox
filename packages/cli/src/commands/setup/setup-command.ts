@@ -302,6 +302,7 @@ EXAMPLES:
                 theme.warning("Auto-setup completed with issues. ") +
                   `${secretFail} secret(s) failed. Check logs above.`
               );
+              process.exitCode = ExitCode.ERROR;
             }
           } else {
             // JSON-friendly output
@@ -321,6 +322,9 @@ EXAMPLES:
                 : undefined,
             };
             process.stdout.write(JSON.stringify(summary, null, 2) + "\n");
+            if (!result.success) {
+              process.exitCode = ExitCode.ERROR;
+            }
           }
         },
         { service: "setup" }

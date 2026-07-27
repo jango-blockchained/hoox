@@ -226,7 +226,13 @@ export function formatError(
   process.stdout.write(`${titleParts.join(" ")}\n`);
 
   if (cliError?.details) {
-    process.stdout.write(`  ${theme.textMuted(cliError.details)}\n`);
+    // Multi-line details (e.g. per-secret failures) render as indented bullets
+    const detailLines = cliError.details
+      .split("\n")
+      .filter((l) => l.length > 0);
+    for (const line of detailLines) {
+      process.stdout.write(`  ${theme.textMuted(line)}\n`);
+    }
   }
 
   const hasHint = !!cliError?.hint;
@@ -250,9 +256,8 @@ export function formatError(
     if (inCard) {
       process.stdout.write(`  ${theme.border(icons.pipe)}\n`);
     }
-  } else if (inCard) {
-    // No hint / suggestions, but caller asked for a card: still frame it
-    // with a single leading pipe for visual consistency.
+  } else if (inCard && !cliError?.details) {
+    // No hint / suggestions / details: still frame with a single pipe
     process.stdout.write(`  ${theme.border(icons.pipe)}\n`);
   }
 }

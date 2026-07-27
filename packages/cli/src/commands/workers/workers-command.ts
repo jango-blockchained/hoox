@@ -117,10 +117,7 @@ EXAMPLES:
     .command("dev <name>")
     .summary("Start a single worker for local development")
     .description(
-      `Start a specific worker for local development by delegating to \`hoox dev worker <name>\`.
-
-This command spawns \`hoox dev worker <name>\` with inherited stdio,
-so all wrangler dev output and prompts appear directly in the terminal.
+      `Start a specific worker for local development by running \`hoox dev worker <name>\` in-process.
 
 ARGUMENTS:
   name      Worker name (e.g., trade-worker, agent-worker, hoox)
@@ -132,13 +129,8 @@ EXAMPLES:
     .action(
       withErrorHandling(
         async (name: string) => {
-          const proc = Bun.spawn(["hoox", "dev", "worker", name], {
-            stdio: ["inherit", "inherit", "inherit"],
-          });
-          const exitCode = await proc.exited;
-          if (exitCode !== 0) {
-            process.exitCode = exitCode;
-          }
+          // In-process re-parse (avoids PATH/stale global `hoox` / bad shell aliases)
+          await program.parseAsync(["dev", "worker", name], { from: "user" });
         },
         { service: "workers" }
       )
@@ -151,10 +143,7 @@ EXAMPLES:
     .command("logs <name>")
     .summary("Tail logs for a specific worker")
     .description(
-      `Tail logs for a specific worker by delegating to \`hoox logs worker <name>\`.
-
-This command spawns \`hoox logs worker <name>\` with inherited stdio,
-preserving all formatting and log-level filtering from the logs command.
+      `Tail logs for a specific worker by running \`hoox logs worker <name>\` in-process.
 
 ARGUMENTS:
   name      Worker name (e.g., trade-worker, agent-worker, hoox)
@@ -166,13 +155,7 @@ EXAMPLES:
     .action(
       withErrorHandling(
         async (name: string) => {
-          const proc = Bun.spawn(["hoox", "logs", "worker", name], {
-            stdio: ["inherit", "inherit", "inherit"],
-          });
-          const exitCode = await proc.exited;
-          if (exitCode !== 0) {
-            process.exitCode = exitCode;
-          }
+          await program.parseAsync(["logs", "worker", name], { from: "user" });
         },
         { service: "workers" }
       )

@@ -28,10 +28,12 @@ COMMANDS:
   set <worker> <name>        Set a secret
   delete <worker> <name>     Delete a secret
   sync [worker]              Sync local .dev.vars to Cloudflare
+                             (--system / --required = mesh keys only)
 
 EXAMPLES:
   hoox secrets list trade-worker
   hoox secrets set trade-worker BINANCE_KEY_BINDING
+  hoox secrets sync --system
   hoox secrets sync`
     );
 

@@ -1,7 +1,13 @@
 import { Command } from "commander";
 import { readFileSync } from "node:fs";
-import { getFormatOptions, formatJson } from "../../utils/formatters.js";
+import {
+  getFormatOptions,
+  formatJson,
+  formatTable,
+  formatSuccess,
+} from "../../utils/formatters.js";
 import { withErrorHandling } from "../../utils/error-handler.js";
+import { ExitCode } from "../../utils/errors.js";
 import type { FormatOptions } from "../../utils/formatters.js";
 
 interface ProviderHealth {
@@ -122,17 +128,71 @@ async function handleHealth(opts: FormatOptions): Promise<void> {
       continue;
     }
 
+    // Key present only — no live probe yet (avoids burning provider quota).
     providers.push({
       name: p.name,
       model: p.model,
       status: "online",
       latencyMs: null,
       dailyRequests: null,
+      error: undefined,
     });
   }
 
-  const result: AgentHealthResult = { providers, timestamp };
-  formatJson(result, opts);
+  // Relabel for honesty: "configured" vs live online
+  const display = providers.map((p) => ({
+    ...p,
+    status: p.status === "online" ? ("online" as const) : ("offline" as const),
+    note:
+      p.status === "online"
+        ? "key configured (not probed)"
+        : (p.error ?? "missing key"),
+  }));
+
+  const result: AgentHealthResult = {
+    providers: display.map(({ note: _n, ...rest }) => rest),
+    timestamp,
+  };
+
+  const anyOffline = display.some((p) => p.status === "offline");
+
+  if (opts.json) {
+    formatJson(
+      {
+        ...result,
+        providers: display.map((p) => ({
+          name: p.name,
+          model: p.model,
+          status: p.status,
+          configured: p.status === "online",
+          note: p.note,
+          latencyMs: p.latencyMs,
+          dailyRequests: p.dailyRequests,
+        })),
+      },
+      opts
+    );
+  } else {
+    formatTable(
+      display.map((p) => ({
+        Provider: p.name,
+        Model: p.model,
+        Status: p.status === "online" ? "configured" : "missing",
+        Note: p.note,
+      })),
+      opts
+    );
+    formatSuccess(
+      anyOffline
+        ? "Some providers lack API keys — set env vars or workers/agent-worker/.dev.vars"
+        : "All listed providers have credentials configured (no live probe)",
+      opts
+    );
+  }
+
+  if (anyOffline) {
+    process.exitCode = ExitCode.ERROR;
+  }
 }
 
 export function registerAgentCommand(program: Command): void {

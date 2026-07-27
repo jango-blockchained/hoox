@@ -10,7 +10,7 @@
  */
 
 import { Command } from "commander";
-import { formatError } from "./formatters.js";
+import { formatError, getFormatOptions } from "./formatters.js";
 import { CLIError, ExitCode } from "./errors.js";
 import { levenshtein } from "./string.js";
 import type { FormatOptions } from "./formatters.js";
@@ -81,6 +81,24 @@ export function suggestForCommand(
  * lets the test runner intercept the exit via Commander's `exitOverride`
  * and makes the wrapper testable without monkey-patching `process.exit`.
  */
+/**
+ * Find a Commander `Command` instance among action args so we can honor
+ * global `--json` / `--quiet` / `--no-color` on unexpected throws.
+ */
+function formatOptsFromArgs(
+  args: unknown[],
+  fallback?: FormatOptions
+): FormatOptions {
+  if (fallback) return fallback;
+  for (let i = args.length - 1; i >= 0; i--) {
+    const a = args[i];
+    if (a instanceof Command) {
+      return getFormatOptions(a);
+    }
+  }
+  return {};
+}
+
 export function withErrorHandling<T extends unknown[]>(
   handler: (...args: T) => Promise<void>,
   options?: { service?: string; opts?: FormatOptions }
@@ -90,19 +108,26 @@ export function withErrorHandling<T extends unknown[]>(
       await handler(...args);
     } catch (error) {
       const service = options?.service ?? "cli";
+      const fmt = formatOptsFromArgs(args as unknown[], options?.opts);
 
       if (error instanceof CLIError) {
-        formatError(error, options?.opts);
+        formatError(error, fmt);
         process.exitCode = error.code;
         return;
       } else if (error instanceof Error) {
-        formatError(`[${service}] ${error.message}`, options?.opts);
+        formatError(
+          new CLIError(`[${service}] ${error.message}`, ExitCode.ERROR),
+          fmt
+        );
         process.exitCode = ExitCode.ERROR;
         return;
       } else {
         formatError(
-          `[${service}] Unknown error: ${String(error)}`,
-          options?.opts
+          new CLIError(
+            `[${service}] Unknown error: ${String(error)}`,
+            ExitCode.CommandFailed
+          ),
+          fmt
         );
         process.exitCode = ExitCode.CommandFailed;
         return;

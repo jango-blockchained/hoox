@@ -115,19 +115,53 @@ async function handleSecrets(fmt: FormatOptions): Promise<void> {
   try {
     const secrets = await SecretsService.create();
     const allSecrets = secrets.listAllSecrets();
-    let missing = 0;
-    for (const name of Object.keys(allSecrets)) {
-      const check = await secrets.checkLocalSecrets(name);
-      missing += check.missing.length;
+    const workers = Object.keys(allSecrets);
+    if (workers.length === 0) {
+      formatSuccess("No workers with declared secrets", fmt);
+      return;
     }
-    if (missing > 0) {
+
+    let totalSynced = 0;
+    let workersFailed = 0;
+    const issues: string[] = [];
+
+    for (const name of workers) {
+      const result = await secrets.syncToCloudflare(name, { systemOnly: true });
+      if (!result.ok) {
+        workersFailed++;
+        issues.push(`${name}: ${result.error}`);
+        continue;
+      }
+      const sync = result.value!;
+      totalSynced += sync.synced.length;
+      if (!sync.ok) {
+        workersFailed++;
+        for (const f of sync.failed) {
+          issues.push(`${name}/${f.name}: ${f.reason}`);
+        }
+        for (const s of sync.skipped) {
+          issues.push(`${name}/${s.name}: ${s.reason}`);
+        }
+      }
+    }
+
+    if (workersFailed === 0) {
+      formatSuccess(
+        `Repaired system secrets: ${totalSynced} put across ${workers.length} worker(s)`,
+        fmt
+      );
+    } else {
       formatError(
-        new CLIError(`${missing} secret(s) missing`, ExitCode.ERROR),
+        new CLIError(
+          `System secret repair incomplete (${totalSynced} put, ${workersFailed} worker(s) with issues)`,
+          ExitCode.ERROR,
+          issues.slice(0, 15).join("\n"),
+          true,
+          "Run `hoox keys generate` then `hoox secrets sync --system`, or fill workers/*/.dev.vars."
+        ),
         fmt
       );
       process.exitCode = ExitCode.ERROR;
-    } else {
-      formatSuccess("All secrets present", fmt);
     }
   } catch (err) {
     formatError(err instanceof Error ? err : String(err), fmt);
@@ -233,7 +267,9 @@ export function registerRepairCommand(program: Command): void {
 
   repairCmd
     .command("infra")
-    .description("Provision missing infrastructure (D1, KV, R2, Queues)")
+    .description(
+      "Check Cloudflare infrastructure status (D1, KV, R2, Queues). Does not provision — use `hoox infra provision`."
+    )
     .action(
       withErrorHandling(
         async () => {
@@ -246,7 +282,9 @@ export function registerRepairCommand(program: Command): void {
 
   repairCmd
     .command("secrets")
-    .description("Upload missing secrets to Cloudflare")
+    .description(
+      "Upload system/mesh secrets from .dev.vars to Cloudflare (same as `hoox secrets sync --system`)"
+    )
     .action(
       withErrorHandling(
         async () => {

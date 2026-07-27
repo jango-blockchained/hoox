@@ -1,10 +1,38 @@
 import { parse as parseJsonc } from "jsonc-parser";
+import { sanitizeWranglerOutput } from "../../utils/wrangler-output.js";
 import type {
   Result,
   SecretCheckResult,
   SecretStatus,
+  SecretSyncItem,
+  SecretSyncResult,
+  SyncSecretsOptions,
   WorkersJsonc,
 } from "./types.js";
+
+/**
+ * System / mesh secrets — auto-generated internal auth and gateway keys.
+ *
+ * These are required for workers to talk to each other and for webhook
+ * ingress. Exchange API keys, bot tokens, and other integration secrets
+ * are *not* included; use plain `hoox secrets sync` for those.
+ */
+export const SYSTEM_SECRET_NAMES = [
+  "INTERNAL_KEY_BINDING",
+  "AGENT_INTERNAL_KEY",
+  "WEBHOOK_API_KEY_BINDING",
+  "TELEGRAM_INTERNAL_KEY_BINDING",
+  "SESSION_SECRET",
+  "TRADE_INTERNAL_KEY",
+  "API_SERVICE_KEY_BINDING",
+] as const;
+
+const SYSTEM_SECRET_SET = new Set<string>(SYSTEM_SECRET_NAMES);
+
+/** True when `name` is a system/mesh secret (see {@link SYSTEM_SECRET_NAMES}). */
+export function isSystemSecret(name: string): boolean {
+  return SYSTEM_SECRET_SET.has(name);
+}
 
 /**
  * Manages Cloudflare Worker secrets defined in `wrangler.jsonc`.
@@ -167,11 +195,22 @@ export class SecretsService {
   /**
    * Syncs a worker's secrets to Cloudflare via `wrangler secret put`.
    *
-   * For each required secret the service first looks for a real value in
-   * the worker's `.dev.vars` file.  Secrets with placeholder values are
-   * skipped and reported as errors.
+   * Returns a structured {@link SecretSyncResult}:
+   * - **synced** — successfully put
+   * - **skipped** — no value / placeholder (or non-system under `--system`)
+   * - **failed** — wrangler put threw
+   *
+   * `result.ok` is true when `failed` is empty. Placeholder skips for
+   * non-system secrets under full sync still set `ok: false` so CI notices
+   * incomplete configs; under `systemOnly`, only system secrets matter.
+   *
+   * Pass `{ systemOnly: true }` (CLI `--system` / `--required`) to sync mesh
+   * keys (from declared list **or** present in `.dev.vars`).
    */
-  async syncToCloudflare(workerName: string): Promise<Result<string[]>> {
+  async syncToCloudflare(
+    workerName: string,
+    options: SyncSecretsOptions = {}
+  ): Promise<Result<SecretSyncResult>> {
     const worker = this.config.workers[workerName];
     if (!worker) {
       return {
@@ -180,11 +219,7 @@ export class SecretsService {
       };
     }
 
-    const secrets = worker.secrets ?? [];
-    const synced: string[] = [];
-    const errors: string[] = [];
-
-    // Pre-load existing .dev.vars to avoid prompting in a service.
+    const declared = worker.secrets ?? [];
     const devVarsPath = `${worker.path}/.dev.vars`;
     const devVarsFile = Bun.file(devVarsPath);
     let existingValues: Map<string, string> = new Map();
@@ -194,28 +229,77 @@ export class SecretsService {
       existingValues = this.parseDotEnv(content);
     }
 
+    // Candidate names: declared secrets, or under --system also mesh keys
+    // present in .dev.vars (covers keys generate → per-worker .dev.vars even
+    // when root wrangler.jsonc omits them from the secrets array).
+    let secrets: string[];
+    if (options.systemOnly) {
+      const fromDeclared = declared.filter((s) => isSystemSecret(s));
+      const fromDevVars = [...SYSTEM_SECRET_NAMES].filter((s) =>
+        existingValues.has(s)
+      );
+      secrets = [...new Set([...fromDeclared, ...fromDevVars])];
+    } else {
+      secrets = declared;
+    }
+
+    const synced: string[] = [];
+    const skipped: SecretSyncItem[] = [];
+    const failed: SecretSyncItem[] = [];
+    const items: SecretSyncItem[] = [];
+
     for (const secret of secrets) {
       try {
         const value = existingValues.get(secret);
         if (value !== undefined && !this.isPlaceholder(value)) {
           await this.execWranglerSecretPut(worker.path, secret, value);
           synced.push(secret);
+          items.push({ name: secret, status: "synced" });
         } else {
-          errors.push(
-            `Secret "${secret}": no valid value in .dev.vars (run generateDevVars then edit)`
-          );
+          const reason =
+            value === undefined
+              ? "missing in .dev.vars"
+              : "placeholder / empty value";
+          const item: SecretSyncItem = {
+            name: secret,
+            status: "skipped",
+            reason,
+          };
+          skipped.push(item);
+          items.push(item);
         }
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        errors.push(`Secret "${secret}": ${message}`);
+        const raw = err instanceof Error ? err.message : String(err);
+        const reason = sanitizeWranglerOutput(raw);
+        const item: SecretSyncItem = {
+          name: secret,
+          status: "failed",
+          reason,
+        };
+        failed.push(item);
+        items.push(item);
       }
     }
 
-    if (errors.length > 0) {
-      return { ok: false, error: errors.join("; ") };
-    }
+    // Under systemOnly, skipped system secrets are failures for the operator
+    // (they expected mesh keys to land). Under full sync, any skip/fail of a
+    // declared secret is a problem — report ok=false when work remains.
+    const blockingSkips = options.systemOnly
+      ? skipped.filter((s) => isSystemSecret(s.name))
+      : skipped;
 
-    return { ok: true, value: synced };
+    const result: SecretSyncResult = {
+      worker: workerName,
+      ok: failed.length === 0 && blockingSkips.length === 0,
+      synced,
+      skipped,
+      failed,
+      items,
+    };
+
+    // Always return ok:true at Result level with structured payload so callers
+    // can render partial success. Use result.ok for exit code policy.
+    return { ok: true, value: result };
   }
 
   // -----------------------------------------------------------------------
@@ -244,11 +328,14 @@ export class SecretsService {
 
   /** Returns `true` when a value looks like an unfilled template. */
   private isPlaceholder(value: string): boolean {
+    const v = value.trim();
     return (
-      value.startsWith("placeholder_") ||
-      value.startsWith("your_") ||
-      value.startsWith("generate_") ||
-      value === ""
+      v === "" ||
+      v.startsWith("placeholder_") ||
+      v.startsWith("your_") ||
+      v.startsWith("generate_") ||
+      v.startsWith("<") ||
+      v.includes("generate-with")
     );
   }
 
@@ -275,8 +362,9 @@ export class SecretsService {
     const exitCode = await proc.exited;
     if (exitCode !== 0) {
       const stderrText = await new Response(proc.stderr).text();
+      const cleaned = sanitizeWranglerOutput(stderrText);
       throw new Error(
-        `wrangler exited with code ${exitCode}: ${stderrText.trim()}`
+        `wrangler secret put failed (exit ${exitCode}): ${cleaned}`
       );
     }
   }

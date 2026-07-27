@@ -8,7 +8,10 @@ describe("suggestNextCommand", () => {
     expect(suggestNextCommand("setup")?.command).toBe("hoox deploy all");
     expect(suggestNextCommand("deploy all")?.command).toBe("hoox check health");
     expect(suggestNextCommand("check health")?.command).toBe(
-      "hoox monitor status"
+      "hoox monitor trades"
+    );
+    expect(suggestNextCommand("keys generate")?.command).toBe(
+      "hoox secrets sync --system"
     );
   });
 

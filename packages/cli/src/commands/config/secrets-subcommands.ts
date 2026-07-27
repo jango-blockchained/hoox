@@ -6,16 +6,88 @@
 import type { Command } from "commander";
 import { spinner } from "@clack/prompts";
 
-import { SecretsService } from "../../services/secrets/index.js";
+import {
+  SecretsService,
+  type SecretSyncResult,
+} from "../../services/secrets/index.js";
 import { CLIError, ExitCode } from "../../utils/errors.js";
 import { withErrorHandling } from "../../utils/error-handler.js";
 import {
   formatSuccess,
   formatError,
   formatJson,
+  formatTable,
   getFormatOptions,
 } from "../../utils/formatters.js";
 import { theme, icons } from "../../utils/theme.js";
+import type { FormatOptions } from "../../utils/formatters.js";
+import { sanitizeWranglerOutput } from "../../utils/wrangler-output.js";
+
+/** Render a structured secret-sync result; set exitCode on failure. */
+function reportSecretSync(
+  result: SecretSyncResult,
+  opts: FormatOptions,
+  scopeLabel: string
+): void {
+  const nOk = result.synced.length;
+  const nSkip = result.skipped.length;
+  const nFail = result.failed.length;
+
+  if (opts.json) {
+    formatJson(
+      {
+        worker: result.worker,
+        ok: result.ok,
+        synced: result.synced,
+        skipped: result.skipped,
+        failed: result.failed,
+      },
+      opts
+    );
+  } else if (!opts.quiet && result.items.length > 0) {
+    formatTable(
+      result.items.map((i) => ({
+        Secret: i.name,
+        Status: i.status,
+        Detail: i.reason ?? "—",
+      })),
+      { ...opts, compact: true }
+    );
+  }
+
+  if (result.ok) {
+    formatSuccess(
+      nOk === 0 && nSkip === 0
+        ? `No ${scopeLabel} to sync for ${result.worker}`
+        : `Synced ${nOk} ${scopeLabel} for ${result.worker}` +
+            (nSkip > 0 ? ` (${nSkip} skipped)` : ""),
+      opts
+    );
+    return;
+  }
+
+  const detailParts: string[] = [];
+  for (const f of result.failed) {
+    detailParts.push(`✗ ${f.name}: ${f.reason ?? "failed"}`);
+  }
+  for (const s of result.skipped) {
+    detailParts.push(`· ${s.name}: ${s.reason ?? "skipped"}`);
+  }
+
+  formatError(
+    new CLIError(
+      `Secret sync incomplete for ${result.worker}: ${nOk} synced, ${nSkip} skipped, ${nFail} failed`,
+      ExitCode.ERROR,
+      detailParts.join("\n") || undefined,
+      true,
+      nFail > 0
+        ? "Fix wrangler config / auth, then re-run. Use `hoox secrets sync --system` after key rotation."
+        : "Fill missing values in workers/*/.dev.vars (or `hoox keys generate`), then re-run. Prefer `hoox secrets sync --system` for mesh keys only."
+    ),
+    opts
+  );
+  process.exitCode = ExitCode.ERROR;
+}
 
 /**
  * Prompt the user for a secret value via stdin (password-style masked input).
@@ -253,16 +325,41 @@ EXAMPLES:
           const syncSpin = spinner();
           syncSpin.start("Syncing to Cloudflare...");
           const result = await svc.syncToCloudflare(workerName);
-          if (result.ok) {
-            syncSpin.stop(`Secret "${secretName}" synced to Cloudflare`);
-          } else {
-            syncSpin.stop(`Sync partial: ${result.error ?? "unknown error"}`);
+          if (!result.ok) {
+            syncSpin.stop(`Sync failed: ${result.error ?? "unknown error"}`);
             formatError(
               new CLIError(
-                `Sync partial: ${result.error ?? "unknown error"}`,
-                ExitCode.ERROR
+                `Sync failed: ${result.error ?? "unknown error"}`,
+                ExitCode.ERROR,
+                undefined,
+                true,
+                "Check wrangler.jsonc exists and the worker path is correct."
               ),
               opts
+            );
+            process.exitCode = ExitCode.ERROR;
+            return;
+          }
+          const sync = result.value!;
+          if (sync.synced.includes(secretName)) {
+            syncSpin.stop(`Secret "${secretName}" synced to Cloudflare`);
+          } else if (sync.failed.some((f) => f.name === secretName)) {
+            const fr = sync.failed.find((f) => f.name === secretName);
+            syncSpin.stop(`Sync failed for "${secretName}"`);
+            formatError(
+              new CLIError(
+                `Failed to put secret "${secretName}" on Cloudflare`,
+                ExitCode.ERROR,
+                fr?.reason,
+                true,
+                "Check Cloudflare auth (`wrangler whoami`) and worker wrangler.jsonc."
+              ),
+              opts
+            );
+            process.exitCode = ExitCode.ERROR;
+          } else {
+            syncSpin.stop(
+              `Secret written locally; Cloudflare put skipped or partial for "${secretName}"`
             );
           }
         },
@@ -310,8 +407,11 @@ EXAMPLES:
           if (exitCode !== 0) {
             const stderrText = await new Response(proc.stderr).text();
             throw new CLIError(
-              `wrangler exited with code ${exitCode}: ${stderrText.trim()}`,
-              ExitCode.ERROR
+              `Failed to delete secret "${secretName}" (wrangler exit ${exitCode})`,
+              ExitCode.ERROR,
+              sanitizeWranglerOutput(stderrText),
+              true,
+              "Check Cloudflare auth and that the secret exists on the worker."
             );
           }
 
@@ -344,74 +444,154 @@ EXAMPLES:
 ARGUMENTS:
   worker    Optional worker name to sync (syncs all if not specified)
 
+OPTIONS:
+  --system, --required
+            Only sync system/mesh secrets (INTERNAL_KEY_BINDING,
+            WEBHOOK_API_KEY_BINDING, AGENT_INTERNAL_KEY, SESSION_SECRET, …).
+            Skips exchange keys, bot tokens, and other integration secrets.
+            Recommended after \`hoox keys generate\` or key rotation.
+
 This reads .dev.vars files and uploads secrets to Cloudflare via wrangler.
 
 EXAMPLES:
+  hoox secrets sync --system
+  hoox secrets sync trade-worker --required
   hoox secrets sync
   hoox secrets sync trade-worker
   hoox config secrets sync trade-worker`
     )
+    .option(
+      "--system",
+      "Only sync system/mesh secrets (internal keys, webhook, session)"
+    )
+    .option(
+      "--required",
+      "Alias for --system (mesh secrets required for workers to operate)"
+    )
     .action(
       withErrorHandling(
-        async (workerName: string | undefined, _, cmd: Command) => {
+        async (
+          workerName: string | undefined,
+          options: { system?: boolean; required?: boolean },
+          cmd: Command
+        ) => {
           const opts = getFormatOptions(cmd);
+          // Prefer action options object; fall back to cmd.opts() for safety.
+          const flagOpts = {
+            ...cmd.opts<{ system?: boolean; required?: boolean }>(),
+            ...options,
+          };
+          const systemOnly = Boolean(flagOpts.system || flagOpts.required);
+          const syncOpts = { systemOnly };
+          const scopeLabel = systemOnly ? "system secret(s)" : "secret(s)";
           const svc = await SecretsService.create();
 
           if (workerName) {
             const syncSpin = spinner();
-            syncSpin.start(`Syncing secrets for "${workerName}"...`);
-            const result = await svc.syncToCloudflare(workerName);
-            if (result.ok) {
-              syncSpin.stop(
-                `Synced ${result.value?.length ?? 0} secrets for "${workerName}"`
-              );
-            } else {
+            syncSpin.start(`Syncing ${scopeLabel} for "${workerName}"...`);
+            const result = await svc.syncToCloudflare(workerName, syncOpts);
+            if (!result.ok) {
               syncSpin.stop(`Sync failed: ${result.error ?? "unknown error"}`);
               formatError(
                 new CLIError(
                   `Sync failed: ${result.error ?? "unknown error"}`,
-                  ExitCode.ERROR
+                  ExitCode.ERROR,
+                  undefined,
+                  true,
+                  "Ensure wrangler.jsonc exists at the monorepo root."
                 ),
                 opts
               );
+              process.exitCode = ExitCode.ERROR;
+              return;
             }
+            const n = result.value!.synced.length;
+            syncSpin.stop(
+              result.value!.ok
+                ? `Synced ${n} ${scopeLabel} for "${workerName}"`
+                : `Partial sync for "${workerName}" (${n} ok)`
+            );
+            reportSecretSync(result.value!, opts, scopeLabel);
           } else {
+            // Include every worker that declares secrets; under --system also
+            // walk all configured workers so mesh keys in .dev.vars are found.
             const all = svc.listAllSecrets();
-            const workers = Object.keys(all);
-
+            let workers = Object.keys(all);
+            if (systemOnly && workers.length === 0) {
+              formatSuccess("No workers with secrets in wrangler.jsonc.", opts);
+              return;
+            }
             if (workers.length === 0) {
               formatSuccess("No secrets to sync.", opts);
               return;
             }
 
-            let synced = 0;
-            let failed = 0;
+            let workersOk = 0;
+            let workersFailed = 0;
+            let totalSecrets = 0;
             const syncSpin = spinner();
+            const failures: string[] = [];
 
             for (const name of workers) {
               syncSpin.start(`Syncing ${name}...`);
-              const result = await svc.syncToCloudflare(name);
-              if (result.ok) {
-                syncSpin.stop(
-                  `${theme.success("synced")} ${result.value?.length ?? 0} for ${name}`
-                );
-                synced++;
-              } else {
+              const result = await svc.syncToCloudflare(name, syncOpts);
+              if (!result.ok) {
                 syncSpin.stop(`${theme.error("failed")} ${name}`);
-                failed++;
+                workersFailed++;
+                failures.push(`${name}: ${result.error}`);
+                continue;
+              }
+              const sync = result.value!;
+              totalSecrets += sync.synced.length;
+              if (sync.ok) {
+                if (systemOnly && sync.synced.length === 0) {
+                  syncSpin.stop(
+                    `${theme.dim("skip")} ${name} (no system secrets)`
+                  );
+                } else {
+                  syncSpin.stop(
+                    `${theme.success("synced")} ${sync.synced.length} for ${name}`
+                  );
+                }
+                workersOk++;
+              } else {
+                syncSpin.stop(
+                  `${theme.error("partial")} ${name} (${sync.synced.length} ok, ${sync.failed.length + sync.skipped.length} issues)`
+                );
+                workersFailed++;
+                for (const f of sync.failed) {
+                  failures.push(`${name}/${f.name}: ${f.reason}`);
+                }
+                for (const s of sync.skipped) {
+                  failures.push(`${name}/${s.name}: ${s.reason}`);
+                }
               }
             }
 
-            if (failed === 0) {
-              formatSuccess(`All ${synced} workers synced successfully`, opts);
+            if (workersFailed === 0) {
+              formatSuccess(
+                systemOnly
+                  ? `Synced ${totalSecrets} system secret(s) across ${workersOk} worker(s)`
+                  : `All ${workersOk} workers synced successfully (${totalSecrets} secrets)`,
+                opts
+              );
             } else {
               formatError(
                 new CLIError(
-                  `${synced} synced, ${failed} failed`,
-                  ExitCode.ERROR
+                  `Secret sync finished with issues: ${workersOk} worker(s) ok, ${workersFailed} with problems (${totalSecrets} secrets put)`,
+                  ExitCode.ERROR,
+                  failures.slice(0, 20).join("\n") +
+                    (failures.length > 20
+                      ? `\n… and ${failures.length - 20} more`
+                      : ""),
+                  true,
+                  systemOnly
+                    ? "Fill mesh keys via `hoox keys generate`, then `hoox secrets sync --system`."
+                    : "Use `hoox secrets sync --system` to push only mesh keys, or fill placeholders in .dev.vars."
                 ),
                 opts
               );
+              process.exitCode = ExitCode.ERROR;
             }
           }
         },

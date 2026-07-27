@@ -249,7 +249,11 @@ async function showManageMenu(
     const choice = await select({
       message: "Manage",
       options: [
-        { value: "infra", label: "Infrastructure", hint: "D1, R2, KV, Queues" },
+        {
+          value: "infra provision",
+          label: "Infrastructure",
+          hint: "provision D1, R2, KV, Queues",
+        },
         {
           value: "config",
           label: "Configuration",
@@ -262,7 +266,11 @@ async function showManageMenu(
           label: "Repair check",
           hint: "diagnose workers / infra / secrets",
         },
-        { value: "db", label: "Database", hint: "schema, query, migrate" },
+        {
+          value: "db list",
+          label: "Database",
+          hint: "list tables (use CLI for apply/migrate)",
+        },
         { value: "__back", label: "◀ Back to main menu" },
       ],
     });
@@ -271,8 +279,8 @@ async function showManageMenu(
     if (choice === "__back") return "continue";
 
     switch (choice) {
-      case "infra":
-        await runCommand(program, "infra");
+      case "infra provision":
+        await runCommand(program, "infra provision");
         break;
       case "config":
         await showConfigSubMenu(program);
@@ -286,8 +294,8 @@ async function showManageMenu(
       case "repair check":
         await runCommand(program, "repair check");
         break;
-      case "db":
-        await runCommand(program, "db");
+      case "db list":
+        await runCommand(program, "db list");
         break;
     }
   }
@@ -376,7 +384,7 @@ async function showSecretsSubMenu(program: Command): Promise<void> {
       break;
     }
     case "sync":
-      await runCommand(program, "secrets sync");
+      await runCommand(program, "secrets sync --system");
       break;
   }
 }
@@ -481,7 +489,7 @@ async function showToolsMenu(
         {
           value: "tui",
           label: "Launch TUI Dashboard",
-          hint: "OpenTUI terminal operations center",
+          hint: "blocks until exit",
         },
         {
           value: "clone",
@@ -489,15 +497,24 @@ async function showToolsMenu(
           hint: "git submodule checkout",
         },
         {
-          value: "dashboard",
-          label: "Dashboard UI",
-          hint: "dev / deploy web dashboard",
+          value: "dashboard deploy",
+          label: "Deploy dashboard",
+          hint: "build & deploy web dashboard",
         },
-        { value: "waf", label: "WAF rules", hint: "status, rules, mode" },
+        {
+          value: "dashboard dev",
+          label: "Dashboard dev server",
+          hint: "blocks until exit",
+        },
+        {
+          value: "waf status",
+          label: "WAF status",
+          hint: "current mode and rules summary",
+        },
         {
           value: "agent health",
           label: "Agent health",
-          hint: "AI provider connectivity",
+          hint: "AI provider key check",
         },
         { value: "__back", label: "◀ Back to main menu" },
       ],

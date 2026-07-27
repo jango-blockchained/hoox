@@ -86,7 +86,7 @@ hoox perf fastpath run --n 50
 | `hoox deploy`     | Deploy workers, dashboard, telegram webhook, and KV config           |
 | `hoox infra`      | Manage infrastructure (D1, KV, R2, Queues, Vectorize, Analytics)     |
 | `hoox config`     | Manage `wrangler.jsonc` configuration                                |
-| `hoox secrets`    | Manage Cloudflare Worker secrets                                     |
+| `hoox secrets`    | Manage secrets (`sync --system` for mesh keys only)                  |
 | `hoox keys`       | Manage internal auth keys                                            |
 | `hoox check`      | Validate setup, prerequisites, and worker health                     |
 | `hoox db`         | Manage D1 databases (apply, migrate, query, export, reset)           |
@@ -166,7 +166,11 @@ hoox secrets set trade-worker BINANCE_KEY_BINDING
 # Delete a secret
 hoox secrets delete trade-worker BINANCE_KEY_BINDING
 
-# Sync local .dev.vars to Cloudflare
+# Sync system/mesh secrets only (recommended after key rotation)
+hoox secrets sync --system
+# Alias: hoox secrets sync --required
+
+# Sync all declared secrets (fails if exchange keys are still placeholders)
 hoox secrets sync
 ```
 
