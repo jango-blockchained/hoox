@@ -106,7 +106,7 @@ async function handleInfra(fmt: FormatOptions): Promise<void> {
 
     const rows = checks.map((c) => {
       let detail = "ok";
-      if (!c.result.ok) {
+      if (c.result.ok === false) {
         detail = (c.result.error ?? "error").slice(0, 80);
       } else if (typeof c.result.value === "string" && c.result.value.trim()) {
         // wrangler list output — show a short preview
@@ -125,7 +125,10 @@ async function handleInfra(fmt: FormatOptions): Promise<void> {
       formatTable(rows, { ...fmt, compact: true });
     }
 
-    const failed = checks.filter((c) => !c.result.ok);
+    const failed = checks.filter(
+      (c): c is { name: string; result: { ok: false; error: string } } =>
+        c.result.ok === false
+    );
     if (failed.length === 0) {
       formatSuccess(
         "Infrastructure APIs reachable. To create missing bindings: hoox infra provision",
