@@ -31,6 +31,10 @@ export interface GeneratedKeys {
   SESSION_SECRET: string;
   WEBHOOK_API_KEY_BINDING: string;
   TELEGRAM_INTERNAL_KEY_BINDING: string;
+  /** Shared mesh key alias used by dashboard → trade-worker auth. */
+  TRADE_INTERNAL_KEY: string;
+  /** Mesh API service key (trade-worker + dashboard). */
+  API_SERVICE_KEY_BINDING: string;
 }
 
 export interface SetupOptions {
@@ -103,27 +107,44 @@ const ALL_WORKERS = [
   "telegram-worker",
 ] as const;
 
-/** Secret-to-workers mapping for auto-generated secrets. */
+/**
+ * Secret-to-workers mapping for auto-generated secrets.
+ * Aligned with SYSTEM_SECRET_NAMES, env-service worker maps, and
+ * wrangler.jsonc.example secret declarations.
+ */
 const SECRET_WORKER_MAP: Record<string, readonly string[]> = {
   INTERNAL_KEY_BINDING: ALL_WORKERS,
   AGENT_INTERNAL_KEY: ["agent-worker", "dashboard"],
   SESSION_SECRET: ["dashboard"],
   WEBHOOK_API_KEY_BINDING: ["hoox"],
   TELEGRAM_INTERNAL_KEY_BINDING: ["trade-worker"],
+  // env-service + wrangler: trade-worker; dashboard also declares it for outbound calls
+  API_SERVICE_KEY_BINDING: ["trade-worker", "dashboard"],
+  // env-service + wrangler: dashboard only (trade alias for execute auth)
+  TRADE_INTERNAL_KEY: ["dashboard"],
 };
 
 /** Which secrets each worker should get in .dev.vars. */
 const DEV_VARS_WORKER_KEYS: Record<string, (keyof GeneratedKeys)[]> = {
   "d1-worker": ["INTERNAL_KEY_BINDING"],
   "analytics-worker": ["INTERNAL_KEY_BINDING"],
-  "trade-worker": ["INTERNAL_KEY_BINDING", "TELEGRAM_INTERNAL_KEY_BINDING"],
+  "trade-worker": [
+    "INTERNAL_KEY_BINDING",
+    "TELEGRAM_INTERNAL_KEY_BINDING",
+    "API_SERVICE_KEY_BINDING",
+  ],
   "report-worker": ["INTERNAL_KEY_BINDING"],
   "email-worker": ["INTERNAL_KEY_BINDING"],
   "agent-worker": ["INTERNAL_KEY_BINDING", "AGENT_INTERNAL_KEY"],
   hoox: ["INTERNAL_KEY_BINDING", "WEBHOOK_API_KEY_BINDING"],
   "web3-wallet-worker": ["INTERNAL_KEY_BINDING"],
   "telegram-worker": ["INTERNAL_KEY_BINDING"],
-  dashboard: ["AGENT_INTERNAL_KEY", "SESSION_SECRET"],
+  dashboard: [
+    "AGENT_INTERNAL_KEY",
+    "SESSION_SECRET",
+    "TRADE_INTERNAL_KEY",
+    "API_SERVICE_KEY_BINDING",
+  ],
 };
 
 /**
@@ -179,6 +200,9 @@ export class SetupService {
       message: "Generating keys...",
     });
 
+    // Shared mesh key strategy: one internal key for all inter-worker auth
+    // aliases (INTERNAL / AGENT / TELEGRAM / TRADE / API_SERVICE). SESSION
+    // and WEBHOOK stay distinct.
     const internalKey = this._randomHex(32);
     const keys: GeneratedKeys = {
       INTERNAL_KEY_BINDING: internalKey,
@@ -186,6 +210,8 @@ export class SetupService {
       SESSION_SECRET: this._randomHex(64),
       WEBHOOK_API_KEY_BINDING: this._randomHex(32),
       TELEGRAM_INTERNAL_KEY_BINDING: internalKey,
+      TRADE_INTERNAL_KEY: internalKey,
+      API_SERVICE_KEY_BINDING: internalKey,
     };
 
     // Ensure .keys directory exists

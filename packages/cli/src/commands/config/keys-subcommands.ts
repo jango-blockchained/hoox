@@ -36,11 +36,14 @@ export function registerKeysSubcommands(
     .description(
       `Generate new internal auth keys and save to .keys/ directory.
 
-Creates the following keys:
-  - INTERNAL_KEY_BINDING   (32 char)
-  - WEBHOOK_API_KEY_BINDING        (32 char)
-  - AGENT_INTERNAL_KEY     (32 char)
-  - TG_BOT_TOKEN_BINDING   (16 char)
+Creates the following keys (aligned with setup / SYSTEM_SECRET_NAMES):
+  - INTERNAL_KEY_BINDING          (32-byte hex, shared mesh)
+  - AGENT_INTERNAL_KEY            (same as INTERNAL)
+  - TELEGRAM_INTERNAL_KEY_BINDING (same as INTERNAL)
+  - TRADE_INTERNAL_KEY            (same as INTERNAL)
+  - API_SERVICE_KEY_BINDING       (same as INTERNAL)
+  - WEBHOOK_API_KEY_BINDING       (32-byte hex, distinct)
+  - SESSION_SECRET                (64-byte hex, distinct)
 
 WARNING: Add .keys/ to your .gitignore to avoid committing secrets!
 
@@ -58,11 +61,16 @@ EXAMPLES:
             mkdirSync(keysDir, { recursive: true });
           }
 
+          // Shared mesh key strategy (matches SetupService.generateKeys).
+          const meshKey = generateKey();
           const keys: Record<string, string> = {
-            INTERNAL_KEY_BINDING: generateKey(),
+            INTERNAL_KEY_BINDING: meshKey,
+            AGENT_INTERNAL_KEY: meshKey,
+            TELEGRAM_INTERNAL_KEY_BINDING: meshKey,
+            TRADE_INTERNAL_KEY: meshKey,
+            API_SERVICE_KEY_BINDING: meshKey,
             WEBHOOK_API_KEY_BINDING: generateKey(),
-            AGENT_INTERNAL_KEY: generateKey(),
-            TG_BOT_TOKEN_BINDING: generateKey(16),
+            SESSION_SECRET: generateKey(64),
           };
 
           for (const [name, value] of Object.entries(keys)) {

@@ -216,15 +216,22 @@ describe("SetupService.generateKeys — full path", () => {
     expect(keys?.TELEGRAM_INTERNAL_KEY_BINDING).toBe(
       keys?.INTERNAL_KEY_BINDING
     );
+    expect(keys?.TRADE_INTERNAL_KEY).toBe(keys?.INTERNAL_KEY_BINDING);
+    expect(keys?.API_SERVICE_KEY_BINDING).toBe(keys?.INTERNAL_KEY_BINDING);
+    // SESSION / WEBHOOK remain distinct from the shared mesh key
+    expect(keys?.SESSION_SECRET).not.toBe(keys?.INTERNAL_KEY_BINDING);
+    expect(keys?.WEBHOOK_API_KEY_BINDING).not.toBe(keys?.INTERNAL_KEY_BINDING);
 
-    // .keys/setup.env + 5 individual + 10 .dev.vars (one per worker) = 16
-    expect(writeCalls.length).toBeGreaterThanOrEqual(15);
+    // .keys/setup.env + 7 individual + 10 .dev.vars (one per worker) = 18
+    expect(writeCalls.length).toBeGreaterThanOrEqual(17);
 
     // The setup.env file exists and contains every key
     const setupEnv = writeCalls.find((w) => w.path === ".keys/setup.env");
     expect(setupEnv).toBeDefined();
     expect(setupEnv?.content).toContain("INTERNAL_KEY_BINDING=");
     expect(setupEnv?.content).toContain("SESSION_SECRET=");
+    expect(setupEnv?.content).toContain("TRADE_INTERNAL_KEY=");
+    expect(setupEnv?.content).toContain("API_SERVICE_KEY_BINDING=");
 
     // Each individual key file is written
     const keyFile = writeCalls.find(
@@ -319,23 +326,26 @@ describe("SetupService.setSecrets — full path", () => {
       SESSION_SECRET: "c".repeat(128),
       WEBHOOK_API_KEY_BINDING: "d".repeat(64),
       TELEGRAM_INTERNAL_KEY_BINDING: "e".repeat(64),
+      TRADE_INTERNAL_KEY: "f".repeat(64),
+      API_SERVICE_KEY_BINDING: "g".repeat(64),
     };
 
     const svc = new SetupService((e) => events.push(e));
     const results = await svc.setSecrets(keys);
 
-    // 9 workers × 5 secrets (with some workers getting multiple) ≈ 13 calls
     // Exact count: ALL_WORKERS(9) for INTERNAL_KEY_BINDING
     //             + 2 for AGENT_INTERNAL_KEY
     //             + 1 for SESSION_SECRET
     //             + 1 for WEBHOOK_API_KEY_BINDING
     //             + 1 for TELEGRAM_INTERNAL_KEY_BINDING
-    // = 14
-    expect(secretPutMock).toHaveBeenCalledTimes(14);
-    expect(results).toHaveLength(14);
+    //             + 2 for API_SERVICE_KEY_BINDING (trade-worker, dashboard)
+    //             + 1 for TRADE_INTERNAL_KEY (dashboard)
+    // = 17
+    expect(secretPutMock).toHaveBeenCalledTimes(17);
+    expect(results).toHaveLength(17);
     expect(results.every((r) => r.ok)).toBe(true);
-    expect(events.filter((e) => e.type === "secret-start").length).toBe(14);
-    expect(events.filter((e) => e.type === "secret-done").length).toBe(14);
+    expect(events.filter((e) => e.type === "secret-start").length).toBe(17);
+    expect(events.filter((e) => e.type === "secret-done").length).toBe(17);
   });
 
   it("records failures when secretPut returns ok=false", async () => {
@@ -353,6 +363,8 @@ describe("SetupService.setSecrets — full path", () => {
       SESSION_SECRET: "c".repeat(128),
       WEBHOOK_API_KEY_BINDING: "d".repeat(64),
       TELEGRAM_INTERNAL_KEY_BINDING: "e".repeat(64),
+      TRADE_INTERNAL_KEY: "f".repeat(64),
+      API_SERVICE_KEY_BINDING: "g".repeat(64),
     };
 
     const svc = new SetupService((e) => events.push(e));

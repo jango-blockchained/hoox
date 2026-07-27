@@ -83,11 +83,10 @@ function showDryRun(options: Record<string, unknown>): void {
   if (!options.skipKeys) {
     steps.push("1. Generate keys → .keys/setup.env + worker .dev.vars files");
     steps.push(
-      "   - INTERNAL_KEY_BINDING / AGENT_INTERNAL_KEY (32-byte random hex)"
+      "   - INTERNAL_KEY_BINDING / AGENT / TELEGRAM / TRADE / API_SERVICE (shared mesh)"
     );
     steps.push("   - SESSION_SECRET (64-byte random hex)");
     steps.push("   - WEBHOOK_API_KEY_BINDING (32-byte random hex)");
-    steps.push("   - TELEGRAM_INTERNAL_KEY_BINDING (same as INTERNAL)");
   }
   if (!options.skipDb) {
     steps.push("2. D1 infrastructure:");
@@ -115,6 +114,8 @@ function showDryRun(options: Record<string, unknown>): void {
       SESSION_SECRET: ["dashboard"],
       WEBHOOK_API_KEY_BINDING: ["hoox"],
       TELEGRAM_INTERNAL_KEY_BINDING: ["trade-worker"],
+      API_SERVICE_KEY_BINDING: ["trade-worker", "dashboard"],
+      TRADE_INTERNAL_KEY: ["dashboard"],
     };
     for (const [secret, workers] of Object.entries(map)) {
       steps.push(`   - ${secret} → ${workers.join(", ")}`);
