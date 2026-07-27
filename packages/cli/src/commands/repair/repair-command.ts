@@ -97,14 +97,55 @@ async function handleWorker(name: string, fmt: FormatOptions): Promise<void> {
 async function handleInfra(fmt: FormatOptions): Promise<void> {
   try {
     const cf = new CloudflareService();
-    const d1 = await cf.d1List();
-    const kv = await cf.kvList();
-    const r2 = await cf.r2List();
-    const q = await cf.queueList();
-    formatSuccess(
-      `D1: ${d1.ok ? "ok" : "fail"}, KV: ${kv.ok ? "ok" : "fail"}, R2: ${r2.ok ? "ok" : "fail"}, Queues: ${q.ok ? "ok" : "fail"}`,
-      fmt
-    );
+    const checks = [
+      { name: "D1", result: await cf.d1List() },
+      { name: "KV", result: await cf.kvList() },
+      { name: "R2", result: await cf.r2List() },
+      { name: "Queues", result: await cf.queueList() },
+    ];
+
+    const rows = checks.map((c) => {
+      let detail = "ok";
+      if (!c.result.ok) {
+        detail = (c.result.error ?? "error").slice(0, 80);
+      } else if (typeof c.result.value === "string" && c.result.value.trim()) {
+        // wrangler list output — show a short preview
+        const preview = c.result.value.replace(/\s+/g, " ").trim();
+        detail =
+          preview.length > 60 ? `${preview.slice(0, 57)}…` : preview || "ok";
+      }
+      return {
+        Resource: c.name,
+        Status: c.result.ok ? "ok" : "fail",
+        Detail: detail,
+      };
+    });
+
+    if (!fmt.quiet) {
+      formatTable(rows, { ...fmt, compact: true });
+    }
+
+    const failed = checks.filter((c) => !c.result.ok);
+    if (failed.length === 0) {
+      formatSuccess(
+        "Infrastructure APIs reachable. To create missing bindings: hoox infra provision",
+        fmt
+      );
+    } else {
+      formatError(
+        new CLIError(
+          `${failed.length} infrastructure check(s) failed`,
+          ExitCode.ERROR,
+          failed
+            .map((f) => `${f.name}: ${f.result.error ?? "fail"}`)
+            .join("\n"),
+          true,
+          "Check Cloudflare auth (`wrangler whoami`), then run `hoox infra provision`."
+        ),
+        fmt
+      );
+      process.exitCode = ExitCode.ERROR;
+    }
   } catch (err) {
     formatError(err instanceof Error ? err : String(err), fmt);
     process.exitCode = ExitCode.ERROR;

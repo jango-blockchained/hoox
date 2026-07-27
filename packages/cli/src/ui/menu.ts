@@ -19,7 +19,27 @@ import {
 } from "@clack/prompts";
 import { animateBanner, DISCLAIMER } from "./banner.js";
 import { CLIError } from "../utils/errors.js";
+import { formatError } from "../utils/formatters.js";
 import { theme } from "../utils/theme.js";
+
+/** Commands that block the interactive loop until the process exits. */
+const LONG_RUNNING = new Set([
+  "tui",
+  "dev start",
+  "dashboard dev",
+  "logs",
+  "logs all",
+]);
+
+function isLongRunning(commandStr: string): boolean {
+  const normalized = commandStr.trim();
+  if (LONG_RUNNING.has(normalized)) return true;
+  // `logs worker X` / `workers logs X` / `workers dev X` / `dev worker X`
+  if (/^(logs|workers logs|workers dev|dev worker)\b/.test(normalized)) {
+    return true;
+  }
+  return false;
+}
 
 // ---------------------------------------------------------------------------
 // Main entry
@@ -536,9 +556,22 @@ async function showToolsMenu(
  *
  * Delegates to `program.parseAsync()` with the given arguments.
  * Wraps in try-catch so errors don't terminate the loop.
+ * Long-running commands (dev, tui, logs) require confirmation so the
+ * menu does not appear "hung".
  */
 async function runCommand(program: Command, commandStr: string): Promise<void> {
-  const args = commandStr.split(" ");
+  if (isLongRunning(commandStr)) {
+    const proceed = await confirm({
+      message: `"${commandStr}" runs until you stop it. Leave the menu?`,
+      initialValue: true,
+    });
+    if (isCancel(proceed) || !proceed) {
+      log.info("Cancelled.");
+      return;
+    }
+  }
+
+  const args = commandStr.split(" ").filter(Boolean);
 
   try {
     // from: "user" means Commander expects raw user arguments only —
@@ -556,12 +589,13 @@ async function runCommand(program: Command, commandStr: string): Promise<void> {
       return;
     }
 
-    const message =
-      err instanceof CLIError
-        ? err.message
-        : err instanceof Error
-          ? err.message
-          : String(err);
-    log.error(`Command failed: ${message}`);
+    if (err instanceof CLIError) {
+      formatError(err, { inCard: false });
+    } else {
+      const message = err instanceof Error ? err.message : String(err);
+      formatError(new CLIError(message, undefined, undefined, true), {
+        inCard: false,
+      });
+    }
   }
 }

@@ -1,5 +1,6 @@
 import path from "node:path";
 import { ConfigService } from "../config/index.js";
+import { sanitizeWranglerOutput } from "../../utils/wrangler-output.js";
 import type {
   WranglerResult,
   DeployResult,
@@ -104,9 +105,12 @@ export class CloudflareService {
         return { ok: true, value: stdout.trim() };
       }
 
+      const cleaned = sanitizeWranglerOutput(
+        stderr || stdout || `wrangler exited with code ${exitCode}`
+      );
       return {
         ok: false,
-        error: stderr.trim() || `wrangler exited with code ${exitCode}`,
+        error: cleaned,
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -575,7 +579,9 @@ export class CloudflareService {
 
       return {
         ok: false,
-        error: stderr.trim() || `wrangler exited with code ${exitCode}`,
+        error: sanitizeWranglerOutput(
+          stderr || stdout || `wrangler exited with code ${exitCode}`
+        ),
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
