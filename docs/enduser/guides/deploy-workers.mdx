@@ -190,7 +190,7 @@ hoox deploy all --auto
 | **`401 Unauthorized`**        | Webhook request failed passkey check.             | Audit KV authorization key: `hoox config kv get webhooks:api_key`. Verify the payload `apiKey` matches this value.                |
 | **`409 Conflict`**            | Durable Object intercepted a duplicate trace ID.  | Verify TV alert settings. Do not configure rapid-fire duplicate alerts within the same minute unless idempotency keys are unique. |
 | **Dashboard shows 500**       | Next.js build failed or D1 schema mismatch.       | Re-run `hoox deploy dashboard` and check logs: `hoox logs tail dashboard`.                                                        |
-| **Telegram bot unresponsive** | Webhook URL expired or token rotated.             | Re-register: `hoox deploy telegram-webhook` and verify token: `hoox secrets check`.                                               |
+| **Telegram bot unresponsive** | Webhook URL expired or token rotated.             | Re-register: `hoox deploy telegram-webhook` and verify token: `hoox secrets list telegram-worker`.                                 |
 
 ---
 

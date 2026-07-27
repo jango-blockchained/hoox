@@ -4,6 +4,7 @@ import { CloudflareService } from "../../services/cloudflare/index.js";
 import { DbService } from "../../services/db/index.js";
 import { KvSyncService } from "../../services/kv/kv-sync-service.js";
 import { SecretsService } from "../../services/secrets/index.js";
+import { doProvision, doProvisionDryRun } from "../infra/infra-command.js";
 import {
   formatError,
   formatSuccess,
@@ -94,7 +95,10 @@ async function handleWorker(name: string, fmt: FormatOptions): Promise<void> {
   }
 }
 
-async function handleInfra(fmt: FormatOptions): Promise<void> {
+async function handleInfra(
+  fmt: FormatOptions,
+  options: { provision?: boolean; dryRun?: boolean } = {}
+): Promise<void> {
   try {
     const cf = new CloudflareService();
     const checks = [
@@ -130,10 +134,14 @@ async function handleInfra(fmt: FormatOptions): Promise<void> {
         c.result.ok === false
     );
     if (failed.length === 0) {
-      formatSuccess(
-        "Infrastructure APIs reachable. To create missing bindings: hoox infra provision",
-        fmt
-      );
+      if (!options.provision) {
+        formatSuccess(
+          "Infrastructure APIs reachable. To create missing bindings: hoox repair infra --provision (or hoox infra provision)",
+          fmt
+        );
+      } else {
+        formatSuccess("Infrastructure APIs reachable.", fmt);
+      }
     } else {
       formatError(
         new CLIError(
@@ -143,11 +151,26 @@ async function handleInfra(fmt: FormatOptions): Promise<void> {
             .map((f) => `${f.name}: ${f.result.error ?? "fail"}`)
             .join("\n"),
           true,
-          "Check Cloudflare auth (`wrangler whoami`), then run `hoox infra provision`."
+          options.provision
+            ? "Check Cloudflare auth (`wrangler whoami`). Provision will still be attempted."
+            : "Check Cloudflare auth (`wrangler whoami`), then run `hoox repair infra --provision`."
         ),
         fmt
       );
       process.exitCode = ExitCode.ERROR;
+    }
+
+    // --provision: create missing resources via the same path as `hoox infra provision`
+    if (options.provision) {
+      const infraOpts = { json: fmt.json, quiet: fmt.quiet };
+      if (options.dryRun) {
+        await doProvisionDryRun(infraOpts);
+      } else {
+        const result = await doProvision(infraOpts);
+        if (result.summary.errors > 0) {
+          process.exitCode = ExitCode.ERROR;
+        }
+      }
     }
   } catch (err) {
     formatError(err instanceof Error ? err : String(err), fmt);
@@ -312,13 +335,21 @@ export function registerRepairCommand(program: Command): void {
   repairCmd
     .command("infra")
     .description(
-      "Check Cloudflare infrastructure status (D1, KV, R2, Queues). Does not provision — use `hoox infra provision`."
+      "Diagnose Cloudflare infrastructure (D1, KV, R2, Queues). Pass --provision to also create missing resources from wrangler.jsonc (same as `hoox infra provision`)."
+    )
+    .option(
+      "--provision",
+      "After diagnosis, provision missing D1/KV/R2/Queues from worker wrangler.jsonc files"
+    )
+    .option(
+      "--dry-run",
+      "With --provision, preview resources that would be created without creating them"
     )
     .action(
       withErrorHandling(
-        async () => {
+        async (options: { provision?: boolean; dryRun?: boolean }) => {
           const fmt = getFormatOptions(repairCmd);
-          await handleInfra(fmt);
+          await handleInfra(fmt, options);
         },
         { service: "repair" }
       )

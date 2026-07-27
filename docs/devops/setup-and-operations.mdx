@@ -137,7 +137,7 @@ hoox clone my-hoox-app
 
 <Warning>
   All production secrets must be set via `wrangler secret put` or `hoox secrets
-  update-cf`. Never commit secrets to version control.
+  sync`. Never commit secrets to version control.
 </Warning>
 
 | Secret Name               | Worker(s)                           | Set Via               | Required For | Description                            |
@@ -503,8 +503,13 @@ cp .env.example .env.local
 ### 5.5 Phase 5: Secret Deployment
 
 ```bash
-# Push all secrets to Cloudflare
-hoox secrets update-cf
+# Push mesh/system secrets only (recommended after key rotation)
+hoox secrets sync --system
+# Alias: hoox secrets sync --required
+
+# Or push all declared secrets from .dev.vars
+# (reports partial sync: synced / skipped placeholders / failed)
+hoox secrets sync
 
 # Or set individually per worker:
 wrangler secret put WEBHOOK_API_KEY_BINDING --config workers/hoox-worker/wrangler.jsonc
@@ -826,11 +831,17 @@ bun run pages:deploy
 wrangler secret put <SECRET_NAME> --config workers/<worker>/wrangler.jsonc
 # You will be prompted to enter the value (hidden input)
 
-# Set secret via hoox CLI
-hoox secrets update-cf <SECRET_NAME> <WORKER_NAME>
+# Set one secret via hoox CLI (writes .dev.vars + puts to Cloudflare)
+hoox secrets set <WORKER_NAME> <SECRET_NAME>
 
-# Set all secrets from wrangler.jsonc
-hoox secrets update-cf
+# Sync mesh/system secrets only (INTERNAL_KEY_BINDING, WEBHOOK_*, …)
+hoox secrets sync --system
+# Alias: hoox secrets sync --required
+
+# Sync all declared secrets from .dev.vars
+# Partial results report synced / skipped (placeholders) / failed
+hoox secrets sync
+hoox secrets sync trade-worker
 ```
 
 ### 9.2 Local Development Secrets
@@ -1053,11 +1064,15 @@ wrangler d1 execute trade-data-db --command="SELECT name FROM sqlite_master WHER
 ### 11.4 Secret Repair
 
 ```bash
-# If secrets are missing, re-upload all from wrangler.jsonc
-hoox secrets update-cf
+# If mesh keys are missing after rotation, re-upload system secrets only
+hoox secrets sync --system
+
+# Or re-upload all declared secrets from .dev.vars (partial sync reported)
+hoox secrets sync
 
 # Or set individual secrets
 wrangler secret put <SECRET_NAME> --config workers/<worker>/wrangler.jsonc
+hoox secrets set <WORKER_NAME> <SECRET_NAME>
 ```
 
 ### 11.5 KV Configuration Repair
@@ -1162,13 +1177,14 @@ hoox check health
 ### 12.4 Rotating Secrets
 
 ```bash
-# Generate new key
-hoox keys generate <SECRET_NAME>
+# Generate new internal/mesh keys (writes to .keys/ and .dev.vars)
+hoox keys generate
 
-# Update in Cloudflare
-hoox secrets update-cf <SECRET_NAME> <WORKER_NAME>
+# Push mesh/system secrets only to Cloudflare
+hoox secrets sync --system
 
-# Update any local .dev.vars files
+# Or rotate a single integration secret
+hoox secrets set <WORKER_NAME> <SECRET_NAME>
 
 # Verify functionality
 bun test
@@ -1274,7 +1290,7 @@ wrangler d1 export trade-data-db --output=backup-$(date +%Y%m%d).sql --remote
 | ----------------------- | ------------------------- | --------------------------------------------------------------------------------------- |
 | `bun install` fails     | Missing submodules        | `git submodule update --init --recursive`                                               |
 | `wrangler login` fails  | Browser/auth issue        | Try `wrangler login --browser=false`                                                    |
-| Worker deploy fails     | Missing secrets           | `hoox secrets update-cf`                                                                |
+| Worker deploy fails     | Missing secrets           | `hoox secrets sync --system` (mesh) or `hoox secrets sync`                              |
 | 502 Bad Gateway         | Service binding not found | Deploy dependency workers first (Section 7)                                             |
 | 401 Unauthorized        | Wrong API key             | Check secret values with `wrangler secret list`                                         |
 | 429 Too Many Requests   | Rate limiting             | Check KV rate limit keys; increase limits                                               |
@@ -1298,7 +1314,8 @@ wrangler d1 export trade-data-db --output=backup-$(date +%Y%m%d).sql --remote
 # Setup
 bun install
 hoox onboard                  # One-shot full bootstrap (recommended)
-hoox secrets sync             # Push .dev.vars to Cloudflare
+hoox secrets sync --system    # Push mesh/system secrets only
+hoox secrets sync             # Push all .dev.vars (partial reporting)
 
 # Development
 hoox dev start                # Start all workers (choose runtime)
@@ -1334,7 +1351,8 @@ wrangler kv:key list --namespace-id=<ID>
 
 # Secrets
 wrangler secret put <NAME> --config workers/<worker>/wrangler.jsonc
-hoox secrets update-cf
+hoox secrets sync --system        # mesh keys only
+hoox secrets sync                 # all from .dev.vars (partial reporting)
 
 # Health Checks
 curl https://<worker>.<prefix>.workers.dev/health

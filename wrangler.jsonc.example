@@ -4,7 +4,12 @@
   // NOTE: This file is gitignored (actual secrets and IDs should never
   // be committed). Copy to wrangler.jsonc and customize.
   //
-  // Use `hoox setup` to automatically configure this file.
+  // Use `hoox setup` / `hoox keys generate` to create mesh keys, then
+  // `hoox secrets sync --system` to push system/mesh secrets only.
+  // Integration secrets (exchange keys, bot tokens, etc.) stay in the
+  // per-worker secrets arrays and are synced with plain `hoox secrets sync`.
+  //
+  // Worker key "hoox" maps to path workers/hoox-worker (directory name ≠ key).
 
   "global": {
     "cloudflare_api_token": "<USE_CLOUDFLARE_API_TOKEN_ENV_OR_WRANGLER_AUTH>",
@@ -18,13 +23,18 @@
       "vars": {
         "database_name": "trade-data-db"
       },
-      "secrets": []
+      // Mesh: INTERNAL_KEY_BINDING (setup SECRET_WORKER_MAP / ALL_WORKERS)
+      "secrets": [
+        "INTERNAL_KEY_BINDING"
+      ]
     },
     "hoox": {
       "enabled": true,
       "path": "workers/hoox-worker",
       "vars": {},
+      // Mesh: INTERNAL_KEY_BINDING, WEBHOOK_API_KEY_BINDING
       "secrets": [
+        "INTERNAL_KEY_BINDING",
         "WEBHOOK_API_KEY_BINDING"
       ]
     },
@@ -32,6 +42,7 @@
       "enabled": true,
       "path": "workers/agent-worker",
       "vars": {},
+      // Mesh: AGENT_INTERNAL_KEY, INTERNAL_KEY_BINDING
       "secrets": [
         "AGENT_INTERNAL_KEY",
         "INTERNAL_KEY_BINDING"
@@ -41,7 +52,9 @@
       "enabled": true,
       "path": "workers/analytics-worker",
       "vars": {},
+      // Mesh: INTERNAL_KEY_BINDING; integration: CF Analytics Engine token
       "secrets": [
+        "INTERNAL_KEY_BINDING",
         "CLOUDFLARE_API_TOKEN"
       ]
     },
@@ -49,7 +62,13 @@
       "enabled": true,
       "path": "workers/trade-worker",
       "vars": {},
+      // Mesh: INTERNAL_KEY_BINDING, TELEGRAM_INTERNAL_KEY_BINDING,
+      //       API_SERVICE_KEY_BINDING (system name; also in env-service map)
+      // Integration: exchange API keys
       "secrets": [
+        "INTERNAL_KEY_BINDING",
+        "TELEGRAM_INTERNAL_KEY_BINDING",
+        "API_SERVICE_KEY_BINDING",
         "BINANCE_KEY_BINDING",
         "BINANCE_SECRET_BINDING",
         "BYBIT_KEY_BINDING",
@@ -62,7 +81,9 @@
       "enabled": true,
       "path": "workers/telegram-worker",
       "vars": {},
+      // Mesh: INTERNAL_KEY_BINDING; integration: bot token
       "secrets": [
+        "INTERNAL_KEY_BINDING",
         "TG_BOT_TOKEN_BINDING"
       ]
     },
@@ -70,7 +91,9 @@
       "enabled": true,
       "path": "workers/web3-wallet-worker",
       "vars": {},
+      // Mesh: INTERNAL_KEY_BINDING; integration: wallet material
       "secrets": [
+        "INTERNAL_KEY_BINDING",
         "WALLET_MNEMONIC_SECRET",
         "WALLET_PK_SECRET"
       ]
@@ -79,27 +102,39 @@
       "enabled": true,
       "path": "workers/email-worker",
       "vars": {},
-      "secrets": []
+      // Mesh: INTERNAL_KEY_BINDING (IMAP/Mailgun secrets optional; add if used)
+      "secrets": [
+        "INTERNAL_KEY_BINDING"
+      ]
     },
     "report-worker": {
       "enabled": true,
       "path": "workers/report-worker",
       "vars": {},
-      "secrets": []
+      // Mesh: INTERNAL_KEY_BINDING
+      "secrets": [
+        "INTERNAL_KEY_BINDING"
+      ]
     },
     "dashboard": {
       "enabled": true,
       "path": "workers/dashboard",
       "vars": {},
+      // Mesh (setup generates AGENT_INTERNAL_KEY + SESSION_SECRET):
+      //   SESSION_SECRET, AGENT_INTERNAL_KEY, and optional service keys
+      //   used when calling other workers (INTERNAL_KEY_BINDING,
+      //   TRADE_INTERNAL_KEY, TELEGRAM_INTERNAL_KEY_BINDING,
+      //   API_SERVICE_KEY_BINDING — SYSTEM_SECRET_NAMES).
+      // Integration: basic-auth credentials
       "secrets": [
         "DASHBOARD_USER",
         "DASHBOARD_PASS",
         "SESSION_SECRET",
-        "D1_INTERNAL_KEY",
         "AGENT_INTERNAL_KEY",
+        "INTERNAL_KEY_BINDING",
         "TRADE_INTERNAL_KEY",
-        "TELEGRAM_INTERNAL_KEY",
-        "API_SERVICE_KEY"
+        "TELEGRAM_INTERNAL_KEY_BINDING",
+        "API_SERVICE_KEY_BINDING"
       ]
     }
   },

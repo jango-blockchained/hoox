@@ -2,7 +2,7 @@
  * Unit tests for the `hoox completion` command.
  *
  * The command's job is to print a shell completion script to stdout
- * (bash, zsh) or set exitCode=1 and write an error to stderr for an
+ * (bash, zsh, fish) or set exitCode=1 and write an error to stderr for an
  * unsupported shell. We capture both streams and assert on them.
  */
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
@@ -81,14 +81,25 @@ describe("registerCompletionCommand", () => {
     expect(stdout).toContain("_hoox()");
   });
 
+  it("prints fish completion script", async () => {
+    const { stdout } = await runCompletion(["completion", "fish"]);
+    expect(stdout).toContain("complete -c hoox");
+    expect(stdout).toContain("__fish_use_subcommand");
+    expect(stdout).toContain("onboard");
+    expect(stdout).toContain("secrets");
+    expect(stdout).toContain("__fish_seen_subcommand_from secrets");
+    expect(process.exitCode).toBe(0);
+  });
+
   it("prints usage when no shell arg given", async () => {
     const { stdout } = await runCompletion(["completion"]);
     expect(stdout).toContain("Usage: hoox completion");
+    expect(stdout).toContain("bash|zsh|fish");
   });
 
   it("reports an invalid-usage error for unsupported shell", async () => {
-    const { stdout } = await runCompletion(["completion", "fish"]);
-    expect(stdout).toContain('Unsupported shell "fish"');
+    const { stdout } = await runCompletion(["completion", "powershell"]);
+    expect(stdout).toContain('Unsupported shell "powershell"');
     expect(stdout).toContain("[2]"); // INVALID_USAGE exit code badge
     expect(process.exitCode).toBe(2);
   });

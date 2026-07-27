@@ -72,7 +72,7 @@ hoox                                 Launch TUI (when run with no args on an ini
 │   ├── list [worker]                List secrets for a worker
 │   ├── set <worker> <name>          Set a secret
 │   ├── delete <worker> <name>       Delete a secret
-│   └── sync [worker]                Sync local .dev.vars to Cloudflare
+│   └── sync [worker] [--system|--required]  Sync .dev.vars → CF (mesh-only with --system)
 ├── keys                             Manage internal auth keys [top-level]
 │   ├── generate                     Generate new keys
 │   └── list                         List existing keys
@@ -215,7 +215,12 @@ hoox secrets set trade-worker BINANCE_SECRET_BINDING "your_secret_here"
 # List secrets for a worker
 hoox secrets list trade-worker
 
-# Sync local .dev.vars to Cloudflare
+# Sync mesh/system secrets only (INTERNAL_KEY_BINDING, WEBHOOK_*, …)
+hoox secrets sync --system
+# Alias: hoox secrets sync --required
+
+# Sync all declared secrets from .dev.vars
+# Reports partial results: synced / skipped (placeholders) / failed
 hoox secrets sync
 
 # Generate internal auth keys
@@ -267,7 +272,7 @@ The v0.9.0 release polished the output framework. **No new commands and no break
 - **`formatCompletion(message, { durationMs, suggestion })`** — prints a `✓ Done in 1.2s` footer after every successful command, with an optional `→ next: hoox …` suggestion. Wired into the global `program.hook("postAction", ...)`.
 - **"Did you mean" suggestions** — typos like `hoox deplpy` produce `did you mean 'hoox deploy' ?`. Levenshtein distance ≤ 2 against all registered command names.
 - **Custom help formatter** — `hoox --help` and per-command `--help` use a sectioned layout (Usage / Options / Examples / See also) with refined colors.
-- **`formatNumber(n)`** — compact notation (`1.2K`, `1.5M`, `2.5B`) used by `formatTable` number auto-alignment and by `hoox perf fastpath` / `hoox monitor status` / `hoox trace metrics`.
+- **`formatNumber(n)`** — compact notation (`1.2K`, `1.5M`, `2.5B`) used by `formatTable` number auto-alignment and by `hoox perf fastpath` / `hoox monitor trades` / `hoox trace metrics`.
 - **`formatBytes(n, { binary? })`** — SI (`KB`, `MB`) or binary (`KiB`, `MiB`) units.
 
 ### Visual changes (visible in every command)

@@ -55,11 +55,13 @@ ORDER BY created_at ASC
 - **Diagnostics**: The calling worker gets a `401 Unauthorized` response when querying internal services like `d1-worker` or `trade-worker`.
 - **Primary Root Cause**: The `INTERNAL_KEY_BINDING` secret does not match between the calling worker and the target worker.
 - **Resolution**:
-  1. Inspect the secret existence on both workers: `hoox secrets check`.
-  2. If mismatched, re-inject the secret globally using one command:
+  1. Inspect secret names on both workers: `hoox secrets list hoox` / `hoox secrets list trade-worker`.
+  2. Re-generate mesh keys if needed, then push system secrets only:
      ```bash
-     hoox secrets set INTERNAL_KEY_BINDING "your_secure_shared_internal_key"
+     hoox keys generate
+     hoox secrets sync --system
      ```
+     Or set per worker: `hoox secrets set <worker> INTERNAL_KEY_BINDING`
 
 ---
 

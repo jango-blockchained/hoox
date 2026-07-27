@@ -18,6 +18,11 @@ let runSystemCheckMock: ReturnType<typeof mock>;
 let deployMock: ReturnType<typeof mock>;
 let configLoadMock: ReturnType<typeof mock>;
 let configGetWorkerMock: ReturnType<typeof mock>;
+let configListEnabledMock: ReturnType<typeof mock>;
+let d1ListMock: ReturnType<typeof mock>;
+let kvListMock: ReturnType<typeof mock>;
+let r2ListMock: ReturnType<typeof mock>;
+let queueListMock: ReturnType<typeof mock>;
 
 // Preserve originals
 const origRunSystemCheck = RepairService.prototype.runSystemCheck;
@@ -110,15 +115,34 @@ beforeEach(() => {
     return undefined;
   });
 
+  d1ListMock = mock(async () => ({ ok: true as const, value: "[]" }));
+  kvListMock = mock(async () => ({ ok: true as const, value: "[]" }));
+  r2ListMock = mock(async () => ({ ok: true as const, value: "[]" }));
+  queueListMock = mock(async () => ({ ok: true as const, value: "[]" }));
+  // Empty workers → doProvision / doProvisionDryRun no-op without network.
+  configListEnabledMock = mock(() => [] as string[]);
+
   (
     RepairService.prototype as unknown as Record<string, unknown>
   ).runSystemCheck = runSystemCheckMock;
   (CloudflareService.prototype as unknown as Record<string, unknown>).deploy =
     deployMock;
+  (CloudflareService.prototype as unknown as Record<string, unknown>).d1List =
+    d1ListMock;
+  (CloudflareService.prototype as unknown as Record<string, unknown>).kvList =
+    kvListMock;
+  (CloudflareService.prototype as unknown as Record<string, unknown>).r2List =
+    r2ListMock;
+  (
+    CloudflareService.prototype as unknown as Record<string, unknown>
+  ).queueList = queueListMock;
   (ConfigService.prototype as unknown as Record<string, unknown>).load =
     configLoadMock;
   (ConfigService.prototype as unknown as Record<string, unknown>).getWorker =
     configGetWorkerMock;
+  (
+    ConfigService.prototype as unknown as Record<string, unknown>
+  ).listEnabledWorkers = configListEnabledMock;
 });
 
 afterEach(() => {
@@ -169,10 +193,14 @@ describe("registerRepairCommand", () => {
     ).toBe(true);
   });
 
-  it("registers 'repair infra' subcommand", async () => {
+  it("registers 'repair infra' subcommand with --provision and --dry-run", async () => {
     const program = await createProgram();
     const repairCmd = program.commands.find((c) => c.name() === "repair")!;
-    expect(repairCmd.commands.find((c) => c.name() === "infra")).toBeDefined();
+    const infraCmd = repairCmd.commands.find((c) => c.name() === "infra");
+    expect(infraCmd).toBeDefined();
+    const optionNames = infraCmd!.options.map((o) => o.long);
+    expect(optionNames).toContain("--provision");
+    expect(optionNames).toContain("--dry-run");
   });
 
   it("registers 'repair secrets' subcommand", async () => {
@@ -334,6 +362,79 @@ describe("registerRepairCommand", () => {
         from: "user",
       });
       expect(process.exitCode).toBe(1);
+    });
+  });
+
+  // -- repair infra ---------------------------------------------------------
+
+  describe("repair infra", () => {
+    it("diagnoses only by default (no provision)", async () => {
+      const program = await createProgram();
+      await program.parseAsync(["repair", "infra"], { from: "user" });
+      expect(d1ListMock).toHaveBeenCalled();
+      expect(kvListMock).toHaveBeenCalled();
+      expect(r2ListMock).toHaveBeenCalled();
+      expect(queueListMock).toHaveBeenCalled();
+      // doProvision / doProvisionDryRun both call listEnabledWorkers after load
+      expect(configListEnabledMock).not.toHaveBeenCalled();
+      expect(process.exitCode).toBe(0);
+    });
+
+    it("invokes provision path when --provision is set", async () => {
+      const program = await createProgram();
+      await program.parseAsync(["repair", "infra", "--provision"], {
+        from: "user",
+      });
+      expect(d1ListMock).toHaveBeenCalled();
+      // Real doProvision loads config then lists enabled workers
+      expect(configLoadMock).toHaveBeenCalled();
+      expect(configListEnabledMock).toHaveBeenCalled();
+      expect(process.exitCode).toBe(0);
+    });
+
+    it("invokes dry-run provision path when --provision --dry-run is set", async () => {
+      const program = await createProgram();
+      await program.parseAsync(
+        ["repair", "infra", "--provision", "--dry-run"],
+        { from: "user" }
+      );
+      expect(d1ListMock).toHaveBeenCalled();
+      // doProvisionDryRun also loads config + lists workers (no create calls)
+      expect(configLoadMock).toHaveBeenCalled();
+      expect(configListEnabledMock).toHaveBeenCalled();
+      expect(process.exitCode).toBe(0);
+    });
+
+    it("sets exitCode when infrastructure list checks fail (still diagnose-only)", async () => {
+      d1ListMock = mock(async () => ({
+        ok: false as const,
+        error: "not authenticated",
+      }));
+      (
+        CloudflareService.prototype as unknown as Record<string, unknown>
+      ).d1List = d1ListMock;
+
+      const program = await createProgram();
+      await program.parseAsync(["repair", "infra"], { from: "user" });
+      expect(process.exitCode).toBe(1);
+      expect(configListEnabledMock).not.toHaveBeenCalled();
+    });
+
+    it("still attempts provision after failed list checks when --provision is set", async () => {
+      d1ListMock = mock(async () => ({
+        ok: false as const,
+        error: "not authenticated",
+      }));
+      (
+        CloudflareService.prototype as unknown as Record<string, unknown>
+      ).d1List = d1ListMock;
+
+      const program = await createProgram();
+      await program.parseAsync(["repair", "infra", "--provision"], {
+        from: "user",
+      });
+      expect(process.exitCode).toBe(1);
+      expect(configListEnabledMock).toHaveBeenCalled();
     });
   });
 });

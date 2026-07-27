@@ -170,7 +170,8 @@ hoox secrets delete trade-worker BINANCE_KEY_BINDING
 hoox secrets sync --system
 # Alias: hoox secrets sync --required
 
-# Sync all declared secrets (fails if exchange keys are still placeholders)
+# Sync all declared secrets from .dev.vars
+# Reports partial results: synced / skipped (placeholders) / failed
 hoox secrets sync
 ```
 
