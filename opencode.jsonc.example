@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  // Copy to opencode.jsonc and customize. Local only — not committed.
   "instructions": [
     "AGENTS.md",
     ".opencode/instructions/project.md",

@@ -1,0 +1,6 @@
+# .dev.vars — local secrets for the monorepo root
+# Copy to .dev.vars and fill in real values (or run `hoox setup` / `hoox keys generate`).
+# NEVER commit .dev.vars.
+
+INTERNAL_KEY_BINDING=<generate-with-hoox-keys>
+WEBHOOK_API_KEY_BINDING=<generate-with-hoox-keys>

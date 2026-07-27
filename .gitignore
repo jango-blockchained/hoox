@@ -2,11 +2,20 @@ node_modules/
 .wrangler/
 dist/
 dist.bak/
-.env*
-dev.vars*
-*/*.env*
-*/*/dev.vars*
 .DS_Store
+
+# ---------------------------------------------------------------------------
+# Secrets & local env — commit only *.example templates
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!**/.env.example
+.dev.vars
+**/.dev.vars
+.dev.vars.*
+!**/.dev.vars.example
+!.dev.vars.example
 
 # Ignore node_modules in all subdirectories
 */node_modules/
@@ -44,7 +53,6 @@ SKILL.md
 .agents/*
 .ai/
 .ai/*
-opencode.json
 .install-wizard-state.json
 
 # Editor/IDE specific
@@ -82,9 +90,19 @@ workers/*
 
 skills-lock.json
 
-# Configs
+# ---------------------------------------------------------------------------
+# Project-local configs — only *.example may be committed
+# ---------------------------------------------------------------------------
 wrangler.jsonc
+**/wrangler.jsonc
+!wrangler.jsonc.example
+!**/wrangler.jsonc.example
 pages.jsonc
+opencode.json
+opencode.jsonc
+!opencode.json.example
+!opencode.jsonc.example
+wrangler.jsonc.save
 
 .worktrees/
 *.tgz
@@ -110,7 +128,6 @@ reports/
 # npm config
 .npmrc
 r2-test-object_*
-wrangler.jsonc.save
 
 # Task and E2E summary files
 TASK*.md
