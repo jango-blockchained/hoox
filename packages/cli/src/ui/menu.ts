@@ -61,22 +61,26 @@ export async function runInteractiveTUI(program: Command): Promise<void> {
 
 const MAIN_CATEGORIES = [
   {
-    value: "init",
-    label: "⚡ Setup Wizard",
-    hint: "bootstrap or reconfigure project",
+    value: "setup",
+    label: "⚡ Setup",
+    hint: "onboard, init, setup, doctor",
   },
   { value: "deploy", label: "Deploy", hint: "workers, dashboard" },
   {
     value: "manage",
     label: "Manage",
-    hint: "infrastructure, config, secrets",
+    hint: "infrastructure, config, secrets, repair",
   },
   {
     value: "monitor",
     label: "Monitor",
     hint: "diagnostics, health, logs, tests",
   },
-  { value: "tools", label: "Tools", hint: "WAF, clone worker, dashboard UI" },
+  {
+    value: "tools",
+    label: "Tools",
+    hint: "TUI, clone, dashboard, WAF, agent",
+  },
   { value: "develop", label: "Develop", hint: "dev server, start project" },
   { value: "__exit", label: "Exit" },
 ] as const;
@@ -107,9 +111,8 @@ async function handleCategory(
   program: Command
 ): Promise<"back" | "exit" | "continue"> {
   switch (category) {
-    case "init":
-      await runCommand(program, "init");
-      return "continue";
+    case "setup":
+      return showSetupMenu(program);
     case "deploy":
       return showDeployMenu(program);
     case "develop":
@@ -122,6 +125,48 @@ async function handleCategory(
       return showToolsMenu(program);
     default:
       return "back";
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Setup sub-menu
+// ---------------------------------------------------------------------------
+
+async function showSetupMenu(
+  program: Command
+): Promise<"back" | "exit" | "continue"> {
+  while (true) {
+    const choice = await select({
+      message: "Setup",
+      options: [
+        {
+          value: "onboard",
+          label: "Onboard (recommended)",
+          hint: "init + setup end-to-end",
+        },
+        {
+          value: "init",
+          label: "Init only",
+          hint: "write wrangler.jsonc + collect secrets",
+        },
+        {
+          value: "setup",
+          label: "Setup only",
+          hint: "keys, D1 schema, secrets, dashboard",
+        },
+        {
+          value: "doctor",
+          label: "Doctor",
+          hint: "paths, TUI entry, security hygiene",
+        },
+        { value: "__back", label: "◀ Back to main menu" },
+      ],
+    });
+
+    if (isCancel(choice)) return "back";
+    if (choice === "__back") return "continue";
+
+    await runCommand(program, choice);
   }
 }
 
@@ -212,7 +257,12 @@ async function showManageMenu(
         },
         { value: "secrets", label: "Secrets", hint: "list, set, sync" },
         { value: "keys", label: "Auth keys", hint: "generate, list" },
-        { value: "waf", label: "WAF rules" },
+        {
+          value: "repair check",
+          label: "Repair check",
+          hint: "diagnose workers / infra / secrets",
+        },
+        { value: "db", label: "Database", hint: "schema, query, migrate" },
         { value: "__back", label: "◀ Back to main menu" },
       ],
     });
@@ -233,8 +283,11 @@ async function showManageMenu(
       case "keys":
         await showKeysSubMenu(program);
         break;
-      case "waf":
-        await runCommand(program, "waf");
+      case "repair check":
+        await runCommand(program, "repair check");
+        break;
+      case "db":
+        await runCommand(program, "db");
         break;
     }
   }
@@ -296,7 +349,7 @@ async function showSecretsSubMenu(program: Command): Promise<void> {
 
   switch (choice) {
     case "list":
-      await runCommand(program, "config secrets list");
+      await runCommand(program, "secrets list");
       break;
     case "set": {
       const worker = await text({
@@ -319,11 +372,11 @@ async function showSecretsSubMenu(program: Command): Promise<void> {
       });
       if (isCancel(secretName) || !secretName) return;
 
-      await runCommand(program, `config secrets set ${worker} ${secretName}`);
+      await runCommand(program, `secrets set ${worker} ${secretName}`);
       break;
     }
     case "sync":
-      await runCommand(program, "config secrets sync");
+      await runCommand(program, "secrets sync");
       break;
   }
 }
@@ -353,7 +406,7 @@ async function showKeysSubMenu(program: Command): Promise<void> {
     if (isCancel(proceed) || !proceed) return;
   }
 
-  await runCommand(program, `config keys ${choice}`);
+  await runCommand(program, `keys ${choice}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -426,19 +479,25 @@ async function showToolsMenu(
       message: "Tools",
       options: [
         {
+          value: "tui",
+          label: "Launch TUI Dashboard",
+          hint: "OpenTUI terminal operations center",
+        },
+        {
           value: "clone",
           label: "Clone worker",
-          hint: "scaffold from template",
+          hint: "git submodule checkout",
         },
         {
           value: "dashboard",
           label: "Dashboard UI",
-          hint: "manage dashboard URLs",
+          hint: "dev / deploy web dashboard",
         },
+        { value: "waf", label: "WAF rules", hint: "status, rules, mode" },
         {
-          value: "tui",
-          label: "Launch TUI Dashboard",
-          hint: "OpenTUI terminal operations center",
+          value: "agent health",
+          label: "Agent health",
+          hint: "AI provider connectivity",
         },
         { value: "__back", label: "◀ Back to main menu" },
       ],

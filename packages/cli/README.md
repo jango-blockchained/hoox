@@ -1,12 +1,12 @@
 # @jango-blockchained/hoox-cli
 
-> **See also:** [Hoox User Guide](../docs/home.md) · [CLI Command Reference](../docs/reference/cli-commands.mdx)
+> **See also:** [Docs home](../../docs/index.mdx) · [CLI Command Reference](../../docs/enduser/reference/cli-commands.mdx) · [Monorepo README](../../README.md)
 
 > Hoox CLI — manage Cloudflare Workers, infrastructure, secrets, and deployments.
 
 > **Runtime requirement:** Bun ≥ 1.2. The bin shebang and bundle target are Bun-only; `npm install -g` will install the package but the CLI will not run under Node.js.
 
-**v0.10.0** — operator security plane: fail-closed `tui --remote`, transport profile (Bearer + Access), `doctor --security`, `tunnel check`, management `/v1/*` contract. **v0.9.x** shipped hop-level `perf fastpath` observability and reliability fixes.
+**v0.10.1** — operator security plane: fail-closed `tui --remote`, transport profile (Bearer + Access), `doctor --security`, `tunnel check`, management `/v1/*` contract. **v0.9.x** shipped hop-level `perf fastpath` observability and reliability fixes.
 
 ## Features
 
@@ -24,8 +24,9 @@
 - **Repair & Recovery** (`hoox repair`): Comprehensive system check, guided rebuild, per-component repair.
 - **Top-level Secrets & Keys**: `hoox secrets` and `hoox keys` for Cloudflare Worker secrets and internal auth keys.
 - **Unified Dashboard** (`hoox dashboard dev | deploy`): Start the dev server or build & deploy the Next.js dashboard.
-- **Interactive TUI**: Launch an interactive terminal UI when running `hoox` with no arguments.
-- **Modern-minimal output polish (v0.9.0)**: Refined zinc/indigo palette, completion footer with "next step" suggestions after every command, "did you mean …" for typos, custom help formatter, `--no-color` flag, `NO_COLOR` / `TERM=dumb` honored, `formatNumber` and `formatBytes` for compact tables. All available to plugin authors via the shared `format*` exports.
+- **Interactive menu & TUI**: Running `hoox` with no arguments opens the interactive menu; `hoox tui` launches the full OpenTUI operations center.
+- **Operator security plane** (`hoox doctor`, `hoox tunnel`): Path/TUI hygiene, fail-closed remote transport (Bearer + Access), and private-ingress checks.
+- **Modern-minimal output**: Zinc/indigo palette, completion footer with “next step” suggestions, “did you mean …” for typos, custom help formatter, `--no-color` / `NO_COLOR` / `TERM=dumb`, compact `formatNumber` / `formatBytes`. Shared `format*` helpers available to plugin authors.
 - **Shell Completions**: bash, zsh, and fish completion scripts via `hoox completion <shell>`.
 
 ## Installation
@@ -92,13 +93,15 @@ hoox perf fastpath run --n 50
 | `hoox monitor`    | Monitor trades, logs, kill switch, queue, backup                     |
 | `hoox workers`    | Per-worker operations (list, dev, logs)                              |
 | `hoox repair`     | Diagnose and repair the system (check, rebuild, per-component)       |
-| `hoox schema`     | Manage D1 schema and migrations                                      |
-| `hoox update`     | Self-update the CLI and check wrangler versions                      |
+| `hoox schema`     | Validate/generate worker wrangler manifests against canonical specs  |
+| `hoox update`     | Pull repo/submodule updates or update wrangler                       |
 | `hoox logs`       | Stream and filter Cloudflare Worker logs                             |
 | `hoox test`       | Run tests and CI pipeline                                            |
 | `hoox waf`        | Manage Cloudflare WAF rules and policies                             |
 | `hoox dashboard`  | Dashboard operations (`dev`, `deploy`)                               |
 | `hoox tui`        | Launch the OpenTUI terminal dashboard                                |
+| `hoox doctor`     | Check paths, TUI entry, and operator security hygiene                |
+| `hoox tunnel`     | Private operator ingress helpers (cloudflared + Access)              |
 | `hoox agent`      | AI agent operations (health probe)                                   |
 | `hoox trace`      | Query Cloudflare Workers Observability (events, metrics, traces)     |
 | `hoox perf`       | Performance measurement tools (`fastpath` probe-based latency)       |
@@ -109,10 +112,11 @@ hoox perf fastpath run --n 50
 
 All commands support these global options:
 
-| Option    | Description                                  |
-| --------- | -------------------------------------------- |
-| `--json`  | Output in JSON format (useful for scripting) |
-| `--quiet` | Minimal output mode                          |
+| Option       | Description                                  |
+| ------------ | -------------------------------------------- |
+| `--json`     | Output in JSON format (useful for scripting) |
+| `--quiet`    | Minimal output mode                          |
+| `--no-color` | Disable ANSI colors (`NO_COLOR` also works)  |
 
 ## Usage Examples
 
@@ -345,6 +349,21 @@ hoox perf fastpath tail --duration 60
 hoox perf fastpath report --from 1h
 ```
 
+### Operator Security & Private Ingress
+
+```bash
+# Paths, TUI entry, and runtime layout
+hoox doctor
+
+# Hygiene + optional management /v1/health probes
+hoox doctor --security
+hoox doctor --security --api-url https://mgmt.example.com
+
+# cloudflared presence + private-ingress guidance
+hoox tunnel check
+hoox tunnel check --api-url https://mgmt.example.com --probe
+```
+
 ### Repair and Recovery
 
 ```bash
@@ -389,9 +408,9 @@ hoox infra d1 list --json
 ### Build from Source
 
 ```bash
-# Clone the repository
-git clone https://github.com/jango-blockchained/hoox-setup.git
-cd hoox-setup
+# Clone the repository (workers are submodules)
+git clone --recursive https://github.com/jango-blockchained/hoox.git
+cd hoox
 
 # Install dependencies
 bun install
@@ -455,13 +474,15 @@ packages/cli/
 │   │   ├── monitor/          # Trades, logs, kill-switch, backup
 │   │   ├── workers/          # List, dev, logs
 │   │   ├── repair/           # Check, worker, infra, secrets, rebuild
-│   │   ├── schema/           # Schema management
-│   │   ├── update/           # Self-update
+│   │   ├── schema/           # Manifest validate/generate
+│   │   ├── update/           # Repo/submodule/wrangler update
 │   │   ├── logs/             # Worker log tailing
 │   │   ├── test/             # CI pipeline
 │   │   ├── waf/              # WAF management
 │   │   ├── clone/            # Submodule cloning
 │   │   ├── tui/              # TUI launcher
+│   │   ├── doctor/           # Runtime paths + operator security
+│   │   ├── tunnel/           # Private ingress helpers
 │   │   ├── agent/            # AI agent operations
 │   │   ├── trace/            # Cloudflare Observability queries
 │   │   ├── perf/             # Performance measurement
@@ -473,10 +494,12 @@ packages/cli/
 │   │   ├── docker/           # Docker compose wrapper
 │   │   ├── env/              # Environment definitions
 │   │   ├── kv/               # KV key management
+│   │   ├── operator-security/# Access / tunnel probes
 │   │   ├── perf/             # Percentile, probe-sender, observability-reader
 │   │   ├── prerequisites/    # Tool version checks
+│   │   ├── runtime/          # Global ~/.hoox layout
 │   │   └── secrets/          # Secret management
-│   ├── ui/                   # Interactive TUI
+│   ├── ui/                   # Interactive menu (clack)
 │   └── utils/                # Errors, formatters, theme
 ├── bin/
 │   └── hoox.js              # CLI binary entry point
@@ -532,6 +555,7 @@ SOFTWARE.
 
 ## Links
 
-- [GitHub Repository](https://github.com/jango-blockchained/hoox-setup)
-- [Issue Tracker](https://github.com/jango-blockchained/hoox-setup/issues)
+- [GitHub Repository](https://github.com/jango-blockchained/hoox)
+- [Issue Tracker](https://github.com/jango-blockchained/hoox/issues)
+- [Product docs](https://docs.hoox.sh)
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)

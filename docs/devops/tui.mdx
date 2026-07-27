@@ -16,7 +16,7 @@ The **Hoox Terminal UI (TUI)** is a full-screen, keyboard-driven operations cent
 graph TD
     Renderer["OpenTUI Renderer (main.tsx)<br/>alternate screen, mouse/Kitty keyboard"] -->
     AppRoot["AppRoot + CrashRecoveryApp (app.tsx)<br/>Sidebar, StatusBar, Command Palette, quit modal"] -->
-    ActiveView["Active view (15 views)<br/>each sandboxed in ErrorBoundary"]
+    ActiveView["Active view (16 views)<br/>each sandboxed in ErrorBoundary"]
 
     style Renderer fill:#CCCCCC,stroke:#3b82f6,stroke-width:2
     style AppRoot fill:#CCCCCC,stroke:#f59e0b,stroke-width:2
@@ -28,9 +28,9 @@ graph TD
 ```
 packages/tui/src/
 ├── main.tsx                 # createCliRenderer (TUI_FPS / TUI_MOUSE env)
-├── app.tsx                  # VIEWS registry, shortcuts, session, SSE kickoff
+├── app.tsx                  # shell, session, SSE kickoff (views via view-registry)
 ├── components/
-│   ├── views/               # 15 views (+ dashboard/, config-editor/ subpanels)
+│   ├── views/               # 16 views (+ dashboard/, config-editor/ subpanels)
 │   ├── layout/              # sidebar, statusbar
 │   ├── shared/              # palette, crash screen, error boundary, …
 │   └── ui/                  # dialog / toast wrappers
@@ -71,9 +71,9 @@ View tests must **not** call `mock.module` for `cli-bridge`, shared stores, `api
 
 ---
 
-## 🗺️ View registry (15)
+## 🗺️ View registry (16)
 
-Must stay aligned with `ViewId` in `packages/shared/src/types.ts`, sidebar items, `VIEWS` in `app.tsx`, and command palette entries:
+Must stay aligned with `ViewId` in `packages/shared/src/types.ts`, sidebar items, `view-registry.tsx`, and command palette entries:
 
 | ViewId | Component | Primary data source |
 | ------ | --------- | ------------------- |
@@ -92,6 +92,7 @@ Must stay aligned with `ViewId` in `packages/shared/src/types.ts`, sidebar items
 | `ai-chat` | `AiChatView` | `agentChatStream` SSE |
 | `db-query` | `DbQueryView` | `validateReadOnlySql` + `dbQuery` |
 | `edge-topology` | `EdgeTopology` | monorepo `graph-metadata.json` |
+| `worker-settings` | `WorkerSettingsView` | dashboard.jsonc / worker settings via CLI |
 
 ---
 

@@ -222,7 +222,9 @@ interface ShortcutEntry {
 const SYSTEM_SHORTCUTS: ShortcutEntry[] = [
   { key: "Ctrl+1..9", action: "Switch to view 1-9" },
   { key: "Ctrl+0", action: "Switch to view 10" },
-  { key: "Ctrl+Alt+W", action: "Worker Settings (dashboard.jsonc)" },
+  // Keep action labels short — Keyboard panel is ~34 cols; long text
+  // overflows into adjacent panels and corrupts the character frame.
+  { key: "Ctrl+Alt+W", action: "Worker Settings" },
   { key: "Ctrl+P", action: "Command Palette" },
   { key: "Ctrl+B", action: "Toggle Sidebar" },
   { key: "Ctrl+Q", action: "Quit" },

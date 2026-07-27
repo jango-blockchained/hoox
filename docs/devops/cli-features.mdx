@@ -32,13 +32,13 @@ The CLI binary parses terminal instructions using the following architectural la
 
 Intercepts all incoming arguments (e.g. `hoox infra provision`), evaluates global flags (`--json`, `--quiet`), validates configuration integrity, and delegates execution to target command modules under `src/commands/`.
 
-### B. Cloudflare API Adapters (`src/adapters/`)
+### B. Cloudflare services (`src/services/cloudflare/`, `src/services/*`)
 
-Translates command intentions (like `hoox infra d1 create`) into parameterized Cloudflare API REST payloads, bypassing wrangler wrappers when high-performance execution is needed.
+Translates command intentions (like `hoox infra d1 create`) into wrangler subprocess calls or Cloudflare REST API requests. Domain services (setup, secrets, DB, repair, perf) live under `src/services/`.
 
-### C. State Engine (`src/core/`)
+### C. Shared config & path resolution (`@jango-blockchained/hoox-shared`)
 
-Tracks active project profiles, enabled worker matrices, and workspace configuration formats (`wrangler.jsonc` vs. `wrangler.toml`).
+Workspace configuration (`wrangler.jsonc`), path layout (`$HOME/.hoox`, monorepo detection), and operator transport live in the shared package rather than a CLI-local `src/core/`.
 
 ---
 

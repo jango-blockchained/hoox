@@ -170,9 +170,18 @@ export class CloudflareService {
     const output = result.value;
     const deployResult: DeployResult = { url, rawOutput: output };
 
-    // Extract worker name from path
-    const pathParts = workerPath.split("/");
-    deployResult.name = pathParts[pathParts.length - 1];
+    // Prefer the name wrangler reports (e.g. "Published hoox …") over the
+    // directory basename — dirs are often `hoox-worker` while the Worker name
+    // in wrangler.jsonc is `hoox`.
+    const publishedMatch = output.match(
+      /(?:Published|Uploaded)\s+([A-Za-z0-9][A-Za-z0-9._-]*)/i
+    );
+    if (publishedMatch?.[1]) {
+      deployResult.name = publishedMatch[1];
+    } else {
+      const pathParts = workerPath.split("/");
+      deployResult.name = pathParts[pathParts.length - 1];
+    }
 
     // Extract bundle size (e.g., "Total Upload: 7102.32 KiB / gzip: 1493.05 KiB")
     const sizeMatch = output.match(/Total Upload:\s*([\d.]+)\s*([KMGT]?i?B)/i);
