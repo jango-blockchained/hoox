@@ -20,6 +20,27 @@ HOOX is a production-grade, open-source algorithmic trading stack. Signals are v
 
 </div>
 
+### Ecosystem
+
+HOOX is the edge trading framework. Sister products on the same site:
+
+| Product  | Role                                        | Repo                                                                  | Website                                                                  |
+| -------- | ------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| **HOOX** | Edge trading framework (this repo)          | [jango-blockchained/hoox](https://github.com/jango-blockchained/hoox) | [hoox.sh](https://hoox.sh) · [docs](https://docs.hoox.sh)                |
+| **PYNE** | Pine Script™ Python toolchain, LSP, Pro API | [jango-blockchained/pyne](https://github.com/jango-blockchained/pyne) | [hoox.sh/pyne](https://hoox.sh/pyne) · [docs](https://hoox.sh/pyne/docs) |
+| **AXIS** | Installable charting PWA (Solid + Vite)     | [jango-blockchained/axis](https://github.com/jango-blockchained/axis) | [hoox.sh/axis](https://hoox.sh/axis) · [docs](https://hoox.sh/axis/docs) |
+
+```
+                    https://hoox.sh
+           ┌──────────────┼──────────────┐
+           ▼              ▼              ▼
+         HOOX            PYNE           AXIS
+    (edge execution)  (Pine engine)  (charting UI)
+           │              │              │
+           └──────────────┴──────────────┘
+                    trade signals / eval API
+```
+
 ---
 
 ## Install

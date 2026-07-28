@@ -82,14 +82,14 @@
   "dependencies": {
     "zod": "^4.4.3"
   },
-  "description": "HOOX — algorithmic trading terminal operations center",
+  "description": "HOOX — ultra-low-latency edge trading framework on Cloudflare Workers. Stack: hoox + pyne + axis (hoox.sh)",
   "directories": {
     "doc": "docs",
     "test": "tests"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jango-blockchained/hoox-setup.git"
+    "url": "https://github.com/jango-blockchained/hoox.git"
   },
   "keywords": [],
   "author": "jango-blockchained",
@@ -105,11 +105,11 @@
     }
   ],
   "bugs": {
-    "url": "https://github.com/jango-blockchained/hoox-setup/issues"
+    "url": "https://github.com/jango-blockchained/hoox/issues"
   },
   "overrides": {
     "@radix-ui/react-slot": "^1.2.4",
     "@cloudflare/workers-types": "^5.20260708.1"
   },
-  "homepage": "https://github.com/jango-blockchained/hoox-setup#readme"
+  "homepage": "https://hoox.sh"
 }

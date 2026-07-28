@@ -1,9 +1,19 @@
 # Agent Instructions
 
+## Ecosystem & websites
+
+| Product | GitHub | Website |
+|---------|--------|---------|
+| **HOOX** (this repo) | [jango-blockchained/hoox](https://github.com/jango-blockchained/hoox) | [hoox.sh](https://hoox.sh) · [docs.hoox.sh](https://docs.hoox.sh) |
+| **PYNE** | [jango-blockchained/pyne](https://github.com/jango-blockchained/pyne) | [hoox.sh/pyne](https://hoox.sh/pyne) · [docs](https://hoox.sh/pyne/docs) |
+| **AXIS** | [jango-blockchained/axis](https://github.com/jango-blockchained/axis) | [hoox.sh/axis](https://hoox.sh/axis) · [docs](https://hoox.sh/axis/docs) |
+
+Local clones often sit next to each other: `/home/jango/Git/{hoox,pynescript,axis}`.
+
 ## First-Time Setup
 
 ```bash
-git clone --recursive https://github.com/jango-blockchained/hoox-setup.git
+git clone --recursive https://github.com/jango-blockchained/hoox.git
 bun install
 ```
 
@@ -165,43 +175,36 @@ bun -e "const b=require('./graph-metadata.json').infrastructure['kv:CONFIG_KV'];
 
 ## Sister Repos
 
-All repos below are part of the **HOOX** project — a modular, production-ready algorithmic trading framework for Cloudflare Workers. When working on any HOOX repo, be aware of the others.
+Primary stack (websites on **[hoox.sh](https://hoox.sh)**):
+
+| Product | GitHub | Local path | Website |
+|---|---|---|---|
+| **HOOX** (this repo) | [jango-blockchained/hoox](https://github.com/jango-blockchained/hoox) | `/home/jango/Git/hoox` | [hoox.sh](https://hoox.sh) · [docs.hoox.sh](https://docs.hoox.sh) |
+| **PYNE** | [jango-blockchained/pyne](https://github.com/jango-blockchained/pyne) | `/home/jango/Git/pynescript` | [hoox.sh/pyne](https://hoox.sh/pyne) · [docs](https://hoox.sh/pyne/docs) |
+| **AXIS** | [jango-blockchained/axis](https://github.com/jango-blockchained/axis) | `/home/jango/Git/axis` | [hoox.sh/axis](https://hoox.sh/axis) · [docs](https://hoox.sh/axis/docs) |
+
+Related:
 
 | Repo | Path | Purpose |
 |---|---|---|
-| `hoox-setup` | `/home/jango/Git/hoox-setup` | Monorepo: all Cloudflare Workers (gateway, execution, D1, analytics, etc.), Docker, CI/CD |
-| `hoox-landing-page` | `/home/jango/Git/hoox-landing-page` | Marketing landing site (Next.js 16, GSAP + Framer Motion + Lenis) |
-| `pynescript` | `/home/jango/Git/pynescript` | Pine Script parser/evaluator (Python, ANTLR4, Flask Pro API, VS Code extension) |
-| `pyne-worker` | `/home/jango/Git/pyne-worker` | Python Cloudflare Worker — Pine Script evaluation on the edge (depends on `pynescript`) |
-| `pine-worker` | `/home/jango/Git/pine-worker` | TypeScript Cloudflare Worker — Pine Script evaluator + trade event emitter (depends on `@jango-blockchained/hoox-shared` from `hoox-setup`) |
+| `hoox-landing-page` | `/home/jango/Git/hoox-landing-page` | Marketing site source for [hoox.sh](https://hoox.sh) |
+| `pyne-worker` | `/home/jango/Git/pyne-worker` | Python CF Worker — edge Pine eval |
+| `pine-worker` | `/home/jango/Git/pine-worker` | TypeScript CF Worker — Pine eval + trade events |
 
 **Key dependency links:**
-- `pyne-worker` → `pynescript` (editable install, same `pynescript` package)
-- `pine-worker` → `@jango-blockchained/hoox-shared` (workspace dep from `hoox-setup`)
-- All repos share `github.com/jango-blockchained/` org
+- AXIS → pyne Pro API (`:5002`) or axis Worker for chart evaluation
+- `pyne-worker` → `pynescript` package (editable install from pyne repo)
+- `pine-worker` → `@jango-blockchained/hoox-shared` (this monorepo)
+- All under `github.com/jango-blockchained/`
 
 ```
-hoox-setup (workers)
-    ├── trade-worker ←──────────┐
-    ├── hoox (gateway) ────────┐│
-    ├── d1-worker ─────────────┐││
-    ├── agent-worker ──────────┐││
-    ├── telegram-worker ───────┐││
-    ├── web3-wallet-worker ────┐││
-    ├── email-worker ──────────┐││
-    ├── analytics-worker ──────┐││
-    ├── report-worker ─────────┐││
-    └── dashboard (Next.js) ────┘││
-                                  ││
-                     pynescript ──┘│
-                      (Pine Script  │
-                       parser/      │
-                       evaluator)   │
-                            │       │
-                            ▼       ▼
-                       pyne-worker  pine-worker
-                       (Python CF   (TypeScript CF
-                        Worker)      Worker)
+                    https://hoox.sh
+           ┌──────────────┼──────────────┐
+           ▼              ▼              ▼
+         HOOX            PYNE           AXIS
+    (this monorepo)  (Pine engine)  (charting UI)
+           │              │              │
+           └──────────────┴──────────────┘
 ```
 
 ## Important File Paths
