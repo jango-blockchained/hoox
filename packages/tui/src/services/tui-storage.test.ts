@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Tests for file-backed TUI state storage (Bun has no localStorage).
  */
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";

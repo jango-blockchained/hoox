@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { describe, expect, test, mock } from "bun:test";
 
 mock.module("server-only", () => {

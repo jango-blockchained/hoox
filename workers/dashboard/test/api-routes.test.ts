@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { describe, expect, test, mock, beforeEach, afterEach } from "bun:test";
 
 // Mock modules before imports

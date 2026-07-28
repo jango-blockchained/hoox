@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Config Store — User preferences persisted to ~/.hoox/config.json.
  * Follows TUI Pattern 2: Store Subscription with selectors.
  *

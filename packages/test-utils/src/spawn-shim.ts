@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Shared Bun.spawn shim for test environments.
  *
  * Intercepts Bun.spawn calls and returns a no-op fake process for commands

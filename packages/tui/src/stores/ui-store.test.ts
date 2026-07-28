@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * UI Store Tests — Navigation, sidebar, modals, command palette.
  *
  * Tests Zustand store actions in isolation (no rendering).

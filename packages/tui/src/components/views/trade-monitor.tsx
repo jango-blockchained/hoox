@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /** @jsxImportSource @opentui/react */
 /**
  * Trade Monitor View — live trade feed, open positions, and performance summary.

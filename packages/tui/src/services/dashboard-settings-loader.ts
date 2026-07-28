@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Load worker dashboard.jsonc manifests for the TUI worker-settings view.
  * Thin wrapper around shared filesystem discovery.
  */

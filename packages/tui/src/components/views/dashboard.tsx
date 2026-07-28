@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /** @jsxImportSource @opentui/react */
 /**
  * Dashboard View — System health overview with service grid, alerts, and quick stats.

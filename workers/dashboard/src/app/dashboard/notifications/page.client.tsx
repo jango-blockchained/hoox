@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Bell } from "reicon-react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { NotificationTester } from "@/components/dashboard/notification-tester";

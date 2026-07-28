@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Legal notices, trademarks, and disclaimers for Hoox.
  * Centralized here so all surfaces (CLI, HTTP, Dashboard) use consistent text.
  */

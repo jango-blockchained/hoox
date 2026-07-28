@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { DockerService } from "./docker-service.js";
 

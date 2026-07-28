@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Shared CLI bridge test double.
  *
  * Installed once from `test-setup.ts` via `mock.module` so every TUI test

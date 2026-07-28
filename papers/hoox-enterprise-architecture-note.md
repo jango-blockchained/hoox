@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # HOOX Enterprise Architecture Note (2026)
 
 **This note describes the commercial Enterprise layer only.**
@@ -20,7 +25,7 @@ This short note accompanies the main HOOX academic paper / PoC, which focuses on
 
 The architecture remains grounded in the same 10-worker + Service Bindings + DO + Smart Placement model described in the main paper.
 
-See `docs/enterprise/` for public architecture design docs of the commercial layer (see root OPEN_CORE* files for boundaries).
+See `docs/enterprise/` for public architecture design docs of the commercial layer (see root OPEN_CORE\* files for boundaries).
 
 This enables HOOX to serve prop shops, funds, and platforms while preserving the original "no servers, everything at the edge" philosophy.
 

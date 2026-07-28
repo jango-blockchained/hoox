@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Chrome component export tests — ViewHeader + Panel + CoolBrackets.
  */
 import { describe, it, expect } from "bun:test";

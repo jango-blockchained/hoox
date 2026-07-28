@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { SignalsTable } from "@/components/dashboard/signals-table";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Bolt } from "reicon-react";

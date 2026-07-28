@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * `hoox onboard` — One-shot full workspace bootstrap.
  *
  * Chains the two steps required to get from a fresh clone to a deployed,

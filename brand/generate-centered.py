@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+# SPDX-License-Identifier: Apache-2.0
 """
 Generate pure centered-logo brand assets (first kit style).
 

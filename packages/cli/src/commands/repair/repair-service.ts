@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { CloudflareService } from "../../services/cloudflare/index.js";
 import { SecretsService } from "../../services/secrets/index.js";
 import type { RepairStepResult, RepairCheckResult } from "./types.js";

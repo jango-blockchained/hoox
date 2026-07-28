@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Check, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WizardStep } from "../setup-config";

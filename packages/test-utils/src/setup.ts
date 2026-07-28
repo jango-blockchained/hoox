@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Consolidated test setup / preload for the HOOX monorepo.
  *
  * This file replaces the four near-identical preloads that previously lived at:

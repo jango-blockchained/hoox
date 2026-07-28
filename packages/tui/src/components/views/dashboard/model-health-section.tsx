@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /** @jsxImportSource @opentui/react */
 import { useState, useCallback, useEffect } from "react";
 import { Colors, WorkerStatusColor } from "@jango-blockchained/hoox-shared";

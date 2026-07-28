@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Service Store — Worker data, live trades, alerts, logs, metrics, connection state.
  * Follows TUI Pattern 2: Store Subscription with selectors.
  *

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /** @jsxImportSource @opentui/react */
 /**
  * DB Query View — Read-only SQL query panel for Cloudflare D1.

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Shared secrets subcommand registration for:
  *   - `hoox config secrets …`
  *   - `hoox secrets …` (top-level alias, in-process — no PATH re-spawn)

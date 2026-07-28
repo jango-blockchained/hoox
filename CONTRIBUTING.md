@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # Contributing to Hoox
 
 First off, thank you for considering contributing to Hoox! It's people like you that make Hoox such a great tool for the algorithmic trading community.

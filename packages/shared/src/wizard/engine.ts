@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * WizardEngine — Pure-logic state machine for the setup wizard.
  *
  * Manages step transitions, validation, and config building.

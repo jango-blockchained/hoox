@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { UsageChart } from "@/components/agent/usage-chart";
 import { UsageTable } from "@/components/agent/usage-table";
 import { PageHeader } from "@/components/dashboard/page-header";

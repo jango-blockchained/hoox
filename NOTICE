@@ -1,0 +1,28 @@
+HOOX — NOTICE
+=============
+
+Copyright (c) 2026 HOOX · jango-blockchained
+https://github.com/jango-blockchained/hoox
+
+Dual licensing (Open Core)
+--------------------------
+  Code (software):     Apache License 2.0
+                       SPDX-License-Identifier: Apache-2.0
+                       Full text: LICENSE-CODE
+
+  Docs, papers, brand: Creative Commons Attribution 4.0 International
+                       SPDX-License-Identifier: CC-BY-4.0
+                       Full text / deed: LICENSE (CC BY 4.0 body)
+                       https://creativecommons.org/licenses/by/4.0/
+
+Path guidance
+-------------
+  Apache-2.0:  packages/, workers/, scripts/, config (code), Dockerfiles, etc.
+  CC-BY-4.0:   docs/, papers/, README and design prose, brand assets notes
+
+Source files should carry SPDX headers matching the path.
+
+Third-party marks
+-----------------
+Cloudflare® is a registered trademark of Cloudflare, Inc.
+TradingView® and Pine Script™ are trademarks of TradingView, Inc.

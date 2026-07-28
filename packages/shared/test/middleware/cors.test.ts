@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Comprehensive test suite for CORS middleware
  * Fail-closed defaults: no open origin (*)
  */

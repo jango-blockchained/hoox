@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /** @jsxImportSource @opentui/react */
 import { describe, it, expect, beforeEach } from "bun:test";
 import { testRender } from "@opentui/react/test-utils";

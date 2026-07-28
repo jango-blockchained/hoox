@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * @hoox/shared — Shared module for HOOX (Open Core)
  *
  * Barrel export: re-exports all shared utilities, types, stores, and TUI helpers.

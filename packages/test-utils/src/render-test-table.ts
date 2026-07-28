@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Unified per-suite test summary table.
  *
  * Renders a JUnit XML test report (as emitted by Bun's `--reporter=junit`

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { secureHeaders } from "@jango-blockchained/hoox-shared/middleware";

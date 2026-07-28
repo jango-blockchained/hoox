@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Sanitize wrangler (and similar CLI) stderr/stdout for human error messages.
  *
  * Wrangler often dumps banners, emoji, log-file paths, and multi-line stack

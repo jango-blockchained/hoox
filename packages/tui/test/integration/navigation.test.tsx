@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Integration Tests — Navigation, view switching, keyboard shortcuts.
  *
  * Tests the full navigation flow via the UI store, verifying:

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Live Zod Validation Tests
  *
  * Tests the shared package's Zod schemas and validateJson() middleware

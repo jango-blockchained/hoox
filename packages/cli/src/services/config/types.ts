@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * ConfigService types — strongly-typed interfaces for wrangler.jsonc.
  *
  * The shape mirrors the actual wrangler.jsonc at the project root:

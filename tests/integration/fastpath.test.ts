@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Integration test for `hoox perf fastpath`.
  *
  * Requires `docker compose --profile workers up` to be running locally.

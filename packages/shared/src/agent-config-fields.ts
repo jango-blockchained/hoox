@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Map dashboard.jsonc provider/model (and optional risk) fields onto the
  * `agent:config` JSON blob that the agent-worker actually reads.
  *

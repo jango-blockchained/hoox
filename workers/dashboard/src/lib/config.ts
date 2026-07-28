@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import {
   DASHBOARD_D1_READ_AUTH_KEY_FIELDS,
   DASHBOARD_TELEGRAM_ALERT_AUTH_KEY_FIELDS,

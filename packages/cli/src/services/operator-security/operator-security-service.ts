@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Operator-plane security checks for `hoox doctor --security` and `hoox tunnel check`.
  *
  * Never logs secret values. All probes use injectable fetch for tests.

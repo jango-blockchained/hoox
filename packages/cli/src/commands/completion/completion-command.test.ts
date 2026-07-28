@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Unit tests for the `hoox completion` command.
  *
  * The command's job is to print a shell completion script to stdout

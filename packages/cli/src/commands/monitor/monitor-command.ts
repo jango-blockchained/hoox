@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Command } from "commander";
 import { DbService } from "../../services/db/index.js";
 import { KvSyncService } from "../../services/kv/kv-sync-service.js";

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Hoox CLI theme — refined ansis palette + icon set.
  *
  * Visual identity is "modern minimal" (Vercel / Linear / Turborepo):

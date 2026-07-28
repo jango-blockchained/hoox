@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Error handling utilities for Cloudflare Workers and Dashboard
  * Centralizes error response creation across the monorepo
  */

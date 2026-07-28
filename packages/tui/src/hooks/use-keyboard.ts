@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * useKeyboard — Priority-ordered keyboard handler hook.
  *
  * Registers a keypress handler with a priority. Higher priority handlers

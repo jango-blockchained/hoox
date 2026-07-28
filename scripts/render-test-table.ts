@@ -1,5 +1,9 @@
 #!/usr/bin/env bun
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
  * Render a JUnit XML test report as a unified per-suite summary table.
  *
  * Usage:

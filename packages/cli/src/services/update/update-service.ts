@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * UpdateService — manages wrangler version updates.
  *
  * Checks current wrangler version, compares against minimum, and updates

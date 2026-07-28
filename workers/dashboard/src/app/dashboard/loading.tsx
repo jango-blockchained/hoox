@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 export default function DashboardLoading() {
   return (
     <div className="flex h-[80vh] items-center justify-center">

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Unit tests for shared error handling utilities
  * Run with: bun test packages/shared/test/errors.test.ts
  */

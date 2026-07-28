@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Pure percentile / summary statistics. No I/O, no logging.
  * Uses linear interpolation between ranks (numpy "linear" default).
  */

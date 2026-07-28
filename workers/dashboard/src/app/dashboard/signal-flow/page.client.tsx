@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { SignalFlowVisualization } from "@/components/dashboard/signal-flow-visualization";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { BranchUp } from "reicon-react";

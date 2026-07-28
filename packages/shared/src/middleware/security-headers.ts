@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Security Headers middleware for Cloudflare Workers
  * Provides standardized security headers for all worker responses
  *

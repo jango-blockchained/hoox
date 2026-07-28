@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Unit tests for KV utility functions
  * Run with: bun test packages/shared/test/kvUtils.test.ts
  */

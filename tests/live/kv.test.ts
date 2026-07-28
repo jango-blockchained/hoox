@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Live KV Namespace Tests
  *
  * Tests Cloudflare KV serverless key-value storage via wrangler CLI.

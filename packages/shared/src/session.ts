@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Session persistence — saves/restores TUI state to $HOME/.hoox/.tui-state/session.json.
  *
  * On destroy (app exit): serializes { activeView, sidebarExpanded, windowSize,

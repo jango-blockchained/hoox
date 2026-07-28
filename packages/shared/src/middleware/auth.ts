@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Authentication middleware for Cloudflare Workers
  * Provides both Bearer token auth and internal service-to-service auth
  */

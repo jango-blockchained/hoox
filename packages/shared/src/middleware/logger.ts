@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Logger middleware for Cloudflare Workers
  * Adapted from workers/agent-worker/src/middleware/logger.ts
  */

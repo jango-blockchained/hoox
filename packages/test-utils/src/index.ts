@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * @hoox/test-utils — public entry point.
  *
  * Re-exports the consolidated bun:test preload helpers so workspaces can

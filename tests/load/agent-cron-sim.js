@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // Agent Worker Cron Loop Simulation
 // Simulates agent-worker's 5-minute cron cycle:
 // - Checks open positions

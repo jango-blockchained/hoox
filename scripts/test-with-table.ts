@@ -1,5 +1,9 @@
 #!/usr/bin/env bun
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
  * Test runner wrapper — invokes `bun test` with the supplied args, then
  * renders the unified per-suite summary table from the JUnit XML file
  * emitted by Bun's reporter (configured in `bunfig.toml`).

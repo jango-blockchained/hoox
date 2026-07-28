@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Router implementation for Cloudflare Workers
  * Provides standardized routing across all workers with path parameter support
  *

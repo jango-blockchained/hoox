@@ -1,4 +1,8 @@
 #!/usr/bin/env bun
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import fs from "node:fs";
 import path from "node:path";
 

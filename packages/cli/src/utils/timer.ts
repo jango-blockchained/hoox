@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Tiny timer + duration formatting helpers.
  *
  * Used to stamp "took 4.2s" on completion lines throughout the CLI

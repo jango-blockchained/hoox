@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Comprehensive test suite for validate middleware
  * Tests body/query/header validation, error responses, and multiple validations
  */

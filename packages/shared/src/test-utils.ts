@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 export interface MockKVNamespace<T = unknown> {
   get: (key: string) => Promise<T | null>;
   put: (

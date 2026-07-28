@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { parse as parseJsonc } from "jsonc-parser";
 import { sanitizeWranglerOutput } from "../../utils/wrangler-output.js";
 import type {

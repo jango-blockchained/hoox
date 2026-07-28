@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Live Workers AI Inference Tests
  *
  * Tests Cloudflare Workers AI inference at the edge via REST API.

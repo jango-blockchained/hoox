@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Relative time formatter — converts a timestamp (ms) into a human-readable
  * "time ago" string. Used by the StatusBar stale-data indicator and toast
  * notifications for reconnection downtime.

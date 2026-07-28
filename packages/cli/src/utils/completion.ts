@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * "What should the user do next?" lookup + path helpers for the
  * global completion hook installed in `index.ts`.
  *

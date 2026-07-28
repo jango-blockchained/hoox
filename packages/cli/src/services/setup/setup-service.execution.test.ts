@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Execution-path tests for `SetupService` (src/services/setup/setup-service.ts).
  *
  * The existing setup-service.test.ts covers the skip branches. This file

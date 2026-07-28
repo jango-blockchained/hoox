@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Unit tests for the `hoox infra` command group.
  *
  * Tests each subcommand handler directly by injecting mock CloudflareService

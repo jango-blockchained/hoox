@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Color Tokens — Hoox TUI / shared design system (terminal-safe hex).
  *
  * Design DNA (2026 polish):

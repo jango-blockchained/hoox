@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Trace command type definitions.
  * Types for Cloudflare Workers Observability API (traces, spans, destinations).
  */

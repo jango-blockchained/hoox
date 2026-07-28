@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * `hoox logs` command group — real-time log tailing for Cloudflare Workers.
  *
  * Subcommands:

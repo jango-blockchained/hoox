@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Reads per-hop probe timings + extended traces from Cloudflare Workers Observability.
  * Supports both legacy per-service and new explicit `hop` names emitted by
  * the extended instrumentation (e.g. "hoox:hoox-gateway", "trade-worker:trade-worker-receive").

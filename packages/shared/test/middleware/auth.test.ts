@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Comprehensive test suite for authentication middleware
  * Tests timing-safe comparison, Bearer token auth, and internal service auth
  */

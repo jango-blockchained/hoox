@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Test setup / preload for TUI package.
  *
  * Pre-loads @opentui/core so its top-level await resolves BEFORE any test

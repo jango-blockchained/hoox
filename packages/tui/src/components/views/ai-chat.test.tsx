@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Tests for AiChatView — export surface + Bun environment assumptions.
  * Persistence uses file-backed tui-storage (see tui-storage.test.ts);
  * full render/SSE coverage is out of scope for this unit file.

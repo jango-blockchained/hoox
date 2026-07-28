@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Tests for validateReadOnlySql — the client-side read-only SQL validator.
  *
  * Validates the security guarantees of the db-query view:

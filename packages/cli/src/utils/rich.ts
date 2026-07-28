@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * `runRichTasks` — execute a list of named async tasks with rich terminal
  * feedback (animated checklist, per-task timing, final summary table).
  *

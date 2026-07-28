@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * TUI connection helpers — LOCAL/REMOTE mode, auth presence, and error
  * classification used by the status bar, connection toasts, and startup.
  *

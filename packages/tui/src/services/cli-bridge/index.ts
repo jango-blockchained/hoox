@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * CliBridge — Spawns the hoox CLI binary and returns structured results.
  *
  * Provides convenience methods for all CLI operations used by TUI views,

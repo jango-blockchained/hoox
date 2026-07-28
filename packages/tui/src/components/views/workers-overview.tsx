@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /** @jsxImportSource @opentui/react */
 /**
  * Workers Overview — 2-column card grid displaying all Hoox Workers.
@@ -229,7 +234,8 @@ export function WorkersOverview({ dialog }: WorkersOverviewProps = {}) {
           const raw = result.data as Record<string, unknown>;
           // CLI may return workers array, health object, or similar
           const rawWorkers = (raw.workers ?? raw.status ?? raw) as
-            unknown[] | Record<string, unknown>;
+            | unknown[]
+            | Record<string, unknown>;
           const parsed = Array.isArray(rawWorkers)
             ? rawWorkers
             : typeof rawWorkers === "object" && rawWorkers !== null

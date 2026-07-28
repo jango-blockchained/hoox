@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * useServiceData — Thin typed wrapper over Zustand useServiceStore.
  *
  * Usage: useServiceData(s => s.workers)

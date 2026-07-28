@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Decide whether "rich" terminal output is appropriate.
  *
  * Rich output (spinners, progress bars, color, badges) is suppressed when:

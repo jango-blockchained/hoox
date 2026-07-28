@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Global Hoox runtime — managed monorepo clone under $HOME/.hoox/repo.
  *
  * Used when the CLI runs outside a local monorepo checkout (e.g. `hx tui`

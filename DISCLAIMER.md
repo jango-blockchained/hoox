@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # Disclaimer
 
 **Last updated:** May 7, 2026

@@ -1,5 +1,9 @@
 #!/usr/bin/env bun
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
  * Extract code excerpts from the monorepo into papers/listings/.
  *
  * Usage (from repo root):
@@ -116,7 +120,9 @@ function main(): void {
     const outPath = join(OUTPUT_DIR, entry.output);
     const content = sanitizeForLatex(header + body.join("\n") + "\n");
     writeFileSync(outPath, content, "utf-8");
-    console.log(`  ${entry.output}  ←  ${entry.source}:${entry.startLine}-${entry.endLine}`);
+    console.log(
+      `  ${entry.output}  ←  ${entry.source}:${entry.startLine}-${entry.endLine}`
+    );
     count++;
   }
 

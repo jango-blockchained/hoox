@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { resolve } from "path";
 import { Command } from "commander";
 import { SchemaService } from "../../services/schema/schema-service.js";

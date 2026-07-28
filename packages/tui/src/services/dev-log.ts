@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * TUI dev logger — file-backed diagnostics that never touch stdout/stderr
  * (those would corrupt the OpenTUI alternate screen).
  *

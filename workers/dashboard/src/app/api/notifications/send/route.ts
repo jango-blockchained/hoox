@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { Errors } from "@jango-blockchained/hoox-shared/errors";

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * cloudflare-workers-shim.js
  *
  * Minimal shim for the `cloudflare:workers` import that some worker

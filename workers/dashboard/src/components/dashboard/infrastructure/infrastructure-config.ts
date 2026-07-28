@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Server, Layout, HardDrive, type LucideIcon } from "lucide-react";
 import type { CFServiceType } from "@/components/ui/cf-service-badge";
 

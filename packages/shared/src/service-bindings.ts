@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { collectInternalAuthKeys } from "./middleware/auth";
 import type { InternalAuthEnv, InternalAuthKeyName } from "./middleware/auth";
 

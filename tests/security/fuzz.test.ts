@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Fuzz testing for worker endpoints
  *
  * Sends malformed/invalid payloads to worker endpoints and verifies:

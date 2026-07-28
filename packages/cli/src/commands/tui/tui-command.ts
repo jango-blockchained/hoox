@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * `hoox tui` command — launch the OpenTUI terminal operations center.
  *
  * Spawns the TUI as a child Bun process so it can take over the terminal

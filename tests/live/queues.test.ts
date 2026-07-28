@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Live Queue Messaging Tests
  *
  * Tests Cloudflare Queues via wrangler CLI and REST API.

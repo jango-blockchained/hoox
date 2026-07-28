@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // Pure /health benchmark — no KV writes, just cold + warm latency on the new code.
 // 1 VU cold (10s) + 10 VU warm (30s)
 

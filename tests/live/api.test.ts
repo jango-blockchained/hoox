@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Live Cloudflare REST API Tests
  *
  * Tests the Cloudflare REST API directly (not through wrangler).

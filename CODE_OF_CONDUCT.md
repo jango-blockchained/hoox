@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # Contributor Covenant Code of Conduct
 
 ## Our Pledge

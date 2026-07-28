@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // Combined System Traffic Load Test
 // Simulates realistic mixed traffic across the Hoox system:
 // - 70% webhook calls (hoox gateway POST /webhook)

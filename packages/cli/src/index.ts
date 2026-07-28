@@ -1,5 +1,9 @@
 #!/usr/bin/env bun
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
  * Hoox CLI — main entry point.
  * Built with commander.js. Commands are registered via dedicated register* functions.
  * Global options --json and --quiet are available to all commands via program.opts().

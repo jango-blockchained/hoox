@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // Regression coverage for executeAnalyticsQuery.
 //
 // Background: the Cloudflare Analytics Engine SQL API returns a wrapper

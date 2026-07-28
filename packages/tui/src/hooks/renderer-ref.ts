@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * renderer-ref — Module-level singleton for the CLI renderer.
  *
  * Avoids circular imports between main.ts and hooks.

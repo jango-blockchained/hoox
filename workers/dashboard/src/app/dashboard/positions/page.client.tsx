@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { PositionsTable } from "@/components/dashboard/positions-table";
 import { CandlestickChart } from "@/components/dashboard/candlestick-chart";
 import { PageHeader } from "@/components/dashboard/page-header";

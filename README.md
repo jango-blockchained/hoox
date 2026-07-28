@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # HOOX
 
 **Ultra-low-latency edge trading framework, built on Cloudflare Workers.**

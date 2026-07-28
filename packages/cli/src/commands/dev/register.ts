@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Public registration entry point for the `hoox dev` command.
  *
  * Wraps `registerDevCommand` with the auto-update preAction hook for

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Router type definitions for standardized worker routing
  * Compatible with Cloudflare Workers edge runtime
  */

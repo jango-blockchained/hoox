@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { ReasoningPanel } from "@/components/agent/reasoning-panel";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Brain } from "lucide-react";

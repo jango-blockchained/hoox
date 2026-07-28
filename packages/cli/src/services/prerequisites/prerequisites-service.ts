@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * PrerequisitesService checks runtime prerequisites before dev commands.
  *
  * Currently checks wrangler version against a known minimum.

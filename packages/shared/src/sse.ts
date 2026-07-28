@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * SSE Streaming Client — subscribes to Server-Sent Events from the Hoox
  * operator management API.
  *

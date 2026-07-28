@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /* ============================================================
  * Hoox Brand Polish — Custom JS
  * Scroll progress bar at top of page

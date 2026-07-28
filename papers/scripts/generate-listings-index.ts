@@ -1,5 +1,9 @@
 #!/usr/bin/env bun
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
  * Generate LaTeX listings index from manifest.yaml.
  * Output: papers/generated/listings-index.tex
  */

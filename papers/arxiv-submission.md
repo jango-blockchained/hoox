@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # arXiv Submission Metadata — HOOX Paper
 
 Use this document when submitting at [https://arxiv.org/submit](https://arxiv.org/submit).

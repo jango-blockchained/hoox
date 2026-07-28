@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+# SPDX-License-Identifier: Apache-2.0
 """
 Generate a *small* curated set of tagline banners.
 

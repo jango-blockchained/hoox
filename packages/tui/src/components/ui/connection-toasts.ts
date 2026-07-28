@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Connection toast notifications — mode-aware messages for LOCAL/REMOTE
  * state changes (connected, lost, reconnected, auth, rate limit).
  *

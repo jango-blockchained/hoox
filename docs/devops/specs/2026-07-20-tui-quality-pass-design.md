@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # TUI Balanced Quality Pass — Design Spec
 
 **Date:** 2026-07-20  

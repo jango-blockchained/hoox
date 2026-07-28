@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Unit tests for `TraceService` (src/commands/trace/trace-service.ts).
  *
  * Mocks global fetch() to exercise every method without hitting the

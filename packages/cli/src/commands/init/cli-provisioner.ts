@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * CLI implementation of the Provisioner interface.
  * Uses `wrangler` CLI via Bun.spawn to create Cloudflare resources.
  */

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { NextResponse } from "next/server";
 import { ENV_KEYS, getEnvVar } from "@/lib/config";
 import { Errors } from "@jango-blockchained/hoox-shared/errors";

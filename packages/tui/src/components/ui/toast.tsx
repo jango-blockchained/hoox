@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Thin wrappers around @opentui-ui/toast with Hoox color token defaults.
  * Provides toast helper functions (success, error, warning, info, loading)
  * pre-configured with Hoox design system colors and durations.

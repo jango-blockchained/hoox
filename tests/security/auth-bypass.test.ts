@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Auth bypass security tests
  *
  * Verifies that all protected worker endpoints reject unauthenticated requests.

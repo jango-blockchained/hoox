@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Shared git utilities for Hoox CLI.
  *
  * All functions use Bun.spawn for asynchronous git operations.

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * `hoox disclaimer` command — displays legal disclaimers and trademark information.
  *
  * Uses the centralized legal notices from @jango-blockchained/hoox-shared/legal

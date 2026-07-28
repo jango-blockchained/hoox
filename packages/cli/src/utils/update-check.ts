@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Helper: attach a preAction update check to a Command (or its subcommands).
  *
  * Used by `hoox dev` and `hoox deploy` to remind users about outdated

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // workers/dashboard/src/lib/settings/prefixes.ts
 //
 // Single source of truth for KV key prefix <-> worker mappings.

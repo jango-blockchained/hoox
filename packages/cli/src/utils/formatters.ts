@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Output formatters for the Hoox CLI.
  * Each function respects --json / --quiet flags passed via FormatOptions.
  * Human-readable mode uses ansis styling from the theme.

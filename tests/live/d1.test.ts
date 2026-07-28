@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Live D1 Database Tests
  *
  * Tests Cloudflare D1 serverless SQL database via wrangler CLI.

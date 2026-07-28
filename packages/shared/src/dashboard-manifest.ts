@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Dashboard settings manifests — same shape as workers/NAME/dashboard.jsonc
  * (and the web dashboard Settings form).
  *

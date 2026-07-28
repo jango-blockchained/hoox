@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 export { ChatInterface } from "./chat-interface";
 export { VisionUpload } from "./vision-upload";
 export { ReasoningPanel } from "./reasoning-panel";

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Command } from "commander";
 import { spinner } from "@clack/prompts";
 import { ConfigService } from "../../services/config/index.js";

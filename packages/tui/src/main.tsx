@@ -1,4 +1,8 @@
 #!/usr/bin/env bun
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
 /** @jsxImportSource @opentui/react */
 /**
  * HOOX TUI — Terminal Operations Center

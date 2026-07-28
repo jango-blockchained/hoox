@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { DashboardHeader } from "@/components/dashboard/header";
 import { LiveTicker } from "@/components/dashboard/live-ticker";
 import { CommandPalette } from "@/components/dashboard/command-palette";

@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { MetricsCards } from "@/components/dashboard/metrics-cards";
 import { PnlChart } from "@/components/dashboard/pnl-chart";
 import { AiHealthCard } from "@/components/dashboard/ai-health-card";

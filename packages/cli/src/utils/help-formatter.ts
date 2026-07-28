@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Custom Commander.js help formatter.
  *
  * Replaces the default flat `Usage: ... \n Options: ...` layout with a

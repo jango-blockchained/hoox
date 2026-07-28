@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // Fast Path Performance Audit — hoox gateway on deployed Cloudflare edge
 // Measures the POST /webhook hot path: auth → rate-limit → idempotency → trade-worker.
 // Each iteration uses a unique quantity to bypass the 5-min idempotency window.

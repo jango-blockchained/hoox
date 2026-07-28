@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // Webhook Flow Load Test
 // Simulates TradingView alert flow through the hoox public gateway (POST /webhook).
 // Tests end-to-end: auth (API key), payload validation, rate limiting, internal forwarding.

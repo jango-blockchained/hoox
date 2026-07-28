@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Number / byte formatters for human-readable terminal output.
  *
  * Pure, dependency-free. Used by `formatTable` (number auto-alignment) and

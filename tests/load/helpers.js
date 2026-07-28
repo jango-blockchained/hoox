@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // Shared helper module for k6 load tests
 // Provides auth config, payload builders, check functions, and default thresholds
 //

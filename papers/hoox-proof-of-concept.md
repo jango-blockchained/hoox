@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # HOOX: A Proof-of-Concept Edge-Native Algorithmic Trading Platform on Cloudflare Workers
 
 **jango_blockchained**  

@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { TradeMetricsChart } from "@/components/dashboard/analytics/trade-metrics-chart";
 import { SuccessRateCard } from "@/components/dashboard/analytics/success-rate-card";
 import { WorkerPerformance } from "@/components/dashboard/analytics/worker-performance";

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Types for the PrerequisitesService.
  *
  * Provides version checking for wrangler and Docker availability checks.

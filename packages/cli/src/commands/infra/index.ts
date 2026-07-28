@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Barrel export for the `hoox infra` command group.
  */
 export { registerInfraCommand } from "./infra-command.js";

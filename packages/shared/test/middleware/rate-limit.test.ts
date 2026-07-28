@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Comprehensive test suite for rate-limit middleware
  * Tests rate limiting by IP, headers, window reset, and custom options
  */

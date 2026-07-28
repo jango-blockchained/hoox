@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * DockerService wraps Docker Compose operations for local development.
  *
  * Provides availability checks, compose file detection, and compose up/down.

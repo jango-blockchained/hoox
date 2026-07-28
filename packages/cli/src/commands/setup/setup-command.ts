@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * `hoox setup` — CLI command wrapper around SetupService.
  *
  * Thin CLI layer: validates args, wires @clack/prompts spinners to the

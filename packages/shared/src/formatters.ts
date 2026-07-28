@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Formatters — Number, currency, duration, and timestamp formatting utilities.
  *
  * Pure functions — no side effects, safe for NaN/Infinity/negative/zero.

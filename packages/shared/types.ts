@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * @hoox/shared — TUI display types (re-exports)
  *
  * Canonical type definitions live in ./src/types.ts.

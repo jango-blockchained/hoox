@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Config Store Tests — Persistence, update, reset, shortcuts, notifications.
  *
  * Tests Zustand store with persist + immer middleware.

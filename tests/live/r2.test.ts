@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Live R2 Object Storage Tests
  *
  * Tests Cloudflare R2 S3-compatible object storage via wrangler CLI.

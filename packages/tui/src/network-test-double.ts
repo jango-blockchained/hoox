@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Shared network-layer test doubles for TUI unit tests.
  *
  * Installed once from `test-setup.ts` so `service-store` (and any view that

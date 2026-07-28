@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Shared Component Tests — ErrorBoundary, StatusDot, CommandPalette.
  *
  * Tests:

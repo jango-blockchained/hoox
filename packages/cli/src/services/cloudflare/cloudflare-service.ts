@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import path from "node:path";
 import { ConfigService } from "../config/index.js";
 import { sanitizeWranglerOutput } from "../../utils/wrangler-output.js";

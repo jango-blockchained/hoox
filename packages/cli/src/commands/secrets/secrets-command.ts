@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * `hoox secrets` — Manage Cloudflare Worker secrets.
  *
  * Top-level alias for `hoox config secrets …`, registered in-process

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Worker presets, dependency resolution, and integration definitions.
  *
  * Migrated from packages/cli/src/commands/init/types.ts

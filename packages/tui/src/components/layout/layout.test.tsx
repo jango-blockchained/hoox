@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Layout Component Tests — Sidebar, TabBar, StatusBar integration.
  *
  * Since the layout shell is defined inline in app.tsx (Sidebar, StatusBar

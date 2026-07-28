@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // D1 Query Load Test
 // Tests concurrent database query patterns against d1-worker.
 // Covers: single SELECT queries, batch operations, write operations.

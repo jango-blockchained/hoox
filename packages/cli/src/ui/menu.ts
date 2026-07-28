@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Interactive TUI loop for the Hoox CLI.
  *
  * When `hoox` is called with no arguments, this module takes over:

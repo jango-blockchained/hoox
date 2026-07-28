@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # HOOX Open Core vs Enterprise Feature Split
 
 This document defines the clear boundary between the **Open Core** (public, open source) and the **Enterprise** layer (commercial, closed source).

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * `hoox doctor` — diagnose global runtime / toolchain layout.
  *
  * Reports $HOME/.hoox, local vs global monorepo resolution, and TUI entry.

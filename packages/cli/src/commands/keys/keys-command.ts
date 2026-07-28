@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * `hoox keys` — Manage internal auth keys for inter-worker communication.
  *
  * Top-level alias for `hoox config keys …`, registered in-process

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { describe, expect, it, beforeAll } from "bun:test";
 import { PrerequisitesService } from "./prerequisites-service.js";
 

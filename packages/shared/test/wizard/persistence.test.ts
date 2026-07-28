@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { describe, it, expect } from "bun:test";
 import { serializeState, deserializeState } from "../../src/wizard/persistence";
 import type { WizardState } from "../../src/wizard/types";

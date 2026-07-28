@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { describe, it, expect, vi } from "bun:test";
 import { createQueueHandler } from "../src/queue-handler";
 

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Tests for SecretsViewer — export + pure helpers surface.
  * Full render tests for this view are covered by integration/e2e paths;
  * unit render with mock.module pollutes the shared store under Bun's runner.

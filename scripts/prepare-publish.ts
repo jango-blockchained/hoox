@@ -1,5 +1,9 @@
 #!/usr/bin/env bun
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
  * Prepare packages for npm publishing by replacing workspace:* with actual versions
  * Usage: bun scripts/prepare-publish.ts <package-path>
  */

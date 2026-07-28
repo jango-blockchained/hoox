@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Formatters Utility Tests — Time formatting, number formatting.
  *
  * Tests the pure formatting functions used throughout the TUI:

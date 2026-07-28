@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * CLIError — structured error class for the Hoox CLI.
  * Provides exit codes, optional details, hint, and recoverable flag.
  *

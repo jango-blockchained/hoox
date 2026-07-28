@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { useState, useEffect, useTransition } from "react";
 import { z } from "zod";
 import { toast } from "sonner";

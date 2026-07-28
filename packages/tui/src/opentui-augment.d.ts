@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Augment @opentui/core types that aren't resolved correctly through Bun's symlink chain.
  * This file fixes TS2305 errors by declaring the missing exports that exist at runtime.
  */

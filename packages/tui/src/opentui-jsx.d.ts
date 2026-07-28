@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Augment @opentui/react types.
  *
  * 1. Loose JSX intrinsic element types: OpenTUI v0.2.12's `BoxProps` and `TextProps`

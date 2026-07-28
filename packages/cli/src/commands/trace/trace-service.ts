@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Trace service — Cloudflare Workers Observability API client.
  * Handles authentication and API calls for trace queries, keys, values,
  * destinations, and usage statistics.

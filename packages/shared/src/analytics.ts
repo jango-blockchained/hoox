@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Analytics tracking utilities for Cloudflare Workers
  * Centralizes the trackAnalytics helper used across all workers
  */

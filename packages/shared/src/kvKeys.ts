@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Centralized KV key registry for Hoox workers.
  * Use these constants instead of string literals to prevent typos.
  *

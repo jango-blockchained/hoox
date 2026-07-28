@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Colors Utility Tests — Design token validation.
  *
  * Tests that the Hoox design system colors are correctly defined,

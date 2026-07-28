@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # Hoox Trading System — Product & Technical Design
 
 This document serves as the Single Source of Truth for the Hoox Trading System. It outlines the product overview, technical architecture, data models, workflows, UI/UX guidelines, and explicit instructions for AI agents modifying the codebase. All project context lives in `.opencode/context/project-intelligence/`.

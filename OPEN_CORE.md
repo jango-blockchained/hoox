@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
 # HOOX Open Core Model
 
 HOOX follows an **Open Core** development and licensing model.
@@ -10,18 +15,18 @@ HOOX follows an **Open Core** development and licensing model.
 
 ## What Is Open Core
 
-| Component                        | Status          | License          | Repository          |
-|----------------------------------|-----------------|------------------|---------------------|
-| Core architecture & workers      | Open            | CC-BY-4.0*       | Public              |
-| `packages/shared` (base)         | Open            | CC-BY-4.0*       | Public              |
-| CLI, TUI, Dashboard (core)       | Open            | CC-BY-4.0*       | Public              |
-| Architecture docs & academic paper | Open          | CC-BY-4.0        | Public              |
-| Basic usage of Cloudflare primitives | Open       | CC-BY-4.0*       | Public              |
-| **Advanced multi-tenant SaaS platform** | Commercial | Commercial license | Private            |
-| **Proprietary risk / AI models** | Commercial     | Commercial license | Private            |
-| **Full compliance & audit pipelines** | Commercial  | Commercial license | Private            |
-| **Hosted control plane + billing** | Commercial   | Commercial license | Private            |
-| **Enterprise support & SLAs**    | Commercial      | Commercial       | Private             |
+| Component                               | Status     | License            | Repository |
+| --------------------------------------- | ---------- | ------------------ | ---------- |
+| Core architecture & workers             | Open       | CC-BY-4.0\*        | Public     |
+| `packages/shared` (base)                | Open       | CC-BY-4.0\*        | Public     |
+| CLI, TUI, Dashboard (core)              | Open       | CC-BY-4.0\*        | Public     |
+| Architecture docs & academic paper      | Open       | CC-BY-4.0          | Public     |
+| Basic usage of Cloudflare primitives    | Open       | CC-BY-4.0\*        | Public     |
+| **Advanced multi-tenant SaaS platform** | Commercial | Commercial license | Private    |
+| **Proprietary risk / AI models**        | Commercial | Commercial license | Private    |
+| **Full compliance & audit pipelines**   | Commercial | Commercial license | Private    |
+| **Hosted control plane + billing**      | Commercial | Commercial license | Private    |
+| **Enterprise support & SLAs**           | Commercial | Commercial         | Private    |
 
 \* We are considering relicensing the open source code portions to **Apache 2.0** for better compatibility with commercial users and contributors. Documentation will likely stay under CC-BY-4.0.
 
@@ -50,6 +55,7 @@ All public Enterprise architecture documentation lives in `docs/devops/enterpris
 ## Licensing for the Open Core
 
 **Current (as of July 2026):**
+
 - Documentation and papers: **CC-BY-4.0**
 - Code (including this repository): **CC-BY-4.0**
 
@@ -68,12 +74,12 @@ The commercial Enterprise layer will use a separate proprietary/commercial licen
 
 ### Proposed License Structure
 
-| Component                  | Recommended License     | Repository     |
-|---------------------------|-------------------------|----------------|
-| Open Core code            | Apache 2.0             | Public         |
-| Documentation & papers    | CC-BY-4.0              | Public         |
-| Enterprise layer (code)   | Commercial license     | Private        |
-| Enterprise support/tools  | Commercial             | Private        |
+| Component                | Recommended License | Repository |
+| ------------------------ | ------------------- | ---------- |
+| Open Core code           | Apache 2.0          | Public     |
+| Documentation & papers   | CC-BY-4.0           | Public     |
+| Enterprise layer (code)  | Commercial license  | Private    |
+| Enterprise support/tools | Commercial          | Private    |
 
 If we keep CC-BY-4.0 for code, it remains very permissive but can be confusing for some corporate legal teams.
 

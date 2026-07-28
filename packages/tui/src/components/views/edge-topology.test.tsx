@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { testRender } from "@opentui/react/test-utils";
 import * as path from "path";
@@ -44,7 +49,10 @@ const mockMetadata = {
       id: "signal-pipeline",
       label: "Signal Pipeline",
       description: "The core trading signal flow",
-      nodeIds: ["workspace:workers/hoox-worker", "workspace:workers/trade-worker"],
+      nodeIds: [
+        "workspace:workers/hoox-worker",
+        "workspace:workers/trade-worker",
+      ],
     },
   ],
 };

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * SetupService — reusable core logic for `hoox setup`.
  *
  * Exports a class with methods for each setup step (generate keys, apply D1

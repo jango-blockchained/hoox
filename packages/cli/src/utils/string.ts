@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * String utilities used by formatters and the error handler.
  *
  * Pure, dependency-free. Keep this file small and focused.

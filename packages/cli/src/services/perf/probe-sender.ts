@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Sends a single fast-path probe to the deployed hoox gateway.
  * Returns a structured result with status, total_ms, and http_status.
  *

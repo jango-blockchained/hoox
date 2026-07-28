@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Live test inline visual dividers.
  *
  * The per-suite summary table (intro/outro + per-test pass/fail lines)

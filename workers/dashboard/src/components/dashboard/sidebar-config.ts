@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { HooxIconName } from "@/components/ui/hoox-icon";
 
 // Use semantic icon names from the Hoox registry for consistency

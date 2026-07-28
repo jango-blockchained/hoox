@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { describe, expect, it, beforeEach, afterEach, mock } from "bun:test";
 
 // Mock the `server-only` import used by lib/api.ts indirectly

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * HOOX Enterprise - Trade Lifecycle Workflow (skeleton)
  *
  * Durable, multi-step, automatically retried execution of a trade signal.
@@ -29,12 +34,16 @@ export class TradeLifecycleWorkflow extends Workflow<TradeLifecycleParams> {
     }
 
     // Step 2: Execute (with automatic retries on transient failure)
-    const execution = await step.do("execute", {
-      retries: { limit: 5, delay: "5 seconds", backoff: "exponential" },
-    }, async () => {
-      // Call trade-worker or execute logic
-      return { orderId: "simulated-123", filled: true };
-    });
+    const execution = await step.do(
+      "execute",
+      {
+        retries: { limit: 5, delay: "5 seconds", backoff: "exponential" },
+      },
+      async () => {
+        // Call trade-worker or execute logic
+        return { orderId: "simulated-123", filled: true };
+      }
+    );
 
     // Step 3: Persist + notify (durable)
     await step.do("persist-and-notify", async () => {

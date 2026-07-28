@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Unit tests for `hoox agent health` (config check + optional --probe).
  *
  * Live probes use a mocked global fetch — no real network.

@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Integration tests for the Hoox gateway.
  *
  * Tests the composition of shared middleware (Zod validation + auth + logging)
@@ -187,7 +192,8 @@ describe("Miniflare Gateway Integration", () => {
 
     const { env, createExecutionContext, waitOnExecutionContext } =
       cloudflareTest;
-    const worker = (await import("../../workers/hoox-worker/src/index")).default;
+    const worker = (await import("../../workers/hoox-worker/src/index"))
+      .default;
 
     const request = new Request("http://localhost/webhook", {
       method: "POST",
@@ -218,7 +224,8 @@ describe("Miniflare Gateway Integration", () => {
 
     const { env, createExecutionContext, waitOnExecutionContext } =
       cloudflareTest;
-    const worker = (await import("../../workers/hoox-worker/src/index")).default;
+    const worker = (await import("../../workers/hoox-worker/src/index"))
+      .default;
 
     const request = new Request("http://localhost/webhook", {
       method: "POST",

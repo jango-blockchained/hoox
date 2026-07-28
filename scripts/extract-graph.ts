@@ -1,5 +1,9 @@
 #!/usr/bin/env bun
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
  * Hoox Monorepo Function & Relationship Graph Extractor
  *
  * Parses the entire monorepo TypeScript AST using ts-morph,
@@ -111,7 +115,11 @@ const WORKSPACE_COLORS: Record<
   "packages/shared": { fill: "#e1f0fa", border: "#4A90D9", font: "#1a3a5c" },
   "packages/cli": { fill: "#d4f5f5", border: "#00B4B4", font: "#004d4d" },
   "packages/tui": { fill: "#d4faf0", border: "#00BCD4", font: "#004d5c" },
-  "workers/hoox-worker": { fill: "#e8f5e9", border: "#4CAF50", font: "#1b5e20" },
+  "workers/hoox-worker": {
+    fill: "#e8f5e9",
+    border: "#4CAF50",
+    font: "#1b5e20",
+  },
   "workers/trade-worker": {
     fill: "#f1f8e9",
     border: "#8BC34A",

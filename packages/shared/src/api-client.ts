@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * API Client — Bun fetch wrapper with AbortController timeouts, retry logic,
  * and connection-aware error handling for the Hoox TUI dashboard.
  *

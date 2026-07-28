@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { isSetupCompleted } from "./setup-progress";

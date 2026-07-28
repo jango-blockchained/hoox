@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Orchestrates a fast-path probe run:
  *   1. Sends N probes in parallel (bounded by concurrency).
  *   2. Collects per-iteration results.
