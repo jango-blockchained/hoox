@@ -37,22 +37,16 @@ COPY --chown=bun:bun packages/test-utils/package.json packages/test-utils/
 COPY --chown=bun:bun workers/ workers/
 
 # Remaining monorepo sources (packages/shared is inlined into worker bundles).
-COPY --chown=bun:bun packages/shared packages/shared
-COPY --chown=bun:bun server.js scripts/cloudflare-workers-shim.js ./
-
-# Copy worker sources. NOTE: bun install MUST run AFTER all source COPYs —
-# a later COPY of a worker dir would replace the directory and destroy the
+# NOTE: bun install MUST run AFTER all source COPYs — a later COPY of a
+# worker dir would replace the directory and destroy the
 # node_modules/@jango-blockchained/hoox-shared workspace symlink that
 # `bun install` creates, breaking `bun build` resolution below.
-COPY --chown=bun:bun workers/hoox-worker workers/hoox
-COPY --chown=bun:bun workers/trade-worker workers/trade-worker
-COPY --chown=bun:bun workers/telegram-worker workers/telegram-worker
-COPY --chown=bun:bun workers/d1-worker workers/d1-worker
-COPY --chown=bun:bun workers/web3-wallet-worker workers/web3-wallet-worker
-COPY --chown=bun:bun workers/agent-worker workers/agent-worker
-COPY --chown=bun:bun workers/email-worker workers/email-worker
-COPY --chown=bun:bun workers/report-worker workers/report-worker
-COPY --chown=bun:bun workers/analytics-worker workers/analytics-worker
+# Worker sources already arrived via `COPY workers/` above; do NOT re-copy
+# workers/hoox-worker → workers/hoox (that duplicated package name "hoox"
+# under workspaces workers/* and made bun install fail with
+# "Workspace name \"hoox\" already exists").
+COPY --chown=bun:bun packages/shared packages/shared
+COPY --chown=bun:bun server.js scripts/cloudflare-workers-shim.js ./
 
 # BuildKit cache mount keeps the Bun install cache across rebuilds.
 # --ignore-scripts skips husky prepare / puppeteer chrome download in the image.
@@ -69,19 +63,23 @@ RUN --mount=type=cache,id=bun-cache-prod,target=/home/bun/.bun/install/cache,uid
 # Bundle each self-hosted worker for Bun. Shared is fully inlined so the
 # runtime image does not need packages/shared or its transitive deps.
 # `cloudflare:workers` is provided at runtime by the fail-loud shim (option a).
+# Source dir is the monorepo path (hoox-worker); dist name is what server.js
+# imports (dist/hoox/...). Format: source_dir:dist_name
 RUN mkdir -p dist && \
-    for worker in \
-      hoox \
-      trade-worker \
-      telegram-worker \
-      d1-worker \
-      web3-wallet-worker \
-      agent-worker \
-      email-worker \
-      report-worker \
-      analytics-worker; do \
-      bun build "workers/${worker}/src/index.ts" \
-        --outdir="dist/${worker}" \
+    for entry in \
+      hoox-worker:hoox \
+      trade-worker:trade-worker \
+      telegram-worker:telegram-worker \
+      d1-worker:d1-worker \
+      web3-wallet-worker:web3-wallet-worker \
+      agent-worker:agent-worker \
+      email-worker:email-worker \
+      report-worker:report-worker \
+      analytics-worker:analytics-worker; do \
+      src="${entry%%:*}"; \
+      out="${entry##*:}"; \
+      bun build "workers/${src}/src/index.ts" \
+        --outdir="dist/${out}" \
         --target=bun \
         --external cloudflare:workers; \
     done
