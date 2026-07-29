@@ -46,12 +46,19 @@ The execution engine processes two primary types of order payloads:
 ```typescript
 export interface CexOrderPayload {
   exchange: "binance" | "bybit" | "mexc"; // Target exchange
-  action: "LONG" | "SHORT" | "CLOSE"; // Margin position action
+  action: "LONG" | "SHORT" | "CLOSE_LONG" | "CLOSE_SHORT"; // Position action
   symbol: string; // Standardized asset ticker (e.g. "BTCUSDT")
   quantity: number; // Order size in contracts or tokens
   leverage?: number; // Optional margin leverage multiplier
   price?: number; // Optional execution limit price
   orderType?: "MARKET" | "LIMIT"; // Default: MARKET
+  /**
+   * When true, route the order to the exchange testnet/sandbox API
+   * (Binance Futures testnet, Bybit testnet). MEXC has no public REST
+   * sandbox and rejects with TEST_TRADING_UNSUPPORTED.
+   * Live trading is the default when omitted or false.
+   */
+  test?: boolean;
 }
 ```
 
@@ -62,9 +69,30 @@ export interface CexOrderPayload {
   "symbol": "BTCUSDT",
   "quantity": 0.01,
   "leverage": 10,
-  "orderType": "MARKET"
+  "orderType": "MARKET",
+  "test": true
 }
 ```
+
+| Field    | Type      | Required | Notes                                                                 |
+| -------- | --------- | :------: | --------------------------------------------------------------------- |
+| `test`   | `boolean` |    No    | `true` → testnet host for Binance/Bybit; rejected for MEXC            |
+
+**Side effects when `test: true`:**
+
+| System | Effect |
+| ------ | ------ |
+| REST host | Binance `testnet.binancefuture.com` · Bybit `api-testnet.bybit.com` |
+| Secrets | Prefer `BINANCE_TESTNET_*` / `BYBIT_TESTNET_*`; fall back to live bindings |
+| D1 trades | `status = 'TEST_EXECUTED'` |
+| D1 positions | id namespaced `{exchange}-testnet-{symbol}-{side}` |
+| Telegram | Label includes `[TEST]` |
+| Analytics | AE blob exchange = `{exchange}:test` |
+| Queue | `test` is preserved on `TradeQueueMessage`; success notify is not duplicated |
+| Agent | Skips `*-testnet-*` OPEN rows |
+| Dashboard stats | Test fills/positions excluded from headline counts |
+
+See [Test Trading](/enduser/guides/test-trading) for operator setup.
 
 ---
 

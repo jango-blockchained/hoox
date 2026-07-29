@@ -62,7 +62,7 @@
   "footer": {
     "links": [
       {
-        "header": "Resources",
+        "header": "End User",
         "items": [
           {
             "label": "Installation",
@@ -73,33 +73,37 @@
             "href": "/docs/enduser/getting-started/quick-start"
           },
           {
-            "label": "CLI Reference",
-            "href": "/docs/enduser/reference/cli-commands"
+            "label": "Test Trading",
+            "href": "/docs/enduser/guides/test-trading"
           },
           {
-            "label": "API Endpoints",
-            "href": "/docs/enduser/reference/api-endpoints"
+            "label": "CLI Reference",
+            "href": "/docs/enduser/reference/cli-commands"
           }
         ]
       },
       {
-        "header": "Architecture",
+        "header": "Platform",
         "items": [
           {
-            "label": "DevOps Manual",
+            "label": "Architecture",
+            "href": "/docs/devops/architecture"
+          },
+          {
+            "label": "Workers",
+            "href": "/docs/devops/workers"
+          },
+          {
+            "label": "DevOps",
             "href": "/docs/devops"
           },
           {
-            "label": "System Overview",
-            "href": "/docs/devops/architecture/overview"
+            "label": "API",
+            "href": "/docs/devops/api"
           },
           {
-            "label": "Data Flow",
-            "href": "/docs/devops/architecture/data-flow"
-          },
-          {
-            "label": "Production Deployment",
-            "href": "/docs/devops/deployment/production"
+            "label": "Enterprise",
+            "href": "/docs/enterprise"
           }
         ]
       },
@@ -145,8 +149,9 @@
             "group": "End User",
             "pages": [
               "docs/index",
+              "docs/enduser/index",
               {
-                "group": "🚀 Getting Started",
+                "group": "Getting Started",
                 "pages": [
                   "docs/enduser/getting-started/installation",
                   "docs/enduser/getting-started/configuration",
@@ -154,7 +159,7 @@
                 ]
               },
               {
-                "group": "🧠 Core Concepts",
+                "group": "Core Concepts",
                 "pages": [
                   "docs/enduser/concepts/how-hoox-works",
                   "docs/enduser/concepts/edge-architecture",
@@ -165,12 +170,13 @@
                 ]
               },
               {
-                "group": "🛠️ Guides",
+                "group": "Guides",
                 "pages": [
                   "docs/enduser/guides/local-development",
                   "docs/enduser/guides/tui",
                   "docs/enduser/guides/database-ops",
                   "docs/enduser/guides/secrets-security",
+                  "docs/enduser/guides/test-trading",
                   "docs/enduser/guides/manage-infra",
                   "docs/enduser/guides/deploy-workers",
                   "docs/enduser/guides/repair",
@@ -178,7 +184,7 @@
                 ]
               },
               {
-                "group": "📚 Tutorials",
+                "group": "Tutorials",
                 "pages": [
                   "docs/enduser/tutorials/tradingview-webhook",
                   "docs/enduser/tutorials/telegram-bot",
@@ -186,7 +192,7 @@
                 ]
               },
               {
-                "group": "📖 Reference",
+                "group": "Reference",
                 "pages": [
                   "docs/enduser/reference/cli-commands",
                   "docs/enduser/reference/api-endpoints",
@@ -200,6 +206,46 @@
         ]
       },
       {
+        "tab": "Architecture",
+        "groups": [
+          {
+            "group": "Architecture",
+            "pages": [
+              "docs/devops/architecture/index",
+              "docs/devops/architecture/overview",
+              "docs/devops/architecture/data-flow",
+              "docs/devops/architecture/communication",
+              "docs/devops/architecture/bindings",
+              "docs/devops/architecture/storage",
+              "docs/devops/architecture/endpoints",
+              "docs/devops/architecture/design-system",
+              "docs/devops/architecture/adrs"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Workers",
+        "groups": [
+          {
+            "group": "Workers",
+            "pages": [
+              "docs/devops/workers/index",
+              "docs/devops/workers/hoox",
+              "docs/devops/workers/trade-worker",
+              "docs/devops/workers/d1-worker",
+              "docs/devops/workers/agent-worker",
+              "docs/devops/workers/telegram-worker",
+              "docs/devops/workers/email-worker",
+              "docs/devops/workers/web3-wallet-worker",
+              "docs/devops/workers/analytics-worker",
+              "docs/devops/workers/report-worker",
+              "docs/devops/workers/dashboard"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "DevOps",
         "groups": [
           {
@@ -207,35 +253,23 @@
             "pages": [
               "docs/devops/index",
               {
-                "group": "🏗️ Architecture",
+                "group": "Setup",
                 "pages": [
-                  "docs/devops/architecture/overview",
-                  "docs/devops/architecture/communication",
-                  "docs/devops/architecture/data-flow",
-                  "docs/devops/architecture/bindings",
-                  "docs/devops/architecture/storage",
-                  "docs/devops/architecture/endpoints",
-                  "docs/devops/architecture/design-system",
-                  "docs/devops/architecture/adrs"
+                  "docs/devops/installation-flow",
+                  "docs/devops/setup-and-operations",
+                  "docs/devops/bindings"
                 ]
               },
               {
-                "group": "🔧 Workers",
+                "group": "Development",
                 "pages": [
-                  "docs/devops/workers/hoox-gateway",
-                  "docs/devops/workers/trade-worker",
-                  "docs/devops/workers/agent-worker",
-                  "docs/devops/workers/d1-worker",
-                  "docs/devops/workers/telegram-worker",
-                  "docs/devops/workers/web3-wallet-worker",
-                  "docs/devops/workers/email-worker",
-                  "docs/devops/workers/analytics-worker",
-                  "docs/devops/workers/report-worker",
-                  "docs/devops/workers/dashboard"
+                  "docs/devops/development/local-dev",
+                  "docs/devops/development/testing",
+                  "docs/devops/development/debugging"
                 ]
               },
               {
-                "group": "🚀 Deployment",
+                "group": "Deployment",
                 "pages": [
                   "docs/devops/deployment/production",
                   "docs/devops/deployment/cicd",
@@ -245,36 +279,46 @@
                 ]
               },
               {
-                "group": "💻 Development",
-                "pages": [
-                  "docs/devops/development/local-dev",
-                  "docs/devops/development/testing",
-                  "docs/devops/development/debugging"
-                ]
-              },
-              {
-                "group": "🔗 API",
-                "pages": [
-                  "docs/devops/api/endpoints",
-                  "docs/devops/api/payloads",
-                  "docs/devops/api/responses"
-                ]
-              },
-              {
-                "group": "🛡️ Security",
+                "group": "Security",
                 "pages": ["docs/devops/security/overview"]
               },
               {
-                "group": "📋 Other",
+                "group": "Tooling",
                 "pages": [
-                  "docs/devops/bindings",
                   "docs/devops/cli-features",
-                  "docs/devops/installation-flow",
-                  "docs/devops/setup-and-operations",
                   "docs/devops/tui",
                   "docs/devops/refactoring/workers-pattern-consolidation"
                 ]
               }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API",
+        "groups": [
+          {
+            "group": "API",
+            "pages": [
+              "docs/devops/api/index",
+              "docs/devops/api/endpoints",
+              "docs/devops/api/payloads",
+              "docs/devops/api/responses"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Enterprise",
+        "groups": [
+          {
+            "group": "Enterprise",
+            "pages": [
+              "docs/enterprise/index",
+              "docs/enterprise/architecture",
+              "docs/enterprise/multi-tenancy",
+              "docs/enterprise/security-compliance",
+              "docs/enterprise/observability-audit"
             ]
           }
         ]

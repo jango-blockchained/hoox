@@ -1,0 +1,41 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
+---
+title: "Workers"
+description: "Per-isolate profiles for every HOOX Cloudflare Worker — gateway, execution, data, agents, and UI."
+---
+
+Each page is an **isolate profile**: bindings, routes, secrets, and behavior for one worker in the mesh.
+
+## Ingress & execution
+
+| Worker | Role |
+| ------ | ---- |
+| [hoox (Gateway)](hoox) | Public webhook ingress, auth, queue/service dispatch |
+| [trade-worker](trade-worker) | Exchange REST/WS execution, test trading, D1 fills |
+| [web3-wallet-worker](web3-wallet-worker) | On-chain signing and DeFi swaps |
+
+## Data & intelligence
+
+| Worker | Role |
+| ------ | ---- |
+| [d1-worker](d1-worker) | SQL proxy, dashboard stats, RPC inserts |
+| [agent-worker](agent-worker) | Cron risk, trailing stops, AI summaries |
+| [analytics-worker](analytics-worker) | Analytics Engine write path |
+| [report-worker](report-worker) | Trade reports / R2 artifacts |
+
+## Channels & UI
+
+| Worker | Role |
+| ------ | ---- |
+| [telegram-worker](telegram-worker) | Alerts, bot commands, RAG |
+| [email-worker](email-worker) | Mailgun / email signal parsing |
+| [dashboard](dashboard) | Next.js ops console (OpenNext) |
+
+## Related
+
+- [Architecture](/docs/devops/architecture) — mesh topology  
+- [Test Trading](/docs/enduser/guides/test-trading) — sandbox fills across trade / agent / dashboard  

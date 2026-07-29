@@ -1,0 +1,30 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
+---
+title: "Architecture"
+description: "System topology, data flow, bindings, storage, and ADRs for the HOOX edge mesh."
+---
+
+This track covers **how HOOX is structured** as a multi-worker mesh on Cloudflare — not day-to-day trading setup (see **End User**) and not deploy runbooks (see **DevOps**).
+
+## Start here
+
+| Page | What it covers |
+| ---- | -------------- |
+| [System Overview](overview) | Mesh layout, isolation, Smart Placement |
+| [Data Flow](data-flow) | Signal → execute → ledger → notify |
+| [Communication](communication) | Service bindings, queues, internal auth |
+| [Bindings](bindings) | Wrangler binding contracts across workers |
+| [Storage](storage) | D1, KV, R2 roles and retention |
+| [Endpoints (context)](endpoints) | Routing architecture (canonical API list lives under **API**) |
+| [Design System](design-system) | Shared UI / token conventions |
+| [ADRs](adrs) | Architecture decision records |
+
+## Related tracks
+
+- **[Workers](/docs/devops/workers)** — per-isolate deep dives  
+- **[DevOps](/docs/devops)** — install, deploy, CI, security  
+- **[API](/docs/devops/api/endpoints)** — HTTP contracts and payloads  

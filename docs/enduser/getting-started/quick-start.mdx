@@ -114,6 +114,7 @@ hoox check health --fix
 Now, fire a test webhook trade signal to your live gateway using `curl`.
 
 ```bash
+# Live trade (default)
 curl -X POST https://hoox.alpha-trading.workers.dev/webhook \
   -H "Content-Type: application/json" \
   -d '{
@@ -124,7 +125,23 @@ curl -X POST https://hoox.alpha-trading.workers.dev/webhook \
     "quantity": 0.001,
     "leverage": 10
   }'
+
+# Testnet trade (Binance / Bybit only)
+# Prefer dedicated secrets: BYBIT_TESTNET_KEY_BINDING / BYBIT_TESTNET_SECRET_BINDING
+curl -X POST https://hoox.alpha-trading.workers.dev/webhook \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiKey": "your-hoox-webhook-passkey",
+    "exchange": "bybit",
+    "action": "LONG",
+    "symbol": "BTCUSDT",
+    "quantity": 0.001,
+    "leverage": 10,
+    "test": true
+  }'
 ```
+
+See **[Test Trading](/enduser/guides/test-trading)** for credential setup, D1 isolation, and dashboard filters.
 
 ---
 
@@ -145,14 +162,15 @@ This reports per-hop latency for `hoox`, `trade-worker`, and `analytics-worker` 
 
 Every webhook payload fired to your Gateway must match the following JSON Schema:
 
-| Parameter  |   Type   | Required | Description                                                                                      |
-| :--------- | :------: | :------: | :----------------------------------------------------------------------------------------------- |
-| `apiKey`   | `string` | **Yes**  | Your custom webhook authorization passkey (defined in `CONFIG_KV`).                              |
-| `exchange` | `string` | **Yes**  | Target exchange router: `binance`, `bybit`, or `mexc`.                                           |
-| `action`   | `string` | **Yes**  | Trading action direction: `LONG` (buy/open), `SHORT` (sell/open), or `CLOSE` (flatten position). |
-| `symbol`   | `string` | **Yes**  | Standard market symbol.                                                                          |
-| `quantity` | `number` | **Yes**  | Position size / quantity.                                                                        |
-| `leverage` | `number` |    No    | Leverage coefficient. Defaults to `1` (spot) if omitted.                                         |
+| Parameter  |   Type    | Required | Description                                                                                      |
+| :--------- | :-------: | :------: | :----------------------------------------------------------------------------------------------- |
+| `apiKey`   | `string`  | **Yes**  | Your custom webhook authorization passkey (defined in `CONFIG_KV`).                              |
+| `exchange` | `string`  | **Yes**  | Target exchange router: `binance`, `bybit`, or `mexc`.                                           |
+| `action`   | `string`  | **Yes**  | `LONG`, `SHORT`, `CLOSE_LONG`, or `CLOSE_SHORT`.                                                 |
+| `symbol`   | `string`  | **Yes**  | Standard market symbol.                                                                          |
+| `quantity` | `number`  | **Yes**  | Position size / quantity.                                                                        |
+| `leverage` | `number`  |    No    | Leverage coefficient. Defaults to `1` (spot) if omitted.                                         |
+| `test`     | `boolean` |    No    | When `true`, use exchange testnet (Binance/Bybit). Rejected for MEXC. Prefer `*_TESTNET_*` secrets. Default: live. |
 
 ---
 

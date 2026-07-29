@@ -41,8 +41,11 @@ plotshape(longCondition, title="Long Cross", style=shape.triangleup, location=lo
 plotshape(shortCondition, title="Short Cross", style=shape.triangledown, location=location.abovebar, color=color.red, size=size.small)
 
 // 4. Alert Payloads Construction (JSON compliant)
+// Live:
 longAlertJson = '{"apiKey": "your-hoox-webhook-passkey", "exchange": "bybit", "action": "LONG", "symbol": "BTCUSDT", "quantity": 0.001, "leverage": 10}'
 shortAlertJson = '{"apiKey": "your-hoox-webhook-passkey", "exchange": "bybit", "action": "SHORT", "symbol": "BTCUSDT", "quantity": 0.001, "leverage": 10}'
+// Testnet rehearsal (optional — add "test": true; prefer BYBIT_TESTNET_* secrets):
+// longAlertJson = '{"apiKey": "your-hoox-webhook-passkey", "exchange": "bybit", "action": "LONG", "symbol": "BTCUSDT", "quantity": 0.001, "leverage": 10, "test": true}'
 
 // 5. Trigger Alerts
 if (longCondition)
@@ -56,7 +59,9 @@ if (shortCondition)
   Replace `"your-hoox-webhook-passkey"` in your Pine Script with the actual
   passkey configured in your `CONFIG_KV` store (`webhooks:api_key`). This is a
   critical security step—the gateway will reject any alerts with mismatched keys
-  with a `401 Unauthorized` error.
+  with a `401 Unauthorized` error. For exchange testnet rehearsal, add
+  `"test": true` to the JSON and configure dedicated testnet secrets — see
+  [Test Trading](/enduser/guides/test-trading).
 </Tip>
 
 ---

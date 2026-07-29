@@ -1,0 +1,139 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
+---
+title: "Test Trading (Exchange Testnet)"
+description: "Run sandbox orders with test: true — per-exchange support, dedicated secrets, D1 isolation, dashboard, and agent safety."
+---
+
+Use **test trading** to place orders on exchange testnet/sandbox APIs without touching live capital. Enable it with a single boolean on any trade payload:
+
+```json
+{
+  "apiKey": "your-hoox-webhook-passkey",
+  "exchange": "bybit",
+  "action": "LONG",
+  "symbol": "BTCUSDT",
+  "quantity": 0.001,
+  "leverage": 10,
+  "test": true
+}
+```
+
+Omit `test` or set `"test": false` for **live** trading (default).
+
+---
+
+## Exchange support
+
+| Exchange | Supports `test: true` | REST host when enabled           |
+| -------- | :-------------------: | -------------------------------- |
+| Binance  |          Yes          | `testnet.binancefuture.com`      |
+| Bybit    |          Yes          | `api-testnet.bybit.com`          |
+| MEXC     |           No          | Rejected (`TEST_TRADING_UNSUPPORTED`) |
+
+MEXC has no public REST sandbox for automated trading (UI demo only). Requests with `test: true` and `exchange: "mexc"` fail with a clear 400 error.
+
+---
+
+## Credentials (recommended setup)
+
+Prefer **dedicated testnet secrets** so live keys never touch sandbox hosts:
+
+```bash
+hoox secrets set trade-worker BINANCE_TESTNET_KEY_BINDING
+hoox secrets set trade-worker BINANCE_TESTNET_SECRET_BINDING
+hoox secrets set trade-worker BYBIT_TESTNET_KEY_BINDING
+hoox secrets set trade-worker BYBIT_TESTNET_SECRET_BINDING
+```
+
+| Mode | Secret bindings used |
+| ---- | -------------------- |
+| Live (`test` omitted/false) | `BINANCE_KEY_BINDING` / `BINANCE_SECRET_BINDING`, `BYBIT_*`, `MEXC_*` |
+| Test (`test: true`) | `BINANCE_TESTNET_*` / `BYBIT_TESTNET_*` if both key+secret are set; otherwise **fall back** to live bindings (worker logs a warning) |
+
+Create API keys on the exchange testnet portal (not the production account) and inject them with the CLI above.
+
+---
+
+## End-to-end behavior
+
+When `test: true` is accepted:
+
+1. **Gateway (`hoox`)** validates the payload, splits idempotency keys by live vs test mode, and forwards `test` on the service binding or queue message.
+2. **trade-worker** builds a REST client against the testnet host (never the live WebSocket Durable Object).
+3. **D1 ledger**
+   - Trade status: `TEST_EXECUTED` (not `EXECUTED`)
+   - Position id: `{exchange}-testnet-{symbol}-{side}` (e.g. `bybit-testnet-BTCUSDT-LONG`)
+4. **Telegram** confirmations include `[TEST]` in the exchange label.
+5. **Analytics** records the fill with exchange blob `bybit:test` (or `binance:test`) so test volume can be filtered.
+6. **Dashboard stats** exclude test fills and testnet position ids from headline counts.
+7. **Agent risk loop** ignores `*-testnet-*` positions (no live closes, no drawdown contamination).
+
+---
+
+## Closing a testnet position
+
+Send a close signal with the **same** `test: true` flag:
+
+```json
+{
+  "apiKey": "your-hoox-webhook-passkey",
+  "exchange": "bybit",
+  "action": "CLOSE_LONG",
+  "symbol": "BTCUSDT",
+  "quantity": 0.001,
+  "test": true
+}
+```
+
+In the **Dashboard → Positions** view:
+
+- Default filter is **Live only**.
+- Switch the mode filter to **Testnet** or **Live + Test** to see sandbox rows.
+- Rows show a **TEST** badge next to the exchange.
+- **Close** automatically sends `test: true` for testnet position ids.
+
+---
+
+## Email and other ingress paths
+
+| Ingress | How to enable test mode |
+| ------- | ----------------------- |
+| Public `/webhook` | `"test": true` in JSON body |
+| Queue (`trade-execution`) | `"test": true` on the queue message (gateway sets this when queuing) |
+| Email JSON signal | Include `"test": true` in the structured JSON body |
+| Email plaintext | Not parsed as test (always live) — use JSON email bodies for sandbox |
+
+---
+
+## Safety notes
+
+- Kill switch, max position size, and default leverage **still apply** to test trades.
+- Do not rely on the agent to flatten testnet exposure; use an explicit close with `test: true`.
+- Shared live-key fallback is convenient for local experiments but is an operator footgun in production — prefer dedicated `*_TESTNET_*` secrets.
+- Testnet and live fills never share D1 position ids, so open exposure cannot clobber each other.
+
+---
+
+## Quick curl examples
+
+```bash
+# Live
+curl -X POST "https://hoox.example.workers.dev/webhook" \
+  -H "Content-Type: application/json" \
+  -d '{"apiKey":"…","exchange":"bybit","action":"LONG","symbol":"BTCUSDT","quantity":0.001}'
+
+# Testnet
+curl -X POST "https://hoox.example.workers.dev/webhook" \
+  -H "Content-Type: application/json" \
+  -d '{"apiKey":"…","exchange":"bybit","action":"LONG","symbol":"BTCUSDT","quantity":0.001,"test":true}'
+```
+
+### Related
+
+- [Signals & Trade Spec](/enduser/concepts/signals-and-trades) — full webhook field table
+- [Secrets & Network Security](/enduser/guides/secrets-security) — secret injection
+- [API endpoints](/enduser/reference/api-endpoints) — request examples

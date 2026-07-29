@@ -46,9 +46,11 @@ Receives TradingView alerts or automated cURL signals.
     "symbol": "BTCUSDT",
     "quantity": 0.002,
     "leverage": 10,
+    "test": true,
     "idempotencyKey": "uuid-9b1deb4d-3b7d"
   }
   ```
+- **`test` (optional boolean)**: when `true`, routes to exchange testnet (Binance/Bybit). MEXC returns `TEST_TRADING_UNSUPPORTED`. Idempotency keys are mode-split (`:live` vs `:test`). Prefer `BINANCE_TESTNET_*` / `BYBIT_TESTNET_*` secrets. See [Test Trading](/enduser/guides/test-trading).
 - **Success Response (200 OK)**:
   ```json
   {

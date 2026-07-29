@@ -17,48 +17,73 @@ Every signal received by the public gateway at `/webhook` must contain a valid, 
 export interface WebhookSignal {
   apiKey: string; // Authentication token matching CONFIG_KV webhooks:api_key
   exchange: "binance" | "bybit" | "mexc"; // Target exchange router
-  action: "LONG" | "SHORT" | "CLOSE"; // Position intent
+  action: "LONG" | "SHORT" | "CLOSE_LONG" | "CLOSE_SHORT"; // Position intent
   symbol: string; // Asset symbol (e.g. "BTCUSDT", "ETHUSDT")
   quantity: number; // Order size (amount of asset or contracts)
   leverage?: number; // Optional leverage multiplier (default: 1, max: 125)
   idempotencyKey?: string; // Optional unique signature for dedup (auto-generated if omitted)
   price?: number; // Optional limit price (default: market price)
-  takeProfit?: number; // Optional take-profit price target
-  stopLoss?: number; // Optional stop-loss price target
+  /**
+   * When true, execute on the exchange testnet/sandbox (Binance Futures
+   * testnet, Bybit testnet). MEXC has no public REST sandbox and rejects
+   * the request. Prefer dedicated BINANCE_TESTNET_* / BYBIT_TESTNET_* secrets.
+   */
+  test?: boolean;
 }
 ```
 
 ### Parameter Rules & Type Constraints
 
-| Parameter        | Type     | Required | Constraints                                                                           |
-| ---------------- | -------- | :------: | ------------------------------------------------------------------------------------- |
-| `apiKey`         | `string` | **Yes**  | Must match the encrypted `webhooks:api_key` hash in your `CONFIG_KV` namespace        |
-| `exchange`       | `string` | **Yes**  | One of: `binance`, `bybit`, `mexc` — must match a configured exchange router          |
-| `action`         | `string` | **Yes**  | One of: `LONG` (buy/open), `SHORT` (sell/open), `CLOSE` (flatten position)            |
-| `symbol`         | `string` | **Yes**  | Parsed and standardized — `BTC-USDT`, `BTC_USDT`, and `btc/usdt` all become `BTCUSDT` |
-| `quantity`       | `number` | **Yes**  | Must be greater than zero; checked against exchange minimum order size                |
-| `leverage`       | `number` |    No    | Range: `1` to `125` depending on exchange margin profiles; defaults to `1` (spot)     |
-| `idempotencyKey` | `string` |    No    | If omitted, auto-generated from `SHA256(symbol + exchange + action + timestamp)`      |
-| `price`          | `number` |    No    | Limit price; defaults to current market price if omitted                              |
-| `takeProfit`     | `number` |    No    | Target exit price for automatic partial close                                         |
-| `stopLoss`       | `number` |    No    | Stop-loss trigger price; overrides agent-worker trailing stop if specified            |
+| Parameter        | Type      | Required | Constraints                                                                           |
+| ---------------- | --------- | :------: | ------------------------------------------------------------------------------------- |
+| `apiKey`         | `string`  | **Yes**  | Must match the encrypted `webhooks:api_key` hash in your `CONFIG_KV` namespace        |
+| `exchange`       | `string`  | **Yes**  | One of: `binance`, `bybit`, `mexc` — must match a configured exchange router          |
+| `action`         | `string`  | **Yes**  | One of: `LONG`, `SHORT`, `CLOSE_LONG`, `CLOSE_SHORT`                                  |
+| `symbol`         | `string`  | **Yes**  | Parsed and standardized — `BTC-USDT`, `BTC_USDT`, and `btc/usdt` all become `BTCUSDT` |
+| `quantity`       | `number`  | **Yes**  | Must be greater than zero; checked against exchange minimum order size                |
+| `leverage`       | `number`  |    No    | Range: `1` to `125` depending on exchange margin profiles; defaults to `1` (spot)     |
+| `idempotencyKey` | `string`  |    No    | If omitted, auto-generated including live/test mode so modes do not dedupe each other |
+| `price`          | `number`  |    No    | Limit price; defaults to current market price if omitted                              |
+| `test`           | `boolean` |    No    | `true` → testnet for Binance/Bybit; MEXC returns `TEST_TRADING_UNSUPPORTED`           |
+
+### Test trading
+
+| Exchange | Supports `test: true` | API host when enabled              |
+| -------- | :-------------------: | ---------------------------------- |
+| Binance  |          Yes          | `testnet.binancefuture.com`        |
+| Bybit    |          Yes          | `api-testnet.bybit.com`            |
+| MEXC     |           No          | Rejected (no public REST sandbox)  |
+
+| Side effect | Live | Test (`test: true`) |
+| ----------- | ---- | ------------------- |
+| D1 trade status | `EXECUTED` | `TEST_EXECUTED` |
+| D1 position id | `{ex}-{sym}-{side}` | `{ex}-testnet-{sym}-{side}` |
+| Telegram label | exchange name | `{exchange} [TEST]` |
+| Analytics exchange blob | `bybit` | `bybit:test` |
+| WebSocket DO | optional | always REST testnet |
+| Agent risk loop | manages OPEN | skips `*-testnet-*` ids |
+| Dashboard stats | counted | excluded from headlines |
+
+**Credentials:** prefer `BINANCE_TESTNET_KEY_BINDING` / `BINANCE_TESTNET_SECRET_BINDING` and `BYBIT_TESTNET_*`. If unset, live bindings are used (warning logged).
+
+Full operator guide: **[Test Trading](/enduser/guides/test-trading)**.
 
 ---
 
 ## 2. Dynamic Payload Translation & Side Mapping
 
-Exchanges do not understand actions like `LONG`, `SHORT`, or `CLOSE`. They process order instructions in terms of **`Side`** (`BUY` or `SELL`) and **`PositionSide`** (`LONG` or `SHORT` for multi-margin hedge modes).
+Exchanges do not understand actions like `LONG` or `SHORT`. They process order instructions in terms of **`Side`** (`BUY` or `SELL`) and **`PositionSide`** (`LONG` or `SHORT` for multi-margin hedge modes).
 
 The `trade-worker` parses the incoming signal and translates the business logic into exchange-specific API calls:
 
 ### A. Translation Table (One-Way Margin / Spot)
 
-| Action      |    Position State     | Translated Exchange Side | Operation Type                                 |
-| :---------- | :-------------------: | :----------------------: | :--------------------------------------------- |
-| **`LONG`**  | Closed / No Position  |        **`BUY`**         | Opens a long position (spot or margin)         |
-| **`SHORT`** | Closed / No Position  |        **`SELL`**        | Opens a short position (margin/futures)        |
-| **`CLOSE`** | Long Position Active  |        **`SELL`**        | Closes and flattens an existing long position  |
-| **`CLOSE`** | Short Position Active |        **`BUY`**         | Closes and flattens an existing short position |
+| Action            | Translated Exchange Side | Operation Type                          |
+| :---------------- | :----------------------: | :-------------------------------------- |
+| **`LONG`**        |        **`BUY`**         | Opens a long position                   |
+| **`SHORT`**       |        **`SELL`**        | Opens a short position                  |
+| **`CLOSE_LONG`**  |        **`SELL`**        | Closes an existing long (`reduceOnly`)  |
+| **`CLOSE_SHORT`** |        **`BUY`**         | Closes an existing short (`reduceOnly`) |
 
 ### B. Hedge-Mode PositionSide Mapping
 

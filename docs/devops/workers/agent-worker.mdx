@@ -33,6 +33,8 @@ The `agent-worker` serves as the proactive intelligence layer of the Hoox tradin
 5. **AI Processing:** Uses configured AI provider with automatic fallback chain.
 6. **Execution:** Dispatches actions to `trade-worker` (closing positions) and `telegram-worker` (alerts) via internal Service Bindings.
 
+> **Test trading note:** The agent closes **live** positions only. At routine start it filters out any OPEN position whose `id` contains `-testnet-` (trade-worker writes those for `test: true` fills). Testnet rows never enter trailing-stop, take-profit, or drawdown math, so sandbox fills cannot trip the live kill switch or issue live closes. Use `test: true` on webhook/email signals for sandbox rehearsal; close testnet exposure via a follow-up signal with `test: true` (or the Dashboard Positions **Close** action, which sets `test` automatically). See [Test Trading](/enduser/guides/test-trading).
+
 ## Endpoints & Interactions
 
 > **Note:** For the canonical endpoint directory with full request/response examples across all workers, see [`/docs/devops/api/endpoints`](../api/endpoints).

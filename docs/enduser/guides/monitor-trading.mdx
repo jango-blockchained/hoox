@@ -127,13 +127,17 @@ This aggregates entries from your production D1 database and prints a formatted 
 
 ### Trade Status Codes
 
-| Status     | Meaning                                        |
-| ---------- | ---------------------------------------------- |
-| `Filled`   | Order fully executed on the exchange           |
-| `Partial`  | Only portion filled; remainder queued          |
-| `Rejected` | Exchange returned a business logic error       |
-| `Failed`   | Max queue retries exhausted; logged for review |
-| `Enqueued` | Submitted to Cloudflare Queues for async retry |
+| Status          | Meaning                                                                 |
+| --------------- | ----------------------------------------------------------------------- |
+| `EXECUTED`      | Live order filled; written by trade-worker to D1                        |
+| `TEST_EXECUTED` | Testnet (`"test": true`) fill; excluded from dashboard headline stats   |
+| `Filled`        | Exchange-side full fill (report/CLI display)                            |
+| `Partial`       | Only portion filled; remainder queued                                   |
+| `Rejected`      | Exchange returned a business logic error                                |
+| `Failed`        | Max queue retries exhausted; logged for review                          |
+| `Enqueued`      | Submitted to Cloudflare Queues for async retry                          |
+
+Sandbox fills use position ids like `bybit-testnet-BTCUSDT-LONG`. Filter them in the Dashboard Positions **mode** control (Live only / Testnet / Live + Test). See [Test Trading](/enduser/guides/test-trading).
 
 ---
 

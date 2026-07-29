@@ -61,12 +61,15 @@ All endpoints are reachable via Cloudflare Service Bindings only (no public URL)
       "exchange": "binance",
       "symbol": "BTCUSDT",
       "action": "LONG",
-      "quantity": 0.5
+      "quantity": 0.5,
+      "price": 68425.5,
+      "test": true
     },
     "result": { "success": true },
     "latencyMs": 1200
   }
   ```
+- **Optional `test`**: when `true`, the Analytics Engine exchange blob is written as `binance:test` (or `bybit:test`) so sandbox fills can be filtered separately from live volume. Omitted/`false` → plain exchange name.
 - **Response**: `{ "success": true }`
 
 ### B. Track API Call Event

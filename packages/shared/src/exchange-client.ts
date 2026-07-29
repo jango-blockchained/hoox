@@ -47,10 +47,21 @@ export interface Position {
  * @typeParam TClient - The exchange client type (e.g., IExchangeClient)
  * @typeParam TEnv - The worker's environment/bindings type (e.g., Env)
  */
+/** Options forwarded when constructing an exchange client. */
+export interface ClientCreateOptions {
+  /** Route orders to the exchange testnet/sandbox API. */
+  testnet?: boolean;
+}
+
 export interface IExchangeProvider<TClient, TEnv> {
   readonly name: string;
-  createClient(env: TEnv): TClient;
+  createClient(env: TEnv, options?: ClientCreateOptions): TClient;
   hasCredentials(env: TEnv): boolean;
+  /**
+   * Whether this exchange exposes a testnet/sandbox trading API.
+   * Defaults to true when omitted; set false for live-only exchanges.
+   */
+  readonly supportsTestTrading?: boolean;
 }
 
 /**
@@ -77,18 +88,27 @@ export class ExchangeRouter<TClient, TEnv> {
     this.providers.set(provider.name.toLowerCase(), provider);
   }
 
-  route(exchange: string, env: TEnv): { exchange: string; client: TClient } {
+  route(
+    exchange: string,
+    env: TEnv,
+    options?: ClientCreateOptions
+  ): { exchange: string; client: TClient } {
     const key = exchange.toLowerCase();
     const provider = this.providers.get(key);
     if (!provider) {
       throw new Error(`Unsupported exchange: ${exchange}`);
+    }
+    if (options?.testnet && provider.supportsTestTrading === false) {
+      throw new Error(
+        `TEST_TRADING_UNSUPPORTED: ${exchange} does not support test/sandbox trading via API`
+      );
     }
     if (!provider.hasCredentials(env)) {
       throw new Error(
         `API secret bindings not configured or accessible for ${exchange}`
       );
     }
-    return { exchange: key, client: provider.createClient(env) };
+    return { exchange: key, client: provider.createClient(env, options) };
   }
 }
 

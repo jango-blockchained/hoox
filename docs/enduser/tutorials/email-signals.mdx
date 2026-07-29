@@ -64,6 +64,22 @@ When an email is scanned:
    - Hitting `email:action_pattern` resolves: **`LONG`** (translated internally to `BUY`).
 3. Automatically triggers an order via the `trade-worker` service binding.
 
+### JSON body with testnet mode
+
+If the email body is structured JSON (instead of free-text), optional fields are forwarded to trade-worker:
+
+```json
+{
+  "exchange": "bybit",
+  "action": "LONG",
+  "symbol": "BTCUSDT",
+  "quantity": 0.001,
+  "test": true
+}
+```
+
+`"test": true` requests exchange testnet execution (Binance/Bybit). Plaintext extraction never sets `test` — always live. See [Test Trading](/enduser/guides/test-trading).
+
 ---
 
 ## 🛡️ 3. Security Audits: SPF & DKIM Validation

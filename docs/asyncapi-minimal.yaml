@@ -233,6 +233,13 @@ components:
           leverage:
             type: integer
             description: Optional margin leverage
+          test:
+            type: boolean
+            description: |
+              When true, execute on exchange testnet/sandbox (Binance Futures,
+              Bybit). MEXC rejects with TEST_TRADING_UNSUPPORTED. Prefer dedicated
+              *_TESTNET_* secrets; ledger uses TEST_EXECUTED and *-testnet-* position ids.
+            example: true
           idempotencyKey:
             type: string
             description: |
@@ -284,6 +291,9 @@ components:
           leverage:
             type: integer
             description: Optional margin leverage
+          test:
+            type: boolean
+            description: When true, execute on exchange testnet/sandbox if supported
     QueuedTrade:
       name: QueuedTrade
       title: Queued trade message
@@ -314,6 +324,9 @@ components:
             type: number
           leverage:
             type: integer
+          test:
+            type: boolean
+            description: When true, execute on exchange testnet/sandbox if supported
           queuedAt:
             type: string
             format: date-time

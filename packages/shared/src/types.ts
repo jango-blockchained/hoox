@@ -23,6 +23,11 @@ export const WebhookPayloadSchema = z
     price: z.number().positive().finite().optional(),
     orderType: z.string().optional(),
     leverage: z.number().int().positive().optional(),
+    /**
+     * When true, route the order to the exchange testnet/sandbox API
+     * (if the exchange supports it). Live trading is the default.
+     */
+    test: z.boolean().optional(),
   })
   .strict();
 
@@ -36,6 +41,8 @@ export const TradeQueueMessageSchema = z
     quantity: z.number().positive().finite(),
     price: z.number().positive().finite().optional(),
     leverage: z.number().int().positive().max(125).optional(),
+    /** When true, execute against exchange testnet/sandbox (if supported). */
+    test: z.boolean().optional(),
     queuedAt: z.string().min(1).max(64),
   })
   .strict();

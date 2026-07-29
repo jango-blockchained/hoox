@@ -60,6 +60,17 @@ No. Hoox is designed for **algorithmic traders**, not blockchain developers. On-
 
 Yes. API keys are stored as **Cloudflare Workers Secrets** — encrypted at rest with hardware-level key management. They are injected directly into the V8 execution isolate at runtime and can never be read back via any API. They are never stored in plaintext on disk or in Git.
 
+### Q: How do I paper-trade / use exchange testnets?
+
+Add `"test": true` to the webhook (or queue) JSON. Binance and Bybit route to their public Futures testnet REST hosts; MEXC rejects the request (no public REST sandbox). Prefer dedicated secrets:
+
+```bash
+hoox secrets set trade-worker BYBIT_TESTNET_KEY_BINDING
+hoox secrets set trade-worker BYBIT_TESTNET_SECRET_BINDING
+```
+
+Test fills are stored as `TEST_EXECUTED` with `*-testnet-*` position ids so they do not mix with live exposure. See **[Test Trading](/enduser/guides/test-trading)**.
+
 ### Q: Can I rotate API keys without downtime?
 
 Yes. Simply update the secret (worker name is the first argument):

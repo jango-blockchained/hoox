@@ -92,6 +92,17 @@ paths:
                   description: Optional leverage multiplier for margin trades
                   minimum: 1
                   example: 10
+                test:
+                  type: boolean
+                  description: |
+                    When true, route the order to the exchange testnet/sandbox
+                    API (Binance Futures testnet, Bybit testnet). MEXC has no
+                    public REST sandbox and rejects with TEST_TRADING_UNSUPPORTED.
+                    Prefer BINANCE_TESTNET_* / BYBIT_TESTNET_* secrets; falls back
+                    to live bindings with a warning. D1 status becomes TEST_EXECUTED;
+                    position ids use {exchange}-testnet-{symbol}-{side}.
+                    Live trading is the default when omitted or false.
+                  example: true
                 idempotencyKey:
                   type: string
                   format: uuid

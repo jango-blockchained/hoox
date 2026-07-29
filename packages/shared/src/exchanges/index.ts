@@ -6,6 +6,7 @@
 export {
   BaseExchangeClient,
   type ExchangeConfig,
+  type ExchangeClientOptions,
   type TradeParams,
   type OrderResponse,
   type Position,

@@ -213,9 +213,15 @@ hoox monitor kill-switch on
 ### E. Secrets & Keys Management
 
 ```bash
-# Set a Cloudflare Worker secret
+# Set a Cloudflare Worker secret (live exchange keys)
 hoox secrets set trade-worker BINANCE_KEY_BINDING "your_key_here"
 hoox secrets set trade-worker BINANCE_SECRET_BINDING "your_secret_here"
+
+# Optional: dedicated testnet keys for "test": true webhooks
+hoox secrets set trade-worker BINANCE_TESTNET_KEY_BINDING "your_testnet_key"
+hoox secrets set trade-worker BINANCE_TESTNET_SECRET_BINDING "your_testnet_secret"
+hoox secrets set trade-worker BYBIT_TESTNET_KEY_BINDING "your_testnet_key"
+hoox secrets set trade-worker BYBIT_TESTNET_SECRET_BINDING "your_testnet_secret"
 
 # List secrets for a worker
 hoox secrets list trade-worker

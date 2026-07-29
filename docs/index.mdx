@@ -21,27 +21,44 @@ graph TB
 ```
 
 <Tip>
-  Choose your track below. **End User** docs cover trading setup, configuration,
-  and operations. **DevOps** docs cover architecture, deployment, and
-  infrastructure.
+  Docs are split into **main tabs** (same pattern as AXIS / PYNE): trader-facing
+  **End User**, platform **Architecture** and **Workers**, operators **DevOps**,
+  contracts **API**, and commercial **Enterprise**.
 </Tip>
 
-## 📖 Documentation Tracks
+## Documentation categories
 
-<CardGroup cols={2}>
-  <Card title="📈 End User" icon="user" href="/docs/enduser">
-    Trader-facing documentation — getting started, concepts, guides, tutorials,
-    and reference.
+<CardGroup cols={3}>
+  <Card title="End User" icon="user" href="/docs/enduser">
+    Getting started, concepts, guides, tutorials, CLI & FAQ for traders and
+    operators of a live mesh.
   </Card>
-  <Card title="🔧 DevOps" icon="terminal" href="/docs/devops">
-    Operator-facing documentation — architecture, workers, deployment,
-    development, and API.
+  <Card title="Architecture" icon="sitemap" href="/docs/devops/architecture">
+    Mesh topology, data flow, bindings, storage, and ADRs.
+  </Card>
+  <Card title="Workers" icon="server" href="/docs/devops/workers">
+    Per-isolate profiles — gateway, trade, D1, agent, telegram, dashboard, and
+    more.
+  </Card>
+  <Card title="DevOps" icon="terminal" href="/docs/devops">
+    Install, local development, deployment, CI/CD, security, CLI & TUI.
+  </Card>
+  <Card title="API" icon="code" href="/docs/devops/api">
+    HTTP endpoints, request payloads (including `test: true`), and response
+    envelopes.
+  </Card>
+  <Card title="Enterprise" icon="building" href="/docs/enterprise">
+    Multi-tenancy, compliance, and institutional architecture notes (commercial
+    layer).
   </Card>
 </CardGroup>
 
-## 🏁 Quick Links
+## Popular paths
 
-- **[Getting Started](docs/enduser/getting-started/installation.mdx)** — Install prerequisites and bootstrap your project
-- **[5-Minute Quick Start](docs/enduser/getting-started/quick-start.mdx)** — Deploy workers and fire your first trade
-- **[CLI Commands](docs/enduser/reference/cli-commands.mdx)** — Complete CLI reference
-- **[GitHub Repository](https://github.com/jango-blockchained/hoox-setup)** — Source code and contributions
+| Goal | Start here |
+| ---- | ---------- |
+| First deploy in minutes | [Quick Start](/docs/enduser/getting-started/quick-start) |
+| Sandbox / testnet orders | [Test Trading](/docs/enduser/guides/test-trading) |
+| How a signal becomes a fill | [How Hoox Works](/docs/enduser/concepts/how-hoox-works) |
+| Exchange execution isolate | [trade-worker](/docs/devops/workers/trade-worker) |
+| Production rollout | [Production Deployment](/docs/devops/deployment/production) |

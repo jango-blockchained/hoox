@@ -46,70 +46,60 @@ graph TD
 
 ---
 
+## Docs navigation (tabs)
+
+HOOX docs use the same **multi-tab** layout as AXIS / PYNE. This **DevOps** tab is for install, local development, deploy, security, and tooling. Sibling tabs hold the rest of the platform:
+
+| Tab | Contents |
+| --- | -------- |
+| [End User](/docs/enduser) | Getting started, concepts, guides, tutorials |
+| [Architecture](/docs/devops/architecture) | Topology, data flow, storage, ADRs |
+| [Workers](/docs/devops/workers) | Per-isolate profiles |
+| **DevOps** (this page) | Setup, development, deployment, security, CLI/TUI |
+| [API](/docs/devops/api) | HTTP endpoints, payloads, responses |
+| [Enterprise](/docs/enterprise) | Multi-tenancy, compliance (commercial notes) |
+
+---
+
 ## 🗺️ Operator's System Directory
 
-The DevOps manual is structured into five core architectural operational layers:
+### 1. Setup runbooks
 
-### 1. 📋 Operations & Setup Runbooks
+- **[Operations & Troubleshooting](setup-and-operations)** — Env variable matrices and diagnostic codes.
+- **[Core Installation Flow](installation-flow)** — Local machine and edge provision setup.
+- **[Bindings registry](bindings)** — Cross-worker binding inventory.
 
-Complete guides for bootstrapping environments, managing interactive terminal dashboards, and diagnosing local runner configurations:
+### 2. Development
 
-- **[Operations & Troubleshooting](setup-and-operations)** — Core operations manual, 31-key environment variable matrices, and diagnostic codes.
-- **[Core Installation Flow](installation-flow)** — Guided, step-by-step local machine and edge provision setup.
-- **[Terminal UI Cockpit Development](tui)** — Code architectures, stores, and operations of the OpenTUI monitor.
+- **[Wrangler Dev Setup](development/local-dev)** · **[Testing](development/testing)** · **[Debugging](development/debugging)**
 
-### 2. 🏗️ Architectural Specifications
+### 3. Deployment, WAF & CI/CD
 
-Deep dives into latency structures, isolation parameters, and bindings linkages:
+- **[Production Deployment](deployment/production)** — Wrangler, account provisioning, production vars.
+- **[CI/CD](deployment/cicd)** — GitHub Actions and edge uploads.
+- **[Monitoring](deployment/monitoring)** — Logs and Analytics Engine.
+- **[Zero Trust](deployment/zero-trust)** · **[Private Ingress](deployment/private-ingress)**
 
-- **[System Topology Overview](architecture/overview)** — Architectural layout, regional edge clustering, and scaling limits.
-- **[Isolate Communication](architecture/communication)** — Deep dive into Service Bindings, zero-TCP routing, and V8 engines.
-- **[Data Flow Architecture](architecture/data-flow)** — Flowcharts for trade execution, backup queues, and cron risk monitoring.
-- **[Bindings Matrix](architecture/bindings)** — Exact mapping of D1, KV, Queues, R2, and Service Bindings.
-- **[Storage Engineering](architecture/storage)** — Persistent storage boundaries, SQLite DDL parameters, and R2 buckets.
-- **[Internal Endpoints Map](architecture/endpoints)** — Sub-millisecond binding paths and routing maps.
-- **[Visual Tokens & Design System](architecture/design-system)** — Monochromatic token mappings and visual SVGs catalog.
+### 4. Security & tooling
 
-### 3. ⚙️ Edge Worker Microservices (10 Profiles)
+- **[Security overview](security/overview)**
+- **[CLI features](cli-features)** · **[TUI](tui)** · **[Pattern consolidation](refactoring/workers-pattern-consolidation)**
 
-Individual developer profiles for each running isolate, cataloging bindings, custom middlewares, and API formats:
+### 5. Related tracks (other tabs)
 
-- **[hoox Gateway](workers/hoox-worker)** · **[trade-worker](workers/trade-worker)** · **[agent-worker](workers/agent-worker)** · **[telegram-worker](workers/telegram-worker)**
-- **[d1-worker](workers/d1-worker)** · **[web3-wallet-worker](workers/web3-wallet-worker)** · **[email-worker](workers/email-worker)** · **[analytics-worker](workers/analytics-worker)**
-- **[report-worker](workers/report-worker)** · **[dashboard (Next.js OpenNext)](workers/dashboard)**
-
-### 4. 🚢 Deployment, WAF, & CI/CD Pipelines
-
-Rollout manuals, Access gates, and GitHub Actions telemetry:
-
-- **[Production Deployment](deployment/production)** — Wrangler commands, Account provisioning, and production variables.
-- **[CI/CD Workflow pipelines](deployment/cicd)** — GitHub Actions secrets, syntax tests, and automated edge uploads.
-- **[Monitoring & Telemetry](deployment/monitoring)** — Live wrangler logs streaming and custom Analytics Engine metrics.
-- **[Cloudflare Zero Trust Corridor](deployment/zero-trust)** — Setting up Access client corridors, IP firewalls, and WAF rules.
-
-### 💻 5. Developer & API Reference
-
-TypeScript interfaces, compiler settings, Bun test specs, and HTTP schemas:
-
-- **[Wrangler Dev Setup](development/local-dev)** · **[Testing Standards](development/testing)** · **[Debugging Runbook](development/debugging)**
-- **[Exposed API Routes](api/endpoints)** · **[Request Payloads](api/payloads)** · **[Standard Responses](api/responses)**
-- **[CLI Commands Engine](cli-features)** — Command-line argument parsing, binary execution, and JSON flags.
+- **[Architecture hub](architecture/)** · **[Workers hub](workers/)** · **[API hub](api/)**
+- **[Test Trading](/docs/enduser/guides/test-trading)** — sandbox mode across the mesh
 
 ---
 
 <Tip>
-  First time deploying a Hoox workspace to production? Start with the
-  **[Production Deployment Manual](deployment/production)** to verify your
-  Cloudflare Account permissions and execute sequential deployments seamlessly.
+  First production deploy? Start with
+  **[Production Deployment](deployment/production)** to verify Cloudflare
+  permissions and sequential worker rollout.
 </Tip>
 
-### 🔗 Quick Links
+### Quick links
 
-- **[End-User Documentation Hub](../index)** — Standard setup, cURL webhooks, and TradingView Pine Scripts.
-- **[Hoox Git Submodules](https://github.com/jango-blockchained/hoox-setup)** — Central monorepo codebase.
-
-### 🏢 Enterprise (Commercial Layer)
-
-Full institutional architecture documentation (Workers for Platforms, Workflows, Logpush audit, Enterprise security) for the **closed-source commercial layer** lives at [docs/enterprise/](../enterprise/).
-
-See root [OPEN_CORE.md](../../OPEN_CORE.md) and [OPEN_CORE_FEATURE_SPLIT.md](../../OPEN_CORE_FEATURE_SPLIT.md). This public repo only includes the open core + public design docs.
+- **[Documentation home](/docs)** — All category hubs  
+- **[Enterprise](../enterprise/)** — Multi-tenancy and compliance notes  
+- **[OPEN_CORE.md](../../OPEN_CORE.md)** — Open-core vs commercial split

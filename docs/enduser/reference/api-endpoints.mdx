@@ -46,9 +46,20 @@ Receives, validates, and routes trade orders to exchange APIs.
   "symbol": "BTCUSDT",
   "quantity": 0.005,
   "leverage": 10,
+  "test": true,
   "idempotencyKey": "uuid-9b1deb4d-3b7d"
 }
 ```
+
+Optional field **`test`** (`boolean`): when `true`, the trade-worker routes the order to the exchange testnet (Binance Futures / Bybit). MEXC does not support API test trading and returns `TEST_TRADING_UNSUPPORTED`.
+
+| | Live | Test (`"test": true`) |
+| - | ---- | --------------------- |
+| Host | Production REST / optional WS DO | Testnet REST only |
+| Secrets | `BINANCE_*` / `BYBIT_*` / `MEXC_*` | Prefer `*_TESTNET_*`, else live fallback |
+| D1 | `EXECUTED` · normal position id | `TEST_EXECUTED` · `*-testnet-*` id |
+
+Full setup: [Test Trading](/enduser/guides/test-trading).
 
 ### Response Models
 

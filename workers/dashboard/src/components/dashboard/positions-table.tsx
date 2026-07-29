@@ -48,10 +48,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { api } from "@/lib/api";
+import { api, isTestnetPosition } from "@/lib/api";
 
 interface Position {
-  id: number;
+  id: string | number;
   exchange: string;
   symbol: string;
   side: string;
@@ -79,10 +79,14 @@ function formatTimeAgo(timestamp: number) {
 
 export function PositionsTable() {
   const [positions, setPositions] = useState(initialPositions);
-  const [closingPosition, setClosingPosition] = useState<number | null>(null);
+  const [closingPosition, setClosingPosition] = useState<
+    string | number | null
+  >(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [exchangeFilter, setExchangeFilter] = useState("all");
   const [sideFilter, setSideFilter] = useState("all");
+  /** Default live-only so testnet rows do not pollute the main book view. */
+  const [modeFilter, setModeFilter] = useState<"live" | "test" | "all">("live");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Simulate live price updates
@@ -105,20 +109,25 @@ export function PositionsTable() {
 
   const handleClosePosition = async (position: Position) => {
     setClosingPosition(position.id ?? null);
+    const isTest = isTestnetPosition(position);
     try {
       const result = await api.closePosition(
         position.exchange,
         position.symbol,
         position.side,
-        position.size
+        position.size,
+        { test: isTest }
       );
       if (result.success) {
         setPositions((prev) =>
           prev.filter((p) => String(p.id) !== String(position.id))
         );
-        toast.success("Position closed successfully", {
-          description: `${position.symbol} on ${position.exchange} has been closed.`,
-        });
+        toast.success(
+          isTest ? "Testnet position closed" : "Position closed successfully",
+          {
+            description: `${position.symbol} on ${position.exchange}${isTest ? " (testnet)" : ""} has been closed.`,
+          }
+        );
       } else {
         toast.error("Failed to close position", {
           description: result.error || "Unknown error",
@@ -155,11 +164,20 @@ export function PositionsTable() {
     const matchesExchange =
       exchangeFilter === "all" || pos.exchange === exchangeFilter;
     const matchesSide = sideFilter === "all" || pos.side === sideFilter;
-    return matchesSearch && matchesExchange && matchesSide;
+    const isTest = isTestnetPosition(pos);
+    const matchesMode =
+      modeFilter === "all" ||
+      (modeFilter === "test" && isTest) ||
+      (modeFilter === "live" && !isTest);
+    return matchesSearch && matchesExchange && matchesSide && matchesMode;
   });
 
-  const totalPnl = positions.reduce((acc, pos) => acc + (pos.pnl || 0), 0);
-  const totalValue = positions.reduce(
+  // Summary metrics follow the active mode filter so live totals stay clean.
+  const totalPnl = filteredPositions.reduce(
+    (acc, pos) => acc + (pos.pnl || 0),
+    0
+  );
+  const totalValue = filteredPositions.reduce(
     (acc, pos) => acc + (pos.currentPrice || 0) * pos.size,
     0
   );
@@ -173,7 +191,12 @@ export function PositionsTable() {
               Active Positions
             </CardTitle>
             <Badge variant="secondary" className="text-xs">
-              {positions.length} Open
+              {filteredPositions.length} Open
+              {modeFilter === "live"
+                ? " (live)"
+                : modeFilter === "test"
+                  ? " (test)"
+                  : ""}
             </Badge>
           </div>
           <Button
@@ -264,6 +287,19 @@ export function PositionsTable() {
               <SelectItem value="SHORT">Short</SelectItem>
             </SelectContent>
           </Select>
+          <Select
+            value={modeFilter}
+            onValueChange={(v) => setModeFilter(v as "live" | "test" | "all")}
+          >
+            <SelectTrigger className="w-[120px] h-9">
+              <SelectValue placeholder="Mode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="live">Live only</SelectItem>
+              <SelectItem value="test">Testnet</SelectItem>
+              <SelectItem value="all">Live + Test</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </CardHeader>
       <CardContent>
@@ -314,9 +350,19 @@ export function PositionsTable() {
                     className="group border-b border-border transition-colors hover:bg-secondary/30"
                   >
                     <TableCell>
-                      <Badge variant="outline" className="text-xs capitalize">
-                        {position.exchange}
-                      </Badge>
+                      <div className="flex items-center gap-1.5">
+                        <Badge variant="outline" className="text-xs capitalize">
+                          {position.exchange}
+                        </Badge>
+                        {isTestnetPosition(position) && (
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px] uppercase tracking-wide"
+                          >
+                            TEST
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">
                       {position.symbol}

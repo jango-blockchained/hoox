@@ -30,7 +30,8 @@ export interface DashboardStats {
 }
 
 export interface Position {
-  id: number;
+  /** D1 position id — live: `{ex}-{sym}-{side}`; testnet: `{ex}-testnet-{sym}-{side}`. */
+  id: string | number;
   exchange: string;
   symbol: string;
   side: string;
@@ -42,6 +43,13 @@ export interface Position {
   status: "OPEN" | "CLOSED";
   openedAt: number;
   updatedAt: number;
+}
+
+/** True when the position ledger row was opened via `test: true` trading. */
+export function isTestnetPosition(
+  position: Pick<Position, "id"> | { id?: string | number }
+): boolean {
+  return String(position.id ?? "").includes("-testnet-");
 }
 
 export interface SystemLog {
@@ -161,7 +169,8 @@ class ApiClient {
     exchange: string,
     symbol: string,
     side: string,
-    size: number
+    size: number,
+    options?: { test?: boolean }
   ): Promise<{ success: boolean; error?: string }> {
     return this.fetchWithAuth<{ success: boolean; error?: string }>(
       `${getApiUrl("tradeService")}/webhook`,
@@ -172,6 +181,8 @@ class ApiClient {
           symbol,
           action: side === "LONG" ? "CLOSE_LONG" : "CLOSE_SHORT",
           quantity: size,
+          // Route close to the same environment the position was opened on.
+          ...(options?.test ? { test: true } : {}),
         }),
       },
       this.tradeExecuteKey

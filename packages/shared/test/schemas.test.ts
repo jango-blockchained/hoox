@@ -116,6 +116,33 @@ describe("WebhookPayloadSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  test("accepts test: true for testnet trading", () => {
+    const result = WebhookPayloadSchema.safeParse({
+      ...validPayload,
+      test: true,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.test).toBe(true);
+    }
+  });
+
+  test("accepts test: false", () => {
+    const result = WebhookPayloadSchema.safeParse({
+      ...validPayload,
+      test: false,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  test("rejects non-boolean test", () => {
+    const result = WebhookPayloadSchema.safeParse({
+      ...validPayload,
+      test: "yes",
+    });
+    expect(result.success).toBe(false);
+  });
+
   test("rejects empty symbol", () => {
     const result = WebhookPayloadSchema.safeParse({
       ...validPayload,
@@ -152,6 +179,17 @@ describe("TradeQueueMessageSchema", () => {
 
   test("accepts valid queue message", () => {
     expect(TradeQueueMessageSchema.safeParse(validMessage).success).toBe(true);
+  });
+
+  test("accepts optional test flag", () => {
+    const result = TradeQueueMessageSchema.safeParse({
+      ...validMessage,
+      test: true,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.test).toBe(true);
+    }
   });
 
   test("rejects invalid action", () => {

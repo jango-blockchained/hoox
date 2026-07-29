@@ -79,13 +79,16 @@ Two-phase parsing: JSON first, plaintext fallback.
 ```typescript
 {
   exchange: "binance",     // normalized lowercase
-  action: "buy",           // buy/long → buy | sell/short → sell
+  action: "LONG",          // buy/long → LONG | sell/short → SHORT
   symbol: "BTCUSDT",       // uppercased
   quantity: 100,           // multiplied by quantityMultiplier from KV
   price?: 45000,           // optional
-  leverage?: 3             // optional
+  leverage?: 3,            // optional
+  test?: true              // optional — forward testnet flag to trade-worker
 }
 ```
+
+JSON bodies may include `"test": true` to request exchange testnet execution (Binance/Bybit). The flag is forwarded on the `TRADE_SERVICE` webhook call. **Plaintext extraction does not set `test`** (always live) — use structured JSON email bodies for sandbox trades. See [Test Trading](/enduser/guides/test-trading).
 
 ### Phase 2: Plaintext Fallback
 
@@ -109,7 +112,7 @@ quantity: 1.5
 
 Incoming JSON payloads are validated using Zod schemas:
 
-- `EmailSignalSchema` validates the signal structure (exchange, action as enum, symbol, quantity with default 100, optional price/leverage)
+- `EmailSignalSchema` validates the signal structure (exchange, action as enum, symbol, quantity with default 100, optional price/leverage/`test`)
 - `WebhookPayloadSchema` validates the wrapper payload (subject, text, body — all optional)
 - Invalid payloads return `400 Bad Request` with structured error
 - Extra fields are stripped via `.strip()`

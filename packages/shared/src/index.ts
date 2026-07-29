@@ -76,6 +76,7 @@ export type {
   OrderResponse,
   Position,
   IExchangeProvider,
+  ClientCreateOptions,
 } from "./exchange-client";
 
 // ── Exchange client abstractions ───────────────────────────────────────────

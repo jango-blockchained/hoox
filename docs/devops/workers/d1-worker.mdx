@@ -148,6 +148,9 @@ Calculates aggregated win ratios, active positions size, and time-series P&L.
 
 - **Endpoint**: `/api/dashboard/stats`
 - **Method**: `GET`
+- **Live-only aggregates**: counts exclude test trading ledger noise:
+  - Trades with `status = 'TEST_EXECUTED'` are omitted from total/daily trade counts.
+  - Positions whose `id` matches `%-testnet-%` are omitted from open/closed position counts.
 - **Success Response (200 OK)**:
   ```json
   {
@@ -161,6 +164,8 @@ Calculates aggregated win ratios, active positions size, and time-series P&L.
     }
   }
   ```
+
+Raw `/api/dashboard/positions` still returns all OPEN rows (including testnet). The dashboard Positions UI filters by mode; the agent skips `*-testnet-*` ids.
 
 ---
 

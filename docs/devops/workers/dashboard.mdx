@@ -10,6 +10,19 @@ description: "Comprehensive engineering specification for the Next.js 16 Hoox Da
 
 The **Hoox Dashboard** is the web-based command center of the trading platform. Rather than running on a traditional server, the dashboard is a **Next.js 16 application** compiled using the **OpenNext adapter** and hosted natively on Cloudflare Workers. This edge-first layout allows for real-time portfolio monitoring, dynamic form-based settings editing, and interactive kill-switch controls at microsecond speeds.
 
+### Positions & test trading
+
+The **Positions** table integrates with exchange testnet fills produced when webhooks carry `"test": true`:
+
+| UI feature | Behavior |
+| ---------- | -------- |
+| Mode filter | **Live only** (default) · **Testnet** · **Live + Test** |
+| **TEST** badge | Shown next to the exchange for rows whose id contains `-testnet-` |
+| Close action | Sends `test: true` on the trade-worker webhook when closing a testnet position |
+| Headline stats | D1 dashboard stats exclude `TEST_EXECUTED` trades and `*-testnet-*` positions |
+
+See [Test Trading](/enduser/guides/test-trading).
+
 ---
 
 ## 🏗️ Next.js to Cloudflare Edge Architecture

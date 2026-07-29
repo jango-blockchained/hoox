@@ -31,6 +31,9 @@ A curated vocabulary of terms used throughout the Hoox documentation. Understand
 | **Liquidation**        | The forced closure of a leveraged position when margin requirements are no longer met.                                                                                |
 | **Fill**               | A successfully executed trade order on the exchange.                                                                                                                  |
 | **Slippage**           | The difference between the expected price of a trade and the actual price at which it is executed, often caused by market volatility or latency.                      |
+| **Test trading**       | Sandbox execution mode enabled by `"test": true` on a webhook/queue payload. Routes to exchange testnet hosts (Binance/Bybit); ledger status `TEST_EXECUTED`.        |
+| **TEST_EXECUTED**      | D1 trade status written for testnet fills so live reports and stats can exclude them.                                                                                 |
+| **Testnet position id**| Position primary key pattern `{exchange}-testnet-{symbol}-{side}` isolating sandbox exposure from live OPEN rows.                                                     |
 
 ## Architecture & Infrastructure
 

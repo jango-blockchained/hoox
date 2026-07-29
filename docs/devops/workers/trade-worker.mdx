@@ -54,15 +54,38 @@ The `trade-worker` does not expose a public URL, communicating internally via V8
   },
   "secrets": [
     "INTERNAL_KEY_BINDING",
-    "BYBIT_API_KEY",
-    "BYBIT_API_SECRET",
-    "BINANCE_API_KEY",
-    "BINANCE_API_SECRET",
-    "MEXC_API_KEY",
+    "BYBIT_KEY_BINDING",
+    "BYBIT_SECRET_BINDING",
+    "BINANCE_KEY_BINDING",
+    "BINANCE_SECRET_BINDING",
+    "MEXC_KEY_BINDING",
     "MEXC_SECRET_BINDING",
+    // Optional dedicated testnet keys (preferred when payload.test === true)
+    "BINANCE_TESTNET_KEY_BINDING",
+    "BINANCE_TESTNET_SECRET_BINDING",
+    "BYBIT_TESTNET_KEY_BINDING",
+    "BYBIT_TESTNET_SECRET_BINDING",
   ],
 }
 ```
+
+---
+
+## 🧪 Test trading (`test: true`)
+
+| Topic | Behavior |
+| ----- | -------- |
+| Schema | Optional `test?: boolean` on `WebhookPayload` and `TradeQueueMessage` |
+| Hosts | Binance Futures testnet · Bybit testnet · MEXC rejected |
+| Credentials | Prefer `*_TESTNET_*` secrets; fall back to live keys with a warn log |
+| Transport | Always REST; live WebSocket Durable Object is never used |
+| D1 trades | `status = 'TEST_EXECUTED'` |
+| D1 positions | id = `{exchange}-testnet-{symbol}-{side}` |
+| Telegram | Exchange label includes `[TEST]` (single notify — no queue double-send) |
+| Analytics | Exchange blob encoded as `{exchange}:test` |
+| Live WS perf | When `use_websocket=true` and live, router **skips** REST client construction |
+
+Operator guide: [Test Trading](/enduser/guides/test-trading).
 
 ---
 
@@ -77,8 +100,10 @@ The client abstraction is defined inside the shared monorepo package `@jango-blo
 ```typescript
 export interface IExchangeProvider<TClient, TEnv> {
   readonly name: string;
-  createClient(env: TEnv): TClient;
+  createClient(env: TEnv, options?: { testnet?: boolean }): TClient;
   hasCredentials(env: TEnv): boolean;
+  /** False for exchanges with no public REST sandbox (e.g. MEXC). */
+  readonly supportsTestTrading?: boolean;
 }
 ```
 
@@ -88,6 +113,8 @@ The `ExchangeRouter` evaluates the incoming symbol and parses settings in `CONFI
 
 1. **Default Path**: Routes trades to the default CEX declared in `exchanges:default_routing` (typically `bybit`).
 2. **Dynamic Symbol Redirects**: Parses overrides in KV (e.g. `exchanges:routing:SOLUSDT = binance`). If present, the router bypasses Bybit and instantiates the `BinanceProvider` instantly without redeploying code.
+3. **Test trading**: When the payload includes `"test": true`, the router creates the client with `testnet: true` (Binance → `testnet.binancefuture.com`, Bybit → `api-testnet.bybit.com`). MEXC rejects with `TEST_TRADING_UNSUPPORTED`. Test mode always uses REST (live WebSocket Durable Objects are skipped). Credentials prefer `BINANCE_TESTNET_*` / `BYBIT_TESTNET_*` secrets, falling back to live bindings.
+4. **Live WS perf**: when `exchange:{name}:use_websocket=true` and the trade is live, the router skips REST client construction entirely and hands off to the Durable Object.
 
 ---
 
@@ -111,7 +138,8 @@ Invoked by the `hoox` gateway or the `TRADE_QUEUE` consumer batch runner.
       "action": "LONG",
       "symbol": "BTCUSDT",
       "quantity": 0.005,
-      "leverage": 10
+      "leverage": 10,
+      "test": true
     }
   }
   ```

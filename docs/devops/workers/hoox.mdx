@@ -123,9 +123,11 @@ The gateway exposes three public entryways:
     "symbol": "BTCUSDT",
     "quantity": 0.01,
     "leverage": 10,
+    "test": true,
     "idempotencyKey": "uuid-9b1deb4d-3b7d"
   }
   ```
+- **`test` (optional)**: forwarded to trade-worker / queue. Idempotency keys are mode-split (`…:live` vs `…:test`) so a live fill and a sandbox fill of the same size never dedupe each other. See [Test Trading](/enduser/guides/test-trading).
 - **Success Response (200 OK)**:
   ```json
   {

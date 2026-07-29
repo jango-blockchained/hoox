@@ -10,6 +10,14 @@ export interface ExchangeConfig {
   testnet?: boolean;
 }
 
+/** Optional constructor options for exchange clients. */
+export interface ExchangeClientOptions {
+  /** Override the default API base URL. */
+  baseUrl?: string;
+  /** When true, use the exchange testnet/sandbox endpoint (if supported). */
+  testnet?: boolean;
+}
+
 export interface TradeParams {
   symbol: string;
   side: string; // "BUY", "SELL", "long", "short", etc. - exchange-specific
@@ -48,7 +56,11 @@ export abstract class BaseExchangeClient {
   protected readonly isTestnet: boolean;
   protected readonly importedKeyPromise: Promise<CryptoKey>;
 
-  constructor(apiKey: string, apiSecret: string) {
+  constructor(
+    apiKey: string,
+    apiSecret: string,
+    options?: ExchangeClientOptions
+  ) {
     if (!apiKey || !apiSecret) {
       throw new Error(
         this.getErrorMessagePrefix() + "API key and secret are required."
@@ -56,9 +68,16 @@ export abstract class BaseExchangeClient {
     }
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
-    this.baseUrl = this.getDefaultBaseUrl();
-    this.isTestnet = false;
+    // isTestnet must be set before getDefaultBaseUrl() so subclasses
+    // can return the testnet host when test mode is requested.
+    this.isTestnet = options?.testnet ?? false;
+    this.baseUrl = options?.baseUrl ?? this.getDefaultBaseUrl();
     this.importedKeyPromise = this.importKey();
+  }
+
+  /** Whether this client instance is targeting a testnet/sandbox host. */
+  public get testnet(): boolean {
+    return this.isTestnet;
   }
 
   /**
