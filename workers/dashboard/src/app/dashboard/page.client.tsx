@@ -9,22 +9,27 @@ import { MetricsCards } from "@/components/dashboard/metrics-cards";
 import { PnlChart } from "@/components/dashboard/pnl-chart";
 import { AiHealthCard } from "@/components/dashboard/ai-health-card";
 import { WorkersOverview } from "@/components/dashboard/workers-overview";
-import { DistributionChart } from "@/components/dashboard/distribution-chart";
+import { OverviewDistributions } from "@/components/dashboard/overview-distributions";
+import { RecentActivity } from "@/components/dashboard/recent-activity";
+import { QuickActions } from "@/components/dashboard/quick-actions";
 import { PageHeader } from "@/components/dashboard/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Activity } from "reicon-react";
 import { Suspense } from "react";
 
-// Mock data for distribution charts
-const exchangeDistribution = [
-  { name: "Binance", value: 45, fill: "hsl(var(--chart-1))" },
-  { name: "Bybit", value: 30, fill: "hsl(var(--chart-2))" },
-  { name: "MEXC", value: 25, fill: "hsl(var(--chart-3))" },
-];
+function MetricsFallback() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-hidden>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton key={i} className="h-32 rounded-xl" />
+      ))}
+    </div>
+  );
+}
 
-const sideDistribution = [
-  { name: "Long", value: 60, fill: "hsl(var(--chart-4))" },
-  { name: "Short", value: 40, fill: "hsl(var(--chart-5))" },
-];
+function ChartFallback({ className }: { className?: string }) {
+  return <Skeleton className={className ?? "h-80 w-full rounded-xl"} />;
+}
 
 export default function DashboardClient() {
   return (
@@ -32,59 +37,37 @@ export default function DashboardClient() {
       <PageHeader
         icon={<Activity className="h-8 w-8 text-primary" />}
         title="Command Center"
-        description="Monitor your trading system in real-time"
+        description="Portfolio health, exposure, AI agent status, and worker pulse"
       />
 
-      <Suspense
-        fallback={<div className="h-32 animate-pulse rounded-lg bg-muted" />}
-      >
+      <Suspense fallback={<MetricsFallback />}>
         <MetricsCards />
       </Suspense>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Suspense
-          fallback={<div className="h-80 animate-pulse rounded-lg bg-muted" />}
-        >
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Suspense fallback={<ChartFallback className="h-[360px] rounded-xl" />}>
           <PnlChart />
         </Suspense>
-        <div className="flex flex-col gap-6">
-          <Suspense
-            fallback={
-              <div className="h-48 animate-pulse rounded-lg bg-muted" />
-            }
-          >
-            <DistributionChart
-              data={exchangeDistribution}
-              title="Exchange Distribution"
-              description="Positions by exchange"
-              type="donut"
-            />
-          </Suspense>
-          <Suspense
-            fallback={
-              <div className="h-48 animate-pulse rounded-lg bg-muted" />
-            }
-          >
-            <DistributionChart
-              data={sideDistribution}
-              title="Position Sides"
-              description="Long vs Short distribution"
-              type="pie"
-            />
-          </Suspense>
-        </div>
+        <Suspense fallback={<ChartFallback className="h-[360px] rounded-xl" />}>
+          <OverviewDistributions />
+        </Suspense>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Suspense
-          fallback={<div className="h-48 animate-pulse rounded-lg bg-muted" />}
-        >
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Suspense fallback={<ChartFallback className="h-64 rounded-xl" />}>
           <AiHealthCard />
         </Suspense>
-        <Suspense
-          fallback={<div className="h-48 animate-pulse rounded-lg bg-muted" />}
-        >
+        <Suspense fallback={<ChartFallback className="h-64 rounded-xl" />}>
           <WorkersOverview />
+        </Suspense>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Suspense fallback={<ChartFallback className="h-80 rounded-xl" />}>
+          <RecentActivity />
+        </Suspense>
+        <Suspense fallback={<ChartFallback className="h-80 rounded-xl" />}>
+          <QuickActions />
         </Suspense>
       </div>
     </div>

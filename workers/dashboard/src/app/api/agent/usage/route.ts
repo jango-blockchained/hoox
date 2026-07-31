@@ -9,14 +9,14 @@ import { Errors } from "@jango-blockchained/hoox-shared/errors";
 import type { DashboardEnv } from "@/lib/env";
 import { z } from "zod";
 
-const usageSchema = z.record(
-  z.string(),
-  z.object({
-    requests: z.number(),
-    tokens: z.number(),
-    cost: z.number(),
-  })
-);
+const providerUsageSchema = z.object({
+  requests: z.number(),
+  tokens: z.number(),
+  cost: z.number(),
+  avgLatency: z.number().optional(),
+});
+
+const usageSchema = z.record(z.string(), providerUsageSchema);
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -25,31 +25,39 @@ export async function GET(_request: NextRequest) {
   try {
     const env = getCloudflareContext().env as DashboardEnv;
 
-    if (env.CONFIG_KV) {
-      const usageData = await env.CONFIG_KV.get("agent:usage");
-
-      if (usageData) {
-        const raw = JSON.parse(usageData);
-        const parsed = usageSchema.safeParse(raw);
-        const usage = parsed.success ? parsed.data : raw;
-        if (!parsed.success) {
-          console.warn("agent/usage: Invalid usage data schema");
-        }
-        return NextResponse.json({ success: true, usage });
-      }
-
-      return NextResponse.json({
-        success: true,
-        usage: {
-          "workers-ai": { requests: 850, tokens: 300000, cost: 0.0 },
-          openai: { requests: 320, tokens: 120000, cost: 9.6 },
-          anthropic: { requests: 77, tokens: 30000, cost: 2.75 },
-        },
-        note: "Mock data - usage tracking requires agent-worker to be running",
-      });
+    if (!env.CONFIG_KV) {
+      return Errors.internal("CONFIG_KV not available");
     }
 
-    return Errors.internal("CONFIG_KV not available");
+    const usageData = await env.CONFIG_KV.get("agent:usage");
+
+    if (usageData) {
+      try {
+        const raw = JSON.parse(usageData);
+        const parsed = usageSchema.safeParse(raw);
+        if (parsed.success) {
+          return NextResponse.json({ success: true, usage: parsed.data });
+        }
+        console.warn("agent/usage: Invalid usage data schema");
+        // Return raw if shape is close enough for the UI to display
+        if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+          return NextResponse.json({
+            success: true,
+            usage: raw as Record<string, unknown>,
+            note: "Usage data failed schema validation",
+          });
+        }
+      } catch {
+        console.warn("agent/usage: Failed to parse usage JSON");
+      }
+    }
+
+    // Honest empty state — no fabricated provider stats
+    return NextResponse.json({
+      success: true,
+      usage: {},
+      note: "No usage data yet. Tracking requires the agent-worker to record metrics.",
+    });
   } catch (e) {
     return Errors.internal(String(e));
   }

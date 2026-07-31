@@ -40,21 +40,26 @@ export function WizardStepIndicator({
             <div className="flex flex-col items-center gap-2">
               <div
                 className={cn(
-                  "flex size-9 items-center justify-center rounded-full border-2 transition-all",
+                  "flex size-9 items-center justify-center rounded-full border-2 transition-all duration-300",
                   completed && "border-success bg-success/10 text-success",
                   active &&
-                    "border-primary bg-primary/10 text-primary shadow-lg shadow-primary/20",
+                    "border-primary bg-primary/10 text-primary scale-105 shadow-lg shadow-primary/20",
                   !completed &&
                     !active &&
                     "border-border bg-muted/30 text-muted-foreground"
                 )}
                 aria-current={active ? "step" : undefined}
+                title={step.description}
               >
-                {completed ? <Check /> : <Icon className="size-4" />}
+                {completed ? (
+                  <Check className="size-4" />
+                ) : (
+                  <Icon className="size-4" />
+                )}
               </div>
               <span
                 className={cn(
-                  "text-[10px] font-medium tracking-wide uppercase",
+                  "hidden text-[10px] font-medium tracking-wide uppercase sm:inline",
                   active && "text-foreground",
                   completed && "text-success",
                   !active && !completed && "text-muted-foreground"
@@ -66,9 +71,10 @@ export function WizardStepIndicator({
             {!isLast && (
               <div
                 className={cn(
-                  "mx-2 h-0.5 flex-1 transition-colors",
+                  "mx-2 h-0.5 flex-1 rounded-full transition-colors duration-300",
                   idx < currentStep ? "bg-success" : "bg-border"
                 )}
+                aria-hidden
               />
             )}
           </li>

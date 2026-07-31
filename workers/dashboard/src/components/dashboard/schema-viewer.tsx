@@ -803,13 +803,21 @@ export function SchemaViewer({ loading = false }: SchemaViewerProps) {
             </CardTitle>
             <CardDescription>
               D1 table definitions — column types, nullability, defaults and
-              relationships
+              relationships. Catalog is static until d1-worker exposes /schema.
             </CardDescription>
           </div>
-          <Badge variant="outline" className="shrink-0 font-mono text-[10px]">
-            {SCHEMA.length} tables ·{" "}
-            {SCHEMA.reduce((sum, t) => sum + t.columns.length, 0)} columns
-          </Badge>
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <Badge variant="outline" className="font-mono text-[10px]">
+              {SCHEMA.length} tables ·{" "}
+              {SCHEMA.reduce((sum, t) => sum + t.columns.length, 0)} columns
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="font-normal text-[10px] text-muted-foreground"
+            >
+              Read-only catalog
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

@@ -25,8 +25,13 @@ function getApiUrl(key: string): string {
 
 export interface DashboardStats {
   totalTrades: number;
-  openPositions: number;
-  winRate: string;
+  /** Preferred open-book count from d1-worker. */
+  openPositions?: number;
+  /** Alternate field name returned by some d1 stats payloads. */
+  activePositionsCount?: number;
+  /** Win rate as a percentage number or pre-formatted string. */
+  winRate: number | string;
+  totalPnlUSDT?: number;
 }
 
 export interface Position {
@@ -189,10 +194,10 @@ class ApiClient {
     );
   }
 
-  // Logs
+  // Logs — d1-worker exposes GET /api/logs (not /api/dashboard/logs).
   async getLogs(limit = 50): Promise<{ success: boolean; logs: SystemLog[] }> {
     const data = await this.fetchWithAuth(
-      `${getApiUrl("d1Service")}/api/dashboard/logs?limit=${limit}`
+      `${getApiUrl("d1Service")}/api/logs?limit=${limit}`
     );
     const result = this.asObject(data);
     return { success: result?.success || false, logs: result?.logs || [] };

@@ -42,15 +42,21 @@ export function TestModel() {
   const [result, setResult] = useState<string | null>(null);
 
   const handleTest = async () => {
-    const controller = new AbortController();
+    if (!prompt.trim()) {
+      toast.error("Please enter a prompt");
+      return;
+    }
     setLoading(true);
     setResult(null);
     try {
       const res = await fetch("/api/agent/test-model", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider, model, prompt }),
-        signal: controller.signal,
+        body: JSON.stringify({
+          provider,
+          model: model.trim() || undefined,
+          prompt: prompt.trim(),
+        }),
       });
       const data = (await res.json()) as TestModelResponse;
       if (data.success) {
@@ -59,27 +65,29 @@ export function TestModel() {
       } else {
         toast.error(data.error || "Test failed");
       }
-    } catch (e) {
-      if (e instanceof Error && e.name !== "AbortError") {
-        toast.error("Failed to test model");
-      }
+    } catch {
+      toast.error("Failed to test model");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Card className="bg-card border-border">
+    <Card className="border-border bg-card">
       <CardHeader>
-        <CardTitle>Test Model</CardTitle>
+        <CardTitle className="text-base">Test Model</CardTitle>
         <CardDescription>Test a specific AI model</CardDescription>
       </CardHeader>
       <CardContent>
         <FieldGroup>
           <Field>
             <FieldLabel>Provider</FieldLabel>
-            <Select value={provider} onValueChange={setProvider}>
-              <SelectTrigger>
+            <Select
+              value={provider}
+              onValueChange={setProvider}
+              disabled={loading}
+            >
+              <SelectTrigger aria-label="Provider">
                 <SelectValue placeholder="Select provider" />
               </SelectTrigger>
               <SelectContent>
@@ -95,6 +103,7 @@ export function TestModel() {
               value={model}
               onChange={(e) => setModel(e.target.value)}
               placeholder="e.g., @cf/meta/llama-3.1-8b-instruct"
+              disabled={loading}
             />
             <FieldDescription>Leave empty for default model</FieldDescription>
           </Field>
@@ -104,13 +113,23 @@ export function TestModel() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Test prompt"
+              disabled={loading}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !loading && prompt.trim()) {
+                  void handleTest();
+                }
+              }}
             />
           </Field>
-          <Button onClick={handleTest} disabled={loading} className="w-full">
+          <Button
+            onClick={() => void handleTest()}
+            disabled={loading || !prompt.trim()}
+            className="w-full"
+          >
             {loading ? (
               <>
-                <Spinner className="h-4 w-4" data-icon="inline-start" />{" "}
-                Testing...
+                <Spinner className="h-4 w-4" data-icon="inline-start" />
+                Testing…
               </>
             ) : (
               "Run Test"

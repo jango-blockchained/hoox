@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ChatInterface } from "@/components/agent/chat-interface";
+import { AgentSubnav, ChatInterface } from "@/components/agent";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { MessageSquare } from "lucide-react";
 
@@ -17,7 +17,7 @@ export default function ChatClient() {
         title="AI Chat"
         description="Chat with the AI agent using SSE streaming"
       />
-
+      <AgentSubnav />
       <ChatInterface />
     </div>
   );

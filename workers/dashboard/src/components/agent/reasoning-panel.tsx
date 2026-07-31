@@ -25,6 +25,13 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Brain, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -58,7 +65,11 @@ export function ReasoningPanel() {
       const res = await fetch("/api/agent/reasoning", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, model, reasoningEffort: effort }),
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          model,
+          reasoningEffort: effort,
+        }),
         signal: controller.signal,
       });
       const data = (await res.json()) as ReasoningResponse;
@@ -80,9 +91,9 @@ export function ReasoningPanel() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card className="bg-card border-border">
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base">
             <Brain className="h-5 w-5 text-primary" /> Reasoning Input
           </CardTitle>
           <CardDescription>
@@ -92,8 +103,8 @@ export function ReasoningPanel() {
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <span className="text-sm font-medium">Model</span>
-            <Select value={model} onValueChange={setModel}>
-              <SelectTrigger>
+            <Select value={model} onValueChange={setModel} disabled={loading}>
+              <SelectTrigger aria-label="Reasoning model">
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
               <SelectContent>
@@ -112,6 +123,7 @@ export function ReasoningPanel() {
               value={effort}
               onValueChange={(v) => v && setEffort(v)}
               className="justify-start"
+              disabled={loading}
             >
               <ToggleGroupItem value="low" aria-label="Low effort">
                 Low
@@ -131,13 +143,18 @@ export function ReasoningPanel() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Design a risk management strategy for a $100k portfolio..."
               className="min-h-[120px]"
+              disabled={loading}
             />
           </div>
-          <Button onClick={handleSubmit} disabled={loading || !prompt.trim()}>
+          <Button
+            onClick={() => void handleSubmit()}
+            disabled={loading || !prompt.trim()}
+            className="w-full"
+          >
             {loading ? (
               <>
-                <Spinner className="h-4 w-4" data-icon="inline-start" />{" "}
-                Thinking...
+                <Spinner className="h-4 w-4" data-icon="inline-start" />
+                Thinking…
               </>
             ) : (
               <>
@@ -147,9 +164,12 @@ export function ReasoningPanel() {
           </Button>
         </CardContent>
       </Card>
-      <Card className="bg-card border-border">
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle>Response</CardTitle>
+          <CardTitle className="text-base">Response</CardTitle>
+          <CardDescription>
+            Chain-of-thought and final answer when available
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -160,9 +180,18 @@ export function ReasoningPanel() {
               <Skeleton className="h-32 w-full" />
             </div>
           ) : !reasoning && !answer ? (
-            <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-              Submit a prompt to see the reasoning process and answer
-            </div>
+            <Empty className="min-h-[280px] border border-dashed py-8">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <Brain className="size-5" />
+                </EmptyMedia>
+                <EmptyTitle>Awaiting a prompt</EmptyTitle>
+                <EmptyDescription>
+                  Submit a complex query to see the reasoning process and
+                  answer.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           ) : (
             <Tabs defaultValue="answer" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
@@ -170,14 +199,14 @@ export function ReasoningPanel() {
                 <TabsTrigger value="answer">Answer</TabsTrigger>
               </TabsList>
               <TabsContent value="reasoning" className="mt-4">
-                <div className="rounded-lg bg-secondary/30 p-4 min-h-[200px]">
+                <div className="min-h-[200px] rounded-lg bg-secondary/30 p-4">
                   <p className="text-sm whitespace-pre-wrap">
                     {reasoning || "No reasoning output"}
                   </p>
                 </div>
               </TabsContent>
               <TabsContent value="answer" className="mt-4">
-                <div className="rounded-lg bg-secondary/30 p-4 min-h-[200px]">
+                <div className="min-h-[200px] rounded-lg bg-secondary/30 p-4">
                   <p className="text-sm whitespace-pre-wrap">
                     {answer || "No answer yet"}
                   </p>

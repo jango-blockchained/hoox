@@ -21,6 +21,10 @@ export interface InfrastructureResource {
   services?: CFServiceType[];
   /** Storage backend label (D1, KV, R2, Vectorize) for storage entries. */
   storageType?: string;
+  /** Optional live probe error from /api/workers/health. */
+  healthError?: string;
+  /** Optional epoch ms of last health sample. */
+  lastChecked?: number;
 }
 
 export interface InfrastructureSection {

@@ -28,13 +28,23 @@ export function InfrastructureRow({ resource }: InfrastructureRowProps) {
         "flex items-center justify-between rounded-md border p-2.5 transition-colors",
         isActive
           ? "border-border/50 bg-secondary/15 hover:bg-secondary/30"
-          : "border-border/20 bg-muted/10 opacity-70"
+          : "border-border/20 bg-muted/10 opacity-80"
       )}
+      title={resource.healthError}
     >
       <div className="flex min-w-0 flex-col gap-0.5 overflow-hidden">
         <div className="flex items-center gap-2">
           <span className="truncate text-sm font-medium">{resource.name}</span>
-          <StatusDot status={resource.status} />
+          <StatusDot
+            status={resource.status}
+            kind={resource.kind}
+            error={resource.healthError}
+          />
+          {resource.healthError && resource.kind === "worker" ? (
+            <span className="truncate text-[10px] text-warning">
+              {resource.healthError}
+            </span>
+          ) : null}
         </div>
         <span className="truncate text-[10px] text-muted-foreground">
           {resource.role}
@@ -42,7 +52,12 @@ export function InfrastructureRow({ resource }: InfrastructureRowProps) {
         {resource.services && resource.services.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
             {resource.services.map((service) => (
-              <CFServiceBadge key={service} service={service} mini />
+              <CFServiceBadge
+                key={service}
+                service={service}
+                mini
+                isActive={isActive}
+              />
             ))}
           </div>
         )}
@@ -57,18 +72,47 @@ export function InfrastructureRow({ resource }: InfrastructureRowProps) {
         </Badge>
       ) : showActions ? (
         <RowActions url={resource.url!} name={resource.name} />
+      ) : !isActive && resource.kind === "worker" ? (
+        <Badge
+          variant="outline"
+          className="border-warning/40 text-[10px] font-normal text-warning"
+        >
+          Degraded
+        </Badge>
       ) : null}
     </div>
   );
 }
 
-function StatusDot({ status }: { status: "active" | "inactive" }) {
+function StatusDot({
+  status,
+  kind,
+  error,
+}: {
+  status: "active" | "inactive";
+  kind: InfrastructureResource["kind"];
+  error?: string;
+}) {
+  const label =
+    status === "active"
+      ? "Active"
+      : kind === "worker"
+        ? error
+          ? `Inactive: ${error}`
+          : "Inactive / unreachable"
+        : "Inactive";
+
   return (
     <span
-      aria-label={status === "active" ? "Active" : "Inactive"}
+      aria-label={label}
+      title={label}
       className={cn(
         "inline-block size-1.5 shrink-0 rounded-full",
-        status === "active" ? "bg-foreground" : "bg-muted-foreground/30"
+        status === "active"
+          ? "bg-success shadow-[0_0_6px_rgba(16,185,129,0.5)]"
+          : kind === "worker"
+            ? "bg-warning"
+            : "bg-muted-foreground/30"
       )}
     />
   );
@@ -85,7 +129,7 @@ function RowActions({ url, name }: { url: string; name: string }) {
       <Button
         size="icon"
         variant="ghost"
-        className="text-muted-foreground hover:text-foreground size-6"
+        className="size-6 text-muted-foreground hover:text-foreground"
         onClick={copyUrl}
         aria-label={`Copy ${name} URL`}
       >
@@ -94,7 +138,7 @@ function RowActions({ url, name }: { url: string; name: string }) {
       <Button
         size="icon"
         variant="ghost"
-        className="text-muted-foreground hover:text-foreground size-6"
+        className="size-6 text-muted-foreground hover:text-foreground"
         asChild
       >
         <a

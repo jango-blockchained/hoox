@@ -8,5 +8,5 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Trade Signals",
   description:
-    "Drill-down view of all trading signals received from external sources",
+    "Inspect inbound trading signals from D1 trade_signals and Analytics Engine aggregates — filters, status, and raw payload when available.",
 };

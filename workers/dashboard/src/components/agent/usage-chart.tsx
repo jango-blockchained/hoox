@@ -20,82 +20,173 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
+import { BarChart3 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { parseUsage, type ProviderUsage } from "@/components/agent/usage-table";
 
-const DAILY_DATA = [
-  { date: "2026-04-28", "workers-ai": 120, openai: 45, anthropic: 12 },
-  { date: "2026-04-29", "workers-ai": 150, openai: 52, anthropic: 15 },
-  { date: "2026-04-30", "workers-ai": 180, openai: 60, anthropic: 18 },
-  { date: "2026-05-01", "workers-ai": 200, openai: 70, anthropic: 20 },
-  { date: "2026-05-02", "workers-ai": 170, openai: 65, anthropic: 16 },
-  { date: "2026-05-03", "workers-ai": 190, openai: 68, anthropic: 19 },
+const CHART_COLORS = [
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
 ];
 
-const chartConfig = {
-  "workers-ai": { label: "Workers AI", color: "hsl(var(--chart-1))" },
-  openai: { label: "OpenAI", color: "hsl(var(--chart-2))" },
-  anthropic: { label: "Anthropic", color: "hsl(var(--chart-3))" },
-} satisfies ChartConfig;
+interface UsageApiResponse {
+  success: boolean;
+  usage?: Record<
+    string,
+    {
+      requests?: number;
+      tokens?: number;
+      cost?: number;
+      avgLatency?: number;
+    }
+  >;
+  note?: string;
+  error?: string;
+}
 
-export function UsageChart() {
-  const [timeRange, setTimeRange] = useState("7d");
+interface UsageChartProps {
+  providers?: ProviderUsage[];
+  loading?: boolean;
+  note?: string | null;
+}
+
+export function UsageChart({
+  providers: controlledProviders,
+  loading: controlledLoading,
+  note: controlledNote,
+}: UsageChartProps = {}) {
+  const isControlled = controlledProviders !== undefined;
+  const [providers, setProviders] = useState<ProviderUsage[]>([]);
+  const [loading, setLoading] = useState(!isControlled);
+  const [note, setNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isControlled) return;
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const res = await fetch("/api/agent/usage", {
+          signal: controller.signal,
+        });
+        const data = (await res.json()) as UsageApiResponse;
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || "Failed to load usage");
+        }
+        setProviders(parseUsage(data.usage));
+        setNote(data.note ?? null);
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "AbortError") return;
+        toast.error(e instanceof Error ? e.message : "Failed to load usage");
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => controller.abort();
+  }, [isControlled]);
+
+  const rows = isControlled ? (controlledProviders ?? []) : providers;
+  const isLoading = isControlled ? Boolean(controlledLoading) : loading;
+  const displayNote = isControlled ? controlledNote : note;
+
+  const chartConfig = useMemo(() => {
+    const config: ChartConfig = {};
+    rows.forEach((p, i) => {
+      config[p.name] = {
+        label: p.name,
+        color: CHART_COLORS[i % CHART_COLORS.length],
+      };
+    });
+    return config;
+  }, [rows]);
+
+  const chartData = useMemo(
+    () =>
+      rows.map((p) => ({
+        provider: p.name,
+        tokens: p.tokens,
+        requests: p.requests,
+        fill: chartConfig[p.name]?.color ?? CHART_COLORS[0],
+      })),
+    [rows, chartConfig]
+  );
 
   return (
     <Card className="bg-card border-border">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Usage Over Time</CardTitle>
-            <CardDescription>Tokens consumed per day</CardDescription>
-          </div>
-          <Tabs value={timeRange} onValueChange={setTimeRange}>
-            <TabsList>
-              <TabsTrigger value="24h">24h</TabsTrigger>
-              <TabsTrigger value="7d">7d</TabsTrigger>
-              <TabsTrigger value="30d">30d</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+        <CardTitle className="text-base">Usage by Provider</CardTitle>
+        <CardDescription>
+          Tokens consumed per AI provider
+          {displayNote ? (
+            <span className="mt-1 block text-xs text-muted-foreground/80">
+              {displayNote}
+            </span>
+          ) : null}
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
-          <AreaChart data={DAILY_DATA}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(5)}
-            />
-            <YAxis tickLine={false} axisLine={false} />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <ChartLegend content={<ChartLegendContent />} />
-            <Area
-              type="monotone"
-              dataKey="workers-ai"
-              stroke="var(--color-workers-ai)"
-              fill="var(--color-workers-ai)"
-              fillOpacity={0.2}
-            />
-            <Area
-              type="monotone"
-              dataKey="openai"
-              stroke="var(--color-openai)"
-              fill="var(--color-openai)"
-              fillOpacity={0.2}
-            />
-            <Area
-              type="monotone"
-              dataKey="anthropic"
-              stroke="var(--color-anthropic)"
-              fill="var(--color-anthropic)"
-              fillOpacity={0.2}
-            />
-          </AreaChart>
-        </ChartContainer>
+        {isLoading ? (
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-[280px] w-full rounded-lg" />
+          </div>
+        ) : chartData.length === 0 ? (
+          <Empty className="min-h-[280px] border border-dashed py-10">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <BarChart3 className="size-5" />
+              </EmptyMedia>
+              <EmptyTitle>No usage data</EmptyTitle>
+              <EmptyDescription>
+                {displayNote ||
+                  "Charts populate when the agent records token usage per provider."}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          <ChartContainer config={chartConfig} className="h-[300px] w-full">
+            <BarChart data={chartData} accessibilityLayer>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="provider"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
+              <YAxis tickLine={false} axisLine={false} />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    formatter={(value, name) => (
+                      <span>
+                        {name === "tokens" || name === "Tokens"
+                          ? `${Number(value).toLocaleString()} tokens`
+                          : String(value)}
+                      </span>
+                    )}
+                  />
+                }
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+              <Bar dataKey="tokens" name="Tokens" radius={[4, 4, 0, 0]}>
+                {chartData.map((entry) => (
+                  <Cell key={entry.provider} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );

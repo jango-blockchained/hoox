@@ -1,25 +1,11 @@
-"use client";
-
 /**
  * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+"use client";
+
+import { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -28,157 +14,249 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Activity, AlertTriangle } from "lucide-react";
-import { motion } from "framer-motion";
+import { Activity, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  AnalyticsCard,
+  AnalyticsCardSkeleton,
+  AnalyticsEmpty,
+  AnalyticsErrorState,
+  AnalyticsTableSkeleton,
+  MetricInfo,
+} from "./analytics-shell";
+import {
+  appendTimeRangeParams,
+  timeRangeLabel,
+  type TimeRangeKey,
+} from "./time-range";
+import { useAnalyticsQuery } from "./use-analytics-query";
+import { cn } from "@/lib/utils";
 
 interface WorkerPerformanceRow {
-  data_type: string;
+  worker: string;
+  data_type?: string;
   total_requests: number;
   total_errors: number;
   avg_duration_ms: number;
 }
 
-const WORKERS = [
+const WORKER_FILTERS = [
+  "all",
   "trade-worker",
   "agent-worker",
   "d1-worker",
   "telegram-worker",
   "hoox",
-];
+  "analytics-worker",
+  "email-worker",
+  "web3-wallet-worker",
+  "report-worker",
+] as const;
 
-export function WorkerPerformance() {
-  const [data, setData] = useState<WorkerPerformanceRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedWorker, setSelectedWorker] = useState(WORKERS[0]);
-  const [mounted, setMounted] = useState(false);
+function num(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+function normalize(rows: WorkerPerformanceRow[]): WorkerPerformanceRow[] {
+  return rows
+    .map((r) => ({
+      worker: String(r.worker || "unknown"),
+      data_type: r.data_type ? String(r.data_type) : "worker-perf",
+      total_requests: num(r.total_requests),
+      total_errors: num(r.total_errors),
+      avg_duration_ms: num(r.avg_duration_ms),
+    }))
+    .sort((a, b) => b.total_requests - a.total_requests);
+}
 
-  useEffect(() => {
-    const controller = new AbortController();
-    async function fetchData() {
-      setLoading(true);
-      try {
-        const url = new URL(
-          `/api/analytics/worker-performance`,
-          window.location.origin
-        );
-        url.searchParams.set("worker", selectedWorker);
-        const res = await fetch(url.toString(), { signal: controller.signal });
-        const json = (await res.json()) as {
-          success: boolean;
-          data?: WorkerPerformanceRow[];
-        };
-        if (json.success) {
-          setData(json.data || []);
-        }
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError")
-          return;
-        console.error("Failed to fetch worker performance:", error);
-      } finally {
-        setLoading(false);
-      }
+function errorRate(row: WorkerPerformanceRow): number {
+  if (row.total_requests <= 0) return 0;
+  return (row.total_errors / row.total_requests) * 100;
+}
+
+function statusFor(
+  row: WorkerPerformanceRow
+): "healthy" | "degraded" | "critical" {
+  const rate = errorRate(row);
+  if (rate >= 5 || row.total_errors > 50) return "critical";
+  if (rate > 0 || row.avg_duration_ms > 2000) return "degraded";
+  return "healthy";
+}
+
+export function WorkerPerformance({
+  timeRange = "7d",
+  className,
+}: {
+  timeRange?: TimeRangeKey;
+  className?: string;
+}) {
+  const [selectedWorker, setSelectedWorker] = useState<string>("all");
+
+  const url = useMemo(() => {
+    const u = new URL(
+      "/api/analytics/worker-performance",
+      typeof window !== "undefined" ? window.location.origin : "http://local"
+    );
+    if (selectedWorker !== "all") {
+      u.searchParams.set("worker", selectedWorker);
+    } else {
+      u.searchParams.set("worker", "all");
     }
-    if (mounted) fetchData();
-    return () => controller.abort();
-  }, [selectedWorker, mounted]);
+    appendTimeRangeParams(u, timeRange, { end: false });
+    return u.pathname + u.search;
+  }, [selectedWorker, timeRange]);
 
-  if (!mounted) return null;
+  const { data, loading, error, refetch } = useAnalyticsQuery<
+    WorkerPerformanceRow[]
+  >(url, { select: normalize });
+
+  if (loading && !data) {
+    return <AnalyticsCardSkeleton height="h-[220px]" className={className} />;
+  }
+
+  const rows = data ?? [];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.2 }}
+    <AnalyticsCard
+      title="Worker Performance"
+      description={`Request volume, errors, and latency · ${timeRangeLabel(timeRange)}`}
+      icon={Activity}
+      className={className}
+      info={
+        <div className="space-y-1.5">
+          <p>
+            Aggregated from <strong>worker-perf</strong> heartbeats. Requests
+            and errors are summed; duration is the average reported cycle time.
+          </p>
+          <p>
+            Status: Healthy (no errors), Degraded (any errors or slow &gt;2s),
+            Critical (≥5% error rate or many errors).
+          </p>
+        </div>
+      }
+      action={
+        <Select value={selectedWorker} onValueChange={setSelectedWorker}>
+          <SelectTrigger
+            className="w-[160px]"
+            size="sm"
+            aria-label="Filter worker"
+          >
+            <SelectValue placeholder="Worker" />
+          </SelectTrigger>
+          <SelectContent>
+            {WORKER_FILTERS.map((w) => (
+              <SelectItem key={w} value={w}>
+                {w === "all" ? "All workers" : w}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      }
     >
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              <div>
-                <CardTitle>Worker Performance</CardTitle>
-                <CardDescription>
-                  Request counts, errors, and latency
-                </CardDescription>
-              </div>
-            </div>
-            <Select value={selectedWorker} onValueChange={setSelectedWorker}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {WORKERS.map((w) => (
-                  <SelectItem key={w} value={w}>
-                    {w}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex h-[200px] items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            </div>
-          ) : data.length === 0 ? (
-            <div className="flex h-[200px] items-center justify-center text-muted-foreground">
-              No performance data available
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data Type</TableHead>
-                  <TableHead>Requests</TableHead>
-                  <TableHead>Errors</TableHead>
-                  <TableHead>Avg Duration</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((row, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-medium">
-                      {row.data_type}
+      {error && rows.length === 0 ? (
+        <AnalyticsErrorState error={error} onRetry={refetch} compact />
+      ) : loading ? (
+        <AnalyticsTableSkeleton rows={4} />
+      ) : rows.length === 0 ? (
+        <AnalyticsEmpty
+          title="No worker heartbeats"
+          description="Workers publish performance samples via analytics-worker /track/worker-perf. Enable tracking on each worker to populate this table."
+          compact
+        />
+      ) : (
+        <ScrollArea className="w-full">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>
+                  <span className="inline-flex items-center gap-1">
+                    Worker
+                    <MetricInfo label="Worker">
+                      Service name that reported the sample (blob2).
+                    </MetricInfo>
+                  </span>
+                </TableHead>
+                <TableHead className="text-right">Requests</TableHead>
+                <TableHead className="text-right">Errors</TableHead>
+                <TableHead className="text-right">
+                  <span className="inline-flex items-center justify-end gap-1">
+                    Avg duration
+                    <MetricInfo label="Avg duration">
+                      Mean duration (ms) reported per heartbeat. High values can
+                      indicate queue backlog or cold starts.
+                    </MetricInfo>
+                  </span>
+                </TableHead>
+                <TableHead className="text-right">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => {
+                const status = statusFor(row);
+                return (
+                  <TableRow key={row.worker}>
+                    <TableCell className="font-medium font-mono text-sm">
+                      {row.worker}
                     </TableCell>
-                    <TableCell>{row.total_requests || 0}</TableCell>
-                    <TableCell>
-                      <span
-                        className={
-                          row.total_errors > 0 ? "text-destructive" : ""
-                        }
-                      >
-                        {row.total_errors || 0}
-                      </span>
+                    <TableCell className="text-right tabular-nums">
+                      {row.total_requests.toLocaleString()}
                     </TableCell>
-                    <TableCell>
-                      {row.avg_duration_ms
-                        ? `${Math.round(row.avg_duration_ms)}ms`
-                        : "N/A"}
+                    <TableCell
+                      className={cn(
+                        "text-right tabular-nums",
+                        row.total_errors > 0 && "text-destructive font-medium"
+                      )}
+                    >
+                      {row.total_errors.toLocaleString()}
+                      {row.total_requests > 0 && row.total_errors > 0 && (
+                        <span className="ml-1 text-xs text-muted-foreground">
+                          ({errorRate(row).toFixed(1)}%)
+                        </span>
+                      )}
                     </TableCell>
-                    <TableCell>
-                      {row.total_errors > 0 ? (
-                        <Badge variant="destructive">
-                          <AlertTriangle className="h-3 w-3 mr-1" />
-                          Issues
+                    <TableCell className="text-right tabular-nums text-muted-foreground">
+                      {row.avg_duration_ms > 0
+                        ? `${Math.round(row.avg_duration_ms).toLocaleString()} ms`
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {status === "critical" ? (
+                        <Badge variant="destructive" className="gap-1">
+                          <AlertTriangle className="size-3" />
+                          Critical
+                        </Badge>
+                      ) : status === "degraded" ? (
+                        <Badge
+                          variant="outline"
+                          className="gap-1 border-warning/50 text-warning"
+                        >
+                          <AlertTriangle className="size-3" />
+                          Degraded
                         </Badge>
                       ) : (
-                        <Badge variant="secondary">Healthy</Badge>
+                        <Badge variant="secondary" className="gap-1">
+                          <CheckCircle2 className="size-3" />
+                          Healthy
+                        </Badge>
                       )}
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
+                );
+              })}
+            </TableBody>
+          </Table>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      )}
+    </AnalyticsCard>
   );
 }

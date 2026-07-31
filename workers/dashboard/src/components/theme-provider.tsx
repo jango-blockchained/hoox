@@ -1,6 +1,26 @@
+"use client";
+
 /**
  * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// REMOVED: Unused component — theme-provider was not imported by any page or parent component.
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+
+export function ThemeProvider({
+  children,
+  ...props
+}: React.ComponentProps<typeof NextThemesProvider>) {
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem
+      disableTransitionOnChange
+      {...props}
+    >
+      {children}
+    </NextThemesProvider>
+  );
+}

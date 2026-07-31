@@ -7,46 +7,87 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── Design tokens — premium dark trading aesthetic ── */
 :root,
 .dark {
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.1 0 0);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.95 0 0);
-  --primary-foreground: oklch(0.08 0 0);
-  --secondary: oklch(0.22 0 0);
-  --secondary-foreground: oklch(0.85 0 0);
-  --muted: oklch(0.28 0 0);
-  --muted-foreground: oklch(0.68 0 0);
-  --accent: oklch(0.7 0.2 45);
-  --accent-foreground: oklch(0.08 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.3 0 0);
-  --input: oklch(0.25 0 0);
-  --ring: oklch(0.7 0.2 45);
-  --chart-1: oklch(0.95 0 0);
-  --chart-2: oklch(0.22 0 0);
-  --chart-3: oklch(0.55 0 0);
-  --chart-4: oklch(0.3 0 0);
-  --chart-5: oklch(0.12 0 0);
-  --radius: 0rem;
-  --sidebar: oklch(0.12 0 0);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.7 0.2 45);
-  --sidebar-primary-foreground: oklch(0.08 0 0);
-  --sidebar-accent: oklch(0.15 0 0);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.7 0.2 45);
-  --success: oklch(0.62 0.19 142.5);
-  --success-foreground: oklch(0.08 0 0);
-  --warning: oklch(0.8 0.15 80);
-  --warning-foreground: oklch(0.08 0 0);
+  --background: oklch(0.09 0.005 260);
+  --foreground: oklch(0.96 0.005 90);
+  --card: oklch(0.125 0.006 260);
+  --card-foreground: oklch(0.96 0.005 90);
+  --popover: oklch(0.11 0.006 260);
+  --popover-foreground: oklch(0.96 0.005 90);
+  --primary: oklch(0.95 0.01 90);
+  --primary-foreground: oklch(0.1 0.005 260);
+  --secondary: oklch(0.2 0.008 260);
+  --secondary-foreground: oklch(0.88 0.01 90);
+  --muted: oklch(0.22 0.008 260);
+  --muted-foreground: oklch(0.68 0.015 260);
+  --accent: oklch(0.72 0.17 48);
+  --accent-foreground: oklch(0.12 0.02 48);
+  --destructive: oklch(0.58 0.22 25);
+  --destructive-foreground: oklch(0.96 0.01 25);
+  --border: oklch(0.28 0.01 260);
+  --input: oklch(0.22 0.01 260);
+  --ring: oklch(0.72 0.17 48);
+  /* Chart palette: high-contrast series on dark panels */
+  --chart-1: oklch(0.78 0.14 48);
+  --chart-2: oklch(0.7 0.14 200);
+  --chart-3: oklch(0.68 0.16 145);
+  --chart-4: oklch(0.72 0.12 300);
+  --chart-5: oklch(0.75 0.1 80);
   --radius: 0.5rem;
+  --sidebar: oklch(0.11 0.006 260);
+  --sidebar-foreground: oklch(0.95 0.005 90);
+  --sidebar-primary: oklch(0.72 0.17 48);
+  --sidebar-primary-foreground: oklch(0.12 0.02 48);
+  --sidebar-accent: oklch(0.16 0.01 260);
+  --sidebar-accent-foreground: oklch(0.95 0.005 90);
+  --sidebar-border: oklch(0.24 0.01 260);
+  --sidebar-ring: oklch(0.72 0.17 48);
+  --success: oklch(0.68 0.17 145);
+  --success-foreground: oklch(0.12 0.02 145);
+  --warning: oklch(0.82 0.14 85);
+  --warning-foreground: oklch(0.18 0.04 85);
+}
+
+/* Optional light theme (theme toggle) */
+:root:not(.dark) {
+  --background: oklch(0.985 0.002 90);
+  --foreground: oklch(0.16 0.01 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.16 0.01 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.16 0.01 260);
+  --primary: oklch(0.22 0.02 260);
+  --primary-foreground: oklch(0.98 0.005 90);
+  --secondary: oklch(0.94 0.01 260);
+  --secondary-foreground: oklch(0.22 0.02 260);
+  --muted: oklch(0.94 0.01 260);
+  --muted-foreground: oklch(0.48 0.02 260);
+  --accent: oklch(0.68 0.16 48);
+  --accent-foreground: oklch(0.14 0.03 48);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 25);
+  --border: oklch(0.88 0.01 260);
+  --input: oklch(0.9 0.01 260);
+  --ring: oklch(0.68 0.16 48);
+  --chart-1: oklch(0.6 0.16 48);
+  --chart-2: oklch(0.55 0.12 200);
+  --chart-3: oklch(0.55 0.14 145);
+  --chart-4: oklch(0.55 0.12 300);
+  --chart-5: oklch(0.6 0.1 80);
+  --sidebar: oklch(0.97 0.005 260);
+  --sidebar-foreground: oklch(0.18 0.01 260);
+  --sidebar-primary: oklch(0.68 0.16 48);
+  --sidebar-primary-foreground: oklch(0.98 0.01 48);
+  --sidebar-accent: oklch(0.94 0.01 260);
+  --sidebar-accent-foreground: oklch(0.18 0.01 260);
+  --sidebar-border: oklch(0.9 0.01 260);
+  --sidebar-ring: oklch(0.68 0.16 48);
+  --success: oklch(0.55 0.16 145);
+  --success-foreground: oklch(0.98 0.01 145);
+  --warning: oklch(0.75 0.14 85);
+  --warning-foreground: oklch(0.22 0.04 85);
 }
 
 @theme inline {
@@ -99,33 +140,101 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
+
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  html:not(.dark) {
+    color-scheme: light;
+  }
+
   body {
     @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
   }
+
+  /* Premium focus ring — keyboard only */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Inputs/buttons already use ring utilities; avoid double outline on them */
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+  }
+
+  /* Tabular nums for trading data */
+  .tabular-nums,
+  [data-slot="table"] {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ── Skip link (a11y) ── */
+.skip-to-content {
+  position: absolute;
+  left: 1rem;
+  top: -100%;
+  z-index: 100;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+
+.skip-to-content:focus {
+  top: 1rem;
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 
 /* ── Grid background ── */
 .grid-bg {
   background-image:
-    linear-gradient(to right, oklch(0.22 0 0) 1px, transparent 1px),
-    linear-gradient(to bottom, oklch(0.22 0 0) 1px, transparent 1px);
-  background-size: 60px 60px;
+    linear-gradient(to right, oklch(0.22 0.01 260 / 0.55) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.22 0.01 260 / 0.55) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(
+    ellipse 80% 70% at 50% 0%,
+    black 20%,
+    transparent 75%
+  );
 }
 
-/* ── Custom selection ── */
+html:not(.dark) .grid-bg {
+  background-image:
+    linear-gradient(to right, oklch(0.85 0.01 260 / 0.6) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.85 0.01 260 / 0.6) 1px, transparent 1px);
+}
+
+/* ── Selection ── */
 ::selection {
-  background: oklch(0.7 0.2 45);
-  color: oklch(0.08 0 0);
+  background: oklch(0.72 0.17 48 / 0.35);
+  color: var(--foreground);
 }
 
-/* ── Glow effect for accent elements ── */
+/* ── Glow for accent CTAs ── */
 .glow-accent {
-  box-shadow: 0 0 20px oklch(0.7 0.2 45 / 0.3);
+  box-shadow:
+    0 0 0 1px oklch(0.72 0.17 48 / 0.25),
+    0 0 24px oklch(0.72 0.17 48 / 0.22);
 }
 
-/* Scrollbar utilities */
+/* ── Scrollbars ── */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -134,7 +243,30 @@
   display: none;
 }
 
-/* Custom scrollbar */
+/* Global thin scrollbar (Firefox + WebKit) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.4 0.01 260 / 0.55) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: oklch(0.4 0.01 260 / 0.55);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.55 0.02 260 / 0.75);
+  background-clip: content-box;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -149,4 +281,19 @@
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--foreground);
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .motion-reduce\:animate-none,
+  .animate-pulse,
+  .animate-spin,
+  .animate-in,
+  .animate-out {
+    animation: none !important;
+  }
 }

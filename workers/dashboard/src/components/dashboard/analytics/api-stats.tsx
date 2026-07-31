@@ -1,25 +1,11 @@
-"use client";
-
 /**
  * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+"use client";
+
+import { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -28,170 +14,253 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, TrendingUp, TrendingDown } from "lucide-react";
-import { motion } from "framer-motion";
+import { Network, TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  AnalyticsCard,
+  AnalyticsCardSkeleton,
+  AnalyticsEmpty,
+  AnalyticsErrorState,
+  AnalyticsTableSkeleton,
+  MetricInfo,
+} from "./analytics-shell";
+import {
+  appendTimeRangeParams,
+  timeRangeLabel,
+  type TimeRangeKey,
+} from "./time-range";
+import { useAnalyticsQuery } from "./use-analytics-query";
+import { cn } from "@/lib/utils";
 
 interface ApiStatRow {
   endpoint: string;
+  worker?: string;
   call_count: number;
   success_count: number;
   avg_latency_ms: number;
 }
 
-const EXCHANGES = ["Binance", "Bybit", "MEXC", "all"];
+const WORKER_FILTERS = [
+  "all",
+  "trade-worker",
+  "agent-worker",
+  "d1-worker",
+  "telegram-worker",
+  "hoox",
+  "analytics-worker",
+  "email-worker",
+  "web3-wallet-worker",
+] as const;
 
-export function ApiStats() {
-  const [data, setData] = useState<ApiStatRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedExchange, setSelectedExchange] = useState("all");
-  const [mounted, setMounted] = useState(false);
+function num(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+function normalize(rows: ApiStatRow[]): ApiStatRow[] {
+  return rows
+    .map((r) => ({
+      endpoint: String(r.endpoint || "unknown"),
+      worker: r.worker ? String(r.worker) : undefined,
+      call_count: num(r.call_count),
+      success_count: num(r.success_count),
+      avg_latency_ms: num(r.avg_latency_ms),
+    }))
+    .filter((r) => r.call_count > 0)
+    .sort((a, b) => b.call_count - a.call_count);
+}
 
-  useEffect(() => {
-    const controller = new AbortController();
-    async function fetchData() {
-      setLoading(true);
-      try {
-        const url = new URL(`/api/analytics/api-stats`, window.location.origin);
-        if (selectedExchange !== "all") {
-          url.searchParams.set("exchange", selectedExchange);
-        }
-        const res = await fetch(url.toString(), { signal: controller.signal });
-        const json = (await res.json()) as {
-          success: boolean;
-          data?: ApiStatRow[];
-        };
-        if (json.success) {
-          setData(json.data || []);
-        }
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError")
-          return;
-        console.error("Failed to fetch API stats:", error);
-      } finally {
-        setLoading(false);
-      }
+function successRate(row: ApiStatRow): number {
+  if (row.call_count <= 0) return 0;
+  return (row.success_count / row.call_count) * 100;
+}
+
+function latencyTone(ms: number): string {
+  if (ms > 500) return "text-destructive font-medium";
+  if (ms > 200) return "text-warning";
+  return "text-muted-foreground";
+}
+
+function healthBadge(rate: number) {
+  if (rate >= 95) {
+    return (
+      <Badge variant="secondary" className="gap-1">
+        <TrendingUp className="size-3" />
+        Good
+      </Badge>
+    );
+  }
+  if (rate >= 80) {
+    return (
+      <Badge variant="outline" className="gap-1">
+        <Minus className="size-3" />
+        Fair
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="destructive" className="gap-1">
+      <TrendingDown className="size-3" />
+      Poor
+    </Badge>
+  );
+}
+
+export function ApiStats({
+  timeRange = "7d",
+  className,
+}: {
+  timeRange?: TimeRangeKey;
+  className?: string;
+}) {
+  const [worker, setWorker] = useState<string>("all");
+
+  const url = useMemo(() => {
+    const u = new URL(
+      "/api/analytics/api-stats",
+      typeof window !== "undefined" ? window.location.origin : "http://local"
+    );
+    if (worker !== "all") {
+      u.searchParams.set("worker", worker);
     }
-    if (mounted) fetchData();
-    return () => controller.abort();
-  }, [selectedExchange, mounted]);
+    appendTimeRangeParams(u, timeRange, { end: false });
+    return u.pathname + u.search;
+  }, [worker, timeRange]);
 
-  if (!mounted) return null;
+  const { data, loading, error, refetch } = useAnalyticsQuery<ApiStatRow[]>(
+    url,
+    { select: normalize }
+  );
+
+  if (loading && !data) {
+    return <AnalyticsCardSkeleton height="h-[220px]" className={className} />;
+  }
+
+  const rows = data ?? [];
+  const totalCalls = rows.reduce((s, r) => s + r.call_count, 0);
+  const avgLatency =
+    totalCalls > 0
+      ? rows.reduce((s, r) => s + r.avg_latency_ms * r.call_count, 0) /
+        totalCalls
+      : 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.3 }}
+    <AnalyticsCard
+      title="API Call Statistics"
+      description={
+        rows.length > 0
+          ? `${totalCalls.toLocaleString()} calls · ~${Math.round(avgLatency)} ms avg · ${timeRangeLabel(timeRange)}`
+          : `Latency and success by endpoint · ${timeRangeLabel(timeRange)}`
+      }
+      icon={Network}
+      className={className}
+      info={
+        <div className="space-y-1.5">
+          <p>
+            Each row is an outbound/inbound API path tracked via{" "}
+            <strong>api-call</strong> events (endpoint + worker).
+          </p>
+          <p>
+            Latency: green-ish under 200&nbsp;ms, caution 200–500&nbsp;ms, alert
+            above 500&nbsp;ms. Success rate Good ≥95%, Fair ≥80%.
+          </p>
+        </div>
+      }
+      action={
+        <Select value={worker} onValueChange={setWorker}>
+          <SelectTrigger
+            className="w-[160px]"
+            size="sm"
+            aria-label="Filter by worker"
+          >
+            <SelectValue placeholder="Worker" />
+          </SelectTrigger>
+          <SelectContent>
+            {WORKER_FILTERS.map((w) => (
+              <SelectItem key={w} value={w}>
+                {w === "all" ? "All workers" : w}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      }
     >
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              <div>
-                <CardTitle>API Call Statistics</CardTitle>
-                <CardDescription>
-                  Latency and success rates by endpoint
-                </CardDescription>
-              </div>
-            </div>
-            <Select
-              value={selectedExchange}
-              onValueChange={setSelectedExchange}
-            >
-              <SelectTrigger className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {EXCHANGES.map((e) => (
-                  <SelectItem key={e} value={e}>
-                    {e === "all" ? "All Exchanges" : e}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex h-[200px] items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            </div>
-          ) : data.length === 0 ? (
-            <div className="flex h-[200px] items-center justify-center text-muted-foreground">
-              No API call data available
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Endpoint</TableHead>
-                  <TableHead>Calls</TableHead>
-                  <TableHead>Avg Latency</TableHead>
-                  <TableHead>Success Rate</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((row, i) => {
-                  const successRate =
-                    row.call_count > 0
-                      ? ((row.success_count / row.call_count) * 100).toFixed(1)
-                      : "0";
-                  const latency = row.avg_latency_ms
-                    ? Math.round(row.avg_latency_ms)
-                    : 0;
-                  return (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">
-                        {row.endpoint}
-                      </TableCell>
-                      <TableCell>{row.call_count}</TableCell>
-                      <TableCell>
-                        <span
-                          className={
-                            latency > 500
-                              ? "text-destructive"
-                              : latency > 200
-                                ? "text-warning"
-                                : ""
-                          }
-                        >
-                          {latency}ms
-                        </span>
-                      </TableCell>
-                      <TableCell>{successRate}%</TableCell>
-                      <TableCell>
-                        {Number(successRate) >= 95 ? (
-                          <Badge variant="secondary">
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            Good
-                          </Badge>
-                        ) : Number(successRate) >= 80 ? (
-                          <Badge variant="outline">
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            Fair
-                          </Badge>
-                        ) : (
-                          <Badge variant="destructive">
-                            <TrendingDown className="h-3 w-3 mr-1" />
-                            Poor
-                          </Badge>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
+      {error && rows.length === 0 ? (
+        <AnalyticsErrorState error={error} onRetry={refetch} compact />
+      ) : loading ? (
+        <AnalyticsTableSkeleton rows={5} />
+      ) : rows.length === 0 ? (
+        <AnalyticsEmpty
+          title="No API call samples"
+          description="Workers emit /track/api-call events with endpoint and latency. Once instrumented traffic flows, endpoints rank here by volume."
+          compact
+        />
+      ) : (
+        <ScrollArea className="w-full">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Endpoint</TableHead>
+                <TableHead>Worker</TableHead>
+                <TableHead className="text-right">Calls</TableHead>
+                <TableHead className="text-right">
+                  <span className="inline-flex items-center gap-1">
+                    Avg latency
+                    <MetricInfo label="Latency">
+                      Average round-trip time in milliseconds for this endpoint
+                      (double1 on api-call samples).
+                    </MetricInfo>
+                  </span>
+                </TableHead>
+                <TableHead className="text-right">Success</TableHead>
+                <TableHead className="text-right">Health</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row, i) => {
+                const rate = successRate(row);
+                const latency = Math.round(row.avg_latency_ms);
+                return (
+                  <TableRow key={`${row.worker}-${row.endpoint}-${i}`}>
+                    <TableCell className="max-w-[200px] truncate font-mono text-sm font-medium">
+                      {row.endpoint}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground font-mono">
+                      {row.worker || "—"}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {row.call_count.toLocaleString()}
+                    </TableCell>
+                    <TableCell
+                      className={cn(
+                        "text-right tabular-nums",
+                        latencyTone(latency)
+                      )}
+                    >
+                      {latency > 0 ? `${latency} ms` : "—"}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {rate.toFixed(1)}%
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {healthBadge(rate)}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      )}
+    </AnalyticsCard>
   );
 }

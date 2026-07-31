@@ -15,7 +15,7 @@ export default function DatabaseClient() {
       <PageHeader
         icon={<Database className="h-8 w-8 text-primary" />}
         title="Database Explorer"
-        description="Browse D1 tables, inspect column schemas, and preview recent rows"
+        description="Read-only D1 browser — pick a table, inspect columns, preview recent rows"
       />
       <DatabaseTableBrowser />
     </div>

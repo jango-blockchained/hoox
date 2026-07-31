@@ -3,40 +3,57 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { NextResponse } from "next/server";
-import { executeAnalyticsQuery } from "@/app/api/analytics/shared";
+import {
+  ANALYTICS_DATASET,
+  analyticsErrorResponse,
+  analyticsSuccessResponse,
+  buildTimestampFilter,
+  executeAnalyticsQuery,
+  resolveStartIso,
+  toAnalyticsTs,
+} from "@/app/api/analytics/shared";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-function toAnalyticsTs(iso: string): string {
-  return iso.replace("T", " ").replace(/\.\d{3}Z$/, "");
-}
-
+/**
+ * Trade metrics by exchange for a [start, end] window.
+ *
+ * Layout: blob1=trade, blob3=success|failure, blob4=exchange
+ */
 function buildTradeMetricsQuery(start: string, end: string): string {
   return `
     SELECT
-      blob3 as exchange,
+      blob4 as exchange,
       count() as trade_count,
       SUM(_sample_interval * double2) / SUM(_sample_interval) as avg_price,
-      SUM(if(blob2 = 'success', 1, 0)) as success_count,
-      SUM(if(blob2 = 'failure', 1, 0)) as failure_count
-    FROM "hoox-analytics"
+      SUM(if(blob3 = 'success', 1, 0)) as success_count,
+      SUM(if(blob3 = 'failure', 1, 0)) as failure_count
+    FROM "${ANALYTICS_DATASET}"
     WHERE blob1 = 'trade'
       AND timestamp >= toDateTime('${toAnalyticsTs(start)}')
       AND timestamp <= toDateTime('${toAnalyticsTs(end)}')
-    GROUP BY blob3
+    GROUP BY blob4
+    ORDER BY trade_count DESC
   `.trim();
 }
 
-function buildSuccessRateQuery(timeRange?: string): string {
-  const timeFilter = timeRange ? `AND timestamp >= '${timeRange}'` : "";
+/**
+ * Aggregate success rate. Optional lower-bound via start ISO.
+ */
+function buildSuccessRateQuery(startIso?: string): string {
+  const timeFilter = buildTimestampFilter(startIso);
   return `
     SELECT
       count() as total,
-      SUM(if(blob2 = 'success', 1, 0)) as successes,
-      (SUM(if(blob2 = 'success', 1, 0)) * 100.0 / count()) as success_rate
-    FROM "hoox-analytics"
+      SUM(if(blob3 = 'success', 1, 0)) as successes,
+      SUM(if(blob3 = 'failure', 1, 0)) as failures,
+      if(
+        count() = 0,
+        0,
+        SUM(if(blob3 = 'success', 1, 0)) * 100.0 / count()
+      ) as success_rate
+    FROM "${ANALYTICS_DATASET}"
     WHERE blob1 = 'trade'
     ${timeFilter}
   `.trim();
@@ -45,27 +62,23 @@ function buildSuccessRateQuery(timeRange?: string): string {
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const start =
-      url.searchParams.get("start") ||
-      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const end = url.searchParams.get("end") || new Date().toISOString();
     const type = url.searchParams.get("type") || "metrics";
 
     let sql: string;
     if (type === "success-rate") {
-      const timeRange = url.searchParams.get("timeRange") || undefined;
-      sql = buildSuccessRateQuery(timeRange);
+      const startIso = resolveStartIso(url);
+      sql = buildSuccessRateQuery(startIso);
     } else {
+      const start =
+        resolveStartIso(url) ||
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       sql = buildTradeMetricsQuery(start, end);
     }
 
     const data = await executeAnalyticsQuery(sql);
-
-    return NextResponse.json({ success: true, data });
+    return analyticsSuccessResponse(data);
   } catch (err) {
-    return NextResponse.json(
-      { success: false, error: String(err) },
-      { status: 500 }
-    );
+    return analyticsErrorResponse(err);
   }
 }

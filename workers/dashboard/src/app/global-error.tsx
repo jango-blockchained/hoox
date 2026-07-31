@@ -13,13 +13,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Last-resort error boundary. Rendered when the root layout itself fails.
- *
- * MUST be a client component (Next.js requirement) and MUST render its own
- * <html><body> wrapper — the root layout does NOT run for this route.
- *
- * Kept intentionally minimal: one icon, the error message, and a retry button.
- * The Button component is a stable client primitive that survives even when
- * other modules have failed.
+ * MUST render its own <html><body> wrapper.
  */
 export default function GlobalError({
   error,
@@ -28,42 +22,77 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  // In production, error.message is scrubbed for client-side errors; fall back
-  // to a stable copy so we never render "undefined".
   const message =
     error?.message && error.message.length > 0
       ? error.message
       : "An unexpected error occurred. Please try again.";
 
   return (
-    <html lang="en" className="dark bg-background">
-      <body className="min-h-svh bg-background text-foreground font-sans antialiased">
-        <main className="flex min-h-svh flex-col items-center justify-center gap-6 p-4 text-center">
+    <html lang="en" className="dark">
+      <body
+        style={{
+          margin: 0,
+          minHeight: "100svh",
+          background: "#12141a",
+          color: "#f2f2f0",
+          fontFamily:
+            'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1rem",
+        }}
+      >
+        <main
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "1.5rem",
+            textAlign: "center",
+            maxWidth: "28rem",
+          }}
+        >
           <div
             aria-hidden="true"
-            className="flex size-14 items-center justify-center rounded-full bg-destructive/10 text-destructive"
+            style={{
+              width: "3.5rem",
+              height: "3.5rem",
+              borderRadius: "9999px",
+              background: "rgba(220, 60, 40, 0.15)",
+              color: "#e85d4c",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            <AlertTriangle className="size-7" />
+            <AlertTriangle style={{ width: "1.75rem", height: "1.75rem" }} />
           </div>
-          <div className="flex max-w-md flex-col gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+          >
+            <h1 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>
               Critical Error
             </h1>
-            <p className="text-sm text-muted-foreground text-balance">
+            <p style={{ margin: 0, fontSize: "0.875rem", opacity: 0.7 }}>
               {message}
             </p>
             {error?.digest ? (
-              <p className="text-xs text-muted-foreground/70 font-mono">
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.75rem",
+                  fontFamily: "ui-monospace, monospace",
+                  opacity: 0.5,
+                }}
+              >
                 Reference: {error.digest}
               </p>
             ) : null}
           </div>
-          <div className="flex flex-col gap-2">
-            <Button variant="destructive" onClick={reset}>
-              <AlertTriangle data-icon="inline-start" aria-hidden="true" />
-              Try again
-            </Button>
-          </div>
+          <Button variant="destructive" onClick={reset}>
+            Try again
+          </Button>
         </main>
       </body>
     </html>

@@ -6,9 +6,12 @@
  */
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ModelConfig } from "@/components/agent/model-config";
-import { HealthCheck } from "@/components/agent/health-check";
-import { TestModel } from "@/components/agent/test-model";
+import {
+  AgentSubnav,
+  HealthCheck,
+  ModelConfig,
+  TestModel,
+} from "@/components/agent";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Settings } from "lucide-react";
 
@@ -20,6 +23,7 @@ export default function ModelsClient() {
         title="AI Models"
         description="Provider configuration and testing"
       />
+      <AgentSubnav />
       <Tabs defaultValue="config" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="config">Provider Config</TabsTrigger>

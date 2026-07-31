@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { IconInnerShadowTop } from "@tabler/icons-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,10 +13,12 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 import { SidebarNav } from "./sidebar-nav";
 import { NavUser } from "./sidebar-user";
 import Link from "next/link";
+import { HooxIcon } from "@/components/ui/hoox-icon";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -27,18 +28,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
+              size="lg"
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <Link href="/dashboard">
-                <IconInnerShadowTop className="size-5!" />
-                <span className="text-base font-semibold">Hoox</span>
+              <Link href="/dashboard" aria-label="Hoox dashboard home">
+                <span className="flex size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
+                  <HooxIcon name="bolt" size="sm" className="size-4!" />
+                </span>
+                <span className="flex flex-col gap-0.5 leading-none">
+                  <span className="text-base font-semibold tracking-tight">
+                    Hoox
+                  </span>
+                  <span className="text-[10px] font-normal text-muted-foreground">
+                    Edge Trading
+                  </span>
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarNav />
+        <nav aria-label="Dashboard">
+          <SidebarNav />
+        </nav>
       </SidebarContent>
       <SidebarFooter>
         <NavUser
@@ -48,6 +61,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           }}
         />
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -32,8 +32,10 @@ import {
   FieldLabel,
   FieldDescription,
   FieldGroup,
+  FieldError,
 } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import {
   Zap,
@@ -59,11 +61,17 @@ import {
   BarChart3,
   Globe,
   Key,
+  RotateCcw,
+  CircleDot,
+  CheckCircle2,
+  AlertTriangle,
+  Lock,
 } from "lucide-react";
 import type { WorkerConfigManifest } from "@/lib/settings/loader";
 import { loadAllConfigs, loadMergedSettings } from "@/lib/settings/loader";
 import type { DashboardSection, SettingField } from "@/lib/settings/types";
 import { DEFAULT_WORKER_LIST } from "@/lib/settings/workers";
+import { cn } from "@/lib/utils";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   router: Router,
@@ -103,14 +111,78 @@ interface WorkerHealth {
 
 type WorkerHealthMap = Record<string, WorkerHealth>;
 
+type SettingsMap = Record<string, Record<string, string | number | boolean>>;
+
+function cloneSettings(src: SettingsMap): SettingsMap {
+  const out: SettingsMap = {};
+  for (const [worker, fields] of Object.entries(src)) {
+    out[worker] = { ...fields };
+  }
+  return out;
+}
+
+function settingsEqual(a: SettingsMap, b: SettingsMap): boolean {
+  const aWorkers = Object.keys(a);
+  const bWorkers = Object.keys(b);
+  if (aWorkers.length !== bWorkers.length) return false;
+  for (const worker of aWorkers) {
+    const af = a[worker] ?? {};
+    const bf = b[worker] ?? {};
+    const keys = new Set([...Object.keys(af), ...Object.keys(bf)]);
+    for (const key of keys) {
+      if (af[key] !== bf[key]) return false;
+    }
+  }
+  return true;
+}
+
+function validateField(
+  field: SettingField,
+  value: string | number | boolean
+): string | null {
+  if (field.kind === "secret") return null;
+  const v = field.validation;
+  if (!v) {
+    // Built-in number sanity even without explicit validation block
+    if (field.type === "number" && typeof value === "number") {
+      if (!Number.isFinite(value)) return "Must be a valid number";
+    }
+    return null;
+  }
+  if (v.required) {
+    if (value === "" || value === null || value === undefined) {
+      return "Required";
+    }
+  }
+  if (field.type === "number" && typeof value === "number") {
+    if (v.min !== undefined && value < v.min) {
+      return `Min ${v.min}`;
+    }
+    if (v.max !== undefined && value > v.max) {
+      return `Max ${v.max}`;
+    }
+  }
+  if (v.pattern && (typeof value === "string" || typeof value === "number")) {
+    try {
+      const re = new RegExp(v.pattern);
+      if (!re.test(String(value))) return "Invalid format";
+    } catch {
+      // Ignore bad patterns from config
+    }
+  }
+  return null;
+}
+
 export function SettingsForm() {
   const [configs, setConfigs] = useState<WorkerConfigManifest[]>([]);
-  const [settings, setSettings] = useState<
-    Record<string, Record<string, string | number | boolean>>
-  >({});
+  const [settings, setSettings] = useState<SettingsMap>({});
+  const [baseline, setBaseline] = useState<SettingsMap>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [workerHealth, setWorkerHealth] = useState<WorkerHealthMap>({});
+  const [activeWorker, setActiveWorker] = useState<string>("");
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const controller = new AbortController();
@@ -131,6 +203,10 @@ export function SettingsForm() {
         if (!controller.signal.aborted) {
           setConfigs(loadedConfigs);
           setSettings(loadedSettings);
+          setBaseline(cloneSettings(loadedSettings));
+          if (loadedConfigs.length > 0) {
+            setActiveWorker((prev) => prev || loadedConfigs[0].worker);
+          }
           if (healthRes && healthRes.ok) {
             const data = (await healthRes.json()) as {
               workers: WorkerHealthMap;
@@ -154,21 +230,79 @@ export function SettingsForm() {
     return () => controller.abort();
   }, []);
 
-  const handleChange = (
-    worker: string,
-    key: string,
-    value: string | number | boolean
-  ) => {
-    setSettings((prev) => ({
-      ...prev,
-      [worker]: {
-        ...prev[worker],
-        [key]: value,
-      },
-    }));
+  const isDirty = useMemo(
+    () => !settingsEqual(settings, baseline),
+    [settings, baseline]
+  );
+
+  const dirtyWorkers = useMemo(() => {
+    const dirty = new Set<string>();
+    for (const worker of Object.keys(settings)) {
+      const af = settings[worker] ?? {};
+      const bf = baseline[worker] ?? {};
+      const keys = new Set([...Object.keys(af), ...Object.keys(bf)]);
+      for (const key of keys) {
+        if (af[key] !== bf[key]) {
+          dirty.add(worker);
+          break;
+        }
+      }
+    }
+    return dirty;
+  }, [settings, baseline]);
+
+  const handleChange = useCallback(
+    (worker: string, key: string, value: string | number | boolean) => {
+      setSettings((prev) => ({
+        ...prev,
+        [worker]: {
+          ...prev[worker],
+          [key]: value,
+        },
+      }));
+      // Live-clear error when user edits
+      setFieldErrors((prev) => {
+        const errKey = `${worker}:${key}`;
+        if (!prev[errKey]) return prev;
+        const next = { ...prev };
+        delete next[errKey];
+        return next;
+      });
+    },
+    []
+  );
+
+  const runValidation = useCallback((): boolean => {
+    const errors: Record<string, string> = {};
+    for (const cfg of configs) {
+      for (const section of cfg.sections) {
+        for (const field of section.fields) {
+          const value = settings[cfg.worker]?.[field.key] ?? field.default;
+          const msg = validateField(field, value);
+          if (msg) errors[`${cfg.worker}:${field.key}`] = msg;
+        }
+      }
+    }
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [configs, settings]);
+
+  const handleDiscard = () => {
+    setSettings(cloneSettings(baseline));
+    setFieldErrors({});
+    toast.message("Changes discarded", {
+      description: "Reverted to last saved configuration.",
+    });
   };
 
   const handleSave = async () => {
+    if (!runValidation()) {
+      toast.error("Fix validation errors before saving", {
+        description: "Some fields have invalid values.",
+      });
+      return;
+    }
+
     const controller = new AbortController();
     setIsSaving(true);
     let skippedCount = 0;
@@ -186,13 +320,16 @@ export function SettingsForm() {
 
     // Build the batched payload: { settings: { [worker]: { [key]: value } } }
     // Single round-trip instead of N sequential POSTs.
-    const batch: Record<string, Record<string, string | number | boolean>> = {};
+    // Only send dirty (non-secret) fields to reduce noise.
+    const batch: SettingsMap = {};
     for (const [worker, fields] of Object.entries(settings)) {
+      const base = baseline[worker] ?? {};
       for (const [key, value] of Object.entries(fields)) {
         if (secretKeys.has(key)) {
           skippedCount++;
           continue;
         }
+        if (base[key] === value) continue;
         (batch[worker] ??= {})[key] = value;
       }
     }
@@ -201,6 +338,17 @@ export function SettingsForm() {
       (n, fields) => n + Object.keys(fields).length,
       0
     );
+
+    if (totalFields === 0) {
+      setIsSaving(false);
+      toast.message("Nothing to save", {
+        description:
+          skippedCount > 0
+            ? "Only secret fields differ — set those via CLI."
+            : "No configuration changes detected.",
+      });
+      return;
+    }
 
     try {
       const res = await fetch(`/api/settings`, {
@@ -213,6 +361,8 @@ export function SettingsForm() {
       if (res.ok) {
         const data = (await res.json()) as { written?: number };
         const written = data.written ?? totalFields;
+        setBaseline(cloneSettings(settings));
+        setLastSavedAt(Date.now());
         toast.success("Settings saved successfully", {
           description:
             skippedCount > 0
@@ -243,13 +393,17 @@ export function SettingsForm() {
   const renderField = (worker: string, field: SettingField) => {
     const value = settings[worker]?.[field.key] ?? field.default;
     const isSecret = field.kind === "secret";
+    const isDangerous = field.kind === "dangerous";
+    const errKey = `${worker}:${field.key}`;
+    const error = fieldErrors[errKey];
 
     // S-3: secret fields are read-only. Render a disabled input with a
     // "Configure via CLI" hint and the exact command to run.
     if (isSecret) {
       return (
-        <Field>
+        <Field className="rounded-md border border-border/50 bg-secondary/15 p-3">
           <FieldLabel className="flex items-center gap-2">
+            <Lock className="h-3.5 w-3.5 text-muted-foreground" />
             {field.label}
             <Badge variant="secondary" className="font-normal text-xs">
               Secret — CLI only
@@ -280,10 +434,25 @@ export function SettingsForm() {
     switch (field.type) {
       case "boolean":
         return (
-          <div className="flex items-center justify-between rounded-md bg-secondary/30 p-4">
+          <div
+            className={cn(
+              "flex items-center justify-between rounded-md p-4",
+              isDangerous
+                ? "border border-warning/30 bg-warning/5"
+                : "bg-secondary/30"
+            )}
+          >
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium text-foreground">
+              <span className="flex items-center gap-2 text-sm font-medium text-foreground">
                 {field.label}
+                {isDangerous ? (
+                  <Badge
+                    variant="outline"
+                    className="border-warning/40 text-[10px] text-warning"
+                  >
+                    Sensitive
+                  </Badge>
+                ) : null}
               </span>
               {field.description && (
                 <span className="text-xs text-muted-foreground">
@@ -302,26 +471,48 @@ export function SettingsForm() {
 
       case "number":
         return (
-          <Field>
-            <FieldLabel>{field.label}</FieldLabel>
+          <Field data-invalid={error ? true : undefined}>
+            <FieldLabel>
+              {field.label}
+              {isDangerous ? (
+                <Badge
+                  variant="outline"
+                  className="ml-2 border-warning/40 text-[10px] text-warning"
+                >
+                  Sensitive
+                </Badge>
+              ) : null}
+            </FieldLabel>
             <Input
               type="number"
               value={value as number}
               onChange={(e) =>
-                handleChange(worker, field.key, parseFloat(e.target.value) || 0)
+                handleChange(
+                  worker,
+                  field.key,
+                  e.target.value === "" ? 0 : parseFloat(e.target.value) || 0
+                )
               }
               placeholder={String(field.placeholder)}
-              className="bg-secondary/50"
+              className={cn(
+                "bg-secondary/50",
+                error && "border-destructive focus-visible:ring-destructive/30"
+              )}
+              aria-invalid={!!error}
+              min={field.validation?.min}
+              max={field.validation?.max}
             />
-            {field.description && (
+            {error ? (
+              <FieldError>{error}</FieldError>
+            ) : field.description ? (
               <FieldDescription>{field.description}</FieldDescription>
-            )}
+            ) : null}
           </Field>
         );
 
       case "select":
         return (
-          <Field>
+          <Field data-invalid={error ? true : undefined}>
             <FieldLabel>{field.label}</FieldLabel>
             <Select
               value={String(value)}
@@ -340,16 +531,18 @@ export function SettingsForm() {
                 ))}
               </SelectContent>
             </Select>
-            {field.description && (
+            {error ? (
+              <FieldError>{error}</FieldError>
+            ) : field.description ? (
               <FieldDescription>{field.description}</FieldDescription>
-            )}
+            ) : null}
           </Field>
         );
 
       case "json":
       case "textarea":
         return (
-          <Field>
+          <Field data-invalid={error ? true : undefined}>
             <FieldLabel>{field.label}</FieldLabel>
             <Textarea
               value={String(value)}
@@ -357,26 +550,34 @@ export function SettingsForm() {
               placeholder={String(field.placeholder)}
               className="min-h-[80px] bg-secondary/50 font-mono text-sm"
             />
-            {field.description && (
+            {error ? (
+              <FieldError>{error}</FieldError>
+            ) : field.description ? (
               <FieldDescription>{field.description}</FieldDescription>
-            )}
+            ) : null}
           </Field>
         );
 
       default:
         return (
-          <Field>
+          <Field data-invalid={error ? true : undefined}>
             <FieldLabel>{field.label}</FieldLabel>
             <Input
               type="text"
               value={String(value)}
               onChange={(e) => handleChange(worker, field.key, e.target.value)}
               placeholder={String(field.placeholder)}
-              className="bg-secondary/50"
+              className={cn(
+                "bg-secondary/50",
+                error && "border-destructive focus-visible:ring-destructive/30"
+              )}
+              aria-invalid={!!error}
             />
-            {field.description && (
+            {error ? (
+              <FieldError>{error}</FieldError>
+            ) : field.description ? (
               <FieldDescription>{field.description}</FieldDescription>
-            )}
+            ) : null}
           </Field>
         );
     }
@@ -392,14 +593,48 @@ export function SettingsForm() {
     );
   }
 
+  const healthyCount = Object.values(workerHealth).filter(
+    (h) => h.kvReachable
+  ).length;
+  const healthKnown = Object.keys(workerHealth).length;
+  const errorCount = Object.keys(fieldErrors).length;
+
   return (
-    <div className="flex flex-col gap-6">
-      <Card className="bg-card border-border">
+    <div className="flex flex-col gap-6 pb-24">
+      <Card className="border-border bg-card">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">
-            Connected Workers
-          </CardTitle>
-          <CardDescription>Services connected to the dashboard</CardDescription>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <CardTitle className="text-sm font-medium">
+                Connected Workers
+              </CardTitle>
+              <CardDescription>
+                CONFIG_KV reachability per worker binding
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+              {healthKnown > 0 ? (
+                <span className="flex items-center gap-1.5">
+                  <CircleDot className="h-3 w-3 text-success" />
+                  {healthyCount}/{healthKnown} reachable
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <CircleDot className="h-3 w-3 text-muted-foreground" />
+                  Health unknown
+                </span>
+              )}
+              {lastSavedAt ? (
+                <>
+                  <span className="text-border">·</span>
+                  <span className="flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3 text-success" />
+                    Saved {new Date(lastSavedAt).toLocaleTimeString()}
+                  </span>
+                </>
+              ) : null}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
@@ -408,7 +643,7 @@ export function SettingsForm() {
               // Health states:
               //   green: CONFIG_KV reachable (worker can read/write)
               //   red:   worker missing CONFIG_KV binding (unreachable)
-              //   gray:  health endpoint didn't return a status (e.g. /api/workers/health not yet reachable in dev)
+              //   gray:  health endpoint didn't return a status
               const dotClass = !health
                 ? "bg-muted-foreground"
                 : health.kvReachable
@@ -430,92 +665,280 @@ export function SettingsForm() {
                     className={`mr-1.5 h-1.5 w-1.5 rounded-full ${dotClass}`}
                   />
                   {worker.displayName}
+                  {dirtyWorkers.has(worker.name) ? (
+                    <span
+                      className="ml-1.5 h-1.5 w-1.5 rounded-full bg-warning"
+                      title="Unsaved changes"
+                    />
+                  ) : null}
                 </Badge>
               );
             })}
           </div>
+          <div className="mt-3 flex flex-wrap gap-3 text-[10px] text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-success" /> KV ok
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-destructive" />{" "}
+              Unreachable
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />{" "}
+              Unknown
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-warning" /> Unsaved
+            </span>
+          </div>
         </CardContent>
       </Card>
 
-      {configs.length > 0 && (
-        <Tabs defaultValue={configs[0].worker} className="w-full">
-          <TabsList className="mb-4 flex flex-wrap h-auto gap-2 bg-transparent p-0">
+      {configs.length === 0 ? (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>No worker configs loaded</AlertTitle>
+          <AlertDescription className="text-xs">
+            Dashboard manifests under{" "}
+            <code className="font-mono">public/workers/*.jsonc</code> were empty
+            or failed to parse. Check the setup wizard and deploy worker
+            dashboard configs.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Tabs
+          value={activeWorker || configs[0].worker}
+          onValueChange={setActiveWorker}
+          className="w-full"
+        >
+          <TabsList className="mb-4 flex h-auto flex-wrap gap-2 bg-transparent p-0">
             {configs.map((config) => (
               <TabsTrigger
                 key={config.worker}
                 value={config.worker}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border border-border bg-card shadow-sm"
+                className="border border-border bg-card shadow-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
-                {config.displayName}
+                <span className="flex items-center gap-1.5">
+                  {config.displayName}
+                  {dirtyWorkers.has(config.worker) ? (
+                    <span
+                      className="h-1.5 w-1.5 rounded-full bg-warning"
+                      title="Unsaved changes"
+                    />
+                  ) : null}
+                </span>
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {configs.map((config) => (
-            <TabsContent
-              key={config.worker}
-              value={config.worker}
-              className="flex flex-col gap-6"
-            >
-              {config.sections.map((section: DashboardSection) => {
-                const Icon = section.icon ? ICON_MAP[section.icon] || Zap : Zap;
-                return (
-                  <Card
-                    key={`${config.worker}-${section.id}`}
-                    className="bg-card border-border"
-                  >
-                    <CardHeader className="pb-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex flex-col gap-1">
-                          <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                            <Icon className="h-5 w-5 text-primary" />
-                            {section.title}
-                            {section.priority !== undefined && (
-                              <Badge
-                                variant="secondary"
-                                className="ml-2 font-normal text-xs"
-                              >
-                                Priority {section.priority}
-                              </Badge>
-                            )}
-                          </CardTitle>
-                          <CardDescription>
-                            {section.description}
-                          </CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <FieldGroup>
-                        {section.fields.map((field: SettingField) => (
-                          <div key={field.key}>
-                            {renderField(config.worker, field)}
+          {configs.map((config) => {
+            const secretFields = config.sections.flatMap((s) =>
+              s.fields.filter((f) => f.kind === "secret")
+            );
+            const editableCount = config.sections.reduce(
+              (n, s) => n + s.fields.filter((f) => f.kind !== "secret").length,
+              0
+            );
+
+            return (
+              <TabsContent
+                key={config.worker}
+                value={config.worker}
+                className="flex flex-col gap-6"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/50 bg-secondary/15 px-3 py-2">
+                  <div className="flex flex-col gap-0.5">
+                    <p className="text-sm font-medium text-foreground">
+                      {config.displayName}
+                    </p>
+                    {config.description ? (
+                      <p className="text-xs text-muted-foreground">
+                        {config.description}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        Worker config sections from dashboard.jsonc
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                    <Badge
+                      variant="outline"
+                      className="font-normal text-[10px]"
+                    >
+                      {config.sections.length} sections
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="font-normal text-[10px]"
+                    >
+                      {editableCount} editable
+                    </Badge>
+                    {secretFields.length > 0 ? (
+                      <Badge
+                        variant="secondary"
+                        className="font-normal text-[10px]"
+                      >
+                        {secretFields.length} secrets (CLI)
+                      </Badge>
+                    ) : null}
+                  </div>
+                </div>
+
+                {config.sections.map((section: DashboardSection) => {
+                  const Icon = section.icon
+                    ? ICON_MAP[section.icon] || Zap
+                    : Zap;
+                  const booleans = section.fields.filter(
+                    (f) => f.type === "boolean" && f.kind !== "secret"
+                  );
+                  const secrets = section.fields.filter(
+                    (f) => f.kind === "secret"
+                  );
+                  const others = section.fields.filter(
+                    (f) => f.type !== "boolean" && f.kind !== "secret"
+                  );
+
+                  return (
+                    <Card
+                      key={`${config.worker}-${section.id}`}
+                      className="border-border bg-card"
+                    >
+                      <CardHeader className="pb-4">
+                        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                          <div className="flex flex-col gap-1">
+                            <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                              <Icon className="h-5 w-5 text-primary" />
+                              {section.title}
+                              {section.priority !== undefined && (
+                                <Badge
+                                  variant="secondary"
+                                  className="ml-2 font-normal text-xs"
+                                >
+                                  Priority {section.priority}
+                                </Badge>
+                              )}
+                            </CardTitle>
+                            <CardDescription>
+                              {section.description}
+                            </CardDescription>
                           </div>
-                        ))}
-                      </FieldGroup>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </TabsContent>
-          ))}
+                          <Badge
+                            variant="outline"
+                            className="w-fit font-mono text-[10px] font-normal"
+                          >
+                            {section.fields.length} fields
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="flex flex-col gap-6">
+                        {booleans.length > 0 ? (
+                          <div className="flex flex-col gap-2">
+                            <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                              Toggles
+                            </p>
+                            <FieldGroup>
+                              {booleans.map((field) => (
+                                <div key={field.key}>
+                                  {renderField(config.worker, field)}
+                                </div>
+                              ))}
+                            </FieldGroup>
+                          </div>
+                        ) : null}
+
+                        {others.length > 0 ? (
+                          <div className="flex flex-col gap-2">
+                            {booleans.length > 0 || secrets.length > 0 ? (
+                              <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                                Values
+                              </p>
+                            ) : null}
+                            <FieldGroup>
+                              {others.map((field) => (
+                                <div key={field.key}>
+                                  {renderField(config.worker, field)}
+                                </div>
+                              ))}
+                            </FieldGroup>
+                          </div>
+                        ) : null}
+
+                        {secrets.length > 0 ? (
+                          <div className="flex flex-col gap-2">
+                            <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                              Secrets
+                            </p>
+                            <FieldGroup>
+                              {secrets.map((field) => (
+                                <div key={field.key}>
+                                  {renderField(config.worker, field)}
+                                </div>
+                              ))}
+                            </FieldGroup>
+                          </div>
+                        ) : null}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </TabsContent>
+            );
+          })}
         </Tabs>
       )}
 
-      <div className="flex justify-end pt-4">
-        <Button onClick={handleSave} disabled={isSaving} className="gap-2">
-          {isSaving ? (
-            <>
-              <Spinner className="h-4 w-4" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              Save Configuration
-            </>
-          )}
-        </Button>
+      {/* Sticky save bar — only feels present when there is work to do */}
+      <div
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-background/90 px-4 py-3 backdrop-blur-md transition-all",
+          isDirty || isSaving
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none translate-y-full opacity-0"
+        )}
+      >
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col gap-0.5">
+            <p className="text-sm font-medium text-foreground">
+              {isDirty ? "Unsaved configuration changes" : "All changes saved"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {errorCount > 0
+                ? `${errorCount} field(s) need attention before save.`
+                : dirtyWorkers.size > 0
+                  ? `${dirtyWorkers.size} worker tab(s) modified · secrets never leave the CLI.`
+                  : "Edit any field above to enable save."}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              onClick={handleDiscard}
+              disabled={isSaving || !isDirty}
+              className="gap-2"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Discard
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={isSaving || !isDirty || errorCount > 0}
+              className="gap-2"
+            >
+              {isSaving ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Save configuration
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

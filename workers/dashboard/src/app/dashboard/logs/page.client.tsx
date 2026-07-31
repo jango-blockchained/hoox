@@ -15,7 +15,7 @@ export default function LogsClient() {
       <PageHeader
         icon={<DocText className="h-8 w-8 text-primary" />}
         title="System Logs"
-        description="Real-time system event stream from all workers"
+        description="Production log explorer — filter by level and worker, search, auto-refresh, and copy lines"
       />
       <LogsViewer />
     </div>

@@ -15,7 +15,7 @@ export default function SettingsClient() {
       <PageHeader
         icon={<Settings className="h-8 w-8 text-primary" />}
         title="Settings"
-        description="Configure your trading system and worker settings"
+        description="Per-worker config — dirty state tracked, secrets via CLI only"
       />
       <SettingsForm />
     </div>

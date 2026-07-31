@@ -4,7 +4,7 @@
  */
 
 import Link from "next/link";
-import { FileX, Home } from "lucide-react";
+import { FileX, Home, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,37 +18,48 @@ import {
 
 /**
  * 404 page. Rendered by Next.js when no route matches.
- *
- * Composition: large "404" display + shadcn Empty state + Button(asChild + Link).
- * The dashed Empty border intentionally frames the empty state for visual emphasis.
  */
 export default function NotFound() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-4">
+    <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden p-4">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 grid-bg opacity-40"
+      />
+
       <p
         aria-hidden="true"
-        className="text-7xl font-bold tracking-tight text-muted-foreground/30 sm:text-8xl"
+        className="relative font-heading text-8xl tracking-tight text-muted-foreground/25 sm:text-9xl"
       >
         404
       </p>
-      <Empty>
+
+      <Empty className="relative border-dashed bg-card/50 backdrop-blur-sm">
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <FileX aria-hidden="true" />
           </EmptyMedia>
-          <EmptyTitle>Page Not Found</EmptyTitle>
+          <EmptyTitle>Page not found</EmptyTitle>
           <EmptyDescription>
-            Could not find the requested page. The link may be broken or the
-            page may have been moved.
+            The link may be broken, or the page may have moved. Use the command
+            center or search to find what you need.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button asChild>
-            <Link href="/dashboard">
-              <Home data-icon="inline-start" aria-hidden="true" />
-              Go to Dashboard
-            </Link>
-          </Button>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button asChild>
+              <Link href="/dashboard">
+                <Home data-icon="inline-start" aria-hidden="true" />
+                Command Center
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/dashboard/setup">
+                <Search data-icon="inline-start" aria-hidden="true" />
+                Setup Wizard
+              </Link>
+            </Button>
+          </div>
         </EmptyContent>
       </Empty>
     </div>

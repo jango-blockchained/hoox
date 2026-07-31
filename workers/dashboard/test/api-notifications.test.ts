@@ -259,7 +259,7 @@ describe("Notifications API: POST /api/notifications/send", () => {
     expect(body.error).toContain("telegram");
   });
 
-  test("POST returns 500 when fetch throws", async () => {
+  test("POST returns 502 when fetch throws", async () => {
     mockFetchResponse = { throw: new Error("Network down") };
 
     const request = new Request("http://localhost/api/notifications/send", {
@@ -276,11 +276,17 @@ describe("Notifications API: POST /api/notifications/send", () => {
     const response = await sendRoute.POST(
       request as unknown as Parameters<typeof sendRoute.POST>[0]
     );
-    const body = (await response.json()) as { success: boolean; error: string };
+    const body = (await response.json()) as {
+      success: boolean;
+      error: string;
+      code?: string;
+    };
 
-    expect(response.status).toBe(500);
+    // Upstream unreachable → 502 Bad Gateway (not a dashboard 500).
+    expect(response.status).toBe(502);
     expect(body.success).toBe(false);
     expect(body.error).toBeDefined();
+    expect(body.code).toBe("TELEGRAM_UNREACHABLE");
   });
 
   test("POST trims trailing slash on telegram URL", async () => {

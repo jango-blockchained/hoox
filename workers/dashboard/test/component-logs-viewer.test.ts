@@ -189,7 +189,7 @@ describe("LogsViewer Component", () => {
       process.env = { ...originalEnv };
     });
 
-    it("fetches /api/dashboard/logs?limit=100 (the LOG_FETCH_LIMIT used by LogsViewer)", async () => {
+    it("fetches /api/logs?limit=100 (the LOG_FETCH_LIMIT used by LogsViewer)", async () => {
       // Arrange
       const seen: string[] = [];
       global.fetch = mock(async (input) => {
@@ -214,7 +214,7 @@ describe("LogsViewer Component", () => {
 
       // Assert
       expect(seen.length).toBe(1);
-      expect(seen[0]).toContain("https://d1-worker.test/api/dashboard/logs");
+      expect(seen[0]).toContain("https://d1-worker.test/api/logs");
       expect(seen[0]).toContain("limit=100");
       expect(result.success).toBe(true);
       expect(result.logs).toHaveLength(4);
@@ -489,43 +489,42 @@ describe("LogsViewer Component", () => {
       source = readLogsViewerSource();
     });
 
-    it("renders a TableRow per log entry when filteredLogs is non-empty (source-level)", () => {
+    it("renders a row per log entry when filteredLogs is non-empty (source-level)", () => {
       // Arrange
       // (source loaded in beforeEach)
 
       // Act
-      // The component iterates over `filteredLogs` and emits one
-      // `<TableRow>` per entry. This is the rendering path for the
-      // "log rows visible" requirement; a full DOM render would
-      // require a testing-library setup that this workspace does
-      // not currently ship, so we assert the source structure.
+      // Dense list UI: one keyed row per filtered log (list item, not
+      // necessarily a shadcn TableRow — density/copy actions drove the
+      // switch). Full DOM render would require testing-library.
       const hasFilteredMap = source.includes("filteredLogs.map(");
-      const hasTableRow = source.includes("<TableRow");
-      const keysById = /<TableRow\s+key=\{log\.id\}/.test(source);
+      const keysById =
+        /<(?:li|TableRow)\s+key=\{log\.id\}/.test(source) ||
+        /key=\{log\.id\}/.test(source);
 
       // Assert
       expect(hasFilteredMap).toBe(true);
-      expect(hasTableRow).toBe(true);
       expect(keysById).toBe(true);
     });
 
-    it("renders the message, level, source, and timestamp cells for each row", () => {
+    it("renders the message, level, source, and timestamp fields for each row", () => {
       // Arrange
       // (source loaded in beforeEach)
 
       // Act
-      // The visible columns are Timestamp, Level, Source, Message.
-      // Each must appear as a <TableCell> reading from the log
-      // object so we know the row body is wired up correctly.
-      const hasTimestampCell = source.includes(
-        "formatTimestamp(log.timestamp)"
-      );
+      // Columns: relative+absolute time, level badge, source, message.
+      const hasTimestamp =
+        source.includes("formatRelative(log.timestamp)") ||
+        source.includes("formatAbsolute(log.timestamp)") ||
+        source.includes("formatAbsoluteShort(log.timestamp)") ||
+        source.includes("formatTimestamp(log.timestamp)");
       const hasMessageCell = source.includes("{log.message}");
       const hasSourceCell = source.includes("log.source");
-      const hasLevelCell = source.includes("{log.level}");
+      const hasLevelCell =
+        source.includes("{log.level}") || source.includes("log.level");
 
       // Assert
-      expect(hasTimestampCell).toBe(true);
+      expect(hasTimestamp).toBe(true);
       expect(hasMessageCell).toBe(true);
       expect(hasSourceCell).toBe(true);
       expect(hasLevelCell).toBe(true);
@@ -604,13 +603,12 @@ describe("LogsViewer Component", () => {
       // (source loaded in beforeEach)
 
       // Act
-      // The component must defensively lowercase the incoming level
-      // (some workers emit `WARN`, `Error`, `INFO`, etc.) before
-      // matching it against the filter. This is a real-world issue
-      // and a regression target.
+      // Defensively lowercase worker levels (`WARN`, `Error`, `INFO`)
+      // before matching filters. Return type may be LogLevel or a
+      // narrowed Exclude<LogLevel, "all">.
       const hasNormalize = source.includes("function normalizeLevel");
       const normalizesLower =
-        /function\s+normalizeLevel\s*\(\s*level:\s*string\s*\)\s*:\s*LogLevel\s*\{[\s\S]*?toLowerCase\(\)/.test(
+        /function\s+normalizeLevel\s*\(\s*level:\s*string\s*\)\s*:\s*[^{]+\{[\s\S]*?toLowerCase\(\)/.test(
           source
         );
 

@@ -47,11 +47,40 @@ export function InfrastructureLegend() {
     <div className="flex flex-col gap-5 p-5">
       <div>
         <h3 className="text-sm font-semibold tracking-tight">
-          Infrastructure Legend
+          Infrastructure legend
         </h3>
         <p className="text-muted-foreground mt-0.5 text-xs">
-          Cloudflare services powering the edge network
+          Status dots and Cloudflare services powering the edge network
         </p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <h4 className="text-muted-foreground text-[10px] font-medium tracking-[0.08em] uppercase">
+          Status
+        </h4>
+        <ul className="flex flex-col gap-1.5 text-xs">
+          <li className="flex items-center gap-2.5">
+            <span className="size-1.5 shrink-0 rounded-full bg-success shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
+            <span className="font-medium">Active</span>
+            <span className="text-muted-foreground text-[11px]">
+              Live · workers use CONFIG_KV probe
+            </span>
+          </li>
+          <li className="flex items-center gap-2.5">
+            <span className="size-1.5 shrink-0 rounded-full bg-warning" />
+            <span className="font-medium">Degraded</span>
+            <span className="text-muted-foreground text-[11px]">
+              Worker KV unreachable or error
+            </span>
+          </li>
+          <li className="flex items-center gap-2.5">
+            <span className="size-1.5 shrink-0 rounded-full bg-muted-foreground/30" />
+            <span className="font-medium">Inactive</span>
+            <span className="text-muted-foreground text-[11px]">
+              Catalog-only (pages/storage)
+            </span>
+          </li>
+        </ul>
       </div>
 
       <div className="flex flex-col gap-5">
@@ -72,7 +101,7 @@ export function InfrastructureLegend() {
                       size="sm"
                       className="text-muted-foreground"
                     />
-                    <span className="text-foreground w-14 shrink-0 font-medium tracking-tight">
+                    <span className="w-14 shrink-0 font-medium tracking-tight text-foreground">
                       {def.name}
                     </span>
                     <span className="text-muted-foreground text-[11px] leading-tight">

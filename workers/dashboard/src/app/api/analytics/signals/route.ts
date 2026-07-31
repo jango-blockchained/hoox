@@ -3,42 +3,51 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { NextResponse } from "next/server";
-import { executeAnalyticsQuery } from "@/app/api/analytics/shared";
+import {
+  ANALYTICS_DATASET,
+  analyticsErrorResponse,
+  analyticsSuccessResponse,
+  buildTimestampFilter,
+  executeAnalyticsQuery,
+  resolveStartIso,
+} from "@/app/api/analytics/shared";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-function buildSignalOutcomesQuery(timeRange?: string): string {
-  const timeFilter = timeRange ? `AND timestamp >= '${timeRange}'` : "";
+/**
+ * Signal outcomes by source / type / symbol.
+ *
+ * Layout: blob1=signal, blob2=source, blob3=status, blob4=type, blob5=symbol
+ *         double1=confidence
+ */
+function buildSignalOutcomesQuery(startIso?: string): string {
+  const timeFilter = buildTimestampFilter(startIso);
   return `
     SELECT
       blob2 as source,
-      blob3 as signal_type,
-      blob4 as symbol,
+      blob4 as signal_type,
+      blob5 as symbol,
       count() as signal_count,
       AVG(double1) as avg_confidence
-    FROM "hoox-analytics"
+    FROM "${ANALYTICS_DATASET}"
     WHERE blob1 = 'signal'
     ${timeFilter}
-    GROUP BY blob2, blob3, blob4
+    GROUP BY blob2, blob4, blob5
     ORDER BY signal_count DESC
+    LIMIT 100
   `.trim();
 }
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const timeRange = url.searchParams.get("timeRange") || undefined;
+    const startIso = resolveStartIso(url);
 
-    const sql = buildSignalOutcomesQuery(timeRange);
+    const sql = buildSignalOutcomesQuery(startIso);
     const data = await executeAnalyticsQuery(sql);
-
-    return NextResponse.json({ success: true, data });
+    return analyticsSuccessResponse(data);
   } catch (err) {
-    return NextResponse.json(
-      { success: false, error: String(err) },
-      { status: 500 }
-    );
+    return analyticsErrorResponse(err);
   }
 }

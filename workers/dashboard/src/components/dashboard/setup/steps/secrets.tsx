@@ -17,7 +17,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle, Cloud, CloudOff, Copy, Terminal } from "lucide-react";
+import {
+  AlertTriangle,
+  Cloud,
+  CloudOff,
+  Copy,
+  RefreshCw,
+  Terminal,
+} from "lucide-react";
 import { api } from "@/lib/api";
 import {
   REQUIRED_SECRETS,
@@ -28,11 +35,21 @@ import {
 } from "../setup-config";
 import { CircularProgress } from "../setup-circular-progress";
 
+const CRITICAL_SECRET_NAMES = new Set([
+  "WEBHOOK_API_KEY_BINDING",
+  "API_SERVICE_KEY_BINDING",
+  "D1_READ_KEY_BINDING",
+]);
+
+interface WizardSecretsStepProps {
+  onChecked?: () => void;
+}
+
 /**
  * Wizard step 3: configure required API keys and CLI commands.
  * Shows the configuration progress and per-secret CLI snippets.
  */
-export function WizardSecretsStep() {
+export function WizardSecretsStep({ onChecked }: WizardSecretsStepProps) {
   const [secretsList, setSecretsList] = useState<SecretStatus[]>(() =>
     REQUIRED_SECRETS.map((req) => ({
       ...req,
@@ -40,8 +57,10 @@ export function WizardSecretsStep() {
       configured: false,
     }))
   );
+  const [loading, setLoading] = useState(true);
 
   const checkSecretsStatus = async () => {
+    setLoading(true);
     try {
       const res = await api.getSecretsStatus();
       if (res.success && res.secrets) {
@@ -64,14 +83,19 @@ export function WizardSecretsStep() {
         }))
       );
     }
+    setLoading(false);
+    onChecked?.();
   };
 
   useEffect(() => {
-    checkSecretsStatus();
+    void checkSecretsStatus();
   }, []);
 
   const configuredCount = secretsList.filter((s) => s.configured).length;
   const missing = secretsList.filter((s) => !s.configured);
+  const criticalMissing = missing.filter((s) =>
+    CRITICAL_SECRET_NAMES.has(s.secret)
+  );
 
   const copyAllMissing = () => {
     const cmds = missing
@@ -90,9 +114,24 @@ export function WizardSecretsStep() {
       <CardHeader className="border-b border-border/50 pb-3">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex flex-col gap-1">
-            <CardTitle>Required Secrets</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Required Secrets
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-7"
+                onClick={() => void checkSecretsStatus()}
+                disabled={loading}
+                aria-label="Refresh secrets status"
+              >
+                <RefreshCw
+                  className={loading ? "size-3.5 animate-spin" : "size-3.5"}
+                />
+              </Button>
+            </CardTitle>
             <CardDescription>
-              Internal keys are synced to dashboard automatically
+              Internal keys sync to dashboard automatically when present in
+              Secret Store
             </CardDescription>
           </div>
 
@@ -106,11 +145,25 @@ export function WizardSecretsStep() {
                 Configuration
               </span>
               <span className="text-xs text-muted-foreground">
-                {configuredCount} of {secretsList.length} Set
+                {configuredCount} of {secretsList.length} set
               </span>
             </div>
           </div>
         </div>
+
+        {criticalMissing.length > 0 && (
+          <Alert className="mt-4 border-warning/40 bg-warning/5">
+            <AlertTriangle className="text-warning" />
+            <AlertTitle className="text-sm">
+              {criticalMissing.length} critical secret(s) missing
+            </AlertTitle>
+            <AlertDescription className="text-xs text-muted-foreground">
+              Webhook, trade internal auth, and D1 read keys are required for a
+              working first run. Next is gated until they are set (or you
+              override).
+            </AlertDescription>
+          </Alert>
+        )}
 
         {missing.length > 0 && (
           <div className="mt-4 flex justify-end border-t border-border/50 pt-4">
@@ -121,7 +174,7 @@ export function WizardSecretsStep() {
               onClick={copyAllMissing}
             >
               <Terminal />
-              Copy All Missing Commands
+              Copy all missing commands
             </Button>
           </div>
         )}
@@ -139,6 +192,7 @@ export function WizardSecretsStep() {
                   req.worker,
                   req.example
                 );
+                const critical = CRITICAL_SECRET_NAMES.has(req.secret);
                 return (
                   <div
                     key={req.secret}
@@ -148,7 +202,7 @@ export function WizardSecretsStep() {
                   >
                     <div className="mb-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                       <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           {req.configured ? (
                             <Cloud className="text-success shrink-0" />
                           ) : (
@@ -161,10 +215,18 @@ export function WizardSecretsStep() {
                           >
                             {req.secret}
                           </span>
+                          {critical && !req.configured ? (
+                            <Badge
+                              variant="outline"
+                              className="h-5 border-warning/40 px-1.5 text-warning"
+                            >
+                              Critical
+                            </Badge>
+                          ) : null}
                           {req.configured && (
                             <Badge
                               variant="outline"
-                              className="ml-2 h-5 border-success bg-success/10 px-1.5 text-success"
+                              className="ml-1 h-5 border-success bg-success/10 px-1.5 text-success"
                             >
                               Synced
                             </Badge>
@@ -181,7 +243,9 @@ export function WizardSecretsStep() {
                       </div>
                     </div>
 
-                    <SecretCommandBlock command={cmd} />
+                    {!req.configured ? (
+                      <SecretCommandBlock command={cmd} />
+                    ) : null}
                   </div>
                 );
               })}
@@ -189,17 +253,17 @@ export function WizardSecretsStep() {
           </div>
         ))}
 
-        <Alert className="mt-6 border-border bg-muted/50">
+        <Alert className="mt-2 border-border bg-muted/50">
           <AlertTriangle className="text-warning" />
-          <AlertTitle>Secret Management</AlertTitle>
+          <AlertTitle>Secret management</AlertTitle>
           <AlertDescription className="mt-1 text-xs text-muted-foreground">
-            Secrets are directly loaded from your Cloudflare Secret Store. Run
-            the CLI command:{" "}
+            Secrets load from your Cloudflare Secret Store. Run{" "}
             <code className="rounded border border-border bg-background px-1 py-0.5 font-[family-name:var(--font-geist-mono)] text-[10px]">
               bun run scripts/manage.ts secrets update-cf &lt;key&gt;
               &lt;worker&gt;
             </code>{" "}
-            to manage them securely.
+            to manage them securely — never paste live secrets into the
+            dashboard.
           </AlertDescription>
         </Alert>
       </CardContent>

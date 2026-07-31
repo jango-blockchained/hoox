@@ -7,5 +7,6 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Logs | Hoox Dashboard",
-  description: "Real-time system event stream from all workers",
+  description:
+    "Production log explorer for HOOX workers — level filters, source filter, search, and live auto-refresh",
 };

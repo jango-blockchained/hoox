@@ -5,7 +5,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { Errors } from "@jango-blockchained/hoox-shared/errors";
 import { getEnvVar, getInternalAuthKeys } from "@/lib/config";
 
 // nodejs runtime: dashboard routes consistently use `nodejs` because
@@ -83,7 +82,12 @@ export async function POST(request: NextRequest) {
     raw = await request.json();
   } catch {
     return NextResponse.json(
-      { success: false, error: "Invalid JSON body" },
+      {
+        success: false,
+        error:
+          "Invalid JSON body — expected application/json with chatId, level, title, message",
+        code: "INVALID_JSON",
+      },
       { status: 400 }
     );
   }
@@ -97,7 +101,11 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: firstIssue?.message ?? "Invalid request body",
-        issues: parsed.error.issues,
+        code: "VALIDATION_ERROR",
+        issues: parsed.error.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message,
+        })),
       },
       { status: 400 }
     );
@@ -113,7 +121,13 @@ export async function POST(request: NextRequest) {
     "Content-Type": "application/json",
   };
   const internalKey = getInternalKey();
-  if (internalKey) {
+  if (!internalKey) {
+    // Soft-warn in the response path via structured logging; still attempt
+    // the hop so local telegram-workers without auth keep working.
+    console.warn(
+      "notifications/send: TELEGRAM internal auth key is not configured — request may be rejected by telegram-worker"
+    );
+  } else {
     headers["X-Internal-Auth-Key"] = internalKey;
   }
 
@@ -140,16 +154,37 @@ export async function POST(request: NextRequest) {
       const errBody = (await res.json().catch(() => ({}))) as {
         error?: string;
         description?: string;
+        message?: string;
       };
       const detail =
         errBody.error ??
         errBody.description ??
-        `Telegram worker responded with ${res.status}`;
-      // 4xx is a client error (bad chat ID, missing internal key, etc.) —
-      // return 400 to mirror the cause. 5xx stays 502 to indicate the
-      // upstream worker misbehaved.
+        errBody.message ??
+        `Telegram worker responded with HTTP ${res.status}`;
+
+      // 401/403 almost always mean the internal key is missing/wrong.
+      if (res.status === 401 || res.status === 403) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Telegram worker rejected the request (${res.status}). Check TELEGRAM_INTERNAL_KEY_BINDING. ${detail}`,
+            code: "TELEGRAM_AUTH",
+          },
+          { status: 502 }
+        );
+      }
+
+      // 4xx is a client error (bad chat ID, etc.) — return 400.
+      // 5xx stays 502 to indicate the upstream worker misbehaved.
       const status = res.status >= 500 ? 502 : 400;
-      return NextResponse.json({ success: false, error: detail }, { status });
+      return NextResponse.json(
+        {
+          success: false,
+          error: detail,
+          code: res.status >= 500 ? "TELEGRAM_UPSTREAM" : "TELEGRAM_CLIENT",
+        },
+        { status }
+      );
     }
 
     return NextResponse.json({
@@ -163,6 +198,15 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error("notifications/send error:", err);
-    return Errors.internal("Failed to reach telegram-worker");
+    const detail =
+      err instanceof Error ? err.message : "Failed to reach telegram-worker";
+    return NextResponse.json(
+      {
+        success: false,
+        error: `Could not reach telegram-worker at ${getTelegramWorkerUrl()}: ${detail}`,
+        code: "TELEGRAM_UNREACHABLE",
+      },
+      { status: 502 }
+    );
   }
 }

@@ -98,45 +98,8 @@ export const schema = z
   })
   .strict();
 
-// Mock data - replace with API call
-const data: z.infer<typeof schema>[] = [
-  {
-    id: 1,
-    symbol: "BTC/USDT",
-    side: "LONG",
-    exchange: "binance",
-    status: "CLOSED",
-    pnl: 245.5,
-    timestamp: "2024-04-15 14:32:00",
-  },
-  {
-    id: 2,
-    symbol: "ETH/USDT",
-    side: "SHORT",
-    exchange: "mexc",
-    status: "OPEN",
-    pnl: 0,
-    timestamp: "2024-04-15 12:15:00",
-  },
-  {
-    id: 3,
-    symbol: "SOL/USDT",
-    side: "LONG",
-    exchange: "bybit",
-    status: "CLOSED",
-    pnl: 89.2,
-    timestamp: "2024-04-14 09:45:00",
-  },
-  {
-    id: 4,
-    symbol: "DOGE/USDT",
-    side: "LONG",
-    exchange: "binance",
-    status: "CLOSED",
-    pnl: -23.8,
-    timestamp: "2024-04-13 16:20:00",
-  },
-];
+/** Empty default — callers pass live rows via the `data` prop. */
+const emptyData: z.infer<typeof schema>[] = [];
 
 // Create a separate component for the drag handle
 function DragHandle({ id }: { id: number }) {
@@ -314,7 +277,7 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 }
 
 export function DataTable({
-  data: initialData = data,
+  data: initialData = emptyData,
 }: {
   data?: z.infer<typeof schema>[];
 }) {

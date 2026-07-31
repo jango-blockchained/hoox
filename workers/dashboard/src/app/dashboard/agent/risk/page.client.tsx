@@ -5,17 +5,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { KillSwitch } from "@/components/agent/kill-switch";
-import { RiskParameters } from "@/components/agent/risk-parameters";
-import { TrailingStops } from "@/components/agent/trailing-stops";
+import {
+  AgentSubnav,
+  KillSwitch,
+  RiskParameters,
+  TrailingStops,
+} from "@/components/agent";
 import { PageHeader } from "@/components/dashboard/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Shield } from "lucide-react";
-import { useState, useEffect, Suspense } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface AgentStatusResponse {
   success: boolean;
   status?: { killSwitch?: boolean };
+  error?: string;
 }
 
 interface KillSwitchResponse {
@@ -28,46 +33,44 @@ export default function RiskClient() {
   const [killSwitchActive, setKillSwitchActive] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const fetchStatus = async (signal?: AbortSignal) => {
+  const fetchStatus = useCallback(async (signal?: AbortSignal) => {
     try {
       const res = await fetch("/api/agent/status", { signal });
       const data = (await res.json()) as AgentStatusResponse;
-      if (data.success) {
-        setKillSwitchActive(data.status?.killSwitch || false);
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to fetch status");
       }
+      setKillSwitchActive(data.status?.killSwitch || false);
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
-      toast.error("Failed to fetch status");
+      toast.error(e instanceof Error ? e.message : "Failed to fetch status");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchStatus(controller.signal);
+    void fetchStatus(controller.signal);
     return () => controller.abort();
-  }, []);
+  }, [fetchStatus]);
 
   const handleToggleKillSwitch = async (
     action: "engage_kill_switch" | "release_kill_switch"
   ) => {
-    try {
-      const res = await fetch("/api/agent/risk-override", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      const data = (await res.json()) as KillSwitchResponse;
-      if (data.success) {
-        toast.success(data.message);
-        fetchStatus();
-      } else {
-        toast.error(data.error || "Action failed");
-      }
-    } catch {
-      toast.error("Failed to toggle kill switch");
+    const res = await fetch("/api/agent/risk-override", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    });
+    const data = (await res.json()) as KillSwitchResponse;
+    if (!data.success) {
+      const msg = data.error || "Action failed";
+      toast.error(msg);
+      throw new Error(msg);
     }
+    toast.success(data.message ?? "Kill switch updated");
+    await fetchStatus();
   };
 
   return (
@@ -75,43 +78,28 @@ export default function RiskClient() {
       <PageHeader
         icon={<Shield className="h-8 w-8 text-primary" />}
         title="Risk Management"
-        description="Parameters & overrides"
+        description="Parameters, kill switch, and trailing stops"
       />
+      <AgentSubnav />
 
       {loading ? (
-        <div className="flex flex-col gap-4">
-          <div className="h-32 bg-secondary/30 rounded-lg animate-pulse" />
-          <div className="h-64 bg-secondary/30 rounded-lg animate-pulse" />
-          <div className="h-48 bg-secondary/30 rounded-lg animate-pulse" />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="flex flex-col gap-6">
+            <Skeleton className="h-36 w-full rounded-xl" />
+            <Skeleton className="h-72 w-full rounded-xl" />
+          </div>
+          <Skeleton className="h-64 w-full rounded-xl" />
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="flex flex-col gap-6">
-            <Suspense
-              fallback={
-                <div className="h-32 animate-pulse rounded-lg bg-muted" />
-              }
-            >
-              <KillSwitch
-                active={killSwitchActive}
-                onToggle={handleToggleKillSwitch}
-              />
-            </Suspense>
-            <Suspense
-              fallback={
-                <div className="h-64 animate-pulse rounded-lg bg-muted" />
-              }
-            >
-              <RiskParameters />
-            </Suspense>
+            <KillSwitch
+              active={killSwitchActive}
+              onToggle={handleToggleKillSwitch}
+            />
+            <RiskParameters />
           </div>
-          <Suspense
-            fallback={
-              <div className="h-48 animate-pulse rounded-lg bg-muted" />
-            }
-          >
-            <TrailingStops />
-          </Suspense>
+          <TrailingStops />
         </div>
       )}
     </div>

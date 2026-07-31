@@ -5,6 +5,8 @@
 
 import { IBM_Plex_Sans, IBM_Plex_Mono, Bebas_Neue } from "next/font/google";
 import type { Metadata, Viewport } from "next";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -29,12 +31,20 @@ const bebasNeue = Bebas_Neue({
 
 export const metadata: Metadata = {
   title: { default: "Hoox Dashboard", template: "%s | Hoox Dashboard" },
-  description: "Hoox trading system dashboard",
+  description:
+    "Hoox trading system dashboard — monitor positions, signals, agent risk, and edge infrastructure.",
+  applicationName: "Hoox",
+  robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#141414" },
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+  ],
+  colorScheme: "dark light",
 };
 
 export default function RootLayout({
@@ -48,7 +58,15 @@ export default function RootLayout({
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${bebasNeue.variable} dark bg-background`}
       suppressHydrationWarning
     >
-      <body className="font-sans antialiased">{children}</body>
+      <body className="min-h-svh font-sans antialiased">
+        <ThemeProvider>
+          <a href="#main-content" className="skip-to-content">
+            Skip to content
+          </a>
+          {children}
+          <Toaster richColors position="top-right" closeButton />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

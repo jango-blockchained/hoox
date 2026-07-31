@@ -5,37 +5,75 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import type { ReactNode } from "react";
 import {
   Chart,
   DocText,
   Setting2,
-  Setting2 as WrenchIcon, // approx for wrench/setup
   BranchUp,
   Inbox,
   Plus,
   Refresh,
+  Database,
+  Bell,
+  File,
+  Cpu,
+  Activity,
 } from "reicon-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-interface EmptyStateProps {
-  icon?: "positions" | "logs" | "settings" | "setup" | "signal" | "inbox";
-  title: string;
-  description: string;
-  action?: {
-    label: string;
-    onClick: () => void;
-    icon?: "plus" | "refresh";
-  };
+export type EmptyStateIconName =
+  | "positions"
+  | "logs"
+  | "settings"
+  | "setup"
+  | "signal"
+  | "inbox"
+  | "database"
+  | "notifications"
+  | "reports"
+  | "agent"
+  | "analytics";
+
+export interface EmptyStateAction {
+  label: string;
+  onClick: () => void;
+  icon?: "plus" | "refresh";
+  variant?: "default" | "outline" | "secondary" | "ghost";
 }
 
-const iconMap = {
+export interface EmptyStateProps {
+  /** Preset icon name or a custom React node. */
+  icon?: EmptyStateIconName | ReactNode;
+  title: string;
+  description: string;
+  /** Primary call-to-action. */
+  action?: EmptyStateAction;
+  /** Secondary action (e.g. docs, clear filters). */
+  secondaryAction?: EmptyStateAction;
+  /** Compact padding for inline table empties. */
+  size?: "default" | "sm" | "lg";
+  className?: string;
+  children?: ReactNode;
+}
+
+const iconMap: Record<
+  EmptyStateIconName,
+  React.ComponentType<{ className?: string }>
+> = {
   positions: Chart,
   logs: DocText,
   settings: Setting2,
-  setup: WrenchIcon,
+  setup: Setting2,
   signal: BranchUp,
   inbox: Inbox,
+  database: Database,
+  notifications: Bell,
+  reports: File,
+  agent: Cpu,
+  analytics: Activity,
 };
 
 const actionIconMap = {
@@ -43,63 +81,118 @@ const actionIconMap = {
   refresh: Refresh,
 };
 
+function isPresetIcon(
+  icon: EmptyStateProps["icon"]
+): icon is EmptyStateIconName {
+  return typeof icon === "string" && icon in iconMap;
+}
+
 export function EmptyState({
   icon = "inbox",
   title,
   description,
   action,
+  secondaryAction,
+  size = "default",
+  className,
+  children,
 }: EmptyStateProps) {
-  const Icon = iconMap[icon];
+  const reduceMotion = useReducedMotion();
+  const PresetIcon = isPresetIcon(icon) ? iconMap[icon] : null;
   const ActionIcon = action?.icon ? actionIconMap[action.icon] : null;
+  const SecondaryIcon = secondaryAction?.icon
+    ? actionIconMap[secondaryAction.icon]
+    : null;
+
+  const padding =
+    size === "sm" ? "py-10 px-4" : size === "lg" ? "py-24 px-6" : "py-16 px-4";
+
+  const iconBox = size === "sm" ? "p-4" : size === "lg" ? "p-8" : "p-6";
+  const iconSize =
+    size === "sm" ? "h-8 w-8" : size === "lg" ? "h-14 w-14" : "h-12 w-12";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="flex flex-col items-center justify-center py-16 px-4"
+      role="status"
+      initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+      animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className={cn(
+        "flex flex-col items-center justify-center text-center",
+        padding,
+        className
+      )}
     >
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
-        className="relative mb-6"
-      >
-        <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl" />
-        <div className="relative bg-background/50 backdrop-blur-sm border border-border/50 rounded-full p-6">
-          <Icon className="h-12 w-12 text-muted-foreground" />
+      <div className={cn("relative mb-5", size === "sm" && "mb-4")}>
+        <div
+          className="absolute inset-0 rounded-full bg-accent/10 blur-xl"
+          aria-hidden="true"
+        />
+        <div
+          className={cn(
+            "relative rounded-full border border-border/60 bg-card/60 backdrop-blur-sm",
+            iconBox
+          )}
+        >
+          {PresetIcon ? (
+            <PresetIcon className={cn(iconSize, "text-muted-foreground")} />
+          ) : (
+            <div
+              className={cn(
+                iconSize,
+                "text-muted-foreground [&_svg]:size-full"
+              )}
+            >
+              {icon as ReactNode}
+            </div>
+          )}
         </div>
-      </motion.div>
+      </div>
 
-      <motion.h3
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="text-lg font-semibold text-foreground mb-2"
+      <h3
+        className={cn(
+          "font-semibold text-foreground",
+          size === "sm" ? "text-base mb-1" : "text-lg mb-2"
+        )}
       >
         {title}
-      </motion.h3>
+      </h3>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="text-sm text-muted-foreground text-center max-w-sm mb-6"
+      <p
+        className={cn(
+          "text-muted-foreground max-w-sm text-pretty",
+          size === "sm" ? "text-xs mb-4" : "text-sm mb-6"
+        )}
       >
         {description}
-      </motion.p>
+      </p>
 
-      {action && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Button onClick={action.onClick} variant="outline" className="gap-2">
-            {ActionIcon && <ActionIcon className="h-4 w-4" />}
-            {action.label}
-          </Button>
-        </motion.div>
+      {(action || secondaryAction || children) && (
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {action && (
+            <Button
+              onClick={action.onClick}
+              variant={action.variant ?? "outline"}
+              size={size === "sm" ? "sm" : "default"}
+              className="gap-2"
+            >
+              {ActionIcon && <ActionIcon className="h-4 w-4" />}
+              {action.label}
+            </Button>
+          )}
+          {secondaryAction && (
+            <Button
+              onClick={secondaryAction.onClick}
+              variant={secondaryAction.variant ?? "ghost"}
+              size={size === "sm" ? "sm" : "default"}
+              className="gap-2"
+            >
+              {SecondaryIcon && <SecondaryIcon className="h-4 w-4" />}
+              {secondaryAction.label}
+            </Button>
+          )}
+          {children}
+        </div>
       )}
     </motion.div>
   );

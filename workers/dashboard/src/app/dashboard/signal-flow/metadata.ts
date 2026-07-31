@@ -8,5 +8,5 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Signal Flow",
   description:
-    "Visualize how trading signals flow through the Hoox system from ingestion to execution.",
+    "Live pipeline map: webhook → gateway → trade & agent → D1 → Telegram, with health status and latency for operators.",
 };

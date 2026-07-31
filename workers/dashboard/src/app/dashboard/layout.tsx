@@ -14,7 +14,7 @@ import { Footer } from "@/app/footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dashboard | Hoox Trading System",
+  title: "Dashboard",
   description:
     "Monitor your trading system in real-time. View positions, signals, and system health.",
 };
@@ -28,11 +28,15 @@ export default function DashboardLayout({
     <AmbientBackground>
       <SidebarProvider>
         <FirstRunRedirect />
-        <AppSidebar />
-        <SidebarInset>
+        <AppSidebar variant="inset" />
+        <SidebarInset
+          id="main-content"
+          tabIndex={-1}
+          className="overflow-x-hidden outline-none"
+        >
           <DashboardHeader />
           <LiveTicker />
-          <main className="flex-1 p-4 pt-2 sm:p-6 lg:p-8">{children}</main>
+          <div className="flex-1 p-4 pt-3 sm:p-6 lg:p-8">{children}</div>
           <Footer />
           <CommandPalette />
         </SidebarInset>

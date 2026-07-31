@@ -5,13 +5,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useSidebar } from "@/components/ui/sidebar";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
+  useSidebar,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ChevronsUpDown, Sparkles, LogOut } from "lucide-react";
+import {
+  ChevronsUpDown,
+  LogOut,
+  Moon,
+  Settings,
+  Sun,
+  Monitor,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +31,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export function NavUser({
   user,
@@ -34,6 +44,32 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const initials = user.name
+    .split(/\s+/)
+    .map((p) => p[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const handleLogout = async () => {
+    try {
+      // Clear session cookie via login redirect; middleware will re-auth
+      document.cookie =
+        "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    } catch {
+      // ignore
+    }
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <SidebarMenu>
@@ -43,10 +79,11 @@ export function NavUser({
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              aria-label="User menu"
             >
               <Avatar className="size-8 rounded-lg">
-                <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
-                  {user.name.charAt(0).toUpperCase()}
+                <AvatarFallback className="rounded-lg bg-sidebar-primary/15 text-sidebar-primary-foreground font-medium">
+                  {initials}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -55,7 +92,7 @@ export function NavUser({
                   {user.email}
                 </span>
               </div>
-              <ChevronsUpDown className="ml-auto" />
+              <ChevronsUpDown className="ml-auto size-4 opacity-60" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -67,8 +104,8 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="size-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
-                    {user.name.charAt(0).toUpperCase()}
+                  <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-medium">
+                    {initials}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -81,16 +118,39 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-                <Badge variant="secondary" className="ml-auto text-xs">
-                  Soon
-                </Badge>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/settings">
+                  <Settings />
+                  Settings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  if (!mounted) return;
+                  const next =
+                    theme === "dark"
+                      ? "light"
+                      : theme === "light"
+                        ? "system"
+                        : "dark";
+                  setTheme(next);
+                }}
+              >
+                {!mounted || theme === "system" ? (
+                  <Monitor />
+                ) : theme === "dark" ? (
+                  <Moon />
+                ) : (
+                  <Sun />
+                )}
+                Theme
+                <span className="ml-auto text-xs text-muted-foreground capitalize">
+                  {mounted ? (theme ?? "system") : "…"}
+                </span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout} variant="destructive">
               <LogOut />
               Log out
             </DropdownMenuItem>

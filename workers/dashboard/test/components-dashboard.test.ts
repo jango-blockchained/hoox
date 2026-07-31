@@ -119,11 +119,21 @@ describe("Dashboard Components - Module Imports", () => {
     });
 
     it("should not include duplicate /dashboard entries", async () => {
-      const sourcePath = `${import.meta.dir}/../src/components/dashboard/sidebar-config.ts`;
-      const source = await Bun.file(sourcePath).text();
-      // Count how many times href: "/dashboard" appears — should be exactly 1
-      const matches = source.match(/href:\s*['"]\/dashboard['"]/g);
-      expect(matches).toHaveLength(1);
+      const { primaryNavItems, monitoringNavItems, systemNavItems } =
+        await import("../src/components/dashboard/sidebar-config");
+      // Primary nav must have exactly one Overview → /dashboard item.
+      // Breadcrumb helpers may also reference /dashboard; those are not
+      // sidebar duplicates.
+      const topLevel = [
+        ...primaryNavItems,
+        ...monitoringNavItems,
+        ...systemNavItems,
+      ];
+      const dashboardHrefs = topLevel.filter(
+        (item) => item.href === "/dashboard"
+      );
+      expect(dashboardHrefs).toHaveLength(1);
+      expect(dashboardHrefs[0]?.title).toBe("Overview");
     });
 
     it("should have real routes for primary, monitoring, and system items", async () => {

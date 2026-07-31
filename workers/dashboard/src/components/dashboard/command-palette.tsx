@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -24,288 +24,390 @@ import {
   Eye,
   FileText,
   Home,
+  Keyboard,
   MessageSquare,
+  Moon,
+  RefreshCw,
   ScrollText,
   Search,
+  Settings,
   ShieldAlert,
-  SunMoon,
+  Sun,
+  Wrench,
 } from "lucide-react";
-import {
-  Cpu,
-  Database,
-  BranchUp,
-  Monitor,
-  Radio,
-  Setting2,
-  Chart,
-  Setting2 as WrenchIcon,
-} from "reicon-react";
+import { Cpu, Database, BranchUp, Monitor, Radio, Chart } from "reicon-react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import {
+  OPEN_COMMAND_PALETTE_EVENT,
+  openCommandPalette,
+} from "./sidebar-config";
+import { Kbd } from "@/components/ui/kbd";
 
-type CommandGroupName = "Navigation" | "Agent" | "Actions";
+type CommandGroupName =
+  | "Primary"
+  | "Monitoring"
+  | "System"
+  | "Agent"
+  | "Actions";
 
 interface CommandPaletteItem {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
+  keywords?: string;
   shortcut?: string;
   action: () => void;
   group: CommandGroupName;
 }
 
 const GROUP_ORDER: readonly CommandGroupName[] = [
-  "Navigation",
+  "Primary",
+  "Monitoring",
+  "System",
   "Agent",
   "Actions",
 ];
 
+const SUGGESTED_LABELS = [
+  "Overview",
+  "Positions",
+  "Agent Chat",
+  "Toggle Theme",
+] as const;
+
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
-  // useTheme() is safe to call without a ThemeProvider — next-themes returns
-  // the default context (with a no-op setTheme) so we can still mirror the
-  // change to the DOM and get immediate visual feedback.
-  const { setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
+
+  const openPalette = useCallback(() => setOpen(true), []);
+  const closePalette = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen((prev) => !prev);
+        return;
+      }
+      // Quick nav shortcuts when palette is closed and not typing in an input
+      if (open) return;
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) {
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        router.push("/dashboard");
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [open, router]);
 
-  const navigate = (path: string) => () => {
-    setOpen(false);
-    router.push(path);
-  };
+  useEffect(() => {
+    const handler = () => openPalette();
+    document.addEventListener(OPEN_COMMAND_PALETTE_EVENT, handler);
+    return () =>
+      document.removeEventListener(OPEN_COMMAND_PALETTE_EVENT, handler);
+  }, [openPalette]);
 
-  const toggleTheme = () => {
-    const root = document.documentElement;
-    const isDark = root.classList.contains("dark");
-    const next = isDark ? "light" : "dark";
+  const navigate = useCallback(
+    (path: string) => () => {
+      closePalette();
+      router.push(path);
+    },
+    [closePalette, router]
+  );
+
+  const toggleTheme = useCallback(() => {
+    const next = resolvedTheme === "dark" ? "light" : "dark";
     setTheme(next);
-    // Mirror to DOM so theme changes immediately, even if no ThemeProvider
-    // is mounted (the project layout doesn't include one yet).
-    root.classList.toggle("dark", next === "dark");
-    setOpen(false);
+    closePalette();
     toast.success(`Theme switched to ${next}`);
-  };
+  }, [resolvedTheme, setTheme, closePalette]);
 
-  const commands: CommandPaletteItem[] = [
-    // Navigation group — alphabetical
-    {
-      icon: BarChart3,
-      label: "Analytics",
-      action: navigate("/dashboard/analytics"),
-      group: "Navigation",
-    },
-    {
-      icon: Database,
-      label: "Database",
-      action: navigate("/dashboard/database"),
-      group: "Navigation",
-    },
-    {
-      icon: Monitor,
-      label: "Dashboard",
-      shortcut: "⌘D",
-      action: navigate("/dashboard"),
-      group: "Navigation",
-    },
-    {
-      icon: Home,
-      label: "Go to Home",
-      shortcut: "⌘H",
-      action: navigate("/"),
-      group: "Navigation",
-    },
-    {
-      icon: Bell,
-      label: "Notifications",
-      action: navigate("/dashboard/notifications"),
-      group: "Navigation",
-    },
-    {
-      icon: Chart,
-      label: "Positions",
-      shortcut: "⌘P",
-      action: navigate("/dashboard/positions"),
-      group: "Navigation",
-    },
-    {
-      icon: FileText,
-      label: "Reports",
-      action: navigate("/dashboard/reports"),
-      group: "Navigation",
-    },
-    {
-      icon: Setting2,
-      label: "Settings",
-      shortcut: "⌘,",
-      action: navigate("/dashboard/settings"),
-      group: "Navigation",
-    },
-    {
-      icon: WrenchIcon,
-      label: "Setup",
-      shortcut: "⌘S",
-      action: navigate("/dashboard/setup"),
-      group: "Navigation",
-    },
-    {
-      icon: BranchUp,
-      label: "Signal Flow",
-      action: navigate("/dashboard/signal-flow"),
-      group: "Navigation",
-    },
-    {
-      icon: Radio,
-      label: "Signals",
-      action: navigate("/dashboard/signals"),
-      group: "Navigation",
-    },
-    {
-      icon: ScrollText,
-      label: "System Logs",
-      action: navigate("/dashboard/logs"),
-      group: "Navigation",
-    },
-
-    // Agent group — overview + sub-routes
-    {
-      icon: Cpu,
-      label: "Agent Overview",
-      action: navigate("/dashboard/agent"),
-      group: "Agent",
-    },
-    {
-      icon: MessageSquare,
-      label: "Agent Chat",
-      action: navigate("/dashboard/agent/chat"),
-      group: "Agent",
-    },
-    {
-      icon: Eye,
-      label: "Agent Vision",
-      action: navigate("/dashboard/agent/vision"),
-      group: "Agent",
-    },
-    {
-      icon: Cpu,
-      label: "Agent Reasoning",
-      action: navigate("/dashboard/agent/reasoning"),
-      group: "Agent",
-    },
-    {
-      icon: Bot,
-      label: "Agent Models",
-      action: navigate("/dashboard/agent/models"),
-      group: "Agent",
-    },
-    {
-      icon: ShieldAlert,
-      label: "Agent Risk",
-      action: navigate("/dashboard/agent/risk"),
-      group: "Agent",
-    },
-    {
-      icon: Activity,
-      label: "Agent Usage",
-      action: navigate("/dashboard/agent/usage"),
-      group: "Agent",
-    },
-
-    // Actions group — non-navigating commands
-    {
-      icon: Search,
-      label: "Refresh Page",
-      action: () => {
-        setOpen(false);
-        window.location.reload();
+  const commands: CommandPaletteItem[] = useMemo(
+    () => [
+      // Primary
+      {
+        icon: Monitor,
+        label: "Overview",
+        keywords: "dashboard home command center",
+        shortcut: "⌘D",
+        action: navigate("/dashboard"),
+        group: "Primary",
       },
-      group: "Actions",
-    },
-    {
-      icon: SunMoon,
-      label: "Toggle Theme",
-      action: toggleTheme,
-      group: "Actions",
-    },
-  ];
+      {
+        icon: Chart,
+        label: "Positions",
+        keywords: "trades open pnl",
+        action: navigate("/dashboard/positions"),
+        group: "Primary",
+      },
+      {
+        icon: BranchUp,
+        label: "Signal Flow",
+        keywords: "pipeline webhook routing",
+        action: navigate("/dashboard/signal-flow"),
+        group: "Primary",
+      },
+      {
+        icon: BarChart3,
+        label: "Analytics",
+        keywords: "metrics performance charts",
+        action: navigate("/dashboard/analytics"),
+        group: "Primary",
+      },
+
+      // Monitoring
+      {
+        icon: ScrollText,
+        label: "System Logs",
+        keywords: "log viewer debug",
+        action: navigate("/dashboard/logs"),
+        group: "Monitoring",
+      },
+      {
+        icon: Radio,
+        label: "Signals",
+        keywords: "tradingview alerts",
+        action: navigate("/dashboard/signals"),
+        group: "Monitoring",
+      },
+      {
+        icon: Bell,
+        label: "Notifications",
+        keywords: "telegram alerts",
+        action: navigate("/dashboard/notifications"),
+        group: "Monitoring",
+      },
+      {
+        icon: FileText,
+        label: "Reports",
+        keywords: "pdf export",
+        action: navigate("/dashboard/reports"),
+        group: "Monitoring",
+      },
+
+      // System
+      {
+        icon: Database,
+        label: "Database",
+        keywords: "d1 tables schema",
+        action: navigate("/dashboard/database"),
+        group: "System",
+      },
+      {
+        icon: Settings,
+        label: "Settings",
+        keywords: "config preferences",
+        shortcut: "⌘,",
+        action: navigate("/dashboard/settings"),
+        group: "System",
+      },
+      {
+        icon: Wrench,
+        label: "Setup",
+        keywords: "wizard onboarding first run",
+        action: navigate("/dashboard/setup"),
+        group: "System",
+      },
+      {
+        icon: Home,
+        label: "Go to Home",
+        keywords: "root redirect",
+        action: navigate("/"),
+        group: "System",
+      },
+
+      // Agent
+      {
+        icon: Cpu,
+        label: "Agent Overview",
+        keywords: "ai risk manager",
+        action: navigate("/dashboard/agent"),
+        group: "Agent",
+      },
+      {
+        icon: MessageSquare,
+        label: "Agent Chat",
+        keywords: "conversation llm",
+        action: navigate("/dashboard/agent/chat"),
+        group: "Agent",
+      },
+      {
+        icon: Eye,
+        label: "Agent Vision",
+        keywords: "image chart analysis",
+        action: navigate("/dashboard/agent/vision"),
+        group: "Agent",
+      },
+      {
+        icon: Cpu,
+        label: "Agent Reasoning",
+        keywords: "chain of thought",
+        action: navigate("/dashboard/agent/reasoning"),
+        group: "Agent",
+      },
+      {
+        icon: Bot,
+        label: "Agent Models",
+        keywords: "llm providers",
+        action: navigate("/dashboard/agent/models"),
+        group: "Agent",
+      },
+      {
+        icon: ShieldAlert,
+        label: "Agent Risk",
+        keywords: "kill switch parameters",
+        action: navigate("/dashboard/agent/risk"),
+        group: "Agent",
+      },
+      {
+        icon: Activity,
+        label: "Agent Usage",
+        keywords: "tokens cost billing",
+        action: navigate("/dashboard/agent/usage"),
+        group: "Agent",
+      },
+
+      // Actions
+      {
+        icon: RefreshCw,
+        label: "Refresh Page",
+        keywords: "reload",
+        action: () => {
+          closePalette();
+          window.location.reload();
+        },
+        group: "Actions",
+      },
+      {
+        icon: resolvedTheme === "dark" ? Sun : Moon,
+        label: "Toggle Theme",
+        keywords: "dark light mode appearance",
+        action: toggleTheme,
+        group: "Actions",
+      },
+    ],
+    [navigate, closePalette, toggleTheme, resolvedTheme]
+  );
 
   return (
     <>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
-          />
-        )}
-      </AnimatePresence>
-
       <CommandDialog
         open={open}
         onOpenChange={setOpen}
         title="Command Palette"
-        description="Search for pages and actions..."
+        description="Search pages and run actions across the Hoox dashboard"
       >
-        <CommandInput placeholder="Type a command or search..." />
+        <CommandInput placeholder="Search pages, agent tools, actions…" />
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          {GROUP_ORDER.map((groupName, groupIdx) => (
-            <Fragment key={groupName}>
-              {groupIdx > 0 && <CommandSeparator />}
-              <CommandGroup heading={groupName}>
-                {commands
-                  .filter((cmd) => cmd.group === groupName)
-                  .map((cmd) => (
+          <CommandEmpty>
+            <div className="flex flex-col items-center gap-3 py-6 text-center">
+              <div className="flex size-10 items-center justify-center rounded-full bg-muted">
+                <Search
+                  className="size-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-foreground">
+                  No results found
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Try a route name, agent tool, or action keyword.
+                </p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-1.5 pt-1">
+                {SUGGESTED_LABELS.map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    className="rounded-md border border-border bg-secondary/40 px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                    onClick={() => {
+                      const cmd = commands.find((c) => c.label === label);
+                      cmd?.action();
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </CommandEmpty>
+
+          {GROUP_ORDER.map((groupName, groupIdx) => {
+            const items = commands.filter((cmd) => cmd.group === groupName);
+            if (items.length === 0) return null;
+            return (
+              <Fragment key={groupName}>
+                {groupIdx > 0 && <CommandSeparator />}
+                <CommandGroup heading={groupName}>
+                  {items.map((cmd) => (
                     <CommandItem
-                      key={cmd.label}
+                      key={`${cmd.group}-${cmd.label}`}
+                      value={`${cmd.label} ${cmd.keywords ?? ""} ${cmd.group}`}
                       onSelect={cmd.action}
                       className="cursor-pointer"
                     >
-                      <cmd.icon className="mr-2 h-4 w-4" />
+                      <cmd.icon className="mr-2 size-4 shrink-0 opacity-70" />
                       <span>{cmd.label}</span>
                       {cmd.shortcut && (
                         <CommandShortcut>{cmd.shortcut}</CommandShortcut>
                       )}
                     </CommandItem>
                   ))}
-              </CommandGroup>
-            </Fragment>
-          ))}
+                </CommandGroup>
+              </Fragment>
+            );
+          })}
         </CommandList>
+
+        {/* Shortcuts help footer */}
+        <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1">
+              <Keyboard className="size-3" aria-hidden="true" />
+              Navigate
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Kbd>↑</Kbd>
+              <Kbd>↓</Kbd>
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Kbd>↵</Kbd>
+              <span>Open</span>
+            </span>
+            <span className="hidden items-center gap-1 sm:inline-flex">
+              <Kbd>Esc</Kbd>
+              <span>Close</span>
+            </span>
+          </div>
+          <span className="inline-flex items-center gap-1">
+            <Kbd>⌘</Kbd>
+            <Kbd>K</Kbd>
+          </span>
+        </div>
       </CommandDialog>
 
-      {/* Cmd+K Hint */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2, duration: 0.5 }}
-        className="fixed bottom-4 right-4 z-40"
-      >
+      {/* Floating Cmd+K affordance */}
+      <div className="pointer-events-none fixed bottom-4 right-4 z-40 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2">
         <button
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground shadow-lg transition-colors hover:bg-accent hover:text-accent-foreground"
+          type="button"
+          onClick={() => openCommandPalette()}
+          className="pointer-events-auto flex items-center gap-2 rounded-lg border border-border/80 bg-card/95 px-3 py-2 text-xs text-muted-foreground shadow-lg backdrop-blur transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Open command palette"
         >
-          <Search className="h-3 w-3" />
-          <span>Search...</span>
-          <kbd className="rounded border border-border bg-secondary px-1.5 py-0.5 font-mono text-[10px]">
-            ⌘K
-          </kbd>
+          <Search className="size-3" aria-hidden="true" />
+          <span className="hidden sm:inline">Search</span>
+          <Kbd className="font-mono text-[10px]">⌘K</Kbd>
         </button>
-      </motion.div>
+      </div>
     </>
   );
 }

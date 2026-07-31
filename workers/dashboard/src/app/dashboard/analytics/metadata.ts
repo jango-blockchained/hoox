@@ -8,5 +8,5 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Analytics",
   description:
-    "Monitor trading system performance, API calls, and signal outcomes.",
+    "Command surface for trade success rate, exchange volume, worker performance, API latency, and signal outcomes.",
 };

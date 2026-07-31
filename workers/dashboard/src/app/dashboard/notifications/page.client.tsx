@@ -15,7 +15,7 @@ export default function NotificationsClient() {
       <PageHeader
         icon={<Bell className="h-8 w-8 text-primary" />}
         title="Notifications"
-        description="Test and manage telegram alerts from the trading system"
+        description="Ops panel for Telegram alerts — send tests, apply templates, and review recent delivery"
       />
       <NotificationTester />
     </div>

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { VisionUpload } from "@/components/agent/vision-upload";
+import { AgentSubnav, VisionUpload } from "@/components/agent";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Eye } from "lucide-react";
 
@@ -17,6 +17,7 @@ export default function VisionClient() {
         title="Vision Analysis"
         description="Analyze chart images with AI vision models"
       />
+      <AgentSubnav />
       <VisionUpload />
     </div>
   );

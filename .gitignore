@@ -121,9 +121,9 @@ coverage/
 
 # JUnit test reports (emitted by bunfig.toml's [test.reporter] junit
 # setting; consumed by the unified per-suite summary table in
-# packages/test-utils/src/render-test-table.ts)
-reports/
-*/reports/
+# packages/test-utils/src/render-test-table.ts). Root-anchored so we do
+# not ignore dashboard app routes under workers/dashboard/**/reports/.
+/reports/
 
 # npm config
 .npmrc

@@ -1,25 +1,11 @@
-"use client";
-
 /**
  * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+"use client";
+
+import { useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -30,7 +16,22 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Zap } from "lucide-react";
-import { motion } from "framer-motion";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  AnalyticsCard,
+  AnalyticsCardSkeleton,
+  AnalyticsEmpty,
+  AnalyticsErrorState,
+  AnalyticsTableSkeleton,
+  MetricInfo,
+} from "./analytics-shell";
+import {
+  appendTimeRangeParams,
+  timeRangeLabel,
+  type TimeRangeKey,
+} from "./time-range";
+import { useAnalyticsQuery } from "./use-analytics-query";
+import { cn } from "@/lib/utils";
 
 interface SignalOutcomeRow {
   source: string;
@@ -40,130 +41,157 @@ interface SignalOutcomeRow {
   avg_confidence: number;
 }
 
-export function SignalOutcomes() {
-  const [data, setData] = useState<SignalOutcomeRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState("30d");
-  const [mounted, setMounted] = useState(false);
+function num(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+function normalize(rows: SignalOutcomeRow[]): SignalOutcomeRow[] {
+  return rows
+    .map((r) => ({
+      source: String(r.source || "unknown"),
+      signal_type: String(r.signal_type || "—"),
+      symbol: String(r.symbol || "—"),
+      signal_count: num(r.signal_count),
+      // Confidence may arrive 0–1 or already 0–100 depending on producers.
+      avg_confidence: (() => {
+        const c = num(r.avg_confidence);
+        return c > 1 ? c / 100 : c;
+      })(),
+    }))
+    .filter((r) => r.signal_count > 0)
+    .sort((a, b) => b.signal_count - a.signal_count);
+}
 
-  useEffect(() => {
-    const controller = new AbortController();
-    async function fetchData() {
-      setLoading(true);
-      try {
-        const url = new URL(`/api/analytics/signals`, window.location.origin);
-        if (timeRange !== "all") {
-          const days = timeRange === "7d" ? 7 : 30;
-          url.searchParams.set(
-            "timeRange",
-            new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
-          );
-        }
-        const res = await fetch(url.toString(), { signal: controller.signal });
-        const json = (await res.json()) as {
-          success: boolean;
-          data?: SignalOutcomeRow[];
-        };
-        if (json.success) {
-          setData(json.data || []);
-        }
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError")
-          return;
-        console.error("Failed to fetch signal outcomes:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (mounted) fetchData();
-    return () => controller.abort();
-  }, [timeRange, mounted]);
+function confidenceClass(c: number): string {
+  if (c >= 0.7) return "text-success font-medium";
+  if (c >= 0.4) return "text-warning";
+  return "text-destructive";
+}
 
-  if (!mounted) return null;
+function typeVariant(
+  type: string
+): "default" | "secondary" | "outline" | "destructive" {
+  const t = type.toLowerCase();
+  if (t.includes("long") || t.includes("buy")) return "default";
+  if (t.includes("short") || t.includes("sell")) return "secondary";
+  if (t.includes("close") || t.includes("exit")) return "outline";
+  return "outline";
+}
+
+export function SignalOutcomes({
+  timeRange = "30d",
+  className,
+}: {
+  timeRange?: TimeRangeKey;
+  className?: string;
+}) {
+  const url = useMemo(() => {
+    const u = new URL(
+      "/api/analytics/signals",
+      typeof window !== "undefined" ? window.location.origin : "http://local"
+    );
+    appendTimeRangeParams(u, timeRange, { end: false });
+    return u.pathname + u.search;
+  }, [timeRange]);
+
+  const { data, loading, error, refetch } = useAnalyticsQuery<
+    SignalOutcomeRow[]
+  >(url, { select: normalize });
+
+  if (loading && !data) {
+    return <AnalyticsCardSkeleton height="h-[220px]" className={className} />;
+  }
+
+  const rows = data ?? [];
+  const totalSignals = rows.reduce((s, r) => s + r.signal_count, 0);
+  const sources = new Set(rows.map((r) => r.source)).size;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.4 }}
+    <AnalyticsCard
+      title="Signal Outcomes"
+      description={
+        rows.length > 0
+          ? `${totalSignals.toLocaleString()} signals · ${sources} source${sources === 1 ? "" : "s"} · ${timeRangeLabel(timeRange)}`
+          : `Distribution by source, type, and symbol · ${timeRangeLabel(timeRange)}`
+      }
+      icon={Zap}
+      className={className}
+      info={
+        <div className="space-y-1.5">
+          <p>
+            Ingested trading signals grouped by source, type, and symbol.
+            Confidence is the average model/source score (0–100% display).
+          </p>
+          <p>
+            High confidence (≥70%) is highlighted. Low confidence clusters may
+            need prompt or filter tuning on the agent-worker.
+          </p>
+        </div>
+      }
     >
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
-              <div>
-                <CardTitle>Signal Outcomes</CardTitle>
-                <CardDescription>
-                  Signal distribution by source and type
-                </CardDescription>
-              </div>
-            </div>
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7d">Last 7 days</SelectItem>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="all">All time</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex h-[200px] items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            </div>
-          ) : data.length === 0 ? (
-            <div className="flex h-[200px] items-center justify-center text-muted-foreground">
-              No signal data available
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Symbol</TableHead>
-                  <TableHead>Count</TableHead>
-                  <TableHead>Avg Confidence</TableHead>
+      {error && rows.length === 0 ? (
+        <AnalyticsErrorState error={error} onRetry={refetch} compact />
+      ) : loading ? (
+        <AnalyticsTableSkeleton rows={5} />
+      ) : rows.length === 0 ? (
+        <AnalyticsEmpty
+          title="No signals tracked"
+          description="Signals appear when producers call analytics-worker /track/signal. Check webhook intake and agent-worker signal publishing."
+          compact
+        />
+      ) : (
+        <ScrollArea className="w-full">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Source</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Symbol</TableHead>
+                <TableHead className="text-right">Count</TableHead>
+                <TableHead className="text-right">
+                  <span className="inline-flex items-center gap-1">
+                    Avg confidence
+                    <MetricInfo label="Confidence">
+                      Mean confidence score attached to signals (double1).
+                      Values are normalized to a 0–100% scale for display.
+                    </MetricInfo>
+                  </span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row, i) => (
+                <TableRow
+                  key={`${row.source}-${row.signal_type}-${row.symbol}-${i}`}
+                >
+                  <TableCell className="font-medium">{row.source}</TableCell>
+                  <TableCell>
+                    <Badge variant={typeVariant(row.signal_type)}>
+                      {row.signal_type}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-mono text-sm">
+                    {row.symbol}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {row.signal_count.toLocaleString()}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right tabular-nums",
+                      confidenceClass(row.avg_confidence)
+                    )}
+                  >
+                    {(row.avg_confidence * 100).toFixed(0)}%
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((row, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-medium">{row.source}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{row.signal_type}</Badge>
-                    </TableCell>
-                    <TableCell>{row.symbol}</TableCell>
-                    <TableCell>{row.signal_count}</TableCell>
-                    <TableCell>
-                      <span
-                        className={
-                          row.avg_confidence >= 0.7
-                            ? "text-success"
-                            : row.avg_confidence >= 0.4
-                              ? "text-warning"
-                              : "text-destructive"
-                        }
-                      >
-                        {(row.avg_confidence * 100).toFixed(0)}%
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
+              ))}
+            </TableBody>
+          </Table>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      )}
+    </AnalyticsCard>
   );
 }

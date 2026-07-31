@@ -1,177 +1,227 @@
-"use client";
-
 /**
  * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
+"use client";
+
+import { useMemo } from "react";
+import { Bar, BarChart, CartesianGrid, Legend, XAxis, YAxis } from "recharts";
 import { BarChart3 } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import {
+  AnalyticsCard,
+  AnalyticsCardSkeleton,
+  AnalyticsEmpty,
+  AnalyticsErrorState,
+} from "./analytics-shell";
+import {
+  appendTimeRangeParams,
+  timeRangeLabel,
+  type TimeRangeKey,
+} from "./time-range";
+import { useAnalyticsQuery } from "./use-analytics-query";
 
 const chartConfig = {
-  trade_count: {
-    label: "Trades",
-    color: "var(--color-chart-1)",
-  },
   success_count: {
     label: "Success",
     color: "var(--color-chart-2)",
   },
   failure_count: {
     label: "Failures",
-    color: "var(--color-chart-3)",
+    color: "var(--color-chart-5)",
   },
-};
+  trade_count: {
+    label: "Total",
+    color: "var(--color-chart-1)",
+  },
+} satisfies ChartConfig;
 
 interface TradeMetricsRow {
   exchange: string;
   trade_count: number;
   success_count: number;
   failure_count: number;
+  avg_price?: number;
 }
 
-export function TradeMetricsChart() {
-  const [data, setData] = useState<TradeMetricsRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState("7d");
-  const [mounted, setMounted] = useState(false);
+function num(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+function normalizeRows(rows: TradeMetricsRow[]): TradeMetricsRow[] {
+  return rows
+    .map((r) => ({
+      exchange: String(r.exchange || "unknown"),
+      trade_count: num(r.trade_count),
+      success_count: num(r.success_count),
+      failure_count: num(r.failure_count),
+      avg_price: num(r.avg_price),
+    }))
+    .filter(
+      (r) => r.trade_count > 0 || r.success_count > 0 || r.failure_count > 0
+    )
+    .sort((a, b) => b.trade_count - a.trade_count);
+}
 
-  useEffect(() => {
-    const controller = new AbortController();
-    async function fetchData() {
-      setLoading(true);
-      try {
-        const end = new Date().toISOString();
-        const start = new Date(
-          Date.now() -
-            (timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90) *
-              24 *
-              60 *
-              60 *
-              1000
-        ).toISOString();
-        const res = await fetch(
-          `/api/analytics/trade-metrics?start=${start}&end=${end}`,
-          { signal: controller.signal }
-        );
-        const json = (await res.json()) as {
-          success: boolean;
-          data?: TradeMetricsRow[];
-        };
-        if (json.success) {
-          setData(json.data || []);
-        }
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError")
-          return;
-        console.error("Failed to fetch trade metrics:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (mounted) fetchData();
-    return () => controller.abort();
-  }, [timeRange, mounted]);
+export function TradeMetricsChart({
+  timeRange = "7d",
+  className,
+}: {
+  timeRange?: TimeRangeKey;
+  className?: string;
+}) {
+  const url = useMemo(() => {
+    const u = new URL(
+      "/api/analytics/trade-metrics",
+      typeof window !== "undefined" ? window.location.origin : "http://local"
+    );
+    appendTimeRangeParams(u, timeRange);
+    return u.pathname + u.search;
+  }, [timeRange]);
 
-  if (!mounted) return null;
+  const { data, loading, error, refetch } = useAnalyticsQuery<
+    TradeMetricsRow[]
+  >(url, { select: normalizeRows });
+
+  if (loading && !data) {
+    return <AnalyticsCardSkeleton height="h-[300px]" className={className} />;
+  }
+
+  const rows = data ?? [];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+    <AnalyticsCard
+      title="Trade Metrics by Exchange"
+      description={`Fill volume and outcomes · ${timeRangeLabel(timeRange)}`}
+      icon={BarChart3}
+      className={className}
+      contentClassName="pt-2"
+      info={
+        <div className="space-y-1.5">
+          <p>
+            Stacked view of successful vs failed fills per exchange label.
+            Sandbox fills appear as <code>exchange:test</code>.
+          </p>
+          <p className="text-background/80">
+            Source: analytics-worker trade data points (blob4 = exchange).
+          </p>
+        </div>
+      }
     >
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              <div>
-                <CardTitle>Trade Metrics by Exchange</CardTitle>
-                <CardDescription>
-                  Trading activity across exchanges
-                </CardDescription>
-              </div>
-            </div>
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7d">Last 7 days</SelectItem>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="90d">Last 90 days</SelectItem>
-              </SelectContent>
-            </Select>
+      {error && rows.length === 0 ? (
+        <AnalyticsErrorState error={error} onRetry={refetch} />
+      ) : rows.length === 0 ? (
+        <AnalyticsEmpty
+          title="No trade metrics yet"
+          description="When trade-worker executes orders, volume by exchange will chart here. Confirm analytics-worker is receiving /track/trade events."
+        />
+      ) : (
+        <div className="space-y-4">
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-[280px] w-full sm:h-[320px]"
+          >
+            <BarChart
+              data={rows}
+              margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+              barCategoryGap="18%"
+              barGap={2}
+            >
+              <CartesianGrid vertical={false} strokeDasharray="3 3" />
+              <XAxis
+                dataKey="exchange"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                interval={0}
+                angle={rows.length > 4 ? -25 : 0}
+                textAnchor={rows.length > 4 ? "end" : "middle"}
+                height={rows.length > 4 ? 56 : 32}
+                tick={{ fontSize: 11 }}
+              />
+              <YAxis
+                allowDecimals={false}
+                tickLine={false}
+                axisLine={false}
+                width={40}
+                tick={{ fontSize: 11 }}
+              />
+              <ChartTooltip
+                cursor={{ fill: "var(--color-muted)", opacity: 0.35 }}
+                content={
+                  <ChartTooltipContent
+                    indicator="dot"
+                    labelFormatter={(label) => String(label)}
+                  />
+                }
+              />
+              <Legend
+                verticalAlign="top"
+                height={28}
+                iconType="circle"
+                wrapperStyle={{ fontSize: 12 }}
+              />
+              <Bar
+                dataKey="success_count"
+                name="Success"
+                stackId="fills"
+                fill="var(--color-success_count)"
+                radius={[0, 0, 0, 0]}
+                maxBarSize={48}
+              />
+              <Bar
+                dataKey="failure_count"
+                name="Failures"
+                stackId="fills"
+                fill="var(--color-failure_count)"
+                radius={[4, 4, 0, 0]}
+                maxBarSize={48}
+              />
+            </BarChart>
+          </ChartContainer>
+
+          {/* Compact totals for screen-reader / mobile readability */}
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+            {rows.slice(0, 8).map((row) => {
+              const rate =
+                row.trade_count > 0
+                  ? (row.success_count / row.trade_count) * 100
+                  : 0;
+              return (
+                <div
+                  key={row.exchange}
+                  className="rounded-lg border border-border/60 bg-muted/30 px-3 py-2"
+                >
+                  <div className="truncate text-xs font-medium text-foreground">
+                    {row.exchange}
+                  </div>
+                  <div className="mt-0.5 flex items-baseline justify-between gap-2">
+                    <span className="text-sm font-semibold tabular-nums">
+                      {row.trade_count.toLocaleString()}
+                    </span>
+                    <span
+                      className={
+                        rate >= 80
+                          ? "text-xs tabular-nums text-success"
+                          : "text-xs tabular-nums text-muted-foreground"
+                      }
+                    >
+                      {rate.toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex h-[300px] items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            </div>
-          ) : data.length === 0 ? (
-            <div className="flex h-[300px] items-center justify-center text-muted-foreground">
-              No trade data available
-            </div>
-          ) : (
-            <ChartContainer config={chartConfig} className="h-[300px]">
-              <ResponsiveContainer>
-                <BarChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="exchange" />
-                  <YAxis />
-                  <Tooltip content={<ChartTooltipContent />} />
-                  <Bar
-                    dataKey="trade_count"
-                    fill="var(--color-chart-1)"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="success_count"
-                    fill="var(--color-chart-2)"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="failure_count"
-                    fill="var(--color-chart-3)"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+      )}
+    </AnalyticsCard>
   );
 }

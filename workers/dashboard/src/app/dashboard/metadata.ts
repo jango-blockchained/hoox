@@ -6,7 +6,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Overview",
+  title: "Command Center",
   description:
-    "Command Center - Monitor your trading system performance, positions, and AI health.",
+    "HOOX Command Center — portfolio metrics, unrealized PnL, position mix, AI agent health, worker status, and risk shortcuts.",
 };
