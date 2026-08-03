@@ -33,16 +33,16 @@ Bun workspaces: `packages/*`, `workers/*`, `pages/*`.
 | `packages/cli` | CLI tool (`hoox` commands) | `bin/hoox.js` |
 | `packages/shared` | Shared middleware, types, errors, analytics, D1 schemas | `src/index.ts` (exports: `./middleware`, `./d1`, `./schemas`, `./wizard`, `./stores/*`) |
 | `packages/tui` | OpenTUI terminal dashboard | `src/main.tsx` |
-| `workers/hoox-worker` | Gateway (webhook entry point, public) | `src/index.ts` |
-| `workers/trade-worker` | Multi-exchange execution | `src/index.ts` |
-| `workers/agent-worker` | AI risk manager (5min cron) | `src/index.ts` |
-| `workers/d1-worker` | D1 database operations | `src/index.ts` |
-| `workers/telegram-worker` | Notifications | `src/index.ts` |
-| `workers/web3-wallet-worker` | DeFi/on-chain execution | `src/index.ts` |
-| `workers/email-worker` | Email signal parsing | `src/index.ts` |
-| `workers/analytics-worker` | Analytics & reporting | `src/index.ts` |
-| `workers/report-worker` | PDF reports (Browser Rendering) | `src/index.ts` |
-| `workers/dashboard` | Next.js 16 + OpenNext on Cloudflare Workers | `src/index.tsx` |
+| `workers/hoox-worker` | Public gateway — webhooks, WAF, DO idempotency, dispatch ([repo](https://github.com/hoox-sh/hoox-worker)) | `src/index.ts` |
+| `workers/trade-worker` | Multi-exchange execution (Binance/Bybit/MEXC) ([repo](https://github.com/hoox-sh/trade-worker)) | `src/index.ts` |
+| `workers/agent-worker` | AI risk manager (5-min cron, kill switch) ([repo](https://github.com/hoox-sh/agent-worker)) | `src/index.ts` |
+| `workers/d1-worker` | D1 SQL proxy + settings/balances/positions ([repo](https://github.com/hoox-sh/d1-worker)) | `src/index.ts` |
+| `workers/telegram-worker` | Alerts, bot commands, RAG copilot ([repo](https://github.com/hoox-sh/telegram-worker)) | `src/index.ts` |
+| `workers/web3-wallet-worker` | On-chain wallet identity (ethers.js) ([repo](https://github.com/hoox-sh/web3-wallet-worker)) | `src/index.ts` |
+| `workers/email-worker` | Mailgun/email signal parsing → trade ([repo](https://github.com/hoox-sh/email-worker)) | `src/index.ts` |
+| `workers/analytics-worker` | Analytics Engine fan-in ([repo](https://github.com/hoox-sh/analytics-worker)) | `src/index.ts` |
+| `workers/report-worker` | Browser Rendering PDFs → R2 ([repo](https://github.com/hoox-sh/report-worker)) | `src/index.ts` |
+| `workers/dashboard` | Next.js 16 + OpenNext ops console (public) | `src/index.tsx` |
 | `pages/docs` | Astro docs site | — |
 
 > Dashboard lives at `workers/dashboard/` (NOT `pages/dashboard` — that path is legacy).

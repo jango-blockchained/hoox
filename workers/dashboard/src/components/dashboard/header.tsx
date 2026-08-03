@@ -10,8 +10,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
-  ExternalLink,
-  Code2,
   Wifi,
   WifiOff,
   Clock,
@@ -22,13 +20,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
@@ -274,61 +265,6 @@ export function DashboardHeader() {
                 </p>
               </TooltipContent>
             </Tooltip>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden gap-2 text-muted-foreground xl:flex"
-              asChild
-            >
-              <a
-                href="https://github.com/hoox-sh/hoox-setup"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Code2 className="size-4" aria-hidden="true" />
-                <span>Source</span>
-              </a>
-            </Button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <ExternalLink className="size-4" aria-hidden="true" />
-                  <span className="hidden sm:inline">Visit</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuItem asChild>
-                  <a
-                    href="https://hoox.cryptolinx.workers.dev"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Live Gateway
-                  </a>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <a
-                    href="https://dash.cloudflare.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Cloudflare Dashboard
-                  </a>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <a
-                    href="https://github.com/hoox-sh/hoox-setup"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    GitHub Repository
-                  </a>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
       </header>

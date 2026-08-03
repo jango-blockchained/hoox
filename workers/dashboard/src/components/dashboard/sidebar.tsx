@@ -18,7 +18,6 @@ import {
 import { SidebarNav } from "./sidebar-nav";
 import { NavUser } from "./sidebar-user";
 import Link from "next/link";
-import { HooxIcon } from "@/components/ui/hoox-icon";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -32,9 +31,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <Link href="/dashboard" aria-label="Hoox dashboard home">
-                <span className="flex size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-                  <HooxIcon name="bolt" size="sm" className="size-4!" />
-                </span>
+                {/* Official HOOX mark (brand/svg/mark-orange-transparent) */}
+                <img
+                  src="/hoox-logo.svg"
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="size-8 shrink-0"
+                  decoding="async"
+                />
                 <span className="flex flex-col gap-0.5 leading-none">
                   <span className="text-base font-semibold tracking-tight">
                     Hoox

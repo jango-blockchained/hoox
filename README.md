@@ -202,20 +202,20 @@ Ten specialized V8 isolates communicate over Cloudflare Service Bindings — dir
 | Isolates             | 10                       |
 | Internal calls       | <1 ms (Service Bindings) |
 
-| Worker               | Role                            |
-| -------------------- | ------------------------------- |
-| `hoox`               | Gateway & WAF (public)          |
-| `trade-worker`       | Exchange execution              |
-| `agent-worker`       | AI risk manager (5-min cron)    |
-| `telegram-worker`    | Alerts & copilot                |
-| `d1-worker`          | Data layer                      |
-| `email-worker`       | Email signals                   |
-| `web3-wallet-worker` | DeFi / on-chain                 |
-| `analytics-worker`   | Analytics Engine                |
-| `report-worker`      | PDF reports                     |
-| `dashboard`          | Next.js command center (public) |
+| Worker               | Role                                                                                        | Repository                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `hoox` (gateway)     | Public webhook ingress, WAF/IP allowlist, rate limits, Durable Object idempotency, dispatch | [hoox-worker](https://github.com/hoox-sh/hoox-worker)               |
+| `trade-worker`       | Multi-exchange execution (Binance / Bybit / MEXC), queue consumers, D1 fills                | [trade-worker](https://github.com/hoox-sh/trade-worker)             |
+| `agent-worker`       | AI risk manager — 5-min cron, trailing stops, kill switch                                   | [agent-worker](https://github.com/hoox-sh/agent-worker)             |
+| `d1-worker`          | D1 SQL proxy (table allowlist), settings KV, balances & positions                           | [d1-worker](https://github.com/hoox-sh/d1-worker)                   |
+| `telegram-worker`    | Notification plane — alerts, bot commands, RAG copilot                                      | [telegram-worker](https://github.com/hoox-sh/telegram-worker)       |
+| `email-worker`       | Mailgun / email signal parsing → trade-worker                                               | [email-worker](https://github.com/hoox-sh/email-worker)             |
+| `analytics-worker`   | Analytics Engine fan-in (trades, signals, latency, heartbeats)                              | [analytics-worker](https://github.com/hoox-sh/analytics-worker)     |
+| `report-worker`      | Browser Rendering PDFs → R2, telegram delivery                                              | [report-worker](https://github.com/hoox-sh/report-worker)           |
+| `web3-wallet-worker` | On-chain wallet identity (ethers.js / Secrets Store)                                        | [web3-wallet-worker](https://github.com/hoox-sh/web3-wallet-worker) |
+| `dashboard`          | Next.js ops console (OpenNext, public)                                                      | [workers/dashboard](workers/dashboard)                              |
 
-Only the gateway and dashboard are public. Every other worker is reachable only via Service Bindings.
+Only the gateway and dashboard are public. Every other worker is a private isolate, reachable only via Cloudflare Service Bindings. Each worker is a **git submodule** with its own README and GitHub description; see [docs → Workers](https://docs.hoox.sh/docs/devops/workers) for operator isolate profiles.
 
 ```mermaid
 graph LR

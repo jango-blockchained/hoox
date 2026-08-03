@@ -10,32 +10,35 @@ description: "Per-isolate profiles for every HOOX Cloudflare Worker — gateway,
 
 Each page is an **isolate profile**: bindings, routes, secrets, and behavior for one worker in the mesh.
 
+Worker sources live as **git submodules** under `workers/` in [hoox-sh/hoox](https://github.com/hoox-sh/hoox). Each repository carries a GitHub description, `package.json` description, and a README with a shared **Mesh interconnect** section that links every sibling isolate.
+
 ## Ingress & execution
 
-| Worker | Role |
-| ------ | ---- |
-| [hoox (Gateway)](hoox) | Public webhook ingress, auth, queue/service dispatch |
-| [trade-worker](trade-worker) | Exchange REST/WS execution, test trading, D1 fills |
-| [web3-wallet-worker](web3-wallet-worker) | On-chain signing and DeFi swaps |
+| Worker | Role | Source |
+| ------ | ---- | ------ |
+| [hoox (Gateway)](hoox) | Public webhook ingress, WAF/auth, Durable Object idempotency, queue/service dispatch | [hoox-worker](https://github.com/hoox-sh/hoox-worker) |
+| [trade-worker](trade-worker) | Exchange REST execution (Binance / Bybit / MEXC), test trading, D1 fills | [trade-worker](https://github.com/hoox-sh/trade-worker) |
+| [web3-wallet-worker](web3-wallet-worker) | On-chain wallet identity (ethers.js); bridge toward DeFi settlement | [web3-wallet-worker](https://github.com/hoox-sh/web3-wallet-worker) |
 
 ## Data & intelligence
 
-| Worker | Role |
-| ------ | ---- |
-| [d1-worker](d1-worker) | SQL proxy, dashboard stats, RPC inserts |
-| [agent-worker](agent-worker) | Cron risk, trailing stops, AI summaries |
-| [analytics-worker](analytics-worker) | Analytics Engine write path |
-| [report-worker](report-worker) | Trade reports / R2 artifacts |
+| Worker | Role | Source |
+| ------ | ---- | ------ |
+| [d1-worker](d1-worker) | SQL proxy (table allowlist), dashboard stats, settings KV | [d1-worker](https://github.com/hoox-sh/d1-worker) |
+| [agent-worker](agent-worker) | 5-min cron risk, trailing stops, multi-provider AI, kill switch | [agent-worker](https://github.com/hoox-sh/agent-worker) |
+| [analytics-worker](analytics-worker) | Analytics Engine fan-in (trades, signals, latency, heartbeats) | [analytics-worker](https://github.com/hoox-sh/analytics-worker) |
+| [report-worker](report-worker) | Browser Rendering PDFs → R2, telegram delivery | [report-worker](https://github.com/hoox-sh/report-worker) |
 
 ## Channels & UI
 
-| Worker | Role |
-| ------ | ---- |
-| [telegram-worker](telegram-worker) | Alerts, bot commands, RAG |
-| [email-worker](email-worker) | Mailgun / email signal parsing |
-| [dashboard](dashboard) | Next.js ops console (OpenNext) |
+| Worker | Role | Source |
+| ------ | ---- | ------ |
+| [telegram-worker](telegram-worker) | Alerts, bot commands, RAG copilot | [telegram-worker](https://github.com/hoox-sh/telegram-worker) |
+| [email-worker](email-worker) | Mailgun / email signal parsing → trade-worker | [email-worker](https://github.com/hoox-sh/email-worker) |
+| [dashboard](dashboard) | Next.js ops console (OpenNext, public) | monorepo `workers/dashboard` |
 
 ## Related
 
 - [Architecture](/docs/devops/architecture) — mesh topology  
 - [Test Trading](/docs/enduser/guides/test-trading) — sandbox fills across trade / agent / dashboard  
+- Parent monorepo README — worker table with repository links
