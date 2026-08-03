@@ -43,7 +43,7 @@ jobs:
             || echo "::warning::Some submodules could not be initialized due to token permissions. Continuing."
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@v4.37.4
         with:
           languages: ${{ matrix.language }}
           config-file: ./.github/codeql-config.yml
@@ -59,6 +59,6 @@ jobs:
           bun run build
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v4.37.4
         with:
           category: "/language:${{matrix.language}}"
