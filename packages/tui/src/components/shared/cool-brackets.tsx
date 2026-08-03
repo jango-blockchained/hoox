@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,7 +9,7 @@
  * No animation (no rainbow / spectrum cycling).
  */
 import type { ReactNode } from "react";
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 
 /**
  * Focus / accent color helper (static — kept for call-site compatibility).

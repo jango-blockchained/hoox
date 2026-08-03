@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -25,8 +25,8 @@
  * Uses Colors tokens, useServiceStore, StatusDot, and showConfirm dialog.
  */
 import { useState, useCallback, useEffect } from "react";
-import { useServiceStore } from "@jango-blockchained/hoox-shared/stores/service-store";
-import { Colors, ConnectionStatusColor } from "@jango-blockchained/hoox-shared";
+import { useServiceStore } from "@hoox-sh/hoox-shared/stores/service-store";
+import { Colors, ConnectionStatusColor } from "@hoox-sh/hoox-shared";
 import { StatusDot } from "../shared/status-dot";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { EmptyState } from "../shared/spinner";
@@ -34,7 +34,7 @@ import { ViewHeader } from "../shared/view-header";
 import { Panel } from "../shared/panel";
 import { showConfirm } from "../ui/dialog";
 import type { DialogHandle } from "../ui/dialog";
-import type { WorkerInfo } from "@jango-blockchained/hoox-shared/types";
+import type { WorkerInfo } from "@hoox-sh/hoox-shared/types";
 import { cliBridge } from "../../services/cli-bridge";
 import type { KillSwitchStatus } from "../../services/cli-bridge";
 import type { CliResult } from "../../types";

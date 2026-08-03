@@ -15,8 +15,8 @@
       "@/*": ["./src/*"],
       "@hoox/shared": ["../shared/src"],
       "@hoox/shared/*": ["../shared/*"],
-      "@jango-blockchained/hoox-shared": ["../shared/src/index.ts"],
-      "@jango-blockchained/hoox-shared/*": ["../shared/src/*"],
+      "@hoox-sh/hoox-shared": ["../shared/src/index.ts"],
+      "@hoox-sh/hoox-shared/*": ["../shared/src/*"],
       "@hoox/test-utils": ["../test-utils/src"],
       "@hoox/test-utils/*": ["../test-utils/src/*"]
     }

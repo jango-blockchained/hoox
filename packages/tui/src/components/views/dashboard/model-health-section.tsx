@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /** @jsxImportSource @opentui/react */
 import { useState, useCallback, useEffect } from "react";
-import { Colors, WorkerStatusColor } from "@jango-blockchained/hoox-shared";
+import { Colors, WorkerStatusColor } from "@hoox-sh/hoox-shared";
 import { StatusDot } from "../../shared/status-dot";
 import { cliBridge } from "../../../services/cli-bridge";
 import type { ModelHealth } from "../../../services/cli-bridge";

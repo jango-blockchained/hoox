@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -14,9 +14,9 @@
  *
  * This component is a plain function (not a class) because it's meant to be
  * rendered in a degraded state — no hooks, no stores, no external state.
- * Colors use Hoox design tokens via @jango-blockchained/hoox-shared.
+ * Colors use Hoox design tokens via @hoox-sh/hoox-shared.
  */
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

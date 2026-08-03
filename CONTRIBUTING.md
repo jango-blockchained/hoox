@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -15,7 +15,7 @@ First off, thank you for considering contributing to Hoox! It's people like you 
 
 This section guides you through submitting a bug report for Hoox. Following these guidelines helps maintainers and the community understand your report, reproduce the behavior, and find related reports.
 
-- Use the [GitHub Issues](https://github.com/jango-blockchained/hoox-setup/issues) tracker to report bugs.
+- Use the [GitHub Issues](https://github.com/hoox-sh/hoox-setup/issues) tracker to report bugs.
 - Provide a clear and descriptive title (e.g., "Webhook returns 500 when `cluster` param missing from payload").
 - Describe the exact steps to reproduce the problem.
 - Include relevant logs from `hoox logs tail <worker>`.
@@ -163,10 +163,10 @@ Be respectful, constructive, and professional. We follow the [Contributor Covena
 
 ## 📋 Reference
 
-| Resource              | Link                                                                                                                                    |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Bug Tracker           | [GitHub Issues](https://github.com/jango-blockchained/hoox-setup/issues)                                                                |
-| Documentation Home    | [docs/enduser/home.md](docs/enduser/home.md)                                                                                            |
-| DevOps Manual         | [docs/devops/home.md](docs/devops/home.md)                                                                                              |
-| Enduser Full Docs PDF | [/hoox-setup/Enduser-Full-Documentation.pdf](https://github.com/jango-blockchained/hoox-setup/blob/main/Enduser-Full-Documentation.pdf) |
-| Latest Release        | [Releases Page](https://github.com/jango-blockchained/hoox-setup/releases)                                                              |
+| Resource              | Link                                                                                                                         |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Bug Tracker           | [GitHub Issues](https://github.com/hoox-sh/hoox-setup/issues)                                                                |
+| Documentation Home    | [docs/enduser/home.md](docs/enduser/home.md)                                                                                 |
+| DevOps Manual         | [docs/devops/home.md](docs/devops/home.md)                                                                                   |
+| Enduser Full Docs PDF | [/hoox-setup/Enduser-Full-Documentation.pdf](https://github.com/hoox-sh/hoox-setup/blob/main/Enduser-Full-Documentation.pdf) |
+| Latest Release        | [Releases Page](https://github.com/hoox-sh/hoox-setup/releases)                                                              |

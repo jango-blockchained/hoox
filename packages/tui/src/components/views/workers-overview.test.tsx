@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -12,8 +12,8 @@ import {
   resetCliBridgeDouble,
   type TestWorkerInfo,
 } from "../../test-utils";
-import { useServiceStore } from "@jango-blockchained/hoox-shared/stores/service-store";
-import { useUIStore } from "@jango-blockchained/hoox-shared/stores/ui-store";
+import { useServiceStore } from "@hoox-sh/hoox-shared/stores/service-store";
+import { useUIStore } from "@hoox-sh/hoox-shared/stores/ui-store";
 
 function collectText(output: unknown): string[] {
   const texts: string[] = [];

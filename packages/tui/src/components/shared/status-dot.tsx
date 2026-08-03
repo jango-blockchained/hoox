@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,7 +15,7 @@
  * Optional `pulse` blinks the character for operational status
  * (uses the Text `blink` attribute to pulse).
  */
-import { WorkerStatusColor } from "@jango-blockchained/hoox-shared";
+import { WorkerStatusColor } from "@hoox-sh/hoox-shared";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 

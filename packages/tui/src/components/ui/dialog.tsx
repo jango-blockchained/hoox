@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,7 +9,7 @@
  * Provides ConfirmDialog, ChoiceDialog, and LoadingDialog helpers.
  *
  * All dialogs render centered with a dimmed backdrop (backdropOpacity 0.35)
- * and use Colors tokens from @jango-blockchained/hoox-shared for consistent Hoox branding.
+ * and use Colors tokens from @hoox-sh/hoox-shared for consistent Hoox branding.
  */
 import { useState } from "react";
 import {
@@ -18,7 +18,7 @@ import {
   type DialogId,
   useDialogKeyboard,
 } from "@opentui-ui/dialog/react";
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 

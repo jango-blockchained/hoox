@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,7 +13,7 @@
  *   - Enter: confirm selection
  *   - Escape: dismiss
  *
- * All colors use Colors tokens from @jango-blockchained/hoox-shared (no hardcoded hex).
+ * All colors use Colors tokens from @hoox-sh/hoox-shared (no hardcoded hex).
  */
 import { useState } from "react";
 import {
@@ -21,7 +21,7 @@ import {
   type PromptContext,
   useDialogKeyboard,
 } from "@opentui-ui/dialog/react";
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 

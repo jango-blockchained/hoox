@@ -1,22 +1,22 @@
 # Changelog
 
-All notable changes to `@jango-blockchained/hoox-cli` are documented here.
+All notable changes to `@hoox-sh/hoox-cli` are documented here.
 This project adheres loosely to [Semantic Versioning](https://semver.org/).
 
 ## [0.10.1] — 2026-07-26
 
 ### Added
 
-- Outside-repo TUI resolution: global `@jango-blockchained/hoox-tui` install, bun/npm global paths, `hoox-tui` on PATH.
-- `hoox doctor --fix-runtime` clones `github.com/jango-blockchained/hoox` (auto-removes broken `~/.hoox/repo` symlinks).
+- Outside-repo TUI resolution: global `@hoox-sh/hoox-tui` install, bun/npm global paths, `hoox-tui` on PATH.
+- `hoox doctor --fix-runtime` clones `github.com/hoox-sh/hoox` (auto-removes broken `~/.hoox/repo` symlinks).
 
 ### Fixed
 
-- Clearer TUI missing-entry guidance (`bun add -g @jango-blockchained/hoox-tui` or fix-runtime).
+- Clearer TUI missing-entry guidance (`bun add -g @hoox-sh/hoox-tui` or fix-runtime).
 
 ## [0.10.0] — 2026-07-26
 
-Operator security plane for remote TUI/CLI. Requires matching `@jango-blockchained/hoox-shared@1.1.0` and a gateway deploy that includes authenticated `/v1/*` routes (`OPERATOR_API_KEY`).
+Operator security plane for remote TUI/CLI. Requires matching `@hoox-sh/hoox-shared@1.1.0` and a gateway deploy that includes authenticated `/v1/*` routes (`OPERATOR_API_KEY`).
 
 ### Added
 
@@ -168,7 +168,7 @@ Full audit at `.opencode/audit/2026-06-26-full-audit.md`. Task tree at `.opencod
 
 ### Fixed
 
-- **Banner version lookup broken in global install**: `ui/banner.ts` used a relative path (`../../package.json`) that works from source but not from the bundled `dist/index.js` in a globally-installed package. When the user ran `hoox` with no args, the banner tried to read `/path/to/install/@jango-blockchained/package.json` (which doesn't exist) and threw `ENOENT`. The fix walks up from `import.meta.url` looking for the hoox-cli `package.json` by name, working in both layouts.
+- **Banner version lookup broken in global install**: `ui/banner.ts` used a relative path (`../../package.json`) that works from source but not from the bundled `dist/index.js` in a globally-installed package. When the user ran `hoox` with no args, the banner tried to read `/path/to/install/@hoox-sh/package.json` (which doesn't exist) and threw `ENOENT`. The fix walks up from `import.meta.url` looking for the hoox-cli `package.json` by name, working in both layouts.
 
 ## [0.9.0] — 2026-06-24
 

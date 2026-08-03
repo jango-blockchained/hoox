@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -95,7 +95,7 @@ To support multiple centralized exchanges with different API schemas while maint
 
 ### A. Generic Exchange Provider Interface
 
-The client abstraction is defined inside the shared monorepo package `@jango-blockchained/hoox-shared/types`:
+The client abstraction is defined inside the shared monorepo package `@hoox-sh/hoox-shared/types`:
 
 ```typescript
 export interface IExchangeProvider<TClient, TEnv> {
@@ -160,10 +160,10 @@ Invoked by the `hoox` gateway or the `TRADE_QUEUE` consumer batch runner.
 
 ## 🛡️ 4. Standardized Exception Handling
 
-All execution rejects and validation failures are intercepted by the `trade-worker` error middleware and formatted using the shared `Errors` factory from `@jango-blockchained/hoox-shared/errors`:
+All execution rejects and validation failures are intercepted by the `trade-worker` error middleware and formatted using the shared `Errors` factory from `@hoox-sh/hoox-shared/errors`:
 
 ```typescript
-import { Errors } from "@jango-blockchained/hoox-shared/errors";
+import { Errors } from "@hoox-sh/hoox-shared/errors";
 
 // 1. Parameter Validation Failure
 if (quantity <= 0) {

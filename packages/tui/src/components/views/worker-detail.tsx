@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -18,7 +18,7 @@
  *   - Esc returns to workers overview via UI store goBack()
  *
  * Follows TUI Patterns 1 (View Composition), 2 (Store Subscription), 8 (ScrollBox).
- * Colors from @jango-blockchained/hoox-shared tokens — no hardcoded hex.
+ * Colors from @hoox-sh/hoox-shared tokens — no hardcoded hex.
  */
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useKeyboard } from "@opentui/react";
@@ -27,7 +27,7 @@ import {
   LogLevelColor,
   useServiceStore,
   useUIStore,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 import { cliBridge } from "../../services/cli-bridge";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { StatusDot, type StatusDotStatus } from "../shared/status-dot";

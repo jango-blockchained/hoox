@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -9,16 +9,16 @@
 
 | Product | GitHub | Website |
 |---------|--------|---------|
-| **HOOX** (this repo) | [jango-blockchained/hoox](https://github.com/jango-blockchained/hoox) | [hoox.sh](https://hoox.sh) · [docs.hoox.sh](https://docs.hoox.sh) |
-| **PYNE** | [jango-blockchained/pyne](https://github.com/jango-blockchained/pyne) | [hoox.sh/pyne](https://hoox.sh/pyne) · [docs](https://hoox.sh/pyne/docs) |
-| **AXIS** | [jango-blockchained/axis](https://github.com/jango-blockchained/axis) | [hoox.sh/axis](https://hoox.sh/axis) · [docs](https://hoox.sh/axis/docs) |
+| **HOOX** (this repo) | [hoox-sh/hoox](https://github.com/hoox-sh/hoox) | [hoox.sh](https://hoox.sh) · [docs.hoox.sh](https://docs.hoox.sh) |
+| **PYNE** | [hoox-sh/pyne](https://github.com/hoox-sh/pyne) | [hoox.sh/pyne](https://hoox.sh/pyne) · [docs](https://hoox.sh/pyne/docs) |
+| **AXIS** | [hoox-sh/axis](https://github.com/hoox-sh/axis) | [hoox.sh/axis](https://hoox.sh/axis) · [docs](https://hoox.sh/axis/docs) |
 
 Local clones often sit next to each other: `/home/jango/Git/{hoox,pynescript,axis}`.
 
 ## First-Time Setup
 
 ```bash
-git clone --recursive https://github.com/jango-blockchained/hoox.git
+git clone --recursive https://github.com/hoox-sh/hoox.git
 bun install
 ```
 
@@ -175,7 +175,7 @@ bun -e "const b=require('./graph-metadata.json').infrastructure['kv:CONFIG_KV'];
 - **Prettier**: semi, `singleQuote: false`, `trailingComma: "es5"`, `printWidth: 80`, `tabWidth: 2`, `arrowParens: "always"`
 - **ESLint**: flat config, TS strict, `no-undef: off` (CF worker types), `@typescript-eslint/ban-ts-comment: error`, `no-console: off`
 - **TypeScript**: strict, `noUnusedLocals`, `noUnusedParameters`, `noImplicitReturns`, `noFallthroughCasesInSwitch`
-- Path alias: `@jango-blockchained/hoox-shared/*` → `packages/shared/src/*`
+- Path alias: `@hoox-sh/hoox-shared/*` → `packages/shared/src/*`
 - `bun-types` + `node` types globally
 
 ## Sister Repos
@@ -184,9 +184,9 @@ Primary stack (websites on **[hoox.sh](https://hoox.sh)**):
 
 | Product | GitHub | Local path | Website |
 |---|---|---|---|
-| **HOOX** (this repo) | [jango-blockchained/hoox](https://github.com/jango-blockchained/hoox) | `/home/jango/Git/hoox` | [hoox.sh](https://hoox.sh) · [docs.hoox.sh](https://docs.hoox.sh) |
-| **PYNE** | [jango-blockchained/pyne](https://github.com/jango-blockchained/pyne) | `/home/jango/Git/pynescript` | [hoox.sh/pyne](https://hoox.sh/pyne) · [docs](https://hoox.sh/pyne/docs) |
-| **AXIS** | [jango-blockchained/axis](https://github.com/jango-blockchained/axis) | `/home/jango/Git/axis` | [hoox.sh/axis](https://hoox.sh/axis) · [docs](https://hoox.sh/axis/docs) |
+| **HOOX** (this repo) | [hoox-sh/hoox](https://github.com/hoox-sh/hoox) | `/home/jango/Git/hoox` | [hoox.sh](https://hoox.sh) · [docs.hoox.sh](https://docs.hoox.sh) |
+| **PYNE** | [hoox-sh/pyne](https://github.com/hoox-sh/pyne) | `/home/jango/Git/pynescript` | [hoox.sh/pyne](https://hoox.sh/pyne) · [docs](https://hoox.sh/pyne/docs) |
+| **AXIS** | [hoox-sh/axis](https://github.com/hoox-sh/axis) | `/home/jango/Git/axis` | [hoox.sh/axis](https://hoox.sh/axis) · [docs](https://hoox.sh/axis/docs) |
 
 Related:
 
@@ -199,8 +199,8 @@ Related:
 **Key dependency links:**
 - AXIS → pyne Pro API (`:5002`) or axis Worker for chart evaluation
 - `pyne-worker` → `pynescript` package (editable install from pyne repo)
-- `pine-worker` → `@jango-blockchained/hoox-shared` (this monorepo)
-- All under `github.com/jango-blockchained/`
+- `pine-worker` → `@hoox-sh/hoox-shared` (this monorepo)
+- All under `github.com/hoox-sh/`
 
 ```
                     https://hoox.sh

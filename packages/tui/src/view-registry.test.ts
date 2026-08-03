@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { describe, it, expect } from "bun:test";
-import type { ViewId } from "@jango-blockchained/hoox-shared";
+import type { ViewId } from "@hoox-sh/hoox-shared";
 import {
   VIEW_REGISTRY,
   getSidebarItems,

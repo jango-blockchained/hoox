@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -16,9 +16,9 @@
  * Uses Bun test runner. Pure store-level integration (no rendering).
  */
 import { describe, it, expect, beforeEach } from "bun:test";
-import { useUIStore } from "@jango-blockchained/hoox-shared/stores/ui-store";
-import { useServiceStore } from "@jango-blockchained/hoox-shared/stores/service-store";
-import type { ViewId } from "@jango-blockchained/hoox-shared";
+import { useUIStore } from "@hoox-sh/hoox-shared/stores/ui-store";
+import { useServiceStore } from "@hoox-sh/hoox-shared/stores/service-store";
+import type { ViewId } from "@hoox-sh/hoox-shared";
 
 // ─── View shortcut mapping (mirrors app.tsx) ──────────────────────────────────
 

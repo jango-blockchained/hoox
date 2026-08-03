@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -282,7 +282,7 @@ export function DashboardHeader() {
               asChild
             >
               <a
-                href="https://github.com/jango-blockchained/hoox-setup"
+                href="https://github.com/hoox-sh/hoox-setup"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -320,7 +320,7 @@ export function DashboardHeader() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <a
-                    href="https://github.com/jango-blockchained/hoox-setup"
+                    href="https://github.com/hoox-sh/hoox-setup"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

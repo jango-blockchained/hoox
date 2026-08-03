@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,7 +10,7 @@
  * from an unrelated project). Bootstrap clones + installs dependencies.
  *
  * Preferred lightweight path for TUI-only installs:
- *   bun add -g @jango-blockchained/hoox-tui
+ *   bun add -g @hoox-sh/hoox-tui
  */
 import { existsSync, lstatSync, readlinkSync, rmSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
@@ -22,11 +22,10 @@ import {
   isHooxSetupRoot,
   resolveHooxRuntimeRoot,
   type RuntimeRootResult,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 
 /** Default public monorepo URL for the managed global runtime. */
-export const DEFAULT_HOOX_RUNTIME_REPO =
-  "https://github.com/jango-blockchained/hoox.git";
+export const DEFAULT_HOOX_RUNTIME_REPO = "https://github.com/hoox-sh/hoox.git";
 
 /** @deprecated Use DEFAULT_HOOX_RUNTIME_REPO */
 export const DEFAULT_HOOX_SETUP_REPO = DEFAULT_HOOX_RUNTIME_REPO;
@@ -41,7 +40,7 @@ export interface RuntimeStatus {
 }
 
 export interface EnsureRuntimeOptions {
-  /** Git remote (default: jango-blockchained/hoox). */
+  /** Git remote (default: hoox-sh/hoox). */
   repoUrl?: string;
   /** Skip `bun install` after clone (tests / offline). */
   skipInstall?: boolean;
@@ -147,7 +146,7 @@ export async function ensureGlobalRuntime(
           `Path exists but is not a Hoox monorepo: ${repoPath}\n` +
             `  Expected wrangler.jsonc + packages/cli/package.json.\n` +
             `  Remove it or set HOOX_REPO to a valid checkout, then retry.\n` +
-            `  Lightweight alternative: bun add -g @jango-blockchained/hoox-tui`
+            `  Lightweight alternative: bun add -g @hoox-sh/hoox-tui`
         );
       }
     }

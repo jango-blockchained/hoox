@@ -1,12 +1,12 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /**
  * Types for the `hoox init` interactive setup wizard.
  *
- * Re-exports shared integration configs from @jango-blockchained/hoox-shared.
+ * Re-exports shared integration configs from @hoox-sh/hoox-shared.
  */
 
 /** CLI flags for non-interactive mode. */

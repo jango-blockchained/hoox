@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,8 +9,8 @@ import {
   Colors,
   AlertSeverityColor,
   useServiceStore,
-} from "@jango-blockchained/hoox-shared";
-import type { AlertSeverity } from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
+import type { AlertSeverity } from "@hoox-sh/hoox-shared";
 
 /** Severity label prefix */
 const SEVERITY_LABEL: Record<AlertSeverity, string> = {

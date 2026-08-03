@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -26,16 +26,16 @@
  */
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useKeyboard } from "@opentui/react";
-import { Colors } from "@jango-blockchained/hoox-shared";
-import { useServiceStore } from "@jango-blockchained/hoox-shared";
-import { useUIStore } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
+import { useServiceStore } from "@hoox-sh/hoox-shared";
+import { useUIStore } from "@hoox-sh/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { StatusDot } from "../shared/status-dot";
 import { Spinner, EmptyState } from "../shared/spinner";
 import { Panel } from "../shared/panel";
 import { ViewHeader } from "../shared/view-header";
 import { cliBridge } from "../../services/cli-bridge";
-import type { WorkerInfo } from "@jango-blockchained/hoox-shared";
+import type { WorkerInfo } from "@hoox-sh/hoox-shared";
 import { showConfirm } from "../ui/dialog";
 import type { DialogHandle } from "../ui/dialog";
 

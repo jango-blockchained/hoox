@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -65,7 +65,7 @@ export const QUEUE_MODE_DISABLED = "queue_disabled";
 
 // --- KVKeys Namespace ---
 // Provides a grouped namespace for all KV key constants.
-// Import as: import { KVKeys } from '@jango-blockchained/hoox-shared/kvKeys';
+// Import as: import { KVKeys } from '@hoox-sh/hoox-shared/kvKeys';
 export const KVKeys = {
   KV_TRADE_DEFAULT_LEVERAGE,
   KV_TRADE_MAX_POSITION_SIZE,

@@ -1,12 +1,12 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { secureHeaders } from "@jango-blockchained/hoox-shared/middleware";
-import { timingSafeEqual } from "@jango-blockchained/hoox-shared/middleware/auth";
+import { secureHeaders } from "@hoox-sh/hoox-shared/middleware";
+import { timingSafeEqual } from "@hoox-sh/hoox-shared/middleware/auth";
 import { assertProductionAuthConfigured } from "./lib/config";
 
 let productionAuthChecked = false;

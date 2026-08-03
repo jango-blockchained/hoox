@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -112,12 +112,12 @@ This document defines the clear boundary between the **Open Core** (public, open
 
 ### Licensing & Distribution
 
-| Aspect                                      | Open Core                     | Enterprise (Commercial)           | Notes                        |
-| ------------------------------------------- | ----------------------------- | --------------------------------- | ---------------------------- |
-| Source code                                 | Open (Apache 2.0 recommended) | Closed source                     | See licensing section        |
-| Documentation                               | CC-BY-4.0                     | CC-BY-4.0 + commercial extensions | Architecture docs are public |
-| Academic paper                              | Fully open                    | References Enterprise layer       |                              |
-| npm packages (`@jango-blockchained/hoox-*`) | Open                          | Not published (private)           |                              |
+| Aspect                           | Open Core                     | Enterprise (Commercial)           | Notes                        |
+| -------------------------------- | ----------------------------- | --------------------------------- | ---------------------------- |
+| Source code                      | Open (Apache 2.0 recommended) | Closed source                     | See licensing section        |
+| Documentation                    | CC-BY-4.0                     | CC-BY-4.0 + commercial extensions | Architecture docs are public |
+| Academic paper                   | Fully open                    | References Enterprise layer       |                              |
+| npm packages (`@hoox-sh/hoox-*`) | Open                          | Not published (private)           |                              |
 
 ---
 

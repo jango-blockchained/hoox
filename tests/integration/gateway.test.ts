@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,12 +15,12 @@ import { describe, test, expect } from "bun:test";
 import {
   validateJson,
   validateJsonLegacy,
-} from "@jango-blockchained/hoox-shared/middleware";
+} from "@hoox-sh/hoox-shared/middleware";
 import {
   WebhookPayloadSchema,
   TradeActionSchema,
-} from "@jango-blockchained/hoox-shared/types";
-import { createLogger } from "@jango-blockchained/hoox-shared/middleware";
+} from "@hoox-sh/hoox-shared/types";
+import { createLogger } from "@hoox-sh/hoox-shared/middleware";
 
 // Tests that validate the integration of Zod schemas with the validateJson middleware
 describe("Zod + validateJson Integration", () => {

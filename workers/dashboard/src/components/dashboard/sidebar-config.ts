@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -104,7 +104,7 @@ export const footerNavItems: NavFooterItem[] = [
   { title: "Setup", href: "/dashboard/setup", icon: "setup" },
   {
     title: "Get Help",
-    href: "https://github.com/jango-blockchained/hoox-setup/issues",
+    href: "https://github.com/hoox-sh/hoox-setup/issues",
     icon: "help",
     external: true,
   },

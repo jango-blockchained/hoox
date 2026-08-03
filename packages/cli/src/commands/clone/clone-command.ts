@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -22,7 +22,7 @@
 import { Command } from "commander";
 import { spinner } from "@clack/prompts";
 import { ConfigService } from "../../services/config/index.js";
-import { getHooxHome } from "@jango-blockchained/hoox-shared";
+import { getHooxHome } from "@hoox-sh/hoox-shared";
 import { icons } from "../../utils/theme.js";
 import {
   formatSuccess,
@@ -74,7 +74,7 @@ async function resolveRepoBase(): Promise<string> {
   } catch {
     // Fall through to default
   }
-  return "https://github.com/jango-blockchained";
+  return "https://github.com/hoox-sh";
 }
 
 /** Build a repo URL from the org base and worker name. */

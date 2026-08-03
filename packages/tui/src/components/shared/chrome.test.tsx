@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,7 +10,7 @@ import { describe, it, expect } from "bun:test";
 import { ViewHeader } from "./view-header";
 import { Panel } from "./panel";
 import { CoolBrackets, CoolGlyph, useCoolHue } from "./cool-brackets";
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 
 describe("chrome", () => {
   it("exports ViewHeader and Panel", () => {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,9 +15,9 @@
  */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useKeyboard } from "@opentui/react";
-import { Colors, useServiceStore } from "@jango-blockchained/hoox-shared";
-import { useConfigStore } from "@jango-blockchained/hoox-shared";
-import { useUIStore } from "@jango-blockchained/hoox-shared";
+import { Colors, useServiceStore } from "@hoox-sh/hoox-shared";
+import { useConfigStore } from "@hoox-sh/hoox-shared";
+import { useUIStore } from "@hoox-sh/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { ViewHeader } from "../shared/view-header";
 import { showConfirm } from "../ui/dialog";

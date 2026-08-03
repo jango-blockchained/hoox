@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -7,7 +7,7 @@
  * Rate limiting middleware for Cloudflare Workers
  * Adapted from workers/agent-worker/src/middleware/rate-limit.ts
  *
- * @available — Available for consumer use. Import from "@jango-blockchained/hoox-shared/middleware".
+ * @available — Available for consumer use. Import from "@hoox-sh/hoox-shared/middleware".
  */
 
 import type { Env } from "../types";

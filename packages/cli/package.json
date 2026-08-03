@@ -1,7 +1,7 @@
 {
-  "name": "@jango-blockchained/hoox-cli",
+  "name": "@hoox-sh/hoox-cli",
   "version": "0.10.1",
-  "description": "Hoox CLI — manage Cloudflare Workers, infrastructure, secrets, and deployments (@jango-blockchained/hoox-cli)",
+  "description": "Hoox CLI — manage Cloudflare Workers, infrastructure, secrets, and deployments (@hoox-sh/hoox-cli)",
   "type": "module",
   "bin": {
     "hoox": "bin/hoox.js",
@@ -23,10 +23,10 @@
     "wrangler": "^4.107.0"
   },
   "optionalDependencies": {
-    "@jango-blockchained/hoox-tui": "workspace:*"
+    "@hoox-sh/hoox-tui": "workspace:*"
   },
   "devDependencies": {
-    "@jango-blockchained/hoox-shared": "workspace:*",
+    "@hoox-sh/hoox-shared": "workspace:*",
     "@types/node": "^26.1.1",
     "bun-types": "^1.3.14",
     "typescript": "^6.0.3"
@@ -36,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jango-blockchained/hoox.git",
+    "url": "git+https://github.com/hoox-sh/hoox.git",
     "directory": "packages/cli"
   },
   "keywords": [
@@ -48,7 +48,7 @@
     "automation",
     "hoox"
   ],
-  "author": "jango-blockchained",
+  "author": "jango-blockchained (hoox-sh)",
   "license": "Apache-2.0",
   "engines": {
     "bun": ">=1.2"

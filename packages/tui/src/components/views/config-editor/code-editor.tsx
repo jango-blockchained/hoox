@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,7 +9,7 @@
  * and basic TOML/JSON syntax highlighting via design tokens.
  */
 import { useMemo } from "react";
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 import { parse as parseToml, TomlError } from "smol-toml";
 import type { SyntaxErrorEntry, TokenSpan, FileType } from "./types";
 

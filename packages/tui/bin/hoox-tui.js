@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 /**
@@ -28,7 +28,7 @@ if (existsSync(distEntry)) {
     `hoox-tui: could not find an entry point. Looked for:\n` +
       `  - ${distEntry}\n` +
       `  - ${srcEntry}\n\n` +
-      `Install the package: bun add -g @jango-blockchained/hoox-tui\n` +
+      `Install the package: bun add -g @hoox-sh/hoox-tui\n` +
       `Or from the monorepo: cd packages/tui && bun run build`
   );
   process.exit(1);

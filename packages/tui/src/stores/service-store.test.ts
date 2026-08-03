@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -16,7 +16,7 @@
  * Network doubles are process-wide from test-setup.ts (no per-file mock.module).
  */
 import { describe, it, expect, beforeEach, afterAll } from "bun:test";
-import { useServiceStore } from "@jango-blockchained/hoox-shared/stores/service-store";
+import { useServiceStore } from "@hoox-sh/hoox-shared/stores/service-store";
 import type {
   WorkerInfo,
   Trade,
@@ -26,7 +26,7 @@ import type {
   ConnectionStatus,
   CliErrorDetails,
   CliErrorType,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 import {
   hooxFetchMock,
   subscribeSSEMock,

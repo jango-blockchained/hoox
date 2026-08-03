@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,7 +11,7 @@
  *   - Cool indigo / cyan accent (Grok Build–adjacent; less orange)
  *   - Squared edges (no rounding — editorial HUD aesthetic)
  *
- * Usage: import { Colors, ConnectionStatusColor } from "@jango-blockchained/hoox-shared"
+ * Usage: import { Colors, ConnectionStatusColor } from "@hoox-sh/hoox-shared"
  *        <text fg={Colors.accent}>Important</text>
  */
 

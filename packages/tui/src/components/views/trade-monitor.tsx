@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -19,12 +19,12 @@
  * Space toggles pause/resume of the live feed. Feed capped at 500 via store ring buffer.
  *
  * Follows Pattern 1 (View Composition), Pattern 2 (Store Subscription).
- * Colors from @jango-blockchained/hoox-shared design tokens. No CSS, no DOM.
+ * Colors from @hoox-sh/hoox-shared design tokens. No CSS, no DOM.
  */
 import { useState, useMemo, useRef } from "react";
 import { useKeyboard } from "@opentui/react";
-import { Colors, useServiceStore } from "@jango-blockchained/hoox-shared";
-import type { Trade, TradeSide } from "@jango-blockchained/hoox-shared";
+import { Colors, useServiceStore } from "@hoox-sh/hoox-shared";
+import type { Trade, TradeSide } from "@hoox-sh/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { Spinner, EmptyState } from "../shared/spinner";
 import { ViewHeader } from "../shared/view-header";

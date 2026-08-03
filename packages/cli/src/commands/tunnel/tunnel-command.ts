@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,7 +13,7 @@ import { Command } from "commander";
 import {
   resolveOperatorTransportProfile,
   type OperatorTransportEnv,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 import { theme, icons } from "../../utils/theme.js";
 import { formatJson, getFormatOptions } from "../../utils/formatters.js";
 import { ExitCode } from "../../utils/errors.js";

@@ -1,5 +1,5 @@
 {
-  "name": "@jango-blockchained/hoox-tui",
+  "name": "@hoox-sh/hoox-tui",
   "version": "0.1.8",
   "description": "Hoox algorithmic trading terminal operations center — OpenTUI dashboard",
   "type": "module",
@@ -32,7 +32,7 @@
     "prepublishOnly": "bun run typecheck && bun run build"
   },
   "dependencies": {
-    "@jango-blockchained/hoox-shared": "workspace:*",
+    "@hoox-sh/hoox-shared": "workspace:*",
     "@opentui-ui/dialog": "^0.1.2",
     "@opentui-ui/toast": "^0.0.5",
     "@opentui/core": "^0.4.1",
@@ -57,7 +57,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jango-blockchained/hoox.git",
+    "url": "git+https://github.com/hoox-sh/hoox.git",
     "directory": "packages/tui"
   },
   "keywords": [
@@ -68,5 +68,5 @@
     "trading",
     "cloudflare"
   ],
-  "author": "jango-blockchained"
+  "author": "jango-blockchained (hoox-sh)"
 }

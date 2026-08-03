@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,7 +15,7 @@ import {
   secureHeaders,
   wrapWithSecurityHeaders,
   SECURITY_HEADERS_DEFAULTS,
-} from "@jango-blockchained/hoox-shared/middleware";
+} from "@hoox-sh/hoox-shared/middleware";
 
 // ── secureHeaders() unit tests ──────────────────────────────────────────
 

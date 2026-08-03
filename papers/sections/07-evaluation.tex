@@ -144,8 +144,8 @@ The savings are dominated by shrinking the network distance of the outbound call
 \subsubsection{Collecting Extended Hop and Trace Data}
 
 \begin{itemize}
-  \item \texttt{hoox perf fastpath run --n 200 --concurrency 8} followed by \texttt{hoox perf fastpath report --from 1h} (requires \texttt{@jango-blockchained/hoox-cli v0.9.3+}) surfaces the detailed hop table.
-  \item \texttt{hoox trace} (requires \texttt{@jango-blockchained/hoox-cli v0.9.3+}) pulls raw events, metrics, and sampled traces by probe\_id for full per-request flame-graph style reconstruction.
+  \item \texttt{hoox perf fastpath run --n 200 --concurrency 8} followed by \texttt{hoox perf fastpath report --from 1h} (requires \texttt{@hoox-sh/hoox-cli v0.9.3+}) surfaces the detailed hop table.
+  \item \texttt{hoox trace} (requires \texttt{@hoox-sh/hoox-cli v0.9.3+}) pulls raw events, metrics, and sampled traces by probe\_id for full per-request flame-graph style reconstruction.
   \item Production events are written via \texttt{trackAnalytics} (non-blocking) into Analytics Engine; the dashboard (and raw SQL) can further slice by indexes (including probe\_id) and time.
 \end{itemize}
 

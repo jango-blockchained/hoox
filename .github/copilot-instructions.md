@@ -61,7 +61,7 @@ Purpose: concise, actionable guidance for future Copilot CLI sessions working in
 - Single-test runs: use `bun test <path>` for an individual file. Use `--watch` for iterative debugging.
 - TypeScript: strict settings; use `bun run typecheck` and `tsc -p tsconfig.prod.json --noEmit` for production checks.
 - Linting/formatting: ESLint + Prettier; pre-commit hooks via Husky and lint-staged are configured (prepare/husky). Use `bun run lint` and `bun run lint:fix`.
-- Path alias: `@jango-blockchained/hoox-shared/*` → packages/shared/src/\* — Copilot should prefer that import style when suggesting fixes.
+- Path alias: `@hoox-sh/hoox-shared/*` → packages/shared/src/\* — Copilot should prefer that import style when suggesting fixes.
 - No hardcoded secrets: never commit `.env.local`, `.dev.vars`, or credentials. Use `hoox secrets update-cf` or `wrangler secret` for production/dev secrets.
 - Tests preload: `packages/test-utils/src/setup.ts` is preloaded for many tests (see bunfig.toml preload).
 - Dashboard specifics: Next.js 16 + OpenNext — build via `bunx opennextjs-cloudflare build` and deploy with `bunx wrangler deploy` (worker runtime).

@@ -89,10 +89,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jango-blockchained/hoox.git"
+    "url": "https://github.com/hoox-sh/hoox.git"
   },
   "keywords": [],
-  "author": "jango-blockchained",
+  "author": "jango-blockchained (hoox-sh)",
   "license": "Apache-2.0",
   "licenses": [
     {
@@ -105,7 +105,7 @@
     }
   ],
   "bugs": {
-    "url": "https://github.com/jango-blockchained/hoox/issues"
+    "url": "https://github.com/hoox-sh/hoox/issues"
   },
   "overrides": {
     "@radix-ui/react-slot": "^1.2.4",

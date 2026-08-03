@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -7,7 +7,7 @@ import {
   loadDashboardKvManifestFromRoot,
   resolveHooxRuntimeRoot,
   type DashboardKvManifestKey,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 import { extractJsonArray } from "../cloudflare/cloudflare-service.js";
 
 export type KvManifestKey = DashboardKvManifestKey;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -16,19 +16,15 @@
  *   6. Save session state on clean shutdown
  *
  * Follows TUI Pattern 1 (FrameBuffer full-screen root) and Pattern 4 (Keyboard).
- * Colors from design tokens via @jango-blockchained/hoox-shared. No CSS, no DOM.
+ * Colors from design tokens via @hoox-sh/hoox-shared. No CSS, no DOM.
  */
 import { useState, useEffect, useCallback } from "react";
 import { useKeyboard } from "@opentui/react";
 import { DialogProvider, useDialog } from "@opentui-ui/dialog/react";
-import {
-  useServiceStore,
-  useUIStore,
-  Colors,
-} from "@jango-blockchained/hoox-shared";
-import { restoreSession, saveSession } from "@jango-blockchained/hoox-shared";
-import type { SessionState } from "@jango-blockchained/hoox-shared";
-import type { ViewId } from "@jango-blockchained/hoox-shared";
+import { useServiceStore, useUIStore, Colors } from "@hoox-sh/hoox-shared";
+import { restoreSession, saveSession } from "@hoox-sh/hoox-shared";
+import type { SessionState } from "@hoox-sh/hoox-shared";
+import type { ViewId } from "@hoox-sh/hoox-shared";
 
 import { cliBridge } from "./services/cli-bridge";
 import { resolveTuiStatePath } from "./services/hoox-path-service";

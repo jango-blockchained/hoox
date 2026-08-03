@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { toError } from "@jango-blockchained/hoox-shared/errors";
-import type { HousekeepingPayload } from "@jango-blockchained/hoox-shared/types";
+import { toError } from "@hoox-sh/hoox-shared/errors";
+import type { HousekeepingPayload } from "@hoox-sh/hoox-shared/types";
 import { z } from "zod";
 import { getInternalAuthKeys } from "./config";
 

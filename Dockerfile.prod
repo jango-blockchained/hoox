@@ -39,7 +39,7 @@ COPY --chown=bun:bun workers/ workers/
 # Remaining monorepo sources (packages/shared is inlined into worker bundles).
 # NOTE: bun install MUST run AFTER all source COPYs — a later COPY of a
 # worker dir would replace the directory and destroy the
-# node_modules/@jango-blockchained/hoox-shared workspace symlink that
+# node_modules/@hoox-sh/hoox-shared workspace symlink that
 # `bun install` creates, breaking `bun build` resolution below.
 # Worker sources already arrived via `COPY workers/` above; do NOT re-copy
 # workers/hoox-worker → workers/hoox (that duplicated package name "hoox"
@@ -55,7 +55,7 @@ RUN --mount=type=cache,id=bun-cache-prod,target=/home/bun/.bun/install/cache,uid
     PUPPETEER_SKIP_DOWNLOAD=true bun install --frozen-lockfile --ignore-scripts
 
 # Build packages/shared — its dist/ is gitignored and NOT in the build
-# context, but workers bundle `@jango-blockchained/hoox-shared` from it.
+# context, but workers bundle `@hoox-sh/hoox-shared` from it.
 # Without this, `bun build` cannot resolve the shared workspace package.
 RUN --mount=type=cache,id=bun-cache-prod,target=/home/bun/.bun/install/cache,uid=1000,gid=1000 \
     cd packages/shared && bun run build
@@ -95,7 +95,7 @@ ARG REVISION=unknown
 
 LABEL org.opencontainers.image.title="hoox-setup" \
       org.opencontainers.image.description="Hoox self-hosted production image (multi-worker Bun.serve router)" \
-      org.opencontainers.image.source="https://github.com/jango-blockchained/hoox-setup" \
+      org.opencontainers.image.source="https://github.com/hoox-sh/hoox-setup" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.revision="${REVISION}"

@@ -1,29 +1,29 @@
 [submodule "workers/telegram-worker"]
 	path = workers/telegram-worker
-	url = https://github.com/jango-blockchained/telegram-worker.git
+	url = https://github.com/hoox-sh/telegram-worker.git
 [submodule "workers/trade-worker"]
 	path = workers/trade-worker
-	url = https://github.com/jango-blockchained/trade-worker.git
+	url = https://github.com/hoox-sh/trade-worker.git
 [submodule "workers/hoox-worker"]
 	path = workers/hoox-worker
-	url = https://github.com/jango-blockchained/hoox-worker.git
+	url = https://github.com/hoox-sh/hoox-worker.git
 	branch = main
 [submodule "workers/d1-worker"]
 	path = workers/d1-worker
-	url = https://github.com/jango-blockchained/d1-worker.git
+	url = https://github.com/hoox-sh/d1-worker.git
 [submodule "workers/agent-worker"]
 	path = workers/agent-worker
-	url = https://github.com/jango-blockchained/agent-worker.git
+	url = https://github.com/hoox-sh/agent-worker.git
 	branch = main
 [submodule "workers/web3-wallet-worker"]
 	path = workers/web3-wallet-worker
-	url = https://github.com/jango-blockchained/web3-wallet-worker.git
+	url = https://github.com/hoox-sh/web3-wallet-worker.git
 [submodule "workers/email-worker"]
 	path = workers/email-worker
-	url = https://github.com/jango-blockchained/email-worker.git
+	url = https://github.com/hoox-sh/email-worker.git
 [submodule "workers/analytics-worker"]
 	path = workers/analytics-worker
-	url = https://github.com/jango-blockchained/analytics-worker.git
+	url = https://github.com/hoox-sh/analytics-worker.git
 [submodule "workers/report-worker"]
 	path = workers/report-worker
-	url = https://github.com/jango-blockchained/report-worker.git
+	url = https://github.com/hoox-sh/report-worker.git

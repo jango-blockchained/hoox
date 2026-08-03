@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,7 +11,7 @@
  * Message builders are pure and exported for unit tests.
  */
 import { toastSuccess, toastWarning, toastInfo, toastError } from "./toast";
-import { formatDuration } from "@jango-blockchained/hoox-shared";
+import { formatDuration } from "@hoox-sh/hoox-shared";
 import type { TuiMode } from "../../services/tui-connection";
 import { remoteAuthMissingHint } from "../../services/tui-connection";
 

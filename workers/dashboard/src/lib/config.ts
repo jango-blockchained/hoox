@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,7 +8,7 @@ import {
   DASHBOARD_TELEGRAM_ALERT_AUTH_KEY_FIELDS,
   DASHBOARD_TRADE_EXECUTE_AUTH_KEY_FIELDS,
   resolveInternalAuthKey,
-} from "@jango-blockchained/hoox-shared/service-bindings";
+} from "@hoox-sh/hoox-shared/service-bindings";
 
 export type AuthType = "basic" | "cf-access" | "none";
 

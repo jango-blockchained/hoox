@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,7 +15,7 @@
  * for components where possible with OpenTUI React mock.
  */
 import { describe, it, expect, beforeEach } from "bun:test";
-import { Colors, WorkerStatusColor } from "@jango-blockchained/hoox-shared";
+import { Colors, WorkerStatusColor } from "@hoox-sh/hoox-shared";
 
 // ─── Import shared component logic for direct testing ────────────────────────
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -19,12 +19,8 @@ import {
   LogLevelColor,
   useServiceStore,
   useUIStore,
-} from "@jango-blockchained/hoox-shared";
-import type {
-  LogEntry,
-  LogLevel,
-  Alert,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
+import type { LogEntry, LogLevel, Alert } from "@hoox-sh/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { cliBridge } from "../../services/cli-bridge";
 import { ViewHeader } from "../shared/view-header";

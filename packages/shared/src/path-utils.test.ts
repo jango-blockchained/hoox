@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -36,7 +36,7 @@ function makeFakeSetupRoot(): string {
   mkdirSync(join(root, "packages", "cli"), { recursive: true });
   writeFileSync(
     join(root, "packages", "cli", "package.json"),
-    JSON.stringify({ name: "@jango-blockchained/hoox-cli" })
+    JSON.stringify({ name: "@hoox-sh/hoox-cli" })
   );
   mkdirSync(join(root, "packages", "tui", "src"), { recursive: true });
   writeFileSync(join(root, "packages", "tui", "src", "main.tsx"), "// tui\n");

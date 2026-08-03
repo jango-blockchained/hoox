@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /**
- * Build script for @jango-blockchained/hoox-shared.
+ * Build script for @hoox-sh/hoox-shared.
  *
  * Produces:
  *   dist/    — Compiled .js files via `bun build` with code splitting
@@ -98,7 +98,7 @@ const { exitCode: buildExit } = await $`
     --target bun \
     --format esm \
     --root ./src \
-    --external @jango-blockchained/hoox-shared \
+    --external @hoox-sh/hoox-shared \
     --external zod \
     --external zustand \
     --external immer \

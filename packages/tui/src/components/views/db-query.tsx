@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -38,7 +38,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { useKeyboard } from "@opentui/react";
-import { Colors, useUIStore } from "@jango-blockchained/hoox-shared";
+import { Colors, useUIStore } from "@hoox-sh/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { Spinner, EmptyState } from "../shared/spinner";
 import { ViewHeader } from "../shared/view-header";

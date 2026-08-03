@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -30,7 +30,7 @@ import {
   useUIStore,
   type DashboardSettingField,
   type WorkerDashboardManifest,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { ViewHeader } from "../shared/view-header";
 import { Panel } from "../shared/panel";

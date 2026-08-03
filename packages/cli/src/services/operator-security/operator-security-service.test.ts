@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -12,7 +12,7 @@ import {
   formatProbeSecurityLines,
   securityChecksFailed,
 } from "./operator-security-service.js";
-import type { OperatorTransportProfile } from "@jango-blockchained/hoox-shared";
+import type { OperatorTransportProfile } from "@hoox-sh/hoox-shared";
 
 const baseProfile = (
   over: Partial<OperatorTransportProfile> = {}

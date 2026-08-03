@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,10 +15,7 @@ import {
 } from "../../utils/formatters.js";
 import { CLIError, ExitCode } from "../../utils/errors.js";
 import { withErrorHandling } from "../../utils/error-handler.js";
-import {
-  generateWranglerJsonc,
-  generateDevVars,
-} from "@jango-blockchained/hoox-shared";
+import { generateWranglerJsonc, generateDevVars } from "@hoox-sh/hoox-shared";
 
 export function registerSchemaCommand(program: Command): void {
   const schemaCmd = program

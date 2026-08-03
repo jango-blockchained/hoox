@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -11,7 +11,7 @@
 
 **Architecture:** Extend `packages/shared/src/colors.ts` with semantic maps + `backdrop`; TUI consumes only tokens/maps. Introduce `packages/tui/src/view-registry.ts` as the sole source for view factories, sidebar items, shortcuts, and palette view commands. Add small chrome components and wire them into high-traffic views. Keep data/SSE paths untouched.
 
-**Tech Stack:** Bun, TypeScript, OpenTUI (`@opentui/react`), React 19, Zustand stores in `@jango-blockchained/hoox-shared`.
+**Tech Stack:** Bun, TypeScript, OpenTUI (`@opentui/react`), React 19, Zustand stores in `@hoox-sh/hoox-shared`.
 
 **Spec:** `docs/devops/specs/2026-07-20-tui-quality-pass-design.md`
 
@@ -62,7 +62,7 @@ Replace/extend the file so it contains tokens + maps:
  *   - Orange accent: oklch(0.7 0.2 45) → #E8780A
  *   - Squared edges (no rounding — editorial aesthetic)
  *
- * Usage: import { Colors, ConnectionStatusColor } from "@jango-blockchained/hoox-shared"
+ * Usage: import { Colors, ConnectionStatusColor } from "@hoox-sh/hoox-shared"
  *        <text fg={Colors.accent}>Important</text>
  */
 
@@ -211,7 +211,7 @@ import {
   WorkerStatusColor,
   LogLevelColor,
   AlertSeverityColor,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 
 // keep hexToRgb / contrast helpers...
 
@@ -262,7 +262,7 @@ Update token completeness:
 cd /home/jango/Git/hoox-setup/packages/tui && bun test --preload ./src/test-setup.ts src/utils/colors.test.ts
 ```
 
-Expected: all pass. If import path fails, confirm workspace links `@jango-blockchained/hoox-shared` (package name in monorepo).
+Expected: all pass. If import path fails, confirm workspace links `@hoox-sh/hoox-shared` (package name in monorepo).
 
 - [x] **Step 3: Commit**
 
@@ -287,7 +287,7 @@ git commit -m "test(tui): bind color tests to shared tokens and status maps"
 - [x] **Step 1: main.tsx**
 
 ```ts
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 // ...
 const RENDERER_CONFIG = {
   // ...
@@ -299,7 +299,7 @@ const RENDERER_CONFIG = {
 - [x] **Step 2: app.tsx DialogProvider backdrop**
 
 ```ts
-import { Colors, ... } from "@jango-blockchained/hoox-shared";
+import { Colors, ... } from "@hoox-sh/hoox-shared";
 // ...
 <DialogProvider
   size="medium"
@@ -324,7 +324,7 @@ statusColor[connectionStatus as keyof typeof ConnectionStatusColor] ??
 - [x] **Step 4: status-dot.tsx**
 
 ```ts
-import { Colors, WorkerStatusColor } from "@jango-blockchained/hoox-shared";
+import { Colors, WorkerStatusColor } from "@hoox-sh/hoox-shared";
 
 const DOT_COLOR = WorkerStatusColor;
 // DOT_CHAR stays local
@@ -335,7 +335,7 @@ Ensure `StatusDotStatus` remains assignable to `WorkerStatusKey`.
 - [x] **Step 5: logs-viewer.tsx**
 
 ```ts
-import { Colors, LogLevelColor, ... } from "@jango-blockchained/hoox-shared";
+import { Colors, LogLevelColor, ... } from "@hoox-sh/hoox-shared";
 
 // remove local LEVEL_FG; use LogLevelColor everywhere LEVEL_FG was used
 ```
@@ -388,7 +388,7 @@ Create `packages/tui/src/view-registry.test.ts`:
 
 ```ts
 import { describe, it, expect } from "bun:test";
-import type { ViewId } from "@jango-blockchained/hoox-shared";
+import type { ViewId } from "@hoox-sh/hoox-shared";
 import {
   VIEW_REGISTRY,
   getSidebarItems,
@@ -490,7 +490,7 @@ Move view imports and factories from `app.tsx`. Shape:
 
 ```ts
 /** @jsxImportSource @opentui/react */
-import type { ViewId } from "@jango-blockchained/hoox-shared";
+import type { ViewId } from "@hoox-sh/hoox-shared";
 import type { DialogHandle } from "./components/ui/dialog";
 import type { CommandEntry } from "./components/shared/command-palette";
 
@@ -734,7 +734,7 @@ git commit -m "refactor(tui): single view registry for nav, shortcuts, and facto
 
 ```tsx
 /** @jsxImportSource @opentui/react */
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 import type { ReactNode } from "react";
 
 export interface ViewHeaderProps {
@@ -775,7 +775,7 @@ export function ViewHeader({
 
 ```tsx
 /** @jsxImportSource @opentui/react */
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 import type { ReactNode } from "react";
 
 export interface PanelProps {
@@ -891,7 +891,7 @@ git commit -m "feat(tui): add ViewHeader/Panel chrome and adopt in core views"
 
 ```tsx
 /** @jsxImportSource @opentui/react */
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 
 export interface QuitModalProps {
   title: string;
@@ -973,7 +973,7 @@ After directory map section, add:
 ### Navigation registry & colors
 
 - View factories, sidebar labels, keyboard shortcuts, and palette **view** commands are defined in `packages/tui/src/view-registry.ts`.
-- Semantic status colors (`ConnectionStatusColor`, `WorkerStatusColor`, `LogLevelColor`, `AlertSeverityColor`) live in `@jango-blockchained/hoox-shared` (`packages/shared/src/colors.ts`). Do not invent local status→hex maps in views.
+- Semantic status colors (`ConnectionStatusColor`, `WorkerStatusColor`, `LogLevelColor`, `AlertSeverityColor`) live in `@hoox-sh/hoox-shared` (`packages/shared/src/colors.ts`). Do not invent local status→hex maps in views.
 ```
 
 - [x] **Step 4: Final hex sweep (production)**

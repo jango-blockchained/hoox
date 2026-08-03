@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,7 +11,7 @@ import type {
   Provisioner,
   ProvisioningPlan,
   ProvisionResult,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 
 export class CLIProvisioner implements Provisioner {
   async provision(plan: ProvisioningPlan): Promise<ProvisionResult> {

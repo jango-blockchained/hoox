@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -14,10 +14,7 @@ import {
   assertRemoteAuthReady,
   hasAccessServiceToken,
 } from "./tui-command.js";
-import {
-  findHooxSetupRoot,
-  getTuiEntryCandidates,
-} from "@jango-blockchained/hoox-shared";
+import { findHooxSetupRoot, getTuiEntryCandidates } from "@hoox-sh/hoox-shared";
 import { CLIError } from "../../utils/errors.js";
 
 describe("resolveTUIEntry", () => {

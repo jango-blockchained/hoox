@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -19,8 +19,8 @@ import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { createRoot } from "@opentui/react";
 import { createCliRenderer } from "@opentui/core";
 import { KvViewer } from "./kv-viewer";
-import { Colors, type ViewId } from "@jango-blockchained/hoox-shared";
-import { useUIStore } from "@jango-blockchained/hoox-shared/stores/ui-store";
+import { Colors, type ViewId } from "@hoox-sh/hoox-shared";
+import { useUIStore } from "@hoox-sh/hoox-shared/stores/ui-store";
 import {
   cliBridgeDouble,
   resetCliBridgeDouble,

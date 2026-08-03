@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 /**
@@ -24,9 +24,9 @@ if (typeof Bun === "undefined") {
 
 import { readFileSync } from "node:fs";
 import { Command } from "commander";
-import { toError } from "@jango-blockchained/hoox-shared";
-import { COPYRIGHT } from "@jango-blockchained/hoox-shared/legal";
-import { WIZARD_STATE_PATH } from "@jango-blockchained/hoox-shared";
+import { toError } from "@hoox-sh/hoox-shared";
+import { COPYRIGHT } from "@hoox-sh/hoox-shared/legal";
+import { WIZARD_STATE_PATH } from "@hoox-sh/hoox-shared";
 import { CLIError, ExitCode } from "./utils/errors.js";
 import { formatError, formatCompletion } from "./utils/formatters.js";
 import { suggestForCommand } from "./utils/error-handler.js";

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,7 +13,7 @@
  *   3. KeyboardPanel — read-only shortcut reference table
  *   4. DataPanel     — cache/export/import actions + About info
  *
- * Reads/writes the Zustand config store (@jango-blockchained/hoox-shared/stores/config-store).
+ * Reads/writes the Zustand config store (@hoox-sh/hoox-shared/stores/config-store).
  * Keyboard: Tab cycles panels, ↑↓ navigates items within panel,
  *           Space toggles, ←→ cycles selects, Enter activates buttons.
  *
@@ -27,7 +27,7 @@ import {
   useUIStore,
   useConfigStore,
   readConfigSync,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { ViewHeader } from "../shared/view-header";
 import { Panel } from "../shared/panel";
@@ -37,10 +37,7 @@ import { cliBridge } from "../../services/cli-bridge";
 import { getSettingsConnectionSnapshot } from "../../services/tui-connection";
 import * as path from "path";
 import * as os from "os";
-import type {
-  ViewId,
-  NotificationPreferences,
-} from "@jango-blockchained/hoox-shared";
+import type { ViewId, NotificationPreferences } from "@hoox-sh/hoox-shared";
 
 export interface SettingsViewProps {
   /** Dialog handle for destructive action confirmation. */

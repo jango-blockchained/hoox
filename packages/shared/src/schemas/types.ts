@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -18,7 +18,7 @@ export interface WorkerManifest {
   services: ServiceBindingDef[];
   /** Infrastructure bindings this worker needs */
   infrastructure: InfraBindings;
-  /** Middleware this worker imports from @jango-blockchained/hoox-shared */
+  /** Middleware this worker imports from @hoox-sh/hoox-shared */
   middleware: string[];
   /** Cron triggers (empty array = none) */
   cron?: string[];

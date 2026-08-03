@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,11 +15,11 @@
  *   5. QuickStatsRow: 4 metric cards with large numbers
  *
  * Follows Pattern 1 (View Composition) and Pattern 2 (Store Subscription).
- * Colors from design tokens via @jango-blockchained/hoox-shared. No CSS, no DOM.
+ * Colors from design tokens via @hoox-sh/hoox-shared. No CSS, no DOM.
  */
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useKeyboard } from "@opentui/react";
-import { Colors, useServiceStore } from "@jango-blockchained/hoox-shared";
+import { Colors, useServiceStore } from "@hoox-sh/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { StatusDot } from "../shared/status-dot";
 import { ViewHeader } from "../shared/view-header";
@@ -34,7 +34,7 @@ import {
 } from "./dashboard/auto-repair-panel";
 import { ModelHealthSection } from "./dashboard/model-health-section";
 import { AlertsPanel } from "./dashboard/alerts-panel";
-import { useUIStore } from "@jango-blockchained/hoox-shared";
+import { useUIStore } from "@hoox-sh/hoox-shared";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 

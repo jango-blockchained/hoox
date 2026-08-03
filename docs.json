@@ -12,7 +12,7 @@
   "logo": {
     "light": "/logo/dark.svg",
     "dark": "/logo/light.svg",
-    "href": "https://github.com/jango-blockchained/hoox-setup"
+    "href": "https://github.com/hoox-sh/hoox-setup"
   },
   "appearance": {
     "default": "system"
@@ -53,11 +53,11 @@
     "primary": {
       "type": "button",
       "label": "GitHub",
-      "href": "https://github.com/jango-blockchained/hoox-setup"
+      "href": "https://github.com/hoox-sh/hoox-setup"
     }
   },
   "footerSocials": {
-    "github": "https://github.com/jango-blockchained/hoox-setup"
+    "github": "https://github.com/hoox-sh/hoox-setup"
   },
   "footer": {
     "links": [
@@ -112,7 +112,7 @@
         "items": [
           {
             "label": "GitHub Repository",
-            "href": "https://github.com/jango-blockchained/hoox-setup"
+            "href": "https://github.com/hoox-sh/hoox-setup"
           },
           {
             "label": "Support",

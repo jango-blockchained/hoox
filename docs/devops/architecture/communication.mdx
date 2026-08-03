@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -41,7 +41,7 @@ Cloudflare Service Bindings allow one edge worker to call another **without ever
 Below is the standard, production-grade template used to route authenticated, structured HTTP payloads between workers:
 
 ```typescript
-import { requireInternalAuth } from "@jango-blockchained/hoox-shared/middleware";
+import { requireInternalAuth } from "@hoox-sh/hoox-shared/middleware";
 
 export interface Env {
   TRADE_SERVICE: Fetcher; // Service Binding Fetcher
@@ -100,10 +100,10 @@ export default {
 
 ## 🛅 3. Internal Authorization Middleware Standard
 
-To prevent unauthorized, cross-tenant, or direct internal calls, every internal endpoint is secured using the shared `requireInternalAuth` middleware from `@jango-blockchained/hoox-shared/middleware`:
+To prevent unauthorized, cross-tenant, or direct internal calls, every internal endpoint is secured using the shared `requireInternalAuth` middleware from `@hoox-sh/hoox-shared/middleware`:
 
 ```typescript
-import { requireInternalAuth } from "@jango-blockchained/hoox-shared/middleware";
+import { requireInternalAuth } from "@hoox-sh/hoox-shared/middleware";
 
 // Inside target worker's router or fetch handler:
 export async function handleRequest(

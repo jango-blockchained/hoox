@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -10,7 +10,7 @@ description: "High-integrity architecture specifications, Zustand store configur
 
 The **Hoox Terminal UI (TUI)** is a full-screen, keyboard-driven operations center built with **OpenTUI**, React 19, and Zustand. This document covers package layout, state, data flows, and crash recovery for engineers.
 
-**Package:** `packages/tui` (`@jango-blockchained/hoox-tui`)  
+**Package:** `packages/tui` (`@hoox-sh/hoox-tui`)  
 **Entry:** `src/main.tsx` · **Root:** `src/app.tsx` · **CLI launcher:** `hoox tui`
 
 ---
@@ -47,7 +47,7 @@ packages/tui/src/
 └── stores/*.test.ts         # unit tests (stores live in hoox-shared)
 ```
 
-Stores are **not** under `packages/tui/src/stores` for production code — they live in `@jango-blockchained/hoox-shared`:
+Stores are **not** under `packages/tui/src/stores` for production code — they live in `@hoox-sh/hoox-shared`:
 
 | Store | Path | Responsibility |
 | ----- | ---- | -------------- |
@@ -60,7 +60,7 @@ Session persistence: `$HOME/.hoox/.tui-state/session.json` via shared `restoreSe
 ### Navigation registry & colors
 
 - View factories, sidebar labels, keyboard shortcuts, and palette **view** commands are defined in `packages/tui/src/view-registry.tsx`.
-- Semantic status colors (`ConnectionStatusColor`, `WorkerStatusColor`, `LogLevelColor`, `AlertSeverityColor`) live in `@jango-blockchained/hoox-shared` (`packages/shared/src/colors.ts`). Do not invent local status→hex maps in views.
+- Semantic status colors (`ConnectionStatusColor`, `WorkerStatusColor`, `LogLevelColor`, `AlertSeverityColor`) live in `@hoox-sh/hoox-shared` (`packages/shared/src/colors.ts`). Do not invent local status→hex maps in views.
 - Shared chrome: `ViewHeader` + `Panel` (cool focus border). Settings uses dark-only theme (light is not implemented) and shows mode/host/transport/auth via `getSettingsConnectionSnapshot()` — never secret values.
 
 ### Test doubles (no polluting `mock.module`)

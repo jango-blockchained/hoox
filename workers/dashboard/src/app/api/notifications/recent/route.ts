@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { Errors } from "@jango-blockchained/hoox-shared/errors";
+import { Errors } from "@hoox-sh/hoox-shared/errors";
 
 // nodejs runtime: dashboard routes consistently use `nodejs` because
 // OpenNext's build output omits edge chunk files. See test-coverage.md.

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,7 +11,7 @@
  * Labels: [Y/Enter] Quit · [N/Esc] Cancel (mouse-up handlers for click).
  * Keyboard handling (Y/Enter/N/Esc) remains in AppRoot.
  */
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 
 export interface QuitModalProps {
   title: string;

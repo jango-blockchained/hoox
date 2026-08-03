@@ -1,12 +1,12 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { Ai } from "@cloudflare/workers-types";
-import { Errors } from "@jango-blockchained/hoox-shared/errors";
+import { Errors } from "@hoox-sh/hoox-shared/errors";
 import type { DashboardEnv } from "@/lib/env";
 
 export const dynamic = "force-dynamic";

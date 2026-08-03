@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -108,10 +108,10 @@ When a worker operation fails, the `success` flag is set to `false`, the `result
 
 ## 🛠️ 4. Shared `Errors` Factory Middleware
 
-To enforce this response contract without writing redundant JSON wrappers in every worker, we use the standardized `Errors` factory from the shared monorepo package `@jango-blockchained/hoox-shared/errors`:
+To enforce this response contract without writing redundant JSON wrappers in every worker, we use the standardized `Errors` factory from the shared monorepo package `@hoox-sh/hoox-shared/errors`:
 
 ```typescript
-import { Errors } from "@jango-blockchained/hoox-shared/errors";
+import { Errors } from "@hoox-sh/hoox-shared/errors";
 
 // 1. Validation Failures (400 Bad Request)
 if (!payload.symbol) {

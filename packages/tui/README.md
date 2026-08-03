@@ -11,9 +11,9 @@ A full-screen terminal dashboard built with [OpenTUI](https://github.com/anomaly
 
 ```bash
 # CLI + TUI as global packages
-bun add -g @jango-blockchained/hoox-cli @jango-blockchained/hoox-tui
+bun add -g @hoox-sh/hoox-cli @hoox-sh/hoox-tui
 # or after CLI is already installed:
-bun add -g @jango-blockchained/hoox-tui
+bun add -g @hoox-sh/hoox-tui
 
 hx tui
 ```
@@ -124,15 +124,15 @@ Persistent UI state lives under `$HOME/.hoox/.tui-state/` (session, crash log, c
 
 ## Tech Stack
 
-| Component            | Technology                                                                              |
-| -------------------- | --------------------------------------------------------------------------------------- |
-| **TUI Framework**    | OpenTUI — `@opentui/core` + `@opentui/react` (JSX-based terminal rendering)             |
-| **Runtime**          | [Bun](https://bun.sh) — fast all-in-one JS runtime                                      |
-| **State Management** | [Zustand](https://zustand.docs.pmnd.rs/) with Immer middleware                          |
-| **Language**         | TypeScript (strict mode)                                                                |
-| **Testing**          | Bun test runner (`bun test`)                                                            |
-| **Build**            | `bun build` — bundles entry to `dist/main.js` (OpenTUI packages external)               |
-| **Shared Module**    | `@jango-blockchained/hoox-shared` — API client, SSE streaming, color tokens, formatters |
+| Component            | Technology                                                                   |
+| -------------------- | ---------------------------------------------------------------------------- |
+| **TUI Framework**    | OpenTUI — `@opentui/core` + `@opentui/react` (JSX-based terminal rendering)  |
+| **Runtime**          | [Bun](https://bun.sh) — fast all-in-one JS runtime                           |
+| **State Management** | [Zustand](https://zustand.docs.pmnd.rs/) with Immer middleware               |
+| **Language**         | TypeScript (strict mode)                                                     |
+| **Testing**          | Bun test runner (`bun test`)                                                 |
+| **Build**            | `bun build` — bundles entry to `dist/main.js` (OpenTUI packages external)    |
+| **Shared Module**    | `@hoox-sh/hoox-shared` — API client, SSE streaming, color tokens, formatters |
 
 ---
 
@@ -167,7 +167,7 @@ If the packages are in a local path, verify the workspace configuration in the r
 The TUI tries HTTP first, then falls back to the `hoox` CLI. Check:
 
 1. Is a local dev mesh / API reachable? (`HOOX_API_URL`, default `http://localhost:8787`)
-2. Is the `hoox` CLI on `PATH`? (`bun add -g @jango-blockchained/hoox-cli`)
+2. Is the `hoox` CLI on `PATH`? (`bun add -g @hoox-sh/hoox-cli`)
 3. Are you on the correct network / VPN?
 
 ### Terminal too small
@@ -194,7 +194,7 @@ bun install
 bun run build
 ```
 
-Ensure `@jango-blockchained/hoox-shared` is linked as a workspace dependency.
+Ensure `@hoox-sh/hoox-shared` is linked as a workspace dependency.
 
 ### Colors look wrong
 

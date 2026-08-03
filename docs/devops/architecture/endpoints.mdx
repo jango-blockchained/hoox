@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -46,7 +46,7 @@ Every internal HTTP request between V8 isolates **must** transmit the standard b
 X-Internal-Auth-Key: <INTERNAL_KEY_BINDING>
 ```
 
-This shared secret is provisioned per-worker as an encrypted `wrangler secret` and validated by the `requireInternalAuth` middleware from `@jango-blockchained/hoox-shared/middleware`. Public webhook and dashboard endpoints use payload-embedded API keys or session cookies instead — see the canonical [`/docs/devops/api/endpoints`](../api/endpoints) for the full auth matrix.
+This shared secret is provisioned per-worker as an encrypted `wrangler secret` and validated by the `requireInternalAuth` middleware from `@hoox-sh/hoox-shared/middleware`. Public webhook and dashboard endpoints use payload-embedded API keys or session cookies instead — see the canonical [`/docs/devops/api/endpoints`](../api/endpoints) for the full auth matrix.
 
 ---
 

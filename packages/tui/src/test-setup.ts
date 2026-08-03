@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -210,11 +210,10 @@ resetNetworkDoubles();
 async function installNetworkDoubles(): Promise<void> {
   let realApi: Record<string, unknown> = {};
   try {
-    realApi =
-      (await import("@jango-blockchained/hoox-shared/api-client")) as Record<
-        string,
-        unknown
-      >;
+    realApi = (await import("@hoox-sh/hoox-shared/api-client")) as Record<
+      string,
+      unknown
+    >;
   } catch {
     realApi = {};
   }
@@ -232,7 +231,7 @@ async function installNetworkDoubles(): Promise<void> {
   const apiPaths = [
     new URL("../../shared/src/api-client.ts", import.meta.url).href,
     new URL("../../shared/src/api-client.ts", import.meta.url).pathname,
-    "@jango-blockchained/hoox-shared/api-client",
+    "@hoox-sh/hoox-shared/api-client",
     // Relative as resolved from packages/shared/src/stores/service-store.ts
     "../api-client",
     "../api-client.ts",
@@ -241,7 +240,7 @@ async function installNetworkDoubles(): Promise<void> {
   const ssePaths = [
     new URL("../../shared/src/sse.ts", import.meta.url).href,
     new URL("../../shared/src/sse.ts", import.meta.url).pathname,
-    "@jango-blockchained/hoox-shared/sse",
+    "@hoox-sh/hoox-shared/sse",
     "../sse",
     "../sse.ts",
     "../../../../packages/shared/src/sse",

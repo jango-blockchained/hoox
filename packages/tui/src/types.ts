@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -7,10 +7,7 @@
  * TUI-specific types — Navigation, modals, keyboard shortcuts.
  */
 
-import type {
-  CliErrorType,
-  CliErrorDetails,
-} from "@jango-blockchained/hoox-shared";
+import type { CliErrorType, CliErrorDetails } from "@hoox-sh/hoox-shared";
 
 // Re-export shared CLI error types for convenience so consumers can
 // import everything from the tui/types module.

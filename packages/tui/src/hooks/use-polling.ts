@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,7 +10,7 @@
  * (up to 16s max). Resets on success. Pause/resume via enabled toggle.
  */
 import { useEffect, useRef } from "react";
-import { useConfigStore } from "@jango-blockchained/hoox-shared";
+import { useConfigStore } from "@hoox-sh/hoox-shared";
 
 export interface UsePollingOptions {
   callback: () => Promise<void>;

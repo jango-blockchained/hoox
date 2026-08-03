@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -17,9 +17,9 @@
  * expected rendering patterns without full TUI render.
  */
 import { describe, it, expect, beforeEach, vi } from "bun:test";
-import { useUIStore } from "@jango-blockchained/hoox-shared/stores/ui-store";
-import { useServiceStore } from "@jango-blockchained/hoox-shared/stores/service-store";
-import type { ViewId } from "@jango-blockchained/hoox-shared";
+import { useUIStore } from "@hoox-sh/hoox-shared/stores/ui-store";
+import { useServiceStore } from "@hoox-sh/hoox-shared/stores/service-store";
+import type { ViewId } from "@hoox-sh/hoox-shared";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

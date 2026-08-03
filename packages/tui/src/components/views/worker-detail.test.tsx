@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -19,8 +19,8 @@
  */
 import { describe, test, expect, beforeEach } from "bun:test";
 
-import { useServiceStore } from "@jango-blockchained/hoox-shared/stores/service-store";
-import { useUIStore } from "@jango-blockchained/hoox-shared/stores/ui-store";
+import { useServiceStore } from "@hoox-sh/hoox-shared/stores/service-store";
+import { useUIStore } from "@hoox-sh/hoox-shared/stores/ui-store";
 import {
   makeWorker,
   makeLog,
@@ -243,8 +243,7 @@ describe("WorkerDetail", () => {
   });
 
   test("log level colors match expected tokens", async () => {
-    const { LogLevelColor, Colors } =
-      await import("@jango-blockchained/hoox-shared");
+    const { LogLevelColor, Colors } = await import("@hoox-sh/hoox-shared");
     expect(LogLevelColor.debug).toBe(Colors.muted);
     expect(LogLevelColor.info).toBe(Colors.foreground);
     expect(LogLevelColor.warn).toBe(Colors.warning);

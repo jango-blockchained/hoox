@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -34,7 +34,7 @@ const TAGLINE = "Cloudflare Workers Platform";
  * Works from source (`src/ui/`) and the bundled `dist/index.js` layout.
  */
 function findCliVersion(): string {
-  const PKG_NAME = "@jango-blockchained/hoox-cli";
+  const PKG_NAME = "@hoox-sh/hoox-cli";
   let dir = dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 5; i++) {
     const pkgPath = join(dir, "package.json");

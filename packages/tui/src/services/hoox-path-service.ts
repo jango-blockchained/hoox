@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -23,7 +23,7 @@
  * // Falls back to: "/current/working/dir/.tui-state" if HOME is unavailable
  * ```
  */
-import { getHooxHome, type HooxPath } from "@jango-blockchained/hoox-shared";
+import { getHooxHome, type HooxPath } from "@hoox-sh/hoox-shared";
 import { join, resolve } from "path";
 import { mkdir } from "fs/promises";
 import { existsSync } from "fs";

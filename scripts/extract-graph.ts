@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 /**
@@ -1059,8 +1059,8 @@ function isInternalImport(moduleSpecifier: string): boolean {
   // Relative imports: ./foo, ../foo/bar
   if (moduleSpecifier.startsWith(".")) return true;
 
-  // Workspace alias imports: @jango-blockchained/hoox-shared
-  if (moduleSpecifier.startsWith("@jango-blockchained/")) return true;
+  // Workspace alias imports: @hoox-sh/hoox-shared
+  if (moduleSpecifier.startsWith("@hoox-sh/")) return true;
 
   // Direct workspace path imports (unlikely but possible)
   if (
@@ -1161,11 +1161,11 @@ function resolveWorkspaceDependency(
   workspaces: WorkspaceInfo[]
 ): string | null {
   // Map npm package names to workspace paths
-  // @jango-blockchained/hoox-shared → packages/shared
+  // @hoox-sh/hoox-shared → packages/shared
   const nameToWs: Record<string, string> = {
-    "@jango-blockchained/hoox-shared": "packages/shared",
-    "@jango-blockchained/hoox-cli": "packages/cli",
-    "@jango-blockchained/hoox-tui": "packages/tui",
+    "@hoox-sh/hoox-shared": "packages/shared",
+    "@hoox-sh/hoox-cli": "packages/cli",
+    "@hoox-sh/hoox-tui": "packages/tui",
   };
 
   if (nameToWs[depName]) return nameToWs[depName];

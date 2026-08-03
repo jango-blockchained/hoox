@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -21,10 +21,7 @@
  * for any CLI failure, regardless of which view triggered it.
  */
 import * as path from "path";
-import {
-  getHooxRepoPath,
-  resolveHooxRuntimeRoot,
-} from "@jango-blockchained/hoox-shared";
+import { getHooxRepoPath, resolveHooxRuntimeRoot } from "@hoox-sh/hoox-shared";
 import type { CliResult, CliErrorType, CliErrorDetails } from "../../types";
 import type {
   ExecOptions,

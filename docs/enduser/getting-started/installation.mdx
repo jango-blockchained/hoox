@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -8,7 +8,7 @@ title: "Installation Guide"
 description: "Prepare your local machine, install the hoox CLI tool, bootstrap workspaces, and verify system prerequisites."
 ---
 
-This guide walks you through preparing your environment, installing the `@jango-blockchained/hoox-cli` tool, cloning the microservices monorepo recursively, and validating your local system prerequisites.
+This guide walks you through preparing your environment, installing the `@hoox-sh/hoox-cli` tool, cloning the microservices monorepo recursively, and validating your local system prerequisites.
 
 ---
 
@@ -53,7 +53,7 @@ To install the global management CLI tool directly from npm/bun registry to mana
 
 ```bash
 # Install globally using Bun
-bun add -g @jango-blockchained/hoox-cli
+bun add -g @hoox-sh/hoox-cli
 ```
 
 Once installed, verify that the `hoox` command is registered globally in your system path:
@@ -70,7 +70,7 @@ If you plan to contribute to the Hoox CLI packages or prefer working directly in
 
 ```bash
 # 1. Clone the parent repository with git submodules recursively
-git clone --recursive https://github.com/jango-blockchained/hoox-setup.git hoox-trading
+git clone --recursive https://github.com/hoox-sh/hoox-setup.git hoox-trading
 cd hoox-trading
 
 # 2. Install all monorepo workspace dependencies via Bun

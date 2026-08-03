@@ -32,7 +32,7 @@ jobs:
         run: bun run build:shared
 
       # ===== Publish to npm =====
-      - name: Prepare @jango-blockchained/hoox-shared for publishing
+      - name: Prepare @hoox-sh/hoox-shared for publishing
         run: bun scripts/prepare-publish.ts packages/shared
 
       - name: Setup Node.js for npm
@@ -41,7 +41,7 @@ jobs:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Publish @jango-blockchained/hoox-shared to npm
+      - name: Publish @hoox-sh/hoox-shared to npm
         run: cd packages/shared && npm publish --access public --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -53,7 +53,7 @@ jobs:
           node-version: "20"
           registry-url: "https://npm.pkg.github.com"
 
-      - name: Publish @jango-blockchained/hoox-shared to GitHub Packages
+      - name: Publish @hoox-sh/hoox-shared to GitHub Packages
         run: cd packages/shared && npm publish --access public --ignore-scripts --registry https://npm.pkg.github.com
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

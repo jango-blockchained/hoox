@@ -22,16 +22,16 @@ This package provides the shared foundation for all Hoox workers. It includes:
 
 ## Public API
 
-This package is published as `@jango-blockchained/hoox-shared` and exposes a layered import surface via the package `exports` map. All subpaths resolve to compiled `dist/*.js` and `dist/*.d.ts` files — the package tarball does **not** include TypeScript sources.
+This package is published as `@hoox-sh/hoox-shared` and exposes a layered import surface via the package `exports` map. All subpaths resolve to compiled `dist/*.js` and `dist/*.d.ts` files — the package tarball does **not** include TypeScript sources.
 
-| Import                                            | Resolves to               | Notes                                                               |
-| ------------------------------------------------- | ------------------------- | ------------------------------------------------------------------- |
-| `@jango-blockchained/hoox-shared`                 | `dist/index.js`           | Main barrel — everything in `src/index.ts`                          |
-| `@jango-blockchained/hoox-shared/<subdir>`        | `dist/<subdir>/index.js`  | Sub-barrel for the named subdirectory                               |
-| `@jango-blockchained/hoox-shared/<subdir>/<file>` | `dist/<subdir>/<file>.js` | Specific submodule file                                             |
-| `@jango-blockchained/hoox-shared/stores/<store>`  | `dist/stores/<store>.js`  | Zustand stores — deep-import only (no barrel)                       |
-| `@jango-blockchained/hoox-shared/types`           | `dist/types/index.d.ts`   | Type-only re-exports                                                |
-| `@jango-blockchained/hoox-shared/<anything-else>` | `dist/<anything-else>.js` | Catch-all for top-level modules (e.g. `errors`, `router`, `kvKeys`) |
+| Import                                 | Resolves to               | Notes                                                               |
+| -------------------------------------- | ------------------------- | ------------------------------------------------------------------- |
+| `@hoox-sh/hoox-shared`                 | `dist/index.js`           | Main barrel — everything in `src/index.ts`                          |
+| `@hoox-sh/hoox-shared/<subdir>`        | `dist/<subdir>/index.js`  | Sub-barrel for the named subdirectory                               |
+| `@hoox-sh/hoox-shared/<subdir>/<file>` | `dist/<subdir>/<file>.js` | Specific submodule file                                             |
+| `@hoox-sh/hoox-shared/stores/<store>`  | `dist/stores/<store>.js`  | Zustand stores — deep-import only (no barrel)                       |
+| `@hoox-sh/hoox-shared/types`           | `dist/types/index.d.ts`   | Type-only re-exports                                                |
+| `@hoox-sh/hoox-shared/<anything-else>` | `dist/<anything-else>.js` | Catch-all for top-level modules (e.g. `errors`, `router`, `kvKeys`) |
 
 The named subdirectories with deep-import support are: `middleware`, `d1`, `schemas`, `wizard`, `exchanges`. Each one re-exports its submodules from its `index.ts` barrel, so the bare-subdir form (`<subdir>`) and the deep form (`<subdir>/<file>`) return the same symbols — the bare form is just the pre-bundled rollup.
 

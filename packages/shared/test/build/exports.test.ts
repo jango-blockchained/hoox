@@ -1,6 +1,6 @@
 /**
  * Pins the invariant that deep imports of submodule files (e.g.
- * `@jango-blockchained/hoox-shared/middleware/auth`) work end-to-end
+ * `@hoox-sh/hoox-shared/middleware/auth`) work end-to-end
  * for both dev (workspace symlink) and published (npm tarball) consumers.
  *
  * Regression test for: dashboard breaking after PR #109 changed the
@@ -72,9 +72,8 @@ describe("Shared package exports — deep imports", () => {
       });
     }
 
-    it("resolves `@jango-blockchained/hoox-shared/middleware/auth`", async () => {
-      const mod =
-        await import("@jango-blockchained/hoox-shared/middleware/auth");
+    it("resolves `@hoox-sh/hoox-shared/middleware/auth`", async () => {
+      const mod = await import("@hoox-sh/hoox-shared/middleware/auth");
       expect(typeof mod.timingSafeEqual).toBe("function");
     });
   });

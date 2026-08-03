@@ -5,8 +5,8 @@
     "lib": ["es2020", "WebWorker", "DOM"],
     "moduleResolution": "bundler",
     "paths": {
-      "@jango-blockchained/hoox-shared/*": ["./packages/shared/src/*"],
-      "@jango-blockchained/hoox-shared": ["./packages/shared/src/index.ts"],
+      "@hoox-sh/hoox-shared/*": ["./packages/shared/src/*"],
+      "@hoox-sh/hoox-shared": ["./packages/shared/src/index.ts"],
       "@hoox/test-utils/*": ["./packages/test-utils/src/*"],
       "@hoox/test-utils": ["./packages/test-utils/src"]
     },

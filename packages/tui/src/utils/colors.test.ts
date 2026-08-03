@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,7 +10,7 @@
  * follow the black / cool-indigo DNA (#050508 bg, #818CF8 accent),
  * and provide adequate contrast ratios for TUI readability.
  *
- * Source of truth: @jango-blockchained/hoox-shared (Colors + status maps).
+ * Source of truth: @hoox-sh/hoox-shared (Colors + status maps).
  * Uses Bun test runner.
  */
 import { describe, it, expect } from "bun:test";
@@ -21,7 +21,7 @@ import {
   WorkerStatusColor,
   LogLevelColor,
   AlertSeverityColor,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

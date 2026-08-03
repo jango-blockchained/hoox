@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -30,11 +30,11 @@ HOOX: An Edge-Native Algorithmic Trading Framework on Cloudflare Workers
 
 ## Authors
 
-| Field           | Value                   |
-| --------------- | ----------------------- |
-| **Author 1**    | jango_blockchained      |
-| **Affiliation** | Independent Researcher  |
-| **ORCID**       | _(add if you have one)_ |
+| Field           | Value                        |
+| --------------- | ---------------------------- |
+| **Author 1**    | jango_blockchained (hoox-sh) |
+| **Affiliation** | Independent Researcher       |
+| **ORCID**       | _(add if you have one)_      |
 
 ---
 
@@ -57,11 +57,11 @@ Over the 12-month deployment, queued signals reached a terminal exchange status 
 ```
 Core paper (recommended): ~15-25 pages focused on architecture + evaluation
 (N = 18,742 production signals, July 2025--July 2026, on the direct path;
-median 22 ms signal-to-ack; requires @jango-blockchained/hoox-cli v0.9.3+
+median 22 ms signal-to-ack; requires @hoox-sh/hoox-cli v0.9.3+
 for the extended hop tracing used in the fast-path probe tables).
 Full monograph (extended technical reference): ~90+ pages including ADRs,
 deep dives, complete listings, and full runtime details.
-Open source: https://github.com/jango-blockchained/hoox-setup
+Open source: https://github.com/hoox-sh/hoox-setup
 ```
 
 ---
@@ -216,7 +216,7 @@ the architecture, key mechanisms, security model, and operational results.
 The extended technical reference (ADRs, per-Worker deep dives, data layer,
 runtime semantics, and full listing index) is available in the source
 repository and as a companion document. The system is released under CC BY 4.0
-at https://github.com/jango-blockchained/hoox-setup.
+at https://github.com/hoox-sh/hoox-setup.
 ```
 
 ---

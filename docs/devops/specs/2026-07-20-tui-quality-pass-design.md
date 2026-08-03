@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -62,7 +62,7 @@
 | `packages/tui/src/main.tsx` `backgroundColor`     | `"#0D1117"`             | `Colors.background`                                                                           |
 | `packages/tui/src/app.tsx` dialog `backdropColor` | `"#000000"`             | `Colors.backdrop` (`#000000`) — new token for overlay dimming only; never scatter the literal |
 | View/components                                   | mostly `Colors.*`       | Keep; replace any remaining literals found during pass                                        |
-| `packages/tui/src/utils/colors.test.ts`           | Local mirror of palette | Import `Colors` (and new maps) from `@jango-blockchained/hoox-shared`                         |
+| `packages/tui/src/utils/colors.test.ts`           | Local mirror of palette | Import `Colors` (and new maps) from `@hoox-sh/hoox-shared`                                    |
 
 ### Semantic maps (new single source)
 

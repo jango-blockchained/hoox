@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,7 +11,7 @@
  * should not advertise browser CORS at all. Public endpoints must pass
  * an explicit allowOrigin (or use publicCorsHeaders()).
  *
- * @available — Available for consumer use. Import from "@jango-blockchained/hoox-shared/middleware".
+ * @available — Available for consumer use. Import from "@hoox-sh/hoox-shared/middleware".
  */
 
 export interface CorsEnv {

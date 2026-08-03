@@ -42,7 +42,7 @@ jobs:
         # Required before typecheck: `exports` map points at `dist/*.d.ts`,
         # so consumers (dashboard, etc.) need a built dist to resolve types.
         # Without this, `tsc --noEmit` fails with TS2307 for every consumer
-        # of `@jango-blockchained/hoox-shared/<sub>` since PR #109.
+        # of `@hoox-sh/hoox-shared/<sub>` since PR #109.
         run: cd packages/shared && bun run build
 
       - name: Run ESLint for shared package

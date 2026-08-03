@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,8 +10,8 @@
  * Uses Bun test runner.
  */
 import { describe, it, expect, beforeEach } from "bun:test";
-import { useUIStore } from "@jango-blockchained/hoox-shared/stores/ui-store";
-import type { ViewId, ModalState } from "@jango-blockchained/hoox-shared";
+import { useUIStore } from "@hoox-sh/hoox-shared/stores/ui-store";
+import type { ViewId, ModalState } from "@hoox-sh/hoox-shared";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

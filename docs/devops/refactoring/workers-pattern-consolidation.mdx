@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -35,7 +35,7 @@ This document describes the pattern consolidation refactorings applied to the ho
 **Usage Example:**
 
 ```typescript
-import { createQueueHandler } from "@jango-blockchained/hoox-shared/queue-handler";
+import { createQueueHandler } from "@hoox-sh/hoox-shared/queue-handler";
 
 export default {
   async queue(batch, env, ctx) {
@@ -98,7 +98,7 @@ export default {
 **Usage Example:**
 
 ```typescript
-import { createCronHandler } from "@jango-blockchained/hoox-shared/cron-handler";
+import { createCronHandler } from "@hoox-sh/hoox-shared/cron-handler";
 
 export default {
   async scheduled(event, env, ctx) {
@@ -171,11 +171,11 @@ my-worker cron handler failed { cron: "0 * * * *", durationMs: 245, error: "Task
 **Usage Example:**
 
 ```typescript
-import { BaseExchangeClient } from "@jango-blockchained/hoox-shared/exchanges";
+import { BaseExchangeClient } from "@hoox-sh/hoox-shared/exchanges";
 import type {
   TradeParams,
   OrderResponse,
-} from "@jango-blockchained/hoox-shared/exchanges";
+} from "@hoox-sh/hoox-shared/exchanges";
 
 export class BinanceClient extends BaseExchangeClient {
   async validateApiCredentials(): Promise<boolean> {
@@ -259,8 +259,8 @@ export class BinanceClient extends BaseExchangeClient {
 If you're building a new worker that needs queue handling:
 
 ```typescript
-import { createQueueHandler } from "@jango-blockchained/hoox-shared/queue-handler";
-import type { QueueHandlerOptions } from "@jango-blockchained/hoox-shared/queue-handler";
+import { createQueueHandler } from "@hoox-sh/hoox-shared/queue-handler";
+import type { QueueHandlerOptions } from "@hoox-sh/hoox-shared/queue-handler";
 
 interface MyQueueMessage {
   requestId: string;
@@ -311,8 +311,8 @@ export default {
 If you're building a new worker with scheduled/cron triggers:
 
 ```typescript
-import { createCronHandler } from "@jango-blockchained/hoox-shared/cron-handler";
-import type { CronHandlerOptions } from "@jango-blockchained/hoox-shared/cron-handler";
+import { createCronHandler } from "@hoox-sh/hoox-shared/cron-handler";
+import type { CronHandlerOptions } from "@hoox-sh/hoox-shared/cron-handler";
 
 interface Env {
   // Your environment bindings
@@ -351,12 +351,12 @@ export default {
 If you're adding a new exchange:
 
 ```typescript
-import { BaseExchangeClient } from "@jango-blockchained/hoox-shared/exchanges";
+import { BaseExchangeClient } from "@hoox-sh/hoox-shared/exchanges";
 import type {
   TradeParams,
   OrderResponse,
   Position,
-} from "@jango-blockchained/hoox-shared/exchanges";
+} from "@hoox-sh/hoox-shared/exchanges";
 
 export class MyExchangeClient extends BaseExchangeClient {
   constructor(apiKey: string, apiSecret: string) {

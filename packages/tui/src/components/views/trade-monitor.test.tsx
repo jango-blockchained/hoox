@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -14,7 +14,7 @@
  */
 import { describe, it, expect, beforeAll, afterEach } from "bun:test";
 import { testRender } from "@opentui/react/test-utils";
-import { useServiceStore } from "@jango-blockchained/hoox-shared/stores/service-store";
+import { useServiceStore } from "@hoox-sh/hoox-shared/stores/service-store";
 import { makeTrade, type TestTrade } from "../../test-utils";
 
 import { TradeMonitor } from "./trade-monitor";

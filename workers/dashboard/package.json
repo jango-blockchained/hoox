@@ -21,7 +21,7 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@jango-blockchained/hoox-shared": "workspace:*",
+    "@hoox-sh/hoox-shared": "workspace:*",
     "@opennextjs/cloudflare": "^1.19.11",
     "@radix-ui/react-slot": "^1.2.4",
     "@tabler/icons-react": "^3.44.0",
@@ -58,6 +58,6 @@
     "typescript": "^6.0.3",
     "wrangler": "^4.95.0"
   },
-  "author": "jango-blockchained",
+  "author": "jango-blockchained (hoox-sh)",
   "license": "Apache-2.0"
 }

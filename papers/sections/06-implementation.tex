@@ -1,7 +1,7 @@
 \section{Implementation}
 \label{sec:implementation}
 
-\textsc{HOOX} is implemented in TypeScript~5.x and deployed with Wrangler~4.x. The monorepo uses Bun workspaces (\texttt{package.json} \texttt{workspaces} field); production Workers import a shared package \texttt{@jango-blockchained/hoox-shared} that centralizes routing, validation, exchange abstractions, KV key constants, and Service Binding helpers so binding names and auth semantics stay consistent across ten deployables.
+\textsc{HOOX} is implemented in TypeScript~5.x and deployed with Wrangler~4.x. The monorepo uses Bun workspaces (\texttt{package.json} \texttt{workspaces} field); production Workers import a shared package \texttt{@hoox-sh/hoox-shared} that centralizes routing, validation, exchange abstractions, KV key constants, and Service Binding helpers so binding names and auth semantics stay consistent across ten deployables.
 
 \subsection{Monorepo Layout}
 

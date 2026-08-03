@@ -1,4 +1,4 @@
-# @jango-blockchained/hoox-cli
+# @hoox-sh/hoox-cli
 
 > **See also:** [Docs home](../../docs/index.mdx) · [CLI Command Reference](../../docs/enduser/reference/cli-commands.mdx) · [Monorepo README](../../README.md)
 
@@ -35,7 +35,7 @@
 
 ```bash
 # Using bun (the only supported runtime)
-bun add -g @jango-blockchained/hoox-cli
+bun add -g @hoox-sh/hoox-cli
 ```
 
 > The CLI is a Bun bundle — `npm install -g` will not produce a working binary.
@@ -414,7 +414,7 @@ hoox infra d1 list --json
 
 ```bash
 # Clone the repository (workers are submodules)
-git clone --recursive https://github.com/jango-blockchained/hoox.git
+git clone --recursive https://github.com/hoox-sh/hoox.git
 cd hoox
 
 # Install dependencies
@@ -514,13 +514,13 @@ packages/cli/
 
 ## Key Dependencies
 
-| Package                           | Purpose                                            |
-| --------------------------------- | -------------------------------------------------- |
-| `commander`                       | CLI framework for command registration and parsing |
-| `@clack/prompts`                  | Interactive prompts for the TUI                    |
-| `ansis`                           | Terminal styling and colors                        |
-| `jsonc-parser`                    | Parse `wrangler.jsonc` configuration files         |
-| `@jango-blockchained/hoox-shared` | Shared types and utilities                         |
+| Package                | Purpose                                            |
+| ---------------------- | -------------------------------------------------- |
+| `commander`            | CLI framework for command registration and parsing |
+| `@clack/prompts`       | Interactive prompts for the TUI                    |
+| `ansis`                | Terminal styling and colors                        |
+| `jsonc-parser`         | Parse `wrangler.jsonc` configuration files         |
+| `@hoox-sh/hoox-shared` | Shared types and utilities                         |
 
 ## Contributing
 
@@ -560,7 +560,7 @@ SOFTWARE.
 
 ## Links
 
-- [GitHub Repository](https://github.com/jango-blockchained/hoox)
-- [Issue Tracker](https://github.com/jango-blockchained/hoox/issues)
+- [GitHub Repository](https://github.com/hoox-sh/hoox)
+- [Issue Tracker](https://github.com/hoox-sh/hoox/issues)
 - [Product docs](https://docs.hoox.sh)
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)

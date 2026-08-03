@@ -1,12 +1,12 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /**
  * `hoox init` — interactive setup wizard for Hoox Workspace.
  *
- * Uses the shared WizardEngine from @jango-blockchained/hoox-shared.
+ * Uses the shared WizardEngine from @hoox-sh/hoox-shared.
  *
  * Interactive flow uses @clack/prompts for the UI layer.
  * Non-interactive mode (--token, --account, --secret-store, --prefix):
@@ -20,8 +20,8 @@ import {
   serializeState,
   deserializeState,
   WIZARD_STATE_PATH,
-} from "@jango-blockchained/hoox-shared";
-import type { WorkersJsonConfig } from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
+import type { WorkersJsonConfig } from "@hoox-sh/hoox-shared";
 import { CloudflareService } from "../../services/cloudflare/index.js";
 import {
   getFormatOptions,
@@ -79,7 +79,7 @@ export async function verifyRepoRoot(): Promise<void> {
 
   const cloneHint =
     "  Clone first: git clone --recursive " +
-    "https://github.com/jango-blockchained/hoox-setup.git";
+    "https://github.com/hoox-sh/hoox-setup.git";
   throw new CLIError(
     "Not inside a Hoox repository root.\n  " +
       reasons.join("\n  ") +
@@ -585,8 +585,7 @@ export async function runInitCommand(
       p.log.step("Collecting integration secrets...");
 
       for (const key of state.selectedIntegrations) {
-        const { INTEGRATIONS } =
-          await import("@jango-blockchained/hoox-shared");
+        const { INTEGRATIONS } = await import("@hoox-sh/hoox-shared");
         const integration = INTEGRATIONS.find((i) => i.key === key);
         if (!integration || Object.keys(integration.secrets).length === 0)
           continue;

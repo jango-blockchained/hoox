@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -16,10 +16,10 @@ HOOX is a production-grade, open-source algorithmic trading stack. Signals are v
 [![TypeScript](https://shieldcn.dev/badge/Language-TypeScript-3178c6.png?size=sm&logo=typescript)](https://www.typescriptlang.org/)
 [![Bun](https://shieldcn.dev/badge/Runtime-Bun-000000.png?size=sm&logo=bun)](https://bun.sh)
 [![Cloudflare Workers](https://shieldcn.dev/badge/Platform-Cloudflare_Workers-f38020.png?size=sm&logo=cloudflare)](https://workers.cloudflare.com/)
-[![CLI](https://shieldcn.dev/badge/CLI-@jango--blockchained/hoox--cli-F97316.png?size=sm)](https://www.npmjs.com/package/@jango-blockchained/hoox-cli)
+[![CLI](https://shieldcn.dev/badge/CLI-@hoox--sh/hoox--cli-F97316.png?size=sm)](https://www.npmjs.com/package/@hoox-sh/hoox-cli)
 [![Coverage](https://shieldcn.dev/badge/Coverage-80%25-22c55e.png?size=sm)](docs/devops/development/testing.mdx)
 [![License](https://shieldcn.dev/badge/License-Apache_2.0-6b7280.png?size=sm)](LICENSE-CODE)
-[![CI](https://shieldcn.dev/github/ci/jango-blockchained/hoox.png?size=sm)](https://github.com/jango-blockchained/hoox/actions/workflows/ci.yml)
+[![CI](https://shieldcn.dev/github/ci/hoox-sh/hoox.png?size=sm)](https://github.com/hoox-sh/hoox/actions/workflows/ci.yml)
 
 **Site:** [hoox.sh](https://hoox.sh) · **Install:** [hoox.sh/install](https://hoox.sh/install) · **Docs:** [docs.hoox.sh](https://docs.hoox.sh) · **Paper:** [papers/hoox-arxiv-paper-core.pdf](papers/hoox-arxiv-paper-core.pdf)
 
@@ -29,11 +29,11 @@ HOOX is a production-grade, open-source algorithmic trading stack. Signals are v
 
 HOOX is the edge trading framework. Sister products on the same site:
 
-| Product  | Role                                        | Repo                                                                  | Website                                                                  |
-| -------- | ------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| **HOOX** | Edge trading framework (this repo)          | [jango-blockchained/hoox](https://github.com/jango-blockchained/hoox) | [hoox.sh](https://hoox.sh) · [docs](https://docs.hoox.sh)                |
-| **PYNE** | Pine Script™ Python toolchain, LSP, Pro API | [jango-blockchained/pyne](https://github.com/jango-blockchained/pyne) | [hoox.sh/pyne](https://hoox.sh/pyne) · [docs](https://hoox.sh/pyne/docs) |
-| **AXIS** | Installable charting PWA (Solid + Vite)     | [jango-blockchained/axis](https://github.com/jango-blockchained/axis) | [hoox.sh/axis](https://hoox.sh/axis) · [docs](https://hoox.sh/axis/docs) |
+| Product  | Role                                        | Repo                                            | Website                                                                  |
+| -------- | ------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------ |
+| **HOOX** | Edge trading framework (this repo)          | [hoox-sh/hoox](https://github.com/hoox-sh/hoox) | [hoox.sh](https://hoox.sh) · [docs](https://docs.hoox.sh)                |
+| **PYNE** | Pine Script™ Python toolchain, LSP, Pro API | [hoox-sh/pyne](https://github.com/hoox-sh/pyne) | [hoox.sh/pyne](https://hoox.sh/pyne) · [docs](https://hoox.sh/pyne/docs) |
+| **AXIS** | Installable charting PWA (Solid + Vite)     | [hoox-sh/axis](https://github.com/hoox-sh/axis) | [hoox.sh/axis](https://hoox.sh/axis) · [docs](https://hoox.sh/axis/docs) |
 
 ```
                     https://hoox.sh
@@ -57,10 +57,10 @@ The CLI is distributed as a Bun package. Bun is required — the CLI is a Bun bu
 curl -fsSL https://bun.sh/install | bash
 
 # 2. Install the CLI globally
-bun add -g @jango-blockchained/hoox-cli
+bun add -g @hoox-sh/hoox-cli
 
 # 3. Clone the workspace (workers are git submodules — use --recursive)
-git clone --recursive https://github.com/jango-blockchained/hoox.git
+git clone --recursive https://github.com/hoox-sh/hoox.git
 cd hoox
 
 # 4. Bootstrap: provisions D1, KV, secrets, and deploys in dependency order
@@ -83,7 +83,7 @@ hoox onboard
 **From source (full monorepo).** Canonical path for contributors and operators who need the full worker mesh.
 
 ```bash
-git clone --recursive https://github.com/jango-blockchained/hoox.git hoox-trading
+git clone --recursive https://github.com/hoox-sh/hoox.git hoox-trading
 cd hoox-trading
 bun install
 hoox onboard
@@ -137,8 +137,8 @@ Guides: [Installation](https://docs.hoox.sh/docs/enduser/getting-started/install
 ## Quick path (edge)
 
 ```bash
-bun add -g @jango-blockchained/hoox-cli
-git clone --recursive https://github.com/jango-blockchained/hoox.git && cd hoox
+bun add -g @hoox-sh/hoox-cli
+git clone --recursive https://github.com/hoox-sh/hoox.git && cd hoox
 hoox onboard
 hoox deploy all --auto
 hoox check health

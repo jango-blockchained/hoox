@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -23,8 +23,8 @@
  */
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { testRender } from "@opentui/react/test-utils";
-import { useServiceStore } from "@jango-blockchained/hoox-shared/stores/service-store";
-import type { CliErrorDetails } from "@jango-blockchained/hoox-shared";
+import { useServiceStore } from "@hoox-sh/hoox-shared/stores/service-store";
+import type { CliErrorDetails } from "@hoox-sh/hoox-shared";
 
 import {
   StatusBar,

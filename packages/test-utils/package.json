@@ -30,7 +30,7 @@
     "cloudflare",
     "workers"
   ],
-  "author": "jango-blockchained",
+  "author": "jango-blockchained (hoox-sh)",
   "license": "Apache-2.0",
   "engines": {
     "bun": ">=1.0"

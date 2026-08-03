@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,7 +13,7 @@
  *   1. HOOX_TUI_ENTRY env (explicit file)
  *   2. Runtime monorepo (HOOX_REPO → cwd walk-up → ~/.hoox/repo)
  *   3. Paths relative to this CLI module (linked monorepo / workspace)
- *   4. Installed `@jango-blockchained/hoox-tui` package (node_modules)
+ *   4. Installed `@hoox-sh/hoox-tui` package (node_modules)
  *   5. CWD-relative node_modules lookup
  */
 import { Command } from "commander";
@@ -28,7 +28,7 @@ import {
   getTuiEntryCandidates,
   resolveHooxRuntimeRoot,
   readConfigSync,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 import { theme } from "../../utils/theme.js";
 import { CLIError, ExitCode } from "../../utils/errors.js";
 import { withErrorHandling } from "../../utils/error-handler.js";
@@ -37,7 +37,7 @@ import { resolveGatewayUrl } from "../../services/perf/endpoint-resolver.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
-const TUI_PKG = "@jango-blockchained/hoox-tui";
+const TUI_PKG = "@hoox-sh/hoox-tui";
 
 /**
  * Collect candidate entry paths for the TUI main module.
@@ -82,7 +82,7 @@ function collectTuiCandidates(): string[] {
     // no package.json in cwd — skip
   }
 
-  // Global bun install location (bun add -g @jango-blockchained/hoox-tui)
+  // Global bun install location (bun add -g @hoox-sh/hoox-tui)
   const bunGlobal = join(
     homedir(),
     ".bun",
@@ -140,7 +140,7 @@ function pushFromWhich(candidates: string[], binName: string): void {
       /* keep which path */
     }
     const binDir = dirname(binPath);
-    // …/node_modules/@jango-blockchained/hoox-tui/bin/hoox-tui.js
+    // …/node_modules/@hoox-sh/hoox-tui/bin/hoox-tui.js
     const pkgRoot = resolve(binDir, "..");
     pushPackageRootEntries(candidates, pkgRoot);
     // Also allow running the bin itself as the entry
@@ -170,7 +170,7 @@ export function resolveTUIEntry(): string {
       "Fix options (pick one):",
       "",
       "  1) Lightweight — install the TUI package globally:",
-      "       bun add -g @jango-blockchained/hoox-tui",
+      "       bun add -g @hoox-sh/hoox-tui",
       "",
       "  2) Full runtime — clone monorepo into ~/.hoox/repo:",
       "       hoox doctor --fix-runtime",

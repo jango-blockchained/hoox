@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,7 +10,7 @@
  * Cool-bracketed title on the left, optional right-side meta, dim rule under.
  * OpenTUI: never nest <text> inside <text>.
  */
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 import type { ReactNode } from "react";
 import { CoolBrackets } from "./cool-brackets";
 

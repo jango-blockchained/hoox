@@ -1,13 +1,13 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
 # HOOX: A Proof-of-Concept Edge-Native Algorithmic Trading Platform on Cloudflare Workers
 
-**jango_blockchained**  
+**jango_blockchained (hoox-sh)**  
 _Independent Researcher_  
-https://github.com/jango-blockchained/hoox-setup
+https://github.com/hoox-sh/hoox-setup
 
 **July 2026**
 
@@ -155,7 +155,7 @@ bun run test:load
 
 The full monorepo, including worker source, CLI, dashboard, test suites, and the scripts used to generate the graphs and listings in the companion arXiv paper, is available at:
 
-https://github.com/jango-blockchained/hoox-setup
+https://github.com/hoox-sh/hoox-setup
 
 A Docker-based self-contained reproduction environment is also provided (`docker compose up`).
 
@@ -190,7 +190,7 @@ All source code, measurement data extraction scripts, and load-test definitions 
 3. Jonas, E., et al. (2019). Cloud Programming Simplified: A Berkeley View on Serverless Computing. arXiv:1902.03383.
 4. McSherry, F., et al. (2013). Scalability! But at what COST? _HotOS_.
 5. Cloudflare Documentation. Workers, Service Bindings, Durable Objects, Queues, Smart Placement, Analytics Engine.
-6. HOOX Project Repository. https://github.com/jango-blockchained/hoox-setup (2026).
+6. HOOX Project Repository. https://github.com/hoox-sh/hoox-setup (2026).
 
 _Additional references and the complete bibliography appear in the full HOOX arXiv monograph._
 

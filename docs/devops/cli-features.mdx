@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -14,7 +14,7 @@ The **`hoox` CLI** (`packages/cli`) is the unified lifecycle engine of the tradi
 
 ## 🏗️ Monorepo Workspace Design
 
-The CLI is integrated into our monorepo using **Bun Workspaces**, which link local packages together. This design ensures that the CLI binary can resolve and load local shared types (`@jango-blockchained/hoox-shared`) and TUI components (`packages/tui`) instantly without network downloads or pre-compilation overhead:
+The CLI is integrated into our monorepo using **Bun Workspaces**, which link local packages together. This design ensures that the CLI binary can resolve and load local shared types (`@hoox-sh/hoox-shared`) and TUI components (`packages/tui`) instantly without network downloads or pre-compilation overhead:
 
 ```
 hoox-setup/ (Monorepo Root)
@@ -41,7 +41,7 @@ Intercepts all incoming arguments (e.g. `hoox infra provision`), evaluates globa
 
 Translates command intentions (like `hoox infra d1 create`) into wrangler subprocess calls or Cloudflare REST API requests. Domain services (setup, secrets, DB, repair, perf) live under `src/services/`.
 
-### C. Shared config & path resolution (`@jango-blockchained/hoox-shared`)
+### C. Shared config & path resolution (`@hoox-sh/hoox-shared`)
 
 Workspace configuration (`wrangler.jsonc`), path layout (`$HOME/.hoox`, monorepo detection), and operator transport live in the shared package rather than a CLI-local `src/core/`.
 
@@ -172,7 +172,7 @@ Two small touches that improve UX on errors and after successful commands:
 
 `renderBanner()` is called when the CLI runs with no arguments. The version is
 read at module init by walking up from `import.meta.url` looking for the
-`@jango-blockchained/hoox-cli` `package.json` — this works in source, bundle,
+`@hoox-sh/hoox-cli` `package.json` — this works in source, bundle,
 and global install layouts. Default variant is `minimal` (the cleanest of four);
 `legacy`, `horizon`, and `signal` are opt-ins.
 

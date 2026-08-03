@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -8,7 +8,7 @@ title: "CLI Commands Reference"
 description: "Comprehensive CLI directory detailing all 25 command groups, 60+ subcommands, global flags, and positional options for the hoox binary."
 ---
 
-The `@jango-blockchained/hoox-cli` tool manages the entire monorepo development, provisioning, deployment, monitoring, and self-healing pipelines. This reference provides the complete command tree, positional arguments, optional flags, and concrete examples for all command groups.
+The `@hoox-sh/hoox-cli` tool manages the entire monorepo development, provisioning, deployment, monitoring, and self-healing pipelines. This reference provides the complete command tree, positional arguments, optional flags, and concrete examples for all command groups.
 
 > **Heads up (v0.9.0):** The output framework was polished. New global flag
 > `--no-color` (alongside `NO_COLOR` env var and `TERM=dumb` honored); every
@@ -295,7 +295,7 @@ The v0.9.0 release polished the output framework. **No new commands and no break
 - **`formatError`** — card layout with `[code]` badge and `suggestions` support. JSON output now includes a new `suggestions` field.
 - **Banner default** — `minimal` (was `legacy`). The banner's version is read dynamically from `package.json` (v0.9.0 also fixed a real version-drift bug where the banner was hardcoded to `v0.3.0` while the package was at `v0.8.0`).
 
-See [`packages/cli/CHANGELOG.md`](https://github.com/jango-blockchained/hoox-setup/blob/main/packages/cli/CHANGELOG.md) for the full release notes.
+See [`packages/cli/CHANGELOG.md`](https://github.com/hoox-sh/hoox-setup/blob/main/packages/cli/CHANGELOG.md) for the full release notes.
 
 ---
 

@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -12,7 +12,7 @@ This document describes how to publish a new release of the Hoox monorepo.
 The release pipeline is fully automated via GitHub Actions. Pushing a version tag triggers:
 
 1. **Test & Build** — unit tests for `packages/cli` and `packages/shared`, then `bun run build:packages`
-2. **npm Publish** — publishes `@jango-blockchained/hoox-cli` to the npm registry
+2. **npm Publish** — publishes `@hoox-sh/hoox-cli` to the npm registry
 3. **GitHub Packages Publish** — publishes the same package to GitHub Packages
 4. **GitHub Release** — creates a tagged release on GitHub
 
@@ -20,7 +20,7 @@ The release pipeline is fully automated via GitHub Actions. Pushing a version ta
 
 - Write access to the repository
 - GitHub Actions secrets configured:
-  - `NPM_TOKEN` — npm automation token for `@jango-blockchained` org
+  - `NPM_TOKEN` — npm automation token for `@hoox-sh` org
   - `GITHUB_TOKEN` — automatically provided by Actions (for GitHub Packages + Release)
 
 ## How to Release
@@ -51,7 +51,7 @@ The release workflow triggers on tags matching `v0.*` or `v1.*`.
 ### 3. Monitor the Workflow
 
 Watch the release at:
-https://github.com/jango-blockchained/hoox-setup/actions/workflows/release.yml
+https://github.com/hoox-sh/hoox-setup/actions/workflows/release.yml
 
 The workflow takes approximately 3-5 minutes.
 
@@ -59,17 +59,17 @@ The workflow takes approximately 3-5 minutes.
 
 After the workflow completes:
 
-- **npm**: `npm view @jango-blockchained/hoox-cli` should show the new version
-- **GitHub Packages**: Check https://github.com/jango-blockchained/hoox-setup/packages
-- **GitHub Release**: Check https://github.com/jango-blockchained/hoox-setup/releases
+- **npm**: `npm view @hoox-sh/hoox-cli` should show the new version
+- **GitHub Packages**: Check https://github.com/hoox-sh/hoox-setup/packages
+- **GitHub Release**: Check https://github.com/hoox-sh/hoox-setup/releases
 
 ## What Gets Published
 
-| Artifact                       | Destination     | Trigger      |
-| ------------------------------ | --------------- | ------------ |
-| `@jango-blockchained/hoox-cli` | npm registry    | `v*.*.*` tag |
-| `@jango-blockchained/hoox-cli` | GitHub Packages | `v*.*.*` tag |
-| GitHub Release                 | GitHub Releases | `v*.*.*` tag |
+| Artifact            | Destination     | Trigger      |
+| ------------------- | --------------- | ------------ |
+| `@hoox-sh/hoox-cli` | npm registry    | `v*.*.*` tag |
+| `@hoox-sh/hoox-cli` | GitHub Packages | `v*.*.*` tag |
+| GitHub Release      | GitHub Releases | `v*.*.*` tag |
 
 ## Versioning
 
@@ -100,7 +100,7 @@ If GitHub Actions is unavailable, you can publish manually:
 # Build the CLI
 cd packages/cli && bun run build
 
-# Publish to npm (requires npm login with @jango-blockchained access)
+# Publish to npm (requires npm login with @hoox-sh access)
 cd packages/cli && npm publish --access public
 
 # Publish to GitHub Packages (requires .npmrc with GitHub token)

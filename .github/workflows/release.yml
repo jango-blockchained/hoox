@@ -55,7 +55,7 @@ jobs:
         run: bun run build:packages
 
       # ===== Publish to npm =====
-      - name: Prepare @jango-blockchained/hoox-cli for publishing
+      - name: Prepare @hoox-sh/hoox-cli for publishing
         run: bun scripts/prepare-publish.ts packages/cli
 
       - name: Setup Node.js for npm
@@ -64,20 +64,20 @@ jobs:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Publish @jango-blockchained/hoox-cli to npm
+      - name: Publish @hoox-sh/hoox-cli to npm
         # --ignore-scripts skips prepublishOnly (typecheck has pre-existing errors)
         # Build + lint already ran successfully above
         run: cd packages/cli && npm publish --access public --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Prepare @jango-blockchained/hoox-tui for publishing
+      - name: Prepare @hoox-sh/hoox-tui for publishing
         run: bun scripts/prepare-publish.ts packages/tui
 
-      - name: Build @jango-blockchained/hoox-tui
+      - name: Build @hoox-sh/hoox-tui
         run: cd packages/tui && bun run build
 
-      - name: Publish @jango-blockchained/hoox-tui to npm
+      - name: Publish @hoox-sh/hoox-tui to npm
         run: cd packages/tui && npm publish --access public --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -89,12 +89,12 @@ jobs:
           node-version: "20"
           registry-url: "https://npm.pkg.github.com"
 
-      - name: Publish @jango-blockchained/hoox-cli to GitHub Packages
+      - name: Publish @hoox-sh/hoox-cli to GitHub Packages
         run: cd packages/cli && npm publish --access public --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish @jango-blockchained/hoox-tui to GitHub Packages
+      - name: Publish @hoox-sh/hoox-tui to GitHub Packages
         run: cd packages/tui && npm publish --access public --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -28,7 +28,7 @@
  *
  * Follows TUI Patterns 1 (View Composition), 2 (Store Subscription),
  * 5 (Color Token Usage), 8 (ScrollBox).
- * Colors from @jango-blockchained/hoox-shared design tokens. No CSS, no DOM.
+ * Colors from @hoox-sh/hoox-shared design tokens. No CSS, no DOM.
  */
 import { existsSync } from "node:fs";
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
@@ -38,7 +38,7 @@ import {
   getHooxRepoPath,
   resolveHooxRuntimeRoot,
   useUIStore,
-} from "@jango-blockchained/hoox-shared";
+} from "@hoox-sh/hoox-shared";
 import { ErrorBoundary } from "../shared/error-boundary";
 import { ViewHeader } from "../shared/view-header";
 import { cliBridge } from "../../services/cli-bridge";

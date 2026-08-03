@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -7,7 +7,7 @@
  * Validation middleware for Cloudflare Workers
  * Uses Zod for runtime schema validation.
  *
- * @available — Available for consumer use. Import from "@jango-blockchained/hoox-shared/middleware".
+ * @available — Available for consumer use. Import from "@hoox-sh/hoox-shared/middleware".
  */
 
 import { z } from "zod";

@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2026 HOOX · jango-blockchained
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
   SPDX-License-Identifier: CC-BY-4.0
 -->
 
@@ -207,7 +207,7 @@ The worker loads signal parsing patterns from `CONFIG_KV` via `loadSignalPattern
 | `email:quantity_multiplier` | `1`                      | Coefficient applied to parsed quantity values  |
 
 ```typescript
-import { KVKeys } from "@jango-blockchained/hoox-shared/kvKeys";
+import { KVKeys } from "@hoox-sh/hoox-shared/kvKeys";
 
 const [coinPattern, actionPattern, quantityMultiplier] = await Promise.all([
   env.CONFIG_KV?.get(KVKeys.KV_EMAIL_COIN_PATTERN).then(

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 /** @jsxImportSource @opentui/react */
@@ -14,7 +14,7 @@
 import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { CrashRecoveryApp } from "./app";
-import { Colors, saveSession } from "@jango-blockchained/hoox-shared";
+import { Colors, saveSession } from "@hoox-sh/hoox-shared";
 import { setRendererRef } from "./hooks";
 import { enableAutoCopyOnSelection } from "./services/clipboard";
 import { ensureTuiStateDir } from "./services/hoox-path-service";

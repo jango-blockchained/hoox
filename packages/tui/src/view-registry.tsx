@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,7 +8,7 @@
  * View registry — single source of truth for view factories, sidebar items,
  * keyboard shortcuts, and command-palette view commands.
  */
-import type { ViewId } from "@jango-blockchained/hoox-shared";
+import type { ViewId } from "@hoox-sh/hoox-shared";
 import type { DialogHandle } from "./components/ui/dialog";
 import type { CommandEntry } from "./components/shared/command-palette";
 

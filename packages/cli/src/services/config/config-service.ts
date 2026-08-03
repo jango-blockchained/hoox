@@ -1,15 +1,12 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import { parse, printParseErrorCode } from "jsonc-parser";
 import type { ParseError } from "jsonc-parser";
 import { join } from "node:path";
-import {
-  resolveHooxPath,
-  getHooxWranglerPath,
-} from "@jango-blockchained/hoox-shared";
+import { resolveHooxPath, getHooxWranglerPath } from "@hoox-sh/hoox-shared";
 import type { HooxConfig, WorkerConfig, GlobalConfig } from "./types";
 
 /**
@@ -31,7 +28,7 @@ export type ConfigError =
 /**
  * Typed Result for `ConfigService` — extends the shared `Result<T>` (which
  * only allows `string` errors) to carry a structured `ConfigError`. The
- * shape is otherwise identical to `@jango-blockchained/hoox-shared` →
+ * shape is otherwise identical to `@hoox-sh/hoox-shared` →
  * `Result<T>` so callers can write the same `if (!r.ok)` checks.
  */
 export type ConfigResult =

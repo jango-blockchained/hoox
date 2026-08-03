@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 HOOX · HOOX · jango-blockchained
+ * Copyright (c) 2026 HOOX · HOOX · jango-blockchained (hoox-sh)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -14,11 +14,11 @@
 import { describe, test, expect, beforeEach, afterEach, mock } from "bun:test";
 import { createRoot } from "@opentui/react";
 import { createCliRenderer } from "@opentui/core";
-import { Colors } from "@jango-blockchained/hoox-shared";
+import { Colors } from "@hoox-sh/hoox-shared";
 import { resetCliBridgeDouble } from "../../test-utils";
 import { ServiceManager } from "./service-manager";
 import type { DialogHandle } from "@/components/ui/dialog";
-import type { WorkerInfo } from "@jango-blockchained/hoox-shared/types";
+import type { WorkerInfo } from "@hoox-sh/hoox-shared/types";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
