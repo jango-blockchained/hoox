@@ -251,7 +251,8 @@ const manifests: Record<string, WorkerManifest> = {
       ai: true,
     },
     middleware: ["requireInternalAuth"],
-    cron: ["*/5 * * * *"],
+    // Configurable 1–1440 min; default every 15 minutes (see agent-worker README)
+    cron: ["*/15 * * * *"],
   },
 
   "email-worker": {

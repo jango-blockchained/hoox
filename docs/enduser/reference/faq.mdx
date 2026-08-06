@@ -182,9 +182,9 @@ All five are supported with automatic fallback ordering:
 
 Providers are tried sequentially on failure. You only pay for the one that responds.
 
-### Q: What's the 5-minute cron doing exactly?
+### Q: What does the agent-worker cron do exactly?
 
-The `agent-worker` runs every 5 minutes via Cloudflare Cron and performs:
+The `agent-worker` runs on a **configurable Cloudflare Cron** (any interval from **1 to 1440 minutes**; default **15 minutes** via `*/15 * * * *` in `wrangler.jsonc`) and performs:
 
 1. Reads all open positions from D1
 2. Fetches current market prices from exchange APIs
@@ -192,6 +192,8 @@ The `agent-worker` runs every 5 minutes via Cloudflare Cron and performs:
 4. Checks if daily drawdown limit is exceeded → kills switch if so
 5. Partially closes positions that hit take-profit targets
 6. Sends a Telegram health summary
+
+To change the interval, update `triggers.crons` and redeploy. See [agent-worker Cron setup](/devops/workers/agent-worker#cron-schedule-11440-minutes).
 
 ---
 

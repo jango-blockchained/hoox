@@ -406,11 +406,13 @@ describe("Dashboard Components - Module Imports", () => {
       for (const s of REQUIRED_SECRETS) {
         expect(s.secret).toMatch(/^[A-Z][A-Z0-9_]+$/);
         expect(s.worker).toBeTypeOf("string");
+        expect(s.kind === "system" || s.kind === "user").toBe(true);
+        expect(["critical", "recommended", "optional"]).toContain(s.priority);
         expect([
-          "External Webhooks",
-          "Internal Auth Keys",
+          "Mesh (auto)",
           "Exchange API Keys",
-          "Notification Services",
+          "Notifications",
+          "Integrations",
         ]).toContain(s.group);
       }
     });
@@ -424,20 +426,30 @@ describe("Dashboard Components - Module Imports", () => {
       expect(WIZARD_STEPS[4]?.id).toBe("done");
     });
 
-    it("should provide buildSecretCommand helper", async () => {
-      const { buildSecretCommand } =
-        await import("../src/components/dashboard/setup/setup-config");
-      const cmd = buildSecretCommand("FOO_KEY", "bar-worker", "value");
-      expect(cmd).toContain("FOO_KEY");
-      expect(cmd).toContain("bar-worker");
-      expect(cmd).toContain("value");
+    it("should provide buildSecretCommand helper with modern CLI", async () => {
+      const {
+        buildSecretCommand,
+        buildSecretSetCommand,
+        MESH_AUTOMATE_COMMAND,
+      } = await import("../src/components/dashboard/setup/setup-config");
+      const userCmd = buildSecretCommand("BINANCE_KEY_BINDING", "trade-worker");
+      expect(userCmd).toBe("hoox secrets set trade-worker BINANCE_KEY_BINDING");
+      expect(
+        buildSecretSetCommand("telegram-worker", "TG_BOT_TOKEN_BINDING")
+      ).toBe("hoox secrets set telegram-worker TG_BOT_TOKEN_BINDING");
+      const systemCmd = buildSecretCommand("WEBHOOK_API_KEY_BINDING", "hoox");
+      expect(systemCmd).toBe(MESH_AUTOMATE_COMMAND);
+      expect(MESH_AUTOMATE_COMMAND).toContain("hoox keys generate");
+      expect(MESH_AUTOMATE_COMMAND).toContain("hoox secrets sync --system");
+      expect(systemCmd).not.toContain("manage.ts");
+      expect(systemCmd).not.toContain("update-cf");
     });
 
     it("should provide groupSecretsByCategory helper", async () => {
       const { groupSecretsByCategory, REQUIRED_SECRETS } =
         await import("../src/components/dashboard/setup/setup-config");
       const grouped = groupSecretsByCategory(
-        REQUIRED_SECRETS.map((s) => ({ ...s, configured: false, example: "x" }))
+        REQUIRED_SECRETS.map((s) => ({ ...s, configured: false }))
       );
       expect(Object.keys(grouped).length).toBeGreaterThan(0);
     });

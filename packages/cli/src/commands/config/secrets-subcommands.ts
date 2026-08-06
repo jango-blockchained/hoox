@@ -319,7 +319,9 @@ EXAMPLES:
             );
           }
 
-          const devVarsPath = `workers/${workerName}/.dev.vars`;
+          const workerPath =
+            svc.getWorkerPath(workerName) ?? `workers/${workerName}`;
+          const devVarsPath = `${workerPath}/.dev.vars`;
           await updateDevVars(devVarsPath, secretName, value);
 
           formatSuccess(
@@ -402,8 +404,10 @@ EXAMPLES:
             );
           }
 
+          const workerPath =
+            svc.getWorkerPath(workerName) ?? `workers/${workerName}`;
           const proc = Bun.spawn(["wrangler", "secret", "delete", secretName], {
-            cwd: `workers/${workerName}`,
+            cwd: workerPath,
             stdout: "pipe",
             stderr: "pipe",
           });
@@ -420,7 +424,7 @@ EXAMPLES:
             );
           }
 
-          const devVarsPath = `workers/${workerName}/.dev.vars`;
+          const devVarsPath = `${workerPath}/.dev.vars`;
           const devFile = Bun.file(devVarsPath);
           if (await devFile.exists()) {
             const content = await devFile.text();

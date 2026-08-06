@@ -16,7 +16,7 @@ export type FieldType =
  * - "normal" (default): editable
  * - "dangerous": editable but requires explicit confirmation before save
  *   (e.g. kill_switch, max_daily_drawdown_percent)
- * - "secret": read-only in the UI; must be set via CLI (`hoox secrets update-cf`).
+ * - "secret": read-only in the UI; must be set via CLI (`hoox secrets set`).
  *   Use the `cliCommand` field to show the user the exact command to run.
  */
 export type FieldKind = "normal" | "dangerous" | "secret";
@@ -41,7 +41,7 @@ export interface SettingField {
   kind?: FieldKind;
   /**
    * For `kind: "secret"` fields: the exact command the user should run
-   * to set this value (e.g. `hoox secrets update-cf openai_key agent-worker`).
+   * to set this value (e.g. `hoox secrets set agent-worker OPENAI_API_KEY`).
    */
   cliCommand?: string;
   validation?: {

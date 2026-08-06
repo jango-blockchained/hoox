@@ -12,7 +12,7 @@ const CHECKLIST = [
   },
   {
     title: "Secrets",
-    body: "Keys managed via CLI / Secret Store",
+    body: "Mesh keys automated; integrations via `hoox secrets set`",
   },
   {
     title: "Webhook",

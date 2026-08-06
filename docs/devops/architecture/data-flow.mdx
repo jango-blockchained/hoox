@@ -55,7 +55,7 @@ sequenceDiagram
 
 ## 2. Autonomous AI Risk Monitoring Flow (Cron Cycle)
 
-Running on a strict **5-minute Cron schedule**, the risk management loop queries SQLite records, audits active exposures, calculates trailing stop deviations, and manages emergency halts.
+Running on a **configurable Cron schedule (1–1440 minutes; default every 15 minutes)**, the risk management loop queries SQLite records, audits active exposures, calculates trailing stop deviations, and manages emergency halts.
 
 ```mermaid
 sequenceDiagram
@@ -66,7 +66,7 @@ sequenceDiagram
     participant TW as trade-worker (Execution)
     participant TG as telegram-worker (Alerts)
 
-    Cron->>AW: Fire trigger: */5 * * * *
+    Cron->>AW: Fire trigger: triggers.crons (default */15 * * * *)
     AW->>D1: Service Binding invoke: POST /query (Get open margin positions)
     D1-->>AW: Return position matrices (Average price, leverage, unrealized P&L)
     Note over AW: Evaluate Max Daily Drawdown threshold against balance

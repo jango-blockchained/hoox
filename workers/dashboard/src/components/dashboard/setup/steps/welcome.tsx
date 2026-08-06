@@ -14,7 +14,7 @@ const PREVIEW = [
   {
     icon: KeyRound,
     title: "Secrets",
-    body: "Sync webhook, exchange, and internal auth keys via CLI.",
+    body: "One command for mesh keys (`hoox keys generate && hoox secrets sync --system`), then set exchange / bot tokens interactively.",
   },
   {
     icon: Webhook,

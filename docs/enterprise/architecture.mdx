@@ -83,7 +83,7 @@ Current HOOX (retail PoC) already uses advanced primitives (Service Bindings ~0.
 5. **Real-time & Persistent Connections**  
    - Hibernatable WebSockets in Durable Objects (keep connections alive cheaply while DO sleeps).
    - Evolve `ExchangeConnectionManager` DO to maintain persistent WS to Binance/Bybit/etc. for live fills, partials, order books.
-   - Drive risk management, notifications, and analytics from real events instead of (or alongside) 5-min cron.
+   - Drive risk management, notifications, and analytics from real events instead of (or alongside) cron-only polling.
    - Combined with Workflows for durable handling of streams.
 
 6. **Scale, Limits & Performance (Enterprise Unlocks)**  

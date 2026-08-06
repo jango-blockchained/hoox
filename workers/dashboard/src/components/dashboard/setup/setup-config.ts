@@ -15,21 +15,28 @@ import {
 // --- Types ---
 
 export type SecretGroup =
-  | "External Webhooks"
-  | "Internal Auth Keys"
+  | "Mesh (auto)"
   | "Exchange API Keys"
-  | "Notification Services";
+  | "Notifications"
+  | "Integrations";
+
+/** system = generated/synced by CLI; user = operator-supplied values */
+export type SecretKind = "system" | "user";
+
+export type SecretPriority = "critical" | "recommended" | "optional";
 
 export interface RequiredSecret {
   group: SecretGroup;
+  /** Worker key as used by `hoox secrets` (see root wrangler.jsonc `workers`) */
   worker: string;
   secret: string;
   desc: string;
+  kind: SecretKind;
+  priority: SecretPriority;
 }
 
 export interface SecretStatus extends RequiredSecret {
   configured: boolean;
-  example: string;
 }
 
 export interface WizardStep {
@@ -45,104 +52,195 @@ export interface HousekeepingCheckVM {
   detail: string;
 }
 
+// --- CLI command templates (must match packages/cli secrets + keys) ---
+
+/** Generate mesh keys and push only system secrets to Cloudflare. */
+export const MESH_AUTOMATE_COMMAND =
+  "hoox keys generate && hoox secrets sync --system";
+
+/** Inspect declared secrets / workers. */
+export const SECRETS_LIST_COMMAND = "hoox secrets list";
+
+/** Re-sync mesh keys only (after generate / rotation). */
+export const MESH_SYNC_COMMAND = "hoox secrets sync --system";
+
+/**
+ * Names that `hoox keys generate` + `hoox secrets sync --system` cover.
+ * Keep aligned with packages/cli SecretsService SYSTEM_SECRET_NAMES.
+ */
+export const SYSTEM_SECRET_NAMES = [
+  "INTERNAL_KEY_BINDING",
+  "AGENT_INTERNAL_KEY",
+  "WEBHOOK_API_KEY_BINDING",
+  "TELEGRAM_INTERNAL_KEY_BINDING",
+  "SESSION_SECRET",
+  "TRADE_INTERNAL_KEY",
+  "API_SERVICE_KEY_BINDING",
+] as const;
+
+const SYSTEM_SECRET_SET = new Set<string>(SYSTEM_SECRET_NAMES);
+
+export function isSystemSecret(name: string): boolean {
+  return SYSTEM_SECRET_SET.has(name);
+}
+
+/** Secrets that gate “Next” on the secrets wizard step. */
+export const CRITICAL_SECRET_NAMES = new Set<string>([
+  "WEBHOOK_API_KEY_BINDING",
+  "INTERNAL_KEY_BINDING",
+  "API_SERVICE_KEY_BINDING",
+]);
+
 // --- Required Secrets Catalog ---
 
+/**
+ * Secrets surfaced in the setup wizard.
+ * - Mesh secrets: one automation command covers all of them.
+ * - User secrets: set interactively with `hoox secrets set <worker> <name>`.
+ */
 export const REQUIRED_SECRETS: RequiredSecret[] = [
+  // Mesh — automated
   {
-    group: "External Webhooks",
+    group: "Mesh (auto)",
     worker: "hoox",
     secret: "WEBHOOK_API_KEY_BINDING",
-    desc: "For TradingView/External webhooks",
+    desc: "TradingView / external webhook auth on the public gateway",
+    kind: "system",
+    priority: "critical",
   },
   {
-    group: "Internal Auth Keys",
+    group: "Mesh (auto)",
+    worker: "agent-worker",
+    secret: "INTERNAL_KEY_BINDING",
+    desc: "Shared inter-worker mesh auth (all isolates)",
+    kind: "system",
+    priority: "critical",
+  },
+  {
+    group: "Mesh (auto)",
     worker: "trade-worker",
     secret: "API_SERVICE_KEY_BINDING",
-    desc: "Internal Auth Key",
+    desc: "Internal trade service key (alias of mesh key)",
+    kind: "system",
+    priority: "critical",
   },
   {
-    group: "Internal Auth Keys",
-    worker: "telegram-worker",
-    secret: "TELEGRAM_INTERNAL_KEY_BINDING",
-    desc: "Internal Auth Key",
-  },
-  {
-    group: "Internal Auth Keys",
-    worker: "d1-worker",
-    secret: "D1_READ_KEY_BINDING",
-    desc: "D1 read-only internal key (fallback: D1_INTERNAL_KEY, INTERNAL_KEY_BINDING)",
-  },
-  {
-    group: "Internal Auth Keys",
-    worker: "trade-worker",
-    secret: "TRADE_EXECUTE_KEY_BINDING",
-    desc: "Trade execute internal key (fallback: TRADE_INTERNAL_KEY, INTERNAL_KEY_BINDING)",
-  },
-  {
-    group: "Internal Auth Keys",
+    group: "Mesh (auto)",
     worker: "agent-worker",
     secret: "AGENT_INTERNAL_KEY",
-    desc: "Internal Auth Key",
+    desc: "Agent ↔ dashboard / mesh auth",
+    kind: "system",
+    priority: "recommended",
   },
+  {
+    group: "Mesh (auto)",
+    worker: "trade-worker",
+    secret: "TELEGRAM_INTERNAL_KEY_BINDING",
+    desc: "Trade → telegram internal auth",
+    kind: "system",
+    priority: "recommended",
+  },
+  {
+    group: "Mesh (auto)",
+    worker: "dashboard",
+    secret: "SESSION_SECRET",
+    desc: "Dashboard session cookie signing",
+    kind: "system",
+    priority: "recommended",
+  },
+  {
+    group: "Mesh (auto)",
+    worker: "dashboard",
+    secret: "TRADE_INTERNAL_KEY",
+    desc: "Dashboard → trade execute auth",
+    kind: "system",
+    priority: "recommended",
+  },
+
+  // Exchanges — operator values
   {
     group: "Exchange API Keys",
     worker: "trade-worker",
     secret: "BINANCE_KEY_BINDING",
-    desc: "Binance Exchange API Key",
+    desc: "Binance API key",
+    kind: "user",
+    priority: "recommended",
   },
   {
     group: "Exchange API Keys",
     worker: "trade-worker",
     secret: "BINANCE_SECRET_BINDING",
-    desc: "Binance Exchange Secret",
-  },
-  {
-    group: "Exchange API Keys",
-    worker: "trade-worker",
-    secret: "MEXC_KEY_BINDING",
-    desc: "MEXC Exchange API Key",
-  },
-  {
-    group: "Exchange API Keys",
-    worker: "trade-worker",
-    secret: "MEXC_SECRET_BINDING",
-    desc: "MEXC Exchange Secret",
+    desc: "Binance API secret",
+    kind: "user",
+    priority: "recommended",
   },
   {
     group: "Exchange API Keys",
     worker: "trade-worker",
     secret: "BYBIT_KEY_BINDING",
-    desc: "Bybit Exchange API Key",
+    desc: "Bybit API key",
+    kind: "user",
+    priority: "optional",
   },
   {
     group: "Exchange API Keys",
     worker: "trade-worker",
     secret: "BYBIT_SECRET_BINDING",
-    desc: "Bybit Secret",
+    desc: "Bybit API secret",
+    kind: "user",
+    priority: "optional",
   },
   {
-    group: "Notification Services",
+    group: "Exchange API Keys",
+    worker: "trade-worker",
+    secret: "MEXC_KEY_BINDING",
+    desc: "MEXC API key",
+    kind: "user",
+    priority: "optional",
+  },
+  {
+    group: "Exchange API Keys",
+    worker: "trade-worker",
+    secret: "MEXC_SECRET_BINDING",
+    desc: "MEXC API secret",
+    kind: "user",
+    priority: "optional",
+  },
+
+  // Notifications
+  {
+    group: "Notifications",
     worker: "telegram-worker",
     secret: "TG_BOT_TOKEN_BINDING",
-    desc: "Telegram Bot Token",
+    desc: "Telegram Bot API token",
+    kind: "user",
+    priority: "recommended",
+  },
+
+  // Other integrations
+  {
+    group: "Integrations",
+    worker: "web3-wallet-worker",
+    secret: "WALLET_PK_SECRET",
+    desc: "EVM private key (Secrets Store) — optional if using mnemonic",
+    kind: "user",
+    priority: "optional",
   },
   {
-    group: "Internal Auth Keys",
-    worker: "pyne-worker",
-    secret: "API_KEY",
-    desc: "Pine Script evaluation API key",
+    group: "Integrations",
+    worker: "web3-wallet-worker",
+    secret: "WALLET_MNEMONIC_SECRET",
+    desc: "BIP-39 mnemonic (Secrets Store) — optional if using private key",
+    kind: "user",
+    priority: "optional",
   },
   {
-    group: "External Webhooks",
-    worker: "email-worker",
-    secret: "EMAIL_USER_BINDING",
-    desc: "Email IMAP Username",
-  },
-  {
-    group: "External Webhooks",
-    worker: "email-worker",
-    secret: "EMAIL_PASS_BINDING",
-    desc: "Email IMAP Password",
+    group: "Integrations",
+    worker: "analytics-worker",
+    secret: "CLOUDFLARE_API_TOKEN",
+    desc: "Cloudflare API token for Analytics Engine SQL reads",
+    kind: "user",
+    priority: "optional",
   },
 ];
 
@@ -164,7 +262,7 @@ export const WIZARD_STEPS: WizardStep[] = [
   {
     id: "secrets",
     title: "Secrets",
-    description: "Configure required API keys",
+    description: "Automate mesh keys, then set integrations",
     icon: KeyRound,
   },
   {
@@ -183,37 +281,53 @@ export const WIZARD_STEPS: WizardStep[] = [
 
 // --- Helpers ---
 
-export function generateExampleSecret(secretName: string): string {
-  const name = secretName.toLowerCase();
-  if (
-    name.includes("key") ||
-    name.includes("token") ||
-    name.includes("secret")
-  ) {
-    return Array.from({ length: 32 }, () =>
-      Math.floor(Math.random() * 16).toString(16)
-    ).join("");
-  }
-  return "YOUR_SECRET_VALUE";
+/**
+ * CLI command to set a user-supplied secret (interactive prompt — no value in the shell).
+ */
+export function buildSecretSetCommand(
+  workerName: string,
+  secretName: string
+): string {
+  return `hoox secrets set ${workerName} ${secretName}`;
 }
 
+/**
+ * Command shown for a secret row.
+ * System secrets point at the one-shot mesh automation flow.
+ */
 export function buildSecretCommand(
   secretName: string,
   workerName: string,
-  exampleValue: string
+  _exampleValue?: string
 ): string {
-  return `bun run scripts/manage.ts secrets update-cf ${secretName} ${workerName} "${exampleValue}"`;
+  if (isSystemSecret(secretName)) {
+    return MESH_AUTOMATE_COMMAND;
+  }
+  return buildSecretSetCommand(workerName, secretName);
+}
+
+/** @deprecated Prefer buildSecretSetCommand / MESH_AUTOMATE_COMMAND */
+export function generateExampleSecret(_secretName: string): string {
+  return "";
 }
 
 export function groupSecretsByCategory(
   secrets: SecretStatus[]
-): Record<SecretGroup, SecretStatus[]> {
+): Partial<Record<SecretGroup, SecretStatus[]>> {
   return secrets.reduce(
     (acc, secret) => {
       if (!acc[secret.group]) acc[secret.group] = [];
-      acc[secret.group].push(secret);
+      acc[secret.group]!.push(secret);
       return acc;
     },
-    {} as Record<SecretGroup, SecretStatus[]>
+    {} as Partial<Record<SecretGroup, SecretStatus[]>>
   );
+}
+
+export function systemSecrets(list: SecretStatus[]): SecretStatus[] {
+  return list.filter((s) => s.kind === "system");
+}
+
+export function userSecrets(list: SecretStatus[]): SecretStatus[] {
+  return list.filter((s) => s.kind === "user");
 }

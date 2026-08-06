@@ -35,7 +35,7 @@ Bun workspaces: `packages/*`, `workers/*`, `pages/*`.
 | `packages/tui` | OpenTUI terminal dashboard | `src/main.tsx` |
 | `workers/hoox-worker` | Public gateway — webhooks, WAF, DO idempotency, dispatch ([repo](https://github.com/hoox-sh/hoox-worker)) | `src/index.ts` |
 | `workers/trade-worker` | Multi-exchange execution (Binance/Bybit/MEXC) ([repo](https://github.com/hoox-sh/trade-worker)) | `src/index.ts` |
-| `workers/agent-worker` | AI risk manager (5-min cron, kill switch) ([repo](https://github.com/hoox-sh/agent-worker)) | `src/index.ts` |
+| `workers/agent-worker` | AI risk manager (configurable cron 1–1440 min, kill switch) ([repo](https://github.com/hoox-sh/agent-worker)) | `src/index.ts` |
 | `workers/d1-worker` | D1 SQL proxy + settings/balances/positions ([repo](https://github.com/hoox-sh/d1-worker)) | `src/index.ts` |
 | `workers/telegram-worker` | Alerts, bot commands, RAG copilot ([repo](https://github.com/hoox-sh/telegram-worker)) | `src/index.ts` |
 | `workers/web3-wallet-worker` | On-chain wallet identity (ethers.js) ([repo](https://github.com/hoox-sh/web3-wallet-worker)) | `src/index.ts` |

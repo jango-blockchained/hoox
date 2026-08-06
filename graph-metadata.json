@@ -49,7 +49,7 @@
       ]
     },
     "workers/agent-worker": {
-      "description": "AI risk manager. Runs on a 5-minute cron to monitor open positions, assess portfolio risk using Workers AI, and autonomously adjust positions via trade-worker or alert via telegram-worker.",
+      "description": "AI risk manager. Runs on a configurable cron (1–1440 minutes; default */15 * * * *) to monitor open positions, assess portfolio risk using Workers AI, and autonomously adjust positions via trade-worker or alert via telegram-worker.",
       "category": "ai-agent",
       "tags": [
         "ai",
@@ -62,12 +62,12 @@
         "trailing-stop",
         "model-router"
       ],
-      "llmContext": "Autonomous AI agent with multi-provider model routing. Runs on */5 * * * * cron executing runHousekeeping (reads positions from D1, checks trailing stops) and processRoutine (AI risk assessment via ProviderManager). Scheduled handler also triggered via POST /agent/housekeeping endpoint (service binding target from dashboard). REST endpoints (all require internal auth except /agent/health): POST /agent/housekeeping (trigger housekeeping), POST /agent/risk-override (set trailingStopPercent in CONFIG_KV), GET /agent/status (provider config + active trailing stops), GET/POST /agent/config (load/update AgentConfig), POST /agent/test-model (test specific provider/model), POST /agent/chat (generic AI chat with system prompt + temperature + maxTokens), POST /agent/embedding (generate text embeddings), GET /agent/models (list all available models), GET /agent/health (provider health status). ProviderManager supports fallback chain: workers-ai → openai → anthropic → google. Manages trailing stops via CONFIG_KV keys prefixed 'trade:watermark:'. Exported for testing: requireInternalAuth, checkInternalAuth, processRoutine. Key types: AIRequest (messages, model, temperature, maxTokens), AgentConfig (defaultProvider, fallbackChain, modelMap), ProviderName union. Uses createInternalAuthMiddleware for auth. Key logic files: ./logic/trade (fetchMarkPrice, sendCloseOrder), ./logic/housekeeping, ./logic/routine.",
-      "cron": "*/5 * * * *",
+      "llmContext": "Autonomous AI agent with multi-provider model routing. Runs on configurable cron (1–1440 minutes; default */15 * * * *) executing runHousekeeping (reads positions from D1, checks trailing stops) and processRoutine (AI risk assessment via ProviderManager). Scheduled handler also triggered via POST /agent/housekeeping endpoint (service binding target from dashboard). REST endpoints (all require internal auth except /agent/health): POST /agent/housekeeping (trigger housekeeping), POST /agent/risk-override (set trailingStopPercent in CONFIG_KV), GET /agent/status (provider config + active trailing stops), GET/POST /agent/config (load/update AgentConfig), POST /agent/test-model (test specific provider/model), POST /agent/chat (generic AI chat with system prompt + temperature + maxTokens), POST /agent/embedding (generate text embeddings), GET /agent/models (list all available models), GET /agent/health (provider health status). ProviderManager supports fallback chain: workers-ai → openai → anthropic → google. Manages trailing stops via CONFIG_KV keys prefixed 'trade:watermark:'. Exported for testing: requireInternalAuth, checkInternalAuth, processRoutine. Key types: AIRequest (messages, model, temperature, maxTokens), AgentConfig (defaultProvider, fallbackChain, modelMap), ProviderName union. Uses createInternalAuthMiddleware for auth. Key logic files: ./logic/trade (fetchMarkPrice, sendCloseOrder), ./logic/housekeeping, ./logic/routine.",
+      "cron": "*/15 * * * *",
       "isPublic": false,
       "smartPlacement": true,
       "entryPoints": [
-        "scheduled (*/5 * * * *)",
+        "scheduled (triggers.crons, default */15 * * * *)",
         "POST /agent/housekeeping",
         "POST /agent/risk-override",
         "GET /agent/status",
@@ -636,7 +636,7 @@
     {
       "id": "ai-system",
       "label": "AI & Risk Management",
-      "description": "Autonomous AI risk management subsystem: agent-worker (5-min cron) reads positions from D1, assesses risk via Workers AI (with multi-provider fallback: workers-ai → openai → anthropic → google), adjusts positions via trade-worker, sends alerts via telegram-worker. Uses Vectorize index for RAG context retrieval. Embeddings generated via Workers AI.",
+      "description": "Autonomous AI risk management subsystem: agent-worker (configurable cron 1–1440 min) reads positions from D1, assesses risk via Workers AI (with multi-provider fallback: workers-ai → openai → anthropic → google), adjusts positions via trade-worker, sends alerts via telegram-worker. Uses Vectorize index for RAG context retrieval. Embeddings generated via Workers AI.",
       "nodeIds": [
         "workspace:workers/agent-worker",
         "workspace:workers/telegram-worker",

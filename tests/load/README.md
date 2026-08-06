@@ -34,7 +34,7 @@ k6 run tests/load/system-mixed.js
 | ---------------------------------------- | ------------ | --------------------------------------- | -------- | ----------------------------------------------------------- |
 | [`webhook-flow.js`](webhook-flow.js)     | hoox gateway | `POST /webhook`                         | P0       | Simulates TradingView alert flow through the public gateway |
 | [`d1-query-load.js`](d1-query-load.js)   | d1-worker    | `POST /query`, `POST /batch`            | P1       | Concurrent database query patterns                          |
-| [`agent-cron-sim.js`](agent-cron-sim.js) | agent-worker | `GET /agent/status`, `POST /agent/chat` | P2       | Simulates the 5-minute cron loop                            |
+| [`agent-cron-sim.js`](agent-cron-sim.js) | agent-worker | `GET /agent/status`, `POST /agent/chat` | P2       | Simulates the agent cron loop (configurable 1–1440 min)     |
 | [`system-mixed.js`](system-mixed.js)     | All          | Mixed                                   | P2       | Combined realistic traffic distribution                     |
 
 ## Environment Variables

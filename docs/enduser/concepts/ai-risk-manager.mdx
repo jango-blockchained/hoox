@@ -5,20 +5,20 @@
 
 ---
 title: "AI Risk Manager & AI Gateway"
-description: "How the agent-worker runs 5-minute cron checks to calculate trailing stops, evaluate max daily drawdowns, and govern a multi-provider fallback AI gateway."
+description: "How the agent-worker runs configurable cron checks (1–1440 minutes) to calculate trailing stops, evaluate max daily drawdowns, and govern a multi-provider fallback AI gateway."
 ---
 
-The **`agent-worker`** is the autonomous central nervous system of the Hoox trading platform. Operating on a continuous **5-minute Cloudflare Cron trigger**, it acts as an intelligent sentinel: it monitors open exchange positions, mathematically scales trailing stop-losses, and deploys a multi-provider fallback AI engine to analyze market conditions, audit risk, and send real-time summaries to your phone.
+The **`agent-worker`** is the autonomous central nervous system of the Hoox trading platform. Operating on a **configurable Cloudflare Cron trigger (1–1440 minutes; default every 15 minutes)**, it acts as an intelligent sentinel: it monitors open exchange positions, mathematically scales trailing stop-losses, and deploys a multi-provider fallback AI engine to analyze market conditions, audit risk, and send real-time summaries to your phone.
 
 ---
 
 ## 🛡️ 1. Automated Risk Protection Engine
 
-Every 5 minutes, `agent-worker` executes a multi-point risk diagnostic loop across all active exchanges:
+On each cron tick, `agent-worker` executes a multi-point risk diagnostic loop across all active exchanges:
 
 ```mermaid
 graph TD
-    Cron[5-Min Cron Trigger] --> Query[Query D1 & Exchange Balances]
+    Cron[Cron Trigger 1–1440 min] --> Query[Query D1 & Exchange Balances]
     Query --> Drawdown{Drawdown > Max Daily Limit?}
     Drawdown -->|YES 🚨| Kill[Flip Global Kill Switch & Flatten All Positions]
     Drawdown -->|NO| Stops[Evaluate Open Positions]
@@ -104,9 +104,10 @@ The gateway exposes professional endpoints for secure inter-worker and external 
 ---
 
 <Tip>
-  You can adjust all AI gateway defaults, Cron check intervals, and trailing
-  deviations in real-time by writing to your KV configurations. No code
-  deployments are ever required to tune your risk profile.
+  AI gateway defaults and trailing deviations update in real-time via KV — no
+  redeploy needed for risk profile tweaks. The **cron interval** is set in
+  `wrangler.jsonc` → `triggers.crons` (1–1440 minutes); change it and redeploy
+  the agent-worker. See the [agent-worker profile](/devops/workers/agent-worker).
 </Tip>
 
 ### 🔗 Next Steps

@@ -38,6 +38,13 @@ export interface DashboardSettingField {
   options?: DashboardFieldOption[];
   kind?: DashboardFieldKind;
   cliCommand?: string;
+  /** Optional bounds/pattern (e.g. cron interval_minutes min 1 max 1440). */
+  validation?: {
+    min?: number;
+    max?: number;
+    pattern?: string;
+    required?: boolean;
+  };
 }
 
 export interface DashboardSection {
@@ -253,6 +260,10 @@ interface RawSection {
   fields?: Record<string, string | number | boolean>;
   options?: Record<string, Array<string | number>>;
   descriptions?: Record<string, string>;
+  validation?: Record<
+    string,
+    { min?: number; max?: number; pattern?: string; required?: boolean }
+  >;
   secrets?: Record<string, boolean>;
   secret_commands?: Record<string, string>;
 }
@@ -288,6 +299,7 @@ export function parseDashboardManifest(
         const sectionFields = sectionData.fields || {};
         const sectionOptions = sectionData.options || {};
         const sectionDescriptions = sectionData.descriptions || {};
+        const sectionValidation = sectionData.validation || {};
         const sectionSecrets = sectionData.secrets || {};
         const sectionSecretCommands = sectionData.secret_commands || {};
 
@@ -309,6 +321,10 @@ export function parseDashboardManifest(
 
           if (sectionDescriptions[key]) {
             field.description = String(sectionDescriptions[key]);
+          }
+
+          if (sectionValidation[key]) {
+            field.validation = sectionValidation[key];
           }
 
           if (sectionSecrets[key]) {

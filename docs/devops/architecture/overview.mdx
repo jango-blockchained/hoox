@@ -100,7 +100,7 @@ graph TB
 | :--------------------- | :--------------: | :----------: | :------------------: | :------------------------: | :-------------------: |
 | **`hoox`**             |  Gateway Router  |      No      | **Yes** (`/webhook`) |    **Yes** (Fast path)     | Time-series Telemetry |
 | **`trade-worker`**     | Order Execution  |      No      |    No (Isolated)     | **Yes** (Exchange Proxied) |    Execution Logs     |
-| **`agent-worker`**     | Risk Management  |  Cron `*/5`  |    No (Isolated)     | **Yes** (Account Auditing) |      Alert Logs       |
+| **`agent-worker`**     | Risk Management  |  Cron 1–1440 min (default `*/15`)  |    No (Isolated)     | **Yes** (Account Auditing) |      Alert Logs       |
 | **`telegram-worker`**  |  Alerts & Chat   |      No      |    No (Isolated)     |  **Yes** (Telegram APIs)   |     Command Logs      |
 | **`d1-worker`**        |  SQLite Manager  |      No      |    No (Isolated)     |   **Yes** (SQLite Bound)   |     Query Latency     |
 | **`report-worker`**    |  Puppeteer PDF   | Cron `06,18` |    No (Isolated)     |  **Yes** (Rendering APIs)  |     Print Status      |

@@ -319,30 +319,64 @@ class ApiClient {
   async getSecretsStatus(): Promise<{
     success: boolean;
     secrets: { name: string; synced: boolean }[];
+    internalKeys?: { name: string; synced: boolean }[];
+    cli?: {
+      automateMesh: string;
+      syncSystem: string;
+      set: string;
+      list: string;
+    };
     error?: string;
   }> {
     return this.fetchWithAuth<{
       success: boolean;
       secrets: { name: string; synced: boolean }[];
+      internalKeys?: { name: string; synced: boolean }[];
+      cli?: {
+        automateMesh: string;
+        syncSystem: string;
+        set: string;
+        list: string;
+      };
       error?: string;
     }>("/api/secrets");
   }
 
-  async syncSecretToPages(
-    secretName: string,
-    secretValue: string
-  ): Promise<{ success: boolean; message?: string; error?: string }> {
+  /**
+   * Ask the secrets API for CLI automation hints (no values are written).
+   * Prefer `hoox keys generate && hoox secrets sync --system` from a terminal.
+   */
+  async requestSecretsCliHint(
+    action:
+      | "automate-mesh"
+      | "hint"
+      | "sync-all-internal-keys" = "automate-mesh"
+  ): Promise<{
+    success: boolean;
+    message?: string;
+    command?: string;
+    cli?: {
+      automateMesh: string;
+      syncSystem: string;
+      set: string;
+      list: string;
+    };
+    error?: string;
+  }> {
     return this.fetchWithAuth<{
       success: boolean;
       message?: string;
+      command?: string;
+      cli?: {
+        automateMesh: string;
+        syncSystem: string;
+        set: string;
+        list: string;
+      };
       error?: string;
     }>("/api/secrets", {
       method: "POST",
-      body: JSON.stringify({
-        action: "sync-to-pages",
-        secretName,
-        secretValue,
-      }),
+      body: JSON.stringify({ action }),
     });
   }
 

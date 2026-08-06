@@ -34,6 +34,20 @@ export const ParsedSectionSchema = z
       .record(z.string(), z.array(z.union([z.string(), z.number()])))
       .optional(),
     descriptions: z.record(z.string(), z.string()).optional(),
+    // Per-field min/max/pattern for number and text inputs (e.g. cron interval 1–1440).
+    validation: z
+      .record(
+        z.string(),
+        z
+          .object({
+            min: z.number().optional(),
+            max: z.number().optional(),
+            pattern: z.string().optional(),
+            required: z.boolean().optional(),
+          })
+          .strict()
+      )
+      .optional(),
     // Per-field metadata for the UI. "secrets" marks secret fields
     // (read-only in the form, set via CLI). "secret_commands" maps each
     // secret field to the exact CLI command.
@@ -111,6 +125,7 @@ export function parseDashboardJSONC(
         const sectionFields = sectionData.fields || {};
         const sectionOptions = sectionData.options || {};
         const sectionDescriptions = sectionData.descriptions || {};
+        const sectionValidation = sectionData.validation || {};
         const sectionSecrets = sectionData.secrets || {};
         const sectionSecretCommands = sectionData.secret_commands || {};
 
@@ -131,6 +146,10 @@ export function parseDashboardJSONC(
 
           if (sectionDescriptions[key]) {
             field.description = String(sectionDescriptions[key]);
+          }
+
+          if (sectionValidation[key]) {
+            field.validation = sectionValidation[key];
           }
 
           // S-3: secret fields are read-only in the form. The default value

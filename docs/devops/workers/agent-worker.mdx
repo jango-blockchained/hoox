@@ -10,13 +10,13 @@ description: "Comprehensive engineering specification for the Hoox Agent Cron Wo
 
 **Last Updated:** May 2026 (Post-Enhancement)
 
-The `agent-worker` serves as the proactive intelligence layer of the Hoox trading ecosystem. Rather than waiting for webhooks, it runs continuously on a cron schedule to monitor portfolio health, enforce risk limits, and optimize position exits.
+The `agent-worker` serves as the proactive intelligence layer of the Hoox trading ecosystem. Rather than waiting for webhooks, it runs on a **configurable Cloudflare Cron schedule (1–1440 minutes)** to monitor portfolio health, enforce risk limits, and optimize position exits. The default in this repo is every **15 minutes** (`*/15 * * * *`).
 
 ## Core Capabilities
 
 | Feature                        | Description                                                                                                                                   |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| ⏱️ **Cron-Driven Observation** | Automatically runs every 5 minutes (`*/5 * * *`) to fetch live market data from Binance, Bybit, and MEXC.                                     |
+| ⏱️ **Cron-Driven Observation** | Runs on a configurable interval (1–1440 minutes via `triggers.crons`; default `*/15 * * * *`) to fetch live market data from Binance, Bybit, and MEXC. |
 | 🛡️ **Global Kill Switch**      | Calculates total account PnL and instantly locks out the `hoox` gateway from new entries if the `max_daily_drawdown_percent` is breached.     |
 | 🎯 **Dynamic Trailing Stops**  | Stores watermark prices in `CONFIG_KV` and automatically triggers `CLOSE` payloads if the market reverses.                                    |
 | 💸 **Scale-Out Take Profits**  | Detects when a position reaches a specific profit target and automatically sends partial close commands to secure gains.                      |
@@ -26,7 +26,7 @@ The `agent-worker` serves as the proactive intelligence layer of the Hoox tradin
 
 ## Architecture & Flow
 
-1. **Trigger:** Cloudflare® Cron triggers the worker.
+1. **Trigger:** Cloudflare® Cron triggers the worker (interval set in `wrangler.jsonc` → `triggers.crons`, 1–1440 minutes).
 2. **State Sync:** Fetches active `OPEN` positions via the `d1-worker`.
 3. **Market Pulse:** Pings public exchange APIs for the latest `markPrice`.
 4. **Risk Evaluation:** Cross-references current price with KV-stored watermarks and global drawdown limits.
@@ -232,6 +232,23 @@ Retrieve the real-time health of the agent and active trailing stops.
 
 ## Configuration
 
+### Cron schedule (1–1440 minutes)
+
+The schedule is **not** hard-coded to 5 minutes. Set `triggers.crons` in `workers/agent-worker/wrangler.jsonc` (or the example file) to any interval from 1 to 1440 minutes:
+
+| Minutes | Example cron        |
+| ------- | ------------------- |
+| 1       | `* * * * *`         |
+| 15      | `*/15 * * * *` (default) |
+| 60      | `0 * * * *`         |
+| 1440    | `0 0 * * *`         |
+
+- Align `dashboard.jsonc` → `cron.interval_minutes` (free number, validated 1–1440) with your wrangler expression for operator docs.
+- Disable scheduled runs with `"crons": []`; manual `POST /agent/housekeeping` still works.
+- Redeploy after changing the schedule.
+
+See the [agent-worker README](https://github.com/hoox-sh/agent-worker) for the full mapping table.
+
 ### KV Keys
 
 All configuration is stored in `CONFIG_KV` for real-time adjustments.
@@ -296,7 +313,7 @@ All configuration is stored in `CONFIG_KV` for real-time adjustments.
 The AI Gateway provides:
 
 - **Fallback Chain**: Automatically tries providers in order on failure
-- **Health Checks**: Providers self-report health status every 5 minutes
+- **Health Checks**: Providers self-report health status on each cron tick
 - **Retry Logic**: Exponential backoff with configurable max retries
 - **Timeout Protection**: Configurable per-request timeout (default 30s)
 - **Usage Tracking**: Automatic token and request counting per provider

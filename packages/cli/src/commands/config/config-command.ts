@@ -206,12 +206,12 @@ ARGUMENTS:
 PATH EXAMPLES:
   global.subdomain_prefix          → Set subdomain
   workers.trade-worker.enabled    → Enable/disable worker
-  workers.agent-worker.vars.interval → Set worker variable
+  workers.agent-worker.vars.interval → Set worker variable (minutes 1–1440)
 
 EXAMPLES:
   hoox config set global.subdomain_prefix myapp
   hoox config set workers.trade-worker.enabled false
-  hoox config set workers.agent-worker.vars.interval 5`
+  hoox config set workers.agent-worker.vars.interval 15`
     )
     .action(
       withErrorHandling(

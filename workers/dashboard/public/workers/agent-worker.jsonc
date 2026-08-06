@@ -1,6 +1,6 @@
 {
   "display_name": "Agent Worker",
-  "description": "AI risk manager and autonomous agent - runs every 5 minutes to monitor positions, enforce risk limits, and optimize position exits. Provider/model/risk numeric fields merge into agent:config; secrets via CLI; cron/behavior are not wired to KV.",
+  "description": "AI risk manager and autonomous agent — cron-driven (1–1440 minutes) risk monitor for positions, limits, and exits. Provider/model/risk numeric fields merge into agent:config; secrets via CLI. Cron interval is set in wrangler triggers (see README); behavior is not wired to KV.",
   "sections": {
     "agent": {
       "title": "AI Configuration",
@@ -15,9 +15,9 @@
       },
       "descriptions": {
         "config": "JSON configuration string for AI provider settings, model selection, fallback chain, timeouts, and risk parameters. See README for full schema.",
-        "openai_key": "OpenAI API Key (Secret). DO NOT save plaintext via Dashboard. Manually execute: 'hoox secrets update-cf openai_key agent-worker'",
-        "anthropic_key": "Anthropic API Key (Secret). DO NOT save plaintext via Dashboard. Manually execute: 'hoox secrets update-cf anthropic_key agent-worker'",
-        "google_key": "Google Gemini API Key (Secret). DO NOT save plaintext via Dashboard. Manually execute: 'hoox secrets update-cf google_key agent-worker'"
+        "openai_key": "OpenAI API Key (Secret). DO NOT save plaintext via Dashboard. Run: hoox secrets set agent-worker OPENAI_API_KEY",
+        "anthropic_key": "Anthropic API Key (Secret). DO NOT save plaintext via Dashboard. Run: hoox secrets set agent-worker ANTHROPIC_API_KEY",
+        "google_key": "Google Gemini API Key (Secret). DO NOT save plaintext via Dashboard. Run: hoox secrets set agent-worker GOOGLE_API_KEY"
       },
       "secrets": {
         "openai_key": true,
@@ -25,35 +25,31 @@
         "google_key": true
       },
       "secret_commands": {
-        "openai_key": "hoox secrets update-cf openai_key agent-worker",
-        "anthropic_key": "hoox secrets update-cf anthropic_key agent-worker",
-        "google_key": "hoox secrets update-cf google_key agent-worker"
+        "openai_key": "hoox secrets set agent-worker OPENAI_API_KEY",
+        "anthropic_key": "hoox secrets set agent-worker ANTHROPIC_API_KEY",
+        "google_key": "hoox secrets set agent-worker GOOGLE_API_KEY"
       }
     },
     "cron": {
       "title": "Schedule",
-      "description": "Cron and automation settings",
+      "description": "Cron schedule (1–1440 minutes). Map interval_minutes to wrangler triggers.crons — see agent-worker README.",
       "icon": "clock",
       "priority": 20,
       "fields": {
         "enabled": true,
-        "interval_minutes": 5,
+        "interval_minutes": 15,
         "housekeeping_enabled": true
       },
-      "options": {
-        "interval_minutes": [
-          1,
-          5,
-          10,
-          15,
-          30,
-          60
-        ]
-      },
       "descriptions": {
-        "enabled": "Enable or disable the agent-worker's cron trigger. When disabled, the worker will not run on schedule.",
-        "interval_minutes": "Cron interval in minutes. Default is 5 minutes (*/5 * * * *).",
+        "enabled": "Document whether the agent-worker cron trigger is enabled. Actual enablement is wrangler triggers.crons (empty array = disabled).",
+        "interval_minutes": "Desired cron interval in minutes (1–1440). Set the matching expression in wrangler.jsonc triggers.crons (e.g. 15 → */15 * * * *, 60 → 0 * * * *, 1440 → 0 0 * * *). Default 15.",
         "housekeeping_enabled": "Enable housekeeping tasks like health checks, AI health summaries, and system log analysis."
+      },
+      "validation": {
+        "interval_minutes": {
+          "min": 1,
+          "max": 1440
+        }
       }
     },
     "risk": {

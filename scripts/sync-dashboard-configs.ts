@@ -47,6 +47,20 @@ const ParsedSectionSchema = z
       .record(z.string(), z.array(z.union([z.string(), z.number()])))
       .optional(),
     descriptions: z.record(z.string(), z.string()).optional(),
+    // Per-field min/max/pattern for number and text inputs (e.g. cron interval 1–1440).
+    validation: z
+      .record(
+        z.string(),
+        z
+          .object({
+            min: z.number().optional(),
+            max: z.number().optional(),
+            pattern: z.string().optional(),
+            required: z.boolean().optional(),
+          })
+          .strict()
+      )
+      .optional(),
     secrets: z.record(z.string(), z.boolean()).optional(),
     secret_commands: z.record(z.string(), z.string()).optional(),
   })

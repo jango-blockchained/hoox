@@ -206,7 +206,7 @@ Ten specialized V8 isolates communicate over Cloudflare Service Bindings — dir
 | -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | `hoox` (gateway)     | Public webhook ingress, WAF/IP allowlist, rate limits, Durable Object idempotency, dispatch | [hoox-worker](https://github.com/hoox-sh/hoox-worker)               |
 | `trade-worker`       | Multi-exchange execution (Binance / Bybit / MEXC), queue consumers, D1 fills                | [trade-worker](https://github.com/hoox-sh/trade-worker)             |
-| `agent-worker`       | AI risk manager — 5-min cron, trailing stops, kill switch                                   | [agent-worker](https://github.com/hoox-sh/agent-worker)             |
+| `agent-worker`       | AI risk manager — configurable cron (1–1440 min), trailing stops, kill switch               | [agent-worker](https://github.com/hoox-sh/agent-worker)             |
 | `d1-worker`          | D1 SQL proxy (table allowlist), settings KV, balances & positions                           | [d1-worker](https://github.com/hoox-sh/d1-worker)                   |
 | `telegram-worker`    | Notification plane — alerts, bot commands, RAG copilot                                      | [telegram-worker](https://github.com/hoox-sh/telegram-worker)       |
 | `email-worker`       | Mailgun / email signal parsing → trade-worker                                               | [email-worker](https://github.com/hoox-sh/email-worker)             |

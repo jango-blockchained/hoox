@@ -88,7 +88,7 @@ The system runs **10 Cloudflare Workers** across dedicated services: gateway, tr
 │                         ▼                    ▼              ▼                     ▼                              │
 │ ┌──────────────────────────────┐ ┌──────────────────────┐ ┌────────────────────┐ ┌────────────────────────────┐  │
 │ │    agent-worker (AI Agent)    │ │    report-worker     │ │   dashboard         │ │  Docs Site (pages/docs)   │  │
-│ │    Runs */5 * * * *           │ │    PDF Reports       │ │   workers/dashboard │ │  Astro-based docs site    │  │
+│ │    Cron 1–1440 min (*/15 def) │ │    PDF Reports       │ │   workers/dashboard │ │  Astro-based docs site    │  │
 │ │    - Portfolio monitoring    │ │    via Browser Rend. │ │   Next.js 16        │ │                           │  │
 │ │    - Risk management         │ │    Cron 06:00+18:00  │ │   OpenNext/CF       │ │                           │  │
 │ │    - Autonomous decisions    │ │    ➜ R2 + Telegram    │ │   ➜ D1 + Agent      │ │                           │  │
@@ -108,7 +108,7 @@ The system runs **10 Cloudflare Workers** across dedicated services: gateway, tr
 | ---------------------- | ----------------------------- | ---------------------------------- | ---------------- |
 | **hoox**               | `workers/hoox-worker/`               | Gateway/firewall for webhooks      | -                |
 | **trade-worker**       | `workers/trade-worker/`       | Multi-exchange execution           | -                |
-| **agent-worker**       | `workers/agent-worker/`       | AI risk manager                    | `*/5 * * * *`    |
+| **agent-worker**       | `workers/agent-worker/`       | AI risk manager                    | 1–1440 min (default `*/15 * * * *`) |
 | **dashboard**          | `workers/dashboard/`          | Next.js dashboard                  | -                |
 | **telegram-worker**    | `workers/telegram-worker/`    | Notifications                      | -                |
 | **d1-worker**          | `workers/d1-worker/`          | D1 database ops                    | -                |

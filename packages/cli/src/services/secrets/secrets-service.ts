@@ -98,6 +98,15 @@ export class SecretsService {
   }
 
   /**
+   * Filesystem directory for a worker (from root wrangler.jsonc `path`).
+   * e.g. logical name `hoox` → `workers/hoox-worker`.
+   */
+  getWorkerPath(workerName: string): string | null {
+    const worker = this.config.workers[workerName];
+    return worker?.path ?? null;
+  }
+
+  /**
    * Returns a map of every worker → its declared secret names.
    * Workers that declare no secrets are omitted from the result.
    */

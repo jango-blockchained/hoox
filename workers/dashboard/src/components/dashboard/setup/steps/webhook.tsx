@@ -43,8 +43,12 @@ export function WizardWebhookStep() {
             gateway authenticates each request with{" "}
             <code className="bg-background rounded border px-1 font-mono text-[10px]">
               WEBHOOK_API_KEY_BINDING
+            </code>{" "}
+            (created by{" "}
+            <code className="bg-background rounded border px-1 font-mono text-[10px]">
+              hoox keys generate
             </code>
-            .
+            ).
           </p>
         </div>
       </div>

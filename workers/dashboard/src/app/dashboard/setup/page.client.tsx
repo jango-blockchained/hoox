@@ -17,7 +17,7 @@ export default function SetupClient() {
         as="h2"
         icon={<Setting2 className="text-primary size-8" />}
         title="Setup Wizard"
-        description="First-run checklist — workers, secrets, webhook, then go live"
+        description="First-run checklist — workers, automate mesh keys, webhook, go live"
       />
       <SetupWizard />
       <DeployedInfrastructure />

@@ -261,7 +261,7 @@ See the `tests/load/` directory for full documentation.
 | ------------------- | ----------------------------- | ------------------------------ |
 | `webhook-flow.js`   | hoox `POST /webhook`          | TradingView alert simulation   |
 | `d1-query-load.js`  | d1-worker `POST /query+batch` | Concurrent D1 query patterns   |
-| `agent-cron-sim.js` | agent-worker                  | 5-minute cron cycle simulation |
+| `agent-cron-sim.js` | agent-worker                  | Agent cron cycle simulation (1–1440 min schedule) |
 | `system-mixed.js`   | All combined                  | 70/20/10 traffic distribution  |
 
 **CI:** Nightly via `.github/workflows/load-test.yml` (informational thresholds).

@@ -44,7 +44,7 @@ Hoox is an edge-deployed cryptocurrency trading system built on Cloudflare Worke
 | ----------------- | ---------------------------------------------------------------------------- |
 | **Gateway**       | `hoox` (webhook entrypoint, DO idempotency, KV-backed rate limiting)         |
 | **Execution**     | `trade-worker` (multi-exchange), `web3-wallet-worker` (DeFi)                 |
-| **Intelligence**  | `agent-worker` (AI risk manager, 5min cron, multi-provider AI gateway)       |
+| **Intelligence**  | `agent-worker` (AI risk manager, configurable 1–1440 min cron, multi-provider AI gateway)       |
 | **Data**          | `d1-worker` (centralized D1 database service)                                |
 | **Notifications** | `telegram-worker` (Telegram bot), `email-worker` (email signal parsing)      |
 | **Analytics**     | `analytics-worker` (Cloudflare Analytics Engine, cross-worker observability) |
@@ -1001,7 +1001,7 @@ wrangler kv:key get --namespace-id=c5917667a21745e390ff969f32b1847d "trade:kill_
 - [ ] Telegram webhook is set and responding
 - [ ] Dashboard accessible and authenticated
 - [ ] Analytics Engine receiving data points
-- [ ] Cron triggers scheduled (agent-worker: every 5min, email-worker: every 5min)
+- [ ] Cron triggers scheduled (agent-worker: 1–1440 min via `triggers.crons`, default 15 min; email-worker: every 5 min)
 
 ---
 

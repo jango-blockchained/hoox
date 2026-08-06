@@ -125,22 +125,37 @@ export function SetupWizard({
       }
 
       if (secrets?.success && Array.isArray(secrets.secrets)) {
-        // Critical secrets: webhook + at least one internal auth key if present
+        // Critical mesh secrets (aligned with setup-config CRITICAL_SECRET_NAMES)
         const criticalNames = [
           "WEBHOOK_API_KEY_BINDING",
+          "INTERNAL_KEY_BINDING",
           "API_SERVICE_KEY_BINDING",
-          "D1_READ_KEY_BINDING",
         ];
         const synced = new Set(
           secrets.secrets.filter((s) => s.synced).map((s) => s.name)
         );
+        // INTERNAL_KEY_BINDING may only appear as an alias (API_SERVICE / AGENT)
+        const meshAuthOk =
+          synced.has("INTERNAL_KEY_BINDING") ||
+          synced.has("API_SERVICE_KEY_BINDING") ||
+          synced.has("AGENT_INTERNAL_KEY");
+        const webhookOk = synced.has("WEBHOOK_API_KEY_BINDING");
         const known = new Set(secrets.secrets.map((s) => s.name));
-        // Only require secrets the status endpoint knows about
-        const required = criticalNames.filter((n) => known.has(n));
-        if (required.length === 0) {
+        const tracksWebhook = known.has("WEBHOOK_API_KEY_BINDING");
+        const tracksMesh =
+          known.has("INTERNAL_KEY_BINDING") ||
+          known.has("API_SERVICE_KEY_BINDING") ||
+          known.has("AGENT_INTERNAL_KEY");
+        if (!tracksWebhook && !tracksMesh) {
           setCriticalSecretsOk(null);
         } else {
-          setCriticalSecretsOk(required.every((n) => synced.has(n)));
+          const ok =
+            (!tracksWebhook || webhookOk) && (!tracksMesh || meshAuthOk);
+          // Also accept if any of the critical names the endpoint tracks are all synced
+          const required = criticalNames.filter((n) => known.has(n));
+          setCriticalSecretsOk(
+            ok || (required.length > 0 && required.every((n) => synced.has(n)))
+          );
         }
       } else {
         setCriticalSecretsOk(null);
@@ -184,7 +199,7 @@ export function SetupWizard({
         return {
           canProceed: false,
           reason:
-            "Critical secrets (webhook / internal auth / D1 read) are missing. Configure them via CLI, or continue with limited functionality.",
+            "Critical mesh secrets are missing. Run `hoox keys generate && hoox secrets sync --system`, then re-check — or continue with limited functionality.",
           allowOverride: true,
         };
       }
