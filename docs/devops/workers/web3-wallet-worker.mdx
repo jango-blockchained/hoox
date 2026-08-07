@@ -65,36 +65,40 @@ INTERNAL_KEY_BINDING=dev_shared_internal_security_key
 
 > **Note:** For the canonical endpoint directory with full request/response examples across all workers, see [`/docs/devops/api/endpoints`](../api/endpoints).
 
-### A. Execute On-Chain Transaction
+All endpoints except `GET /health` require `X-Internal-Auth-Key` (fail-closed via `createInternalAuthMiddleware`).
 
-- **Endpoint**: `/process`
-- **Method**: `POST`
+| Method | Path | Purpose |
+| ------ | ---- | ------- |
+| `GET` | `/` | Derive wallet address from secrets (identity init) |
+| `GET` | `/health` | Liveness (unauthenticated) |
+| `GET` | `/status` | Address + config summary |
+| `GET` / `PUT` | `/config` | Read / deep-merge wallet security + DEX config |
+| `GET` | `/balance?chain=&address=&token=` | Native or ERC-20 balance |
+| `POST` | `/transfer` | ERC-20 transfer (server-side USD pricing + policy) |
+| `POST` | `/approve` | ERC-20 approve (spender whitelist + maxApprovalAmount) |
+| `GET` | `/quote` | DEX quote (read-only) |
+| `POST` | `/swap` | DEX swap via Uniswap-V2-compatible router |
+| `GET` | `/transactions` | List stored tx records (D1) |
+
+### A. Transfer tokens
+
+- **Endpoint**: `POST /transfer`
 - **Headers**: `X-Internal-Auth-Key: <INTERNAL_KEY_BINDING>`
 - **JSON Payload**:
   ```json
   {
-    "requestId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
-    "payload": {
-      "action": "sendTransaction",
-      "chain": "arbitrum",
-      "to": "0x6b175474e89094c44da98b954eedeac495271d0f",
-      "value": "0.05",
-      "data": "0xa9059cbb000000000000000000000000...",
-      "gasLimit": 100000
-    }
+    "chain": "ethereum",
+    "tokenAddress": "0x6b175474e89094c44da98b954eedeac495271d0f",
+    "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    "amount": "1000000000000000000"
   }
   ```
+- **Notes**: `amount` is wei as a non-negative **integer string**. Zero-address recipients are rejected. Client `valueUsd` is ignored — USD notional is priced server-side (stablecoin / native oracle / DEX quote) and fail-closed if unpriceable.
 - **Success Response (200 OK)**:
   ```json
   {
-    "success": true,
-    "result": {
-      "txHash": "0x53a9284739ebfd10482da73cbcfd10482da73cbcfd10482da73cbcfd10482ab",
-      "nonce": 142,
-      "gasUsed": 64205,
-      "effectiveGasPrice": "24000000000"
-    },
-    "error": null
+    "txHash": "0x53a9284739ebfd10482da73cbcfd10482da73cbcfd10482da73cbcfd10482ab",
+    "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
   }
   ```
 
@@ -102,30 +106,19 @@ INTERNAL_KEY_BINDING=dev_shared_internal_security_key
 
 ### B. Query Token Balance
 
-- **Endpoint**: `/process`
-- **Method**: `POST`
-- **JSON Payload**:
-  ```json
-  {
-    "requestId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
-    "payload": {
-      "action": "getBalance",
-      "chain": "polygon",
-      "address": "0x6b175474e89094c44da98b954eedeac495271d0f",
-      "tokenAddress": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
-    }
-  }
-  ```
+- **Endpoint**: `GET /balance?chain=polygon&address=0x…&token=0x…`
+- **Headers**: `X-Internal-Auth-Key: <INTERNAL_KEY_BINDING>`
 - **Success Response (200 OK)**:
   ```json
   {
-    "success": true,
-    "result": {
-      "balance": "1485.50",
+    "chain": "polygon",
+    "token": {
+      "address": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
       "symbol": "USDT",
       "decimals": 6
     },
-    "error": null
+    "balance": "1485500000",
+    "balanceFormatted": "1485.5"
   }
   ```
 
@@ -135,9 +128,13 @@ INTERNAL_KEY_BINDING=dev_shared_internal_security_key
 
 Operating hot wallets on public blockchain networks introduces extreme security vectors:
 
-- **Harden Private Keys**: **Never** write keys to wrangler config files or print them in telemetry logs. Always provision keys via encrypted Cloudflare Secrets.
-- **Gas Price Limit Traps**: To prevent severe loss during network congestion or flash crashes, the worker enforces a **gas limit trap**—if current network gas price exceeds your KV configured limit (`web3:max_gas_price_gwei`), transactions are dropped before signing to prevent massive fee consumption.
-- **Isolate Access**: All calls must originate internally via Service Bindings. The wallet worker does not bind to public ports, meaning external scrapers cannot send raw transaction payloads or try to brute-force auth codes.
+- **Harden Private Keys**: **Never** write keys to wrangler config files or print them in telemetry logs. Keys are validated with `/^0x?[0-9a-fA-F]{64}$/`; mnemonics require 12–24 words. Wallet instances are cached under **opaque** keys (not the secret material). Error logs use `toError(...).message` only — never the secret value.
+- **Gas Price Limit Trap**: Before signing `/transfer`, `/approve`, or `/swap`, the worker reads `web3:max_gas_price_gwei` from `CONFIG_KV`. If set to a positive number and current `maxFeePerGas`/`gasPrice` exceeds that gwei value, the request is **forbidden** (fail-closed). Unset / invalid → trap disabled. Fee-data read failures also block when the trap is enabled.
+- **USD value caps**: Mutating routes enforce `security.maxTransactionValueUsd` using **server-side** pricing (`resolveEnforcedValueUsd`). High-value txs require confirmation when `requireConfirmation` is true (`409 CONFIRMATION_REQUIRED`).
+- **Whitelist**: When `whitelistedContractsOnly` is true, destinations/tokens must be listed (DEX router addresses for the chain are auto-allowed for swaps).
+- **RPC safety**: Provider URLs must be `https` (or `http` only for localhost/Anvil). Cloud metadata hosts and non-local `http` are rejected.
+- **Amount / address validation**: Integer wei strings only; zero-address recipients and spenders rejected (native token zero-address still allowed as swap token sentinel).
+- **Isolate Access**: All mutating calls require internal auth. Prefer Service Bindings over public exposure.
 
 ---
 

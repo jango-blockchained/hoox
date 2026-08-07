@@ -72,17 +72,18 @@ All workers now have authentication on their internal endpoints:
 
 | Worker                 | Auth Method                                  | Protected Endpoints                                              | Unprotected                                      |
 | ---------------------- | -------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------ |
-| **hoox**               | API key in body (timing-safe) + IP allowlist | `POST /webhook`                                                  | `GET /health`                                    |
+| **hoox**               | API key in body (timing-safe) + IP allowlist + kill switch | `POST /`, `POST /webhook`                                  | `GET /health`                                    |
 | **hoox operator plane** | Bearer `OPERATOR_API_KEY` (`requireOperatorAuth`) | `GET /v1/health`, `/v1/workers`, SSE `/v1/trades|logs/stream` | Prefer Access on mgmt hostname               |
 | **CLI/TUI operator**   | `HOOX_API_TOKEN` + optional Access service-token headers | Client transport profile (`HOOX_TRANSPORT`)                  | Fail-closed remote launch without credentials |
-| **d1-worker**          | `X-Internal-Auth-Key`                        | `POST /query`, `POST /batch`, `GET /api/*`                       | `GET /health`                                    |
-| **trade-worker**       | `X-Internal-Auth-Key`                        | `POST /webhook`, `POST /process`                                 | `GET /health`, `GET /api/signals`                |
-| **agent-worker**       | `X-Internal-Auth-Key`                        | All `POST /agent/*`, `GET /agent/status\|config\|models\|health` | `GET /`                                          |
-| **analytics-worker**   | `X-Internal-Auth-Key`                        | All `POST /track/*` (5 endpoints)                                | `GET /health`                                    |
-| **telegram-worker**    | `X-Internal-Auth-Key`                        | `POST /process`                                                  | `GET /health`, `POST /webhook` (Telegram secret) |
-| **email-worker**       | `X-Internal-Auth-Key`                        | `POST /email-signal`                                             | `GET /health`, `POST /webhook` (Mailgun HMAC)    |
-| **report-worker**      | `X-Internal-Auth-Key`                        | `GET /report`                                                    | `GET /health`                                    |
-| **web3-wallet-worker** | `X-Internal-Auth-Key`                        | `GET /` (wallet address)                                         | `GET /health`                                    |
+| **d1-worker**          | `X-Internal-Auth-Key` (scoped read/write)    | `POST /query`, `POST /batch`, `GET /api/*`                       | `GET /health`                                    |
+| **trade-worker**       | `X-Internal-Auth-Key`                        | `POST /webhook`, `POST /process`, `GET /api/signals`, `GET /report` | `GET /health`                                 |
+| **agent-worker**       | `X-Internal-Auth-Key`                        | All `/agent/*` (including chat, vision, risk-override)           | `GET /`, `GET /health`                           |
+| **analytics-worker**   | `X-Internal-Auth-Key`                        | All `POST /track/*`                                              | `GET /health`                                    |
+| **telegram-worker**    | `X-Internal-Auth-Key`                        | `POST /alert`, `POST /process`                                   | `GET /health`, `POST /webhook` (Telegram secret + chat allowlist) |
+| **email-worker**       | Mailgun HMAC + timestamp window              | —                                                                | `GET /health`, `POST /webhook` (HMAC + ±15m replay window) |
+| **report-worker**      | `X-Internal-Auth-Key`                        | `GET /report`, generate/delivery paths                           | `GET /health`                                    |
+| **web3-wallet-worker** | `X-Internal-Auth-Key`                        | Transfer / balance / approve / swap / config                     | `GET /health`                                    |
+| **pyne-worker**        | `X-API-Key` (`API_KEY`, not mesh internal key) | `/run`, `/ingest`, scripts, cron, feed when key set            | `GET /health`; open if `API_KEY` unset (dev only) |
 | **dashboard**          | Session cookie                               | All routes                                                       | `/login`, `/api/auth`, `/_next/*`                |
 
 <Note>

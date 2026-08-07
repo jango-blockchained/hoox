@@ -101,35 +101,30 @@ const response = await fetch(
 
 ### Step 3: R2 Storage & Expiration
 
-1. The API compiles the page and returns a raw PDF binary stream.
-2. The worker uploads the stream to the `REPORTS_BUCKET` R2 storage bucket using a unique, date-hashed key:
-   `reports/daily-pnl-2026-05-19.pdf`
+1. The Browser Rendering binding (`BROWSER.quickAction("pdf", …)`) compiles the page and returns a raw PDF binary stream.
+2. The worker uploads the stream to the `REPORTS_BUCKET` R2 storage bucket using a path-safe key:
+   `reports/daily-pnl-YYYY-MM-DD-{timestamp}.pdf`
+   Keys are validated (`assertSafeReportKey`) so `..`, absolute paths, and non-PDF names are rejected.
 3. A lifecycle rule on the R2 bucket automatically purges reports older than 30 days to maintain storage cleanliness.
 
 ---
 
 ### Step 4: Dispatch Telegram Alert
 
-Calls `TELEGRAM_SERVICE` to send the link:
-
-```typescript
-await env.TELEGRAM_SERVICE.fetch("https://telegram-worker/alert", {
-  method: "POST",
-  headers: { "X-Internal-Auth-Key": env.INTERNAL_KEY_BINDING },
-  body: JSON.stringify({
-    chatId: env.TELEGRAM_CHAT_ID_DEFAULT,
-    message:
-      "<b>📄 Daily P&L PDF Report Compiled!</b>\nDownload link: <a href='https://reports.hoox.example.com/daily-pnl-2026-05-19.pdf'>Download PDF</a>",
-  }),
-});
-```
+Calls `TELEGRAM_SERVICE` `/alert` with fail-closed internal auth (`TELEGRAM_ALERT_AUTH_KEY_FIELDS`). Download URLs encode path segments and only use a validated host from `REPORT_WORKER_URL`.
 
 ---
 
+### Security notes
+
+- **Auth**: `GET /report` requires `X-Internal-Auth-Key` (fail-closed). Cron uses the scheduled handler (no public HTTP).
+- **HTML escape**: All D1-sourced strings (e.g. `topAsset`) are escaped before interpolation into the PDF HTML template.
+- **R2 path safety**: Object keys must match `^reports/[A-Za-z0-9._-]+\.pdf$`.
+
 <Tip>
-  If `CF_API_TOKEN` is not configured, the worker gracefully fails by compiling
-  a rich text-only P&L summary and pushing it directly via Telegram instead of
-  generating a PDF, guaranteeing continuous operations without hard crashes.
+  If the `BROWSER` binding (or R2) is not configured / PDF generation fails, the
+  worker gracefully falls back to a text-only P&amp;L summary via Telegram so
+  ops still receive daily metrics without a hard crash.
 </Tip>
 
 ### 🔗 Next Steps

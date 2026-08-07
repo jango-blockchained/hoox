@@ -90,17 +90,34 @@ The gateway's `wrangler.jsonc` defines its private service binding links and res
 
 For security, build-time credentials are never stored in plain text. They are bound at deploy time as encrypted secrets:
 
-- **`WEBHOOK_API_KEY`**: The custom authentication passkey expected inside incoming signal payloads.
-- **`INTERNAL_KEY_BINDING`**: The shared bearer authorization token used by `requireInternalAuth` middleware to invoke internal V8 isolates.
+- **`WEBHOOK_API_KEY_BINDING`**: The shared secret expected in the JSON body field `apiKey` on `POST /webhook` (and `POST /`). **Fail-closed** — if unset, all webhook requests return `403`.
+- **`INTERNAL_KEY_BINDING`**: Shared service-to-service key sent as `X-Internal-Auth-Key` when calling trade-worker / telegram-worker.
+- **`OPERATOR_API_KEY`** (preferred) or legacy **`INTERNAL_API_KEY`**: Bearer token for the operator management plane (`/v1/*`). Fail-closed when unset.
 
 ### Local Development Mocking (`.dev.vars`)
 
 When running tests or starting local Wrangler dev, create a gitignored `.dev.vars` file in the gateway directory:
 
 ```bash
-WEBHOOK_API_KEY=dev_webhook_auth_passkey
+WEBHOOK_API_KEY_BINDING=dev_webhook_auth_passkey
 INTERNAL_KEY_BINDING=dev_shared_internal_security_key
+OPERATOR_API_KEY=dev_operator_bearer_token
 ```
+
+---
+
+## 🛡️ 2b. Ingress controls (WAF-layer)
+
+Applied on the webhook critical path **before** dispatch:
+
+| Control | Behavior |
+| ------- | -------- |
+| **Kill switch** | Reads `trade:kill_switch` **or** `global:kill_switch` from `CONFIG_KV`. Either set to a truthy value (`true` / `1` / `yes` / `on`) returns **`503`** with `code: "KILL_SWITCH"`. Agent / CLI write `trade:kill_switch`; gateway dashboard section uses `global:kill_switch`. |
+| **IP allowlist** | When `webhook:tradingview:ip_check_enabled` is true (default), `CF-Connecting-IP` must be in the built-in TradingView set or `webhook:tradingview:allowed_ips` JSON array. Missing IP → `403`. |
+| **Body size** | Hard cap **64 KiB** (Content-Length early reject + stream read). Oversized → `413`. |
+| **Auth** | Body `apiKey` compared with `timingSafeEqual` against `WEBHOOK_API_KEY_BINDING`. Missing/invalid → `403` (no key material in responses). |
+| **Rate limit** | KV-backed counter keyed by stable session (apiKey), default **10 req / 60s**. Exceeded → `429` `code: "RATE_LIMITED"`. |
+| **Idempotency** | Durable Object `IdempotencyStore`. Prefers body `idempotencyKey` or `Idempotency-Key` header; otherwise auto fingerprint `trade:{exchange}:{symbol}:{action}:{quantity}:{live\|test}`. Duplicates → `409`. |
 
 ---
 
@@ -108,12 +125,10 @@ INTERNAL_KEY_BINDING=dev_shared_internal_security_key
 
 > **Note:** For the canonical endpoint directory with full request/response examples across all workers, see [`/docs/devops/api/endpoints`](../api/endpoints).
 
-The gateway exposes three public entryways:
-
 ### A. Ingest Signal Webhook
 
-- **Endpoint**: `/webhook`
-- **Method**: `POST`
+- **Endpoints**: `POST /webhook` and `POST /` (alias)
+- **Auth**: body `apiKey` + optional IP allowlist (see above)
 - **JSON Payload**:
   ```json
   {
@@ -128,15 +143,31 @@ The gateway exposes three public entryways:
   }
   ```
 - **`test` (optional)**: forwarded to trade-worker / queue. Idempotency keys are mode-split (`…:live` vs `…:test`) so a live fill and a sandbox fill of the same size never dedupe each other. See [Test Trading](/enduser/guides/test-trading).
-- **Success Response (200 OK)**:
+- **`idempotencyKey` (optional)**: client-supplied dedupe key (also accepted via `Idempotency-Key` header). Max 256 chars.
+- **Success Response (200 OK)** — direct trade-worker path:
   ```json
   {
     "success": true,
     "requestId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
-    "exchange": "bybit",
-    "symbol": "BTCUSDT",
-    "action": "LONG",
-    "result": { "orderId": "18049284739", "status": "Filled" }
+    "tradeResult": {
+      "success": true,
+      "requestId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+      "tradeResult": { "orderId": "18049284739", "status": "Filled" }
+    },
+    "notificationResult": null
+  }
+  ```
+- **Queued Response (202 Accepted)** — `queue_everywhere` or failover after direct failure:
+  ```json
+  {
+    "success": true,
+    "requestId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+    "status": "Enqueued",
+    "tradeResult": {
+      "success": true,
+      "requestId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+      "tradeResult": { "queued": true, "message": "Trade queued for execution" }
+    }
   }
   ```
 
@@ -144,28 +175,47 @@ The gateway exposes three public entryways:
 
 ### B. Gateway Health Diagnostics
 
-- **Endpoint**: `/health`
-- **Method**: `GET`
+- **Endpoint**: `GET /health`
+- **Auth**: none (liveness probe — no KV round-trips)
 - **Success Response (200 OK)**:
   ```json
   {
+    "success": true,
     "status": "ok",
     "timestamp": 1779261050000,
+    "service": "hoox",
     "bindings": {
-      "d1": "connected",
-      "kv": "connected",
-      "queue": "active"
+      "kv": "configured",
+      "sessions": "configured",
+      "queue": "configured",
+      "trade": "configured",
+      "telegram": "configured",
+      "idempotency": "configured"
     }
   }
   ```
 
 ---
 
+### C. Operator management plane (`/v1/*`)
+
+Bearer `OPERATOR_API_KEY` (or legacy `INTERNAL_API_KEY`). Prefer Cloudflare Access on a dedicated mgmt hostname.
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/health` | Operator plane liveness |
+| `GET` | `/v1/workers` | Minimal gateway self-view (`WorkerInfo[]`) |
+| `GET` | `/v1/trades/stream` | SSE stub (connected event) |
+| `GET` | `/v1/logs/stream` | SSE stub (connected event) |
+| `GET` | `/workers` | Legacy alias of `/v1/workers` |
+
+---
+
 <Tip>
   If exchange APIs experience high latency or go offline, the gateway intercepts
-  the timeout error, serializes the payload, and pushes it to the `TRADE_QUEUE`
-  producer in less than **2 milliseconds**, returning a `"status": "Enqueued"`
-  (202 Accepted) response to TradingView.
+  the failure, serializes the payload, and pushes it to the `TRADE_QUEUE`
+  producer (queue_failover mode), returning a `"status": "Enqueued"`
+  (**202 Accepted**) response to TradingView.
 </Tip>
 
 ### 🔗 Next Steps

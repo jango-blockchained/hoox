@@ -134,9 +134,9 @@ data: {"content": " technical indicators suggest..."}
 data: [DONE]
 ```
 
-#### `POST /agent/vision` (NEW!)
+#### `POST /agent/vision`
 
-Analyze images with AI vision models. Supports both URL and base64 input.
+Analyze images with AI vision models (Workers AI). Supports base64 (preferred) or a **public https** `imageUrl` (private/metadata hosts and non-HTTPS URLs are rejected for SSRF safety).
 
 ```json
 {
@@ -155,52 +155,16 @@ Or with base64:
 }
 ```
 
-#### `POST /agent/reasoning` (NEW!)
+#### Planned / not yet shipped
 
-Extended thinking queries with reasoning models like OpenAI o1.
+The following endpoints appear in earlier design notes but are **not implemented** in the current isolate. Prefer `/agent/chat` with a reasoning model id, and track usage via Cloudflare AI Gateway dashboards until these land:
 
-```json
-{
-  "prompt": "Design a risk management strategy for a $100k portfolio",
-  "model": "o1-preview",
-  "reasoningEffort": "medium"
-}
-```
-
-**Response:**
-
-```json
-{
-  "reasoning": "Let me think through this step by step...",
-  "answer": "Here's a comprehensive risk management strategy...",
-  "model": "o1-preview"
-}
-```
-
-#### `GET /agent/usage` (NEW!)
-
-Get AI API usage statistics across all providers.
-
-```json
-{
-  "success": true,
-  "usage": {
-    "workers-ai": { "requests": 150, "tokens": 45000 },
-    "openai": { "requests": 75, "tokens": 22000 }
-  }
-}
-```
-
-#### `GET /agent/prompts` (NEW!)
-
-List available prompt templates.
-
-```json
-{
-  "success": true,
-  "prompts": ["trading-analyst", "risk-assessor", "market-scanner"]
-}
-```
+| Endpoint | Status |
+| -------- | ------ |
+| `POST /agent/reasoning` | Not shipped — use `/agent/chat` with a reasoning model |
+| `GET /agent/usage` | Not shipped — use AI Gateway / provider dashboards |
+| `GET /agent/prompts` | Not shipped — system prompts are request-scoped |
+| SSE streaming on `/agent/chat` | Not shipped — responses are JSON only |
 
 #### `POST /agent/embedding`
 
@@ -217,12 +181,23 @@ Generate text embeddings using Workers AI embedding models.
 
 #### `POST /agent/risk-override`
 
-Manually enforce or release risk locks.
+Manually enforce or release risk locks, and/or adjust trailing-stop percent.
 
 ```json
 {
   "action": "engage_kill_switch",
   "reason": "Manual override from dashboard"
+}
+```
+
+Supported `action` values: `engage_kill_switch`, `release_kill_switch`, `set_trailing_stop`.
+You may also pass `trailingStopPercent` (0–1) alone or with `set_trailing_stop`.
+
+```json
+{
+  "action": "set_trailing_stop",
+  "trailingStopPercent": 0.03,
+  "reason": "Tighter stops into FOMC"
 }
 ```
 
@@ -330,37 +305,13 @@ The `agent-worker` requires the following bindings to operate:
 
 ## Testing
 
-The agent-worker includes comprehensive tests (**171 tests across 33 files**):
+Run from the monorepo root:
 
 ```bash
-# Run all tests
-bun test
-
-# Run specific test file
-bun test tests/ai/providers/openai.test.ts
-
-# Run with coverage
-bun test --coverage
+bun test workers/agent-worker
 ```
 
-**Test Coverage:** >80% across all modules
-
-### Test Structure
-
-```
-tests/
-├── ai/
-│   ├── providers/       # Tests for each AI provider
-│   ├── gateway.test.ts  # AI Gateway fallback tests
-│   ├── streaming.test.ts # SSE streaming tests
-│   └── prompts.test.ts  # Prompt template tests
-├── handlers/           # Tests for all endpoints
-├── middleware/          # Tests for auth, validation, logging
-├── market/             # Tests for exchange clients
-├── risk/               # Tests for risk manager/executor
-├── routine/            # Tests for housekeeping
-└── integration/        # End-to-end integration tests
-```
+Coverage targets the isolate under `workers/agent-worker/src` and `test/` (providers, routine, housekeeping, prompt-sanitizer, HTTP routes).
 
 ---
 

@@ -29,6 +29,12 @@ Worker sources live as **git submodules** under `workers/` in [hoox-sh/hoox](htt
 | [analytics-worker](analytics-worker) | Analytics Engine fan-in (trades, signals, latency, heartbeats) | [analytics-worker](https://github.com/hoox-sh/analytics-worker) |
 | [report-worker](report-worker) | Browser Rendering PDFs → R2, telegram delivery | [report-worker](https://github.com/hoox-sh/report-worker) |
 
+## Tooling (outside core mesh auth)
+
+| Worker | Role | Source |
+| ------ | ---- | ------ |
+| [pyne-worker](pyne-worker) | Python PYNE edge evaluate — `/run`, bar-close cron, R2 OHLCV, alerts | [pyne-worker](https://github.com/hoox-sh/pyne-worker) |
+
 ## Channels & UI
 
 | Worker | Role | Source |

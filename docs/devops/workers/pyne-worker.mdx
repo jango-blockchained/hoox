@@ -1,0 +1,80 @@
+<!--
+  Copyright (c) 2026 HOOX · jango-blockchained (hoox-sh)
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+
+---
+title: "pyne-worker Isolate Profile"
+description: "Python Cloudflare Worker for PYNE Pine Script edge evaluation — /run, script registry, bar-close cron, R2 OHLCV, alert webhooks, trade-worker forwarding."
+---
+
+The **`pyne-worker`** is the Python edge host for **[PYNE](https://hoox.sh/pyne)** — evaluate TradingView® Pine Script™ on Cloudflare Workers with the same evaluate contract as the Pro API. It is a **tooling isolate** outside the mesh `INTERNAL_KEY_BINDING` graph: callers authenticate with `X-API-Key` / Worker secret `API_KEY`.
+
+Source: [hoox-sh/pyne-worker](https://github.com/hoox-sh/pyne-worker) · Product docs: [hoox.sh/pyne/docs](https://hoox.sh/pyne/docs)
+
+---
+
+## Bindings
+
+| Binding | Type | Purpose |
+| ------- | ---- | ------- |
+| `TRADE_SERVICE` | Service | Forward strategy trade events to `trade-worker` |
+| `OHLCV_DATA` | R2 | Kline / OHLCV storage and script registry |
+
+Cron: `* * * * *` (bar-close scheduler; only re-runs when R2 has a newer bar).
+
+---
+
+## Secrets
+
+| Secret | Required | Purpose |
+| ------ | -------- | ------- |
+| `API_KEY` | **Yes** (production) | HTTP auth for `/run` and management APIs (`X-API-Key`). Unset = open dev mode — do not ship that way. |
+| `ALERT_WEBHOOK_URL` | No | Default **HTTPS** destination for `alert()` / `alertcondition()` (public hosts only; private/loopback IPs rejected) |
+
+Dashboard callers that use the public URL or binding should set **`PYNE_API_KEY`** to the same value as `API_KEY`.
+
+```bash
+hoox secrets set pyne-worker API_KEY
+hoox secrets set pyne-worker ALERT_WEBHOOK_URL   # optional
+hoox secrets set dashboard PYNE_API_KEY            # optional, match API_KEY
+```
+
+### Security notes
+
+- Auth: constant-time key compare; rate limit 100 req / 60s per key (per isolate).
+- Payload caps: 5 MB body, 100 KB script, 100 K bars; `/run` wall timeout 30 s.
+- Alert webhooks: HTTPS + public host only (SSRF fail-closed).
+- R2 OHLCV keys: sanitized `symbol` / `timeframe` only — no path separators.
+
+---
+
+## Endpoints
+
+| Method | Path | Auth | Description |
+| ------ | ---- | ---- | ----------- |
+| GET | `/health` | No | Health + feature flags |
+| POST | `/run` | Yes | Evaluate Pine (`mode` interpret \| compile \| auto) |
+| POST | `/ingest` | Yes | Upload OHLCV to R2 |
+| POST/GET/DELETE | `/scripts`… | Yes | Deployed script registry |
+| GET/PUT | `/cron/jobs` | Yes | Bar-close job config |
+| POST | `/cron/run` | Yes | Manual scheduler trigger |
+| POST | `/feed/refresh` | Yes | Pull klines into R2 |
+
+---
+
+## Setup in HOOX
+
+1. Clone with submodules (or `hoox clone pyne-worker` / `git submodule update --init workers/pyne-worker`).
+2. Run the dashboard **Setup** wizard Secrets step — `API_KEY` is listed under Integrations.
+3. Deploy: `cd workers/pyne-worker && ./scripts/sync_vendor.sh && npx wrangler deploy`.
+
+> **Deploy gotcha:** Wrangler packages `python_modules/pynescript`, not an editable install. After updating PYNE, re-run `./scripts/sync_vendor.sh`.
+
+---
+
+## Related
+
+- [Workers index](index)
+- [trade-worker](trade-worker) — execution target for strategy events
+- [dashboard](dashboard) — `PYNE_SERVICE` binding + `PYNE_API_KEY`

@@ -83,10 +83,10 @@ INTERNAL_KEY_BINDING=dev_shared_internal_security_key
 
 ### A. Dispatch Notification Endpoint
 
-- **Endpoint**: `/alert`
+- **Endpoint**: `POST /alert` (legacy alias: `POST /process` — same handler, no redirect)
 - **Method**: `POST`
-- **Headers**: `X-Internal-Auth-Key: <INTERNAL_KEY_BINDING>`
-- **JSON Payload**:
+- **Headers**: `X-Internal-Auth-Key: <INTERNAL_KEY_BINDING>` (fail-closed if unset)
+- **JSON Payload** (nested or flat):
   ```json
   {
     "requestId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
@@ -97,12 +97,13 @@ INTERNAL_KEY_BINDING=dev_shared_internal_security_key
     }
   }
   ```
+  Flat shape is also accepted: `{ "message": "...", "chatId": "...", "parseMode": "HTML" }`.
+  `parseMode` may be `HTML` (default), `Markdown`, or `MarkdownV2`. Messages longer than 4096 characters are truncated.
 - **Success Response (200 OK)**:
   ```json
   {
     "success": true,
-    "result": { "messageId": 482904 },
-    "error": null
+    "result": { "ok": true, "result": { "message_id": 482904 } }
   }
   ```
 
@@ -112,21 +113,36 @@ INTERNAL_KEY_BINDING=dev_shared_internal_security_key
 
 Receives chat commands, `/start` signals, and image binaries.
 
-- **Endpoint**: `/telegram/<TELEGRAM_WEBHOOK_SECRET>`
+- **Endpoint**: `POST /webhook`
 - **Method**: `POST`
+- **Auth**: Header `X-Telegram-Bot-Api-Secret-Token` must match secret `TELEGRAM_SECRET_TOKEN` (fail-closed, timing-safe). This is **not** internal mesh auth.
 - **JSON Payload**: Standard Telegram update JSON schema.
-- **Access Control**: The worker extracts the incoming `message.chat.id`. If it does not match your authorized `TELEGRAM_CHAT_ID_DEFAULT` secret, the payload is silently dropped with a `200 OK` return to Telegram to prevent malicious commands.
+- **Access Control**: After secret validation, `message.chat.id` must appear in `AUTHORIZED_CHAT_IDS` (comma-separated). If the allowlist is unset/placeholder, or the chat is not listed, the update is silently dropped with `200 OK` (no command execution).
 
 ---
 
 ## 🧠 4. AI-Powered Chatbot & RAG Mechanics
 
-The bot does not just return static responses. When you send a natural language question (e.g., _"What is my average entry price on SOL?"_):
+The bot does not just return static responses. When you send `/ask <question>` (or free-text that is indexed for later search):
 
 1. **Embedding Generation**: The worker calls `env.AI` to generate high-dimensional text embeddings for your prompt using the `@cf/baai/bge-base-en-v1.5` model.
-2. **Vector Query**: Passes the vector to `env.VECTORIZE_INDEX` to retrieve semantically related transaction rows and market summaries from past trades.
-3. **Context Construction**: Formats the matched history into a rich LLM context window.
-4. **LLM Inference**: Invokes LLaMA-3 instruct via `env.AI` using your multi-provider API keys to generate a highly informed financial summary.
+2. **Vector Query**: Passes the vector to `env.VECTORIZE_INDEX` (`my-rag-index`) to retrieve semantically related prior messages.
+3. **Context Construction**: Formats matched history into a bounded context window; each snippet is **sanitized** (control chars stripped, injection markers redacted, role tags neutralized) and wrapped in `<context>` delimiters.
+4. **LLM Inference**: Invokes LLaMA-3 instruct via `env.AI` with a system prompt that treats context as untrusted data only (20s timeout).
+
+### Bot commands (authorized chats only)
+
+| Command | Behavior |
+| ------- | -------- |
+| `/start` | Help text |
+| `/status` | Kill-switch state from `CONFIG_KV` |
+| `/latest` / `/trades` | Latest trade signal from R2 (`latest_trade_signal.json` or `signals/*`) |
+| `/positions` | Points operators to the dashboard |
+| `/search <query>` | Vectorize semantic search over indexed messages |
+| `/ask <question>` | RAG answer over Vectorize context |
+| `/kill_on` / `/kill_off` | Engage / release global kill switch in KV |
+| (photo) | Download → R2 → vision caption (path validated, AI timeout) |
+| (other text) | Index into Vectorize for future search |
 
 ---
 

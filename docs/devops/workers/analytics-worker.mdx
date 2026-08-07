@@ -148,26 +148,20 @@ env.ANALYTICS_ENGINE.writeDataPoint({
 
 ---
 
-### Query Methods (Exported Functions)
+### Write-Path Validation & Safe Drop
 
-The analytics worker exports query functions that are called via Service Bindings (not HTTP). Each builds a SQL query and executes it against the Cloudflare Analytics Engine SQL API:
-
-| Function                                   | Parameters        | Purpose                       |
-| ------------------------------------------ | ----------------- | ----------------------------- |
-| `getTradeMetrics(timeRange)`               | ISO date range    | Trade counts by exchange      |
-| `getTradesByExchange(exchange, limit)`     | Exchange name     | Recent trades for an exchange |
-| `getTradeSuccessRate(timeRange?)`          | Optional ISO date | Overall trade success rate    |
-| `getWorkerPerformance(worker, timeRange?)` | Worker name       | Request counts and latency    |
-| `getApiCallStats(exchange?)`               | Optional exchange | API call statistics           |
-| `getSignalOutcomes(timeRange?)`            | Optional ISO date | Signal analysis by source     |
-
-All SQL queries are built via `sanitizeQueryInputs()` which validates parameters using allowlists and regex to prevent SQL injection.
+- All `/track/*` bodies use Zod `.strict()` schemas (unknown fields rejected).
+- Numbers must be finite and range-bounded; strings capped (default 256 chars).
+- JSON body hard-capped at 64 KiB; invalid JSON → `400` (not 500).
+- Blob/index values are truncated before `writeDataPoint` (max 256 / 96 chars; max 8 indexes).
+- Fail-closed internal auth on every `/track/*` route (`X-Internal-Auth-Key`).
+- **Query path**: Analytics Engine is write-only from this isolate. Dashboard aggregates and report inputs use D1 via `d1-worker` (bindings-over-REST). The REST SQL API query-builder was removed.
 
 ---
 
 ## 📈 4. Dashboard Visual Integrations
 
-The metrics written to `hoox-analytics` are queried by the dashboard to render:
+The metrics written to `hoox-analytics` (and related D1 rollups) feed:
 
 1. **System Health Indicators**: Real-time error spikes trigger warning banners in under 2 seconds.
 2. **Isolate Latency Charts**: Visual line graphs showing V8 processing speeds vs exchange API transit speeds.

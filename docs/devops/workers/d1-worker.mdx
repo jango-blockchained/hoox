@@ -173,8 +173,14 @@ Raw `/api/dashboard/positions` still returns all OPEN rows (including testnet). 
 
 To protect financial transaction ledgers and portfolios against SQL injection attacks, `d1-worker` enforces strict development rules:
 
-- **Parameterized Bindings**: All inputs must utilize parameterized placeholders (`?` or `?1`) mapped to `env.DB.prepare().bind()`. **Never** concatenate raw request strings directly into SQL statements.
-- **Access Isolation**: The database does not exist publicly. By binding D1 solely to this worker and accessing it via V8 Service Bindings, you prevent external crawlers or bots from querying database nodes directly.
+- **Parameterized Bindings**: All inputs must utilize parameterized placeholders (`?`) mapped to `env.DB.prepare().bind()`. **Never** concatenate raw request strings directly into SQL statements. Free-form SQL with string literals is rejected (`400`).
+- **Table allowlist**: Only `trade_signals`, `trades`, `positions`, `balances`, `system_logs`, `trade_requests`, `trade_responses`.
+- **Keyword firewall**: `DROP`, `PRAGMA`, `ALTER`, `TRUNCATE`, `VACUUM`, `ATTACH`, `DETACH`, `CREATE`, and related schema verbs → `403`.
+- **Multi-statement rejection**: Semicolon chaining is blocked (`403`).
+- **Read-only free-form API**: `POST /query` and `POST /batch` accept **SELECT only**. Mutations use named RPC routes (`/rpc/insert-trade`, `/rpc/upsert-position`, `/rpc/insert-signal`, `/rpc/insert-system-log`) with fixed SQL templates.
+- **Batch / size limits**: Max 50 batch statements, 64 bind params per statement, 8 KiB SQL, 1 MiB JSON body.
+- **Fail-closed auth**: Missing internal key → `401`. Prefer scoped `D1_READ_KEY_BINDING` / `D1_WRITE_KEY_BINDING`.
+- **Access Isolation**: The database is not public. D1 is bound only to this worker and reached via V8 Service Bindings.
 
 ---
 

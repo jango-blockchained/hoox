@@ -33,35 +33,29 @@ The worker also tracks signal ingestion metrics by forwarding event data to `ana
 
 ## 🔐 2. Mailgun Signature Verification
 
-When a POST arrives at `/webhook`, the worker validates the Mailgun signature before processing the email body:
+When a POST arrives at `/webhook`, the worker validates the Mailgun signature **and timestamp freshness** before processing the email body (fail-closed):
 
 1. Reads `Mailgun-Signature`, `Mailgun-Timestamp`, `Mailgun-Token` from request headers
-2. Computes HMAC-SHA256 hex digest of `timestamp + token` using `MAILGUN_API_KEY` as the signing key
-3. Compares computed digest against the `Mailgun-Signature` header value
-4. Returns `401 Unauthorized` if headers are missing or signature does not match
+2. Rejects if any header is missing → `401 Unauthorized`
+3. Rejects if `MAILGUN_API_KEY` is unset → `500` (service misconfiguration; never open)
+4. **Replay protection**: rejects timestamps outside a ±15 minute window of wall clock
+5. Computes HMAC-SHA256 hex digest of `timestamp + token` using `MAILGUN_API_KEY`
+6. Compares digests with **`timingSafeEqual`** (constant-time) against `Mailgun-Signature`
+7. Returns `401 Unauthorized` on mismatch or stale timestamp
 
 ```typescript
-const dataToSign = timestamp + token;
-const encoder = new TextEncoder();
-const key = await crypto.subtle.importKey(
-  "raw",
-  encoder.encode(apiKey),
-  { name: "HMAC", hash: "SHA-256" },
-  false,
-  ["sign"]
-);
-const signatureBytes = await crypto.subtle.sign(
-  "HMAC",
-  key,
-  encoder.encode(dataToSign)
-);
-const expectedSignature = Array.from(new Uint8Array(signatureBytes))
-  .map((b) => b.toString(16).padStart(2, "0"))
-  .join("");
-
-if (signature !== expectedSignature) {
-  return Errors.unauthorized("Invalid signature");
+// verifyMailgunSignature() — exported for unit tests
+const verified = await verifyMailgunSignature({
+  signature,
+  timestamp,
+  token,
+  apiKey,
+  // default tolerance: MAILGUN_TIMESTAMP_TOLERANCE_SEC = 15 * 60
+});
+if (!verified.ok) {
+  return Errors.unauthorized(verified.reason);
 }
+// Comparison uses timingSafeEqual(signature, expectedSignature)
 ```
 
 On success, the worker extracts the email body from the `body-plain` or `stripped-text` field of the Mailgun form-data payload and passes it to the signal parser.
@@ -92,12 +86,13 @@ JSON bodies may include `"test": true` to request exchange testnet execution (Bi
 
 ### Phase 2: Plaintext Fallback
 
-If JSON parsing fails or required fields are missing, `extractFromPlaintext()` uses keyword matching:
+If the body does not look like JSON (`{` / `[`), or JSON parse fails, `extractFromPlaintext()` uses keyword matching:
 
 - `extractField()` scans for `keyword:` prefixes (e.g. `exchange:`, `symbol:`, `action:`)
 - Coin symbols and action keywords matched via regex from KV config (`coinPattern`, `actionPattern`)
+- Optional `quantity:` / `qty:` / `size:` via `extractNumericField()` (default **100** when absent)
 - `normalizeExchange()` resolves exchanges: `binance`, `mexc`, `bybit`
-- `normalizeAction()` maps: `buy`/`long` → `buy`, `sell`/`short` → `sell`
+- `normalizeAction()` maps: `buy`/`long` → `LONG`, `sell`/`short` → `SHORT`
 
 Example plaintext email body:
 
@@ -112,10 +107,14 @@ quantity: 1.5
 
 Incoming JSON payloads are validated using Zod schemas:
 
-- `EmailSignalSchema` validates the signal structure (exchange, action as enum, symbol, quantity with default 100, optional price/leverage/`test`)
+- `EmailSignalSchema` validates the signal structure:
+  - exchange (string), action as enum (`buy|sell|long|short|LONG|SHORT`)
+  - symbol (min length 2 after alnum strip), quantity **positive finite** (default 100, max 1e12)
+  - optional price (positive), leverage (positive, max 125), `test` boolean
 - `WebhookPayloadSchema` validates the wrapper payload (subject, text, body — all optional)
 - Invalid payloads return `400 Bad Request` with structured error
 - Extra fields are stripped via `.strip()`
+- KV-sourced regex patterns are compiled with `compileSafePattern()` (ReDoS guard)
 
 ### Forwarding
 

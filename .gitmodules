@@ -27,3 +27,7 @@
 [submodule "workers/report-worker"]
 	path = workers/report-worker
 	url = https://github.com/hoox-sh/report-worker.git
+[submodule "workers/pyne-worker"]
+	path = workers/pyne-worker
+	url = https://github.com/hoox-sh/pyne-worker.git
+	branch = main
