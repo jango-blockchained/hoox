@@ -113,6 +113,12 @@ const ALL_WORKERS = [
 ] as const;
 
 /**
+ * Tooling isolates outside the mesh auth graph (own auth, not INTERNAL_KEY_BINDING).
+ * Still cloned as submodules and verified during setup.
+ */
+const TOOLING_WORKERS = ["pyne-worker"] as const;
+
+/**
  * Secret-to-workers mapping for auto-generated secrets.
  * Aligned with SYSTEM_SECRET_NAMES, env-service worker maps, and
  * wrangler.jsonc.example secret declarations.
@@ -713,6 +719,29 @@ export class SetupService {
   // ── Auto-Fix: Worker Submodules ────────────────────────────────────────
 
   /**
+   * True when a worker directory looks checked out (TS or Python entry present).
+   * Dashboard has no src/index.ts at the worker root — treated as present if
+   * the directory exists with a package.json / Next app marker.
+   */
+  private isWorkerTreePopulated(dir: string, name: string): boolean {
+    const markers =
+      name === "dashboard"
+        ? [
+            join(dir, "package.json"),
+            join(dir, "next.config.ts"),
+            join(dir, "src", "app"),
+          ]
+        : [
+            join(dir, "src", "index.ts"),
+            join(dir, "src", "entry.py"),
+            join(dir, "package.json"),
+            join(dir, "pyproject.toml"),
+            join(dir, "wrangler.jsonc"),
+          ];
+    return markers.some((p) => existsSync(p));
+  }
+
+  /**
    * Ensure all worker directories are cloned (git submodules). If any worker
    * directory is empty, runs `git submodule update --init --recursive`.
    *
@@ -725,26 +754,33 @@ export class SetupService {
       message: "Checking worker submodules...",
     });
 
-    const workerDirs = [...ALL_WORKERS, "dashboard"];
+    const workerDirs = [
+      ...ALL_WORKERS,
+      ...TOOLING_WORKERS,
+      "dashboard",
+    ] as const;
 
     const missing: string[] = [];
     const gitmodulesPath = ".gitmodules";
 
     for (const name of workerDirs) {
-      const dir = `workers/${name}`;
+      const dir = `workers/${workerFsDir(name)}`;
       // Empty submodule = directory exists but has no files
       try {
-        const entries = readFileSync(join(dir, ".git"), "utf-8").trim();
+        const gitEntry = readFileSync(join(dir, ".git"), "utf-8").trim();
         // A submodule .git is a file containing "gitdir:" — it exists but points elsewhere
-        if (entries.startsWith("gitdir:")) {
-          // Check if the work-tree is populated
-          const contents = readFileSync(join(dir, "src", "index.ts"), "utf-8");
-          // If we can read source, submodule is populated
-          void contents;
+        if (gitEntry.startsWith("gitdir:") || gitEntry.length > 0) {
+          if (!this.isWorkerTreePopulated(dir, name)) {
+            missing.push(name);
+          }
+        } else if (!this.isWorkerTreePopulated(dir, name)) {
+          missing.push(name);
         }
       } catch {
-        // Either .git file missing or src/index.ts missing — submodule not populated
-        missing.push(name);
+        // Either .git file missing or tree empty — submodule not populated
+        if (!this.isWorkerTreePopulated(dir, name)) {
+          missing.push(name);
+        }
       }
     }
 

@@ -22,7 +22,7 @@ git clone --recursive https://github.com/hoox-sh/hoox.git
 bun install
 ```
 
-9 workers (`workers/*`, except `workers/dashboard`) are Git submodules — without `--recursive` they are empty directories. The 10th directory (`workers/dashboard`) is a Next.js app living in the parent repo.
+10 worker isolates under `workers/*` (except `workers/dashboard`) are Git submodules — without `--recursive` they are empty directories. `workers/dashboard` is a Next.js app living in the parent repo. `pyne-worker` is the Python PYNE edge evaluate host (tooling isolate; uses `API_KEY`, not mesh `INTERNAL_KEY_BINDING`).
 
 ## Monorepo
 
@@ -42,6 +42,7 @@ Bun workspaces: `packages/*`, `workers/*`, `pages/*`.
 | `workers/email-worker` | Mailgun/email signal parsing → trade ([repo](https://github.com/hoox-sh/email-worker)) | `src/index.ts` |
 | `workers/analytics-worker` | Analytics Engine fan-in ([repo](https://github.com/hoox-sh/analytics-worker)) | `src/index.ts` |
 | `workers/report-worker` | Browser Rendering PDFs → R2 ([repo](https://github.com/hoox-sh/report-worker)) | `src/index.ts` |
+| `workers/pyne-worker` | Python PYNE edge evaluate (/run, cron, R2, alerts) ([repo](https://github.com/hoox-sh/pyne-worker)) | `src/entry.py` |
 | `workers/dashboard` | Next.js 16 + OpenNext ops console (public) | `src/index.tsx` |
 | `pages/docs` | Astro docs site | — |
 
@@ -135,7 +136,8 @@ External Inputs → hoox (Gateway) → trade-worker → d1-worker → analytics-
 email-worker → trade-worker
 web3-wallet-worker → telegram-worker
 report-worker → telegram-worker
-dashboard → d1-worker, agent-worker
+dashboard → d1-worker, agent-worker, pyne-worker
+pyne-worker → trade-worker
 ```
 
 **Infrastructure:** D1 (SQLite at edge), R2 (S3-compatible, zero-egress), KV (sub-ms config), DO (idempotency), Queues (async backpressure), Workers AI (5 providers), Vectorize (RAG), Analytics Engine, Browser Rendering.

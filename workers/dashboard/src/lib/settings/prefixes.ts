@@ -27,6 +27,7 @@ export const WORKER_PREFIX_MAP = {
   "d1-worker": "database:",
   "email-worker": "email:",
   "web3-wallet-worker": "wallet:",
+  "pyne-worker": "pyne:",
 } as const;
 
 /**
@@ -57,6 +58,10 @@ export const SECTION_PREFIX_MAP = {
   models: "agent:",
   ai: "ai:",
   report: "report:",
+  /** PYNE edge evaluate worker settings */
+  pyne: "pyne:",
+  /** Alert webhook section on pyne-worker dashboard.jsonc */
+  pyne_alerts: "pyne:",
 } as const;
 
 /**
@@ -118,6 +123,7 @@ export const READ_PREFIXES = [
   "behavior:",
   "cron:",
   "ai:",
+  "pyne:",
 ] as const;
 
 export type WorkerName = keyof typeof WORKER_PREFIX_MAP;

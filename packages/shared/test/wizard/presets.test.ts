@@ -65,15 +65,17 @@ describe("INTEGRATIONS", () => {
     expect(keys).toContain("openai");
     expect(keys).toContain("anthropic");
     expect(keys).toContain("google-ai");
+    expect(keys).toContain("pyne");
   });
 });
 
 describe("BASE_WORKERS", () => {
-  it("includes d1-worker, hoox, agent-worker, analytics-worker", () => {
+  it("includes d1-worker, hoox, agent-worker, analytics-worker, pyne-worker", () => {
     expect(Object.keys(BASE_WORKERS)).toContain("d1-worker");
     expect(Object.keys(BASE_WORKERS)).toContain("hoox");
     expect(Object.keys(BASE_WORKERS)).toContain("agent-worker");
     expect(Object.keys(BASE_WORKERS)).toContain("analytics-worker");
+    expect(Object.keys(BASE_WORKERS)).toContain("pyne-worker");
   });
 });
 

@@ -104,6 +104,16 @@ function applyDefaults(): void {
   cliBridgeDouble.agentHealthCheck.mockImplementation(() =>
     okCliResult({ providers: [], overallStatus: "online" as const })
   );
+  cliBridgeDouble.pyneHealthCheck.mockImplementation(() =>
+    okCliResult({
+      worker: "pyne-worker",
+      url: "https://pyne-worker.example/health",
+      status: "healthy" as const,
+      httpStatus: 200,
+      latencyMs: 12,
+      timestamp: new Date().toISOString(),
+    })
+  );
 }
 
 /**
@@ -153,6 +163,16 @@ export const cliBridgeDouble = {
   ),
   agentHealthCheck: mock(() =>
     okCliResult({ providers: [], overallStatus: "online" as const })
+  ),
+  pyneHealthCheck: mock(() =>
+    okCliResult({
+      worker: "pyne-worker",
+      url: "https://pyne-worker.example/health",
+      status: "healthy" as const,
+      httpStatus: 200,
+      latencyMs: 12,
+      timestamp: new Date().toISOString(),
+    })
   ),
 };
 

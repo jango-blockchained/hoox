@@ -286,6 +286,16 @@ const BUILTIN_CONFIGS: Record<string, () => Promise<WorkerConfigManifest>> = {
       };
     return parseDashboardJSONC(await res.text(), "report-worker");
   },
+  async "pyne-worker"() {
+    const res = await fetch("/workers/pyne-worker.jsonc");
+    if (!res.ok)
+      return {
+        worker: "pyne-worker",
+        displayName: "PYNE Worker",
+        sections: [],
+      };
+    return parseDashboardJSONC(await res.text(), "pyne-worker");
+  },
 };
 
 export async function loadWorkerConfig(

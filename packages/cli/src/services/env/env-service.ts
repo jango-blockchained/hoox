@@ -210,6 +210,36 @@ export class EnvService {
         section: "Wallet",
         hint: "Wallet private key for web3-wallet-worker",
       },
+      // PYNE edge evaluate
+      {
+        name: "API_KEY",
+        required: false,
+        secret: true,
+        section: "PYNE",
+        hint: "pyne-worker X-API-Key for /run and management APIs",
+      },
+      {
+        name: "ALERT_WEBHOOK_URL",
+        required: false,
+        secret: true,
+        section: "PYNE",
+        hint: "Default alert() / alertcondition() webhook URL",
+      },
+      {
+        name: "PYNE_API_KEY",
+        required: false,
+        secret: true,
+        section: "PYNE",
+        hint: "Dashboard → pyne-worker auth (same value as API_KEY)",
+      },
+      {
+        name: "PYNE_WORKER_URL",
+        required: false,
+        secret: false,
+        section: "PYNE",
+        default: "https://pyne-worker.cryptolinx.workers.dev",
+        hint: "Public base URL for pyne-worker (hoox pyne / dashboard)",
+      },
       {
         name: "DASHBOARD_USER",
         required: true,
@@ -346,6 +376,7 @@ export class EnvService {
         "INTERNAL_KEY_BINDING",
       ],
       "workers/analytics-worker": ["CLOUDFLARE_API_TOKEN"],
+      "workers/pyne-worker": ["API_KEY", "ALERT_WEBHOOK_URL"],
       "workers/dashboard": [
         "DASHBOARD_USER",
         "DASHBOARD_PASS",
@@ -355,6 +386,7 @@ export class EnvService {
         "TRADE_INTERNAL_KEY",
         "TELEGRAM_INTERNAL_KEY_BINDING",
         "API_SERVICE_KEY_BINDING",
+        "PYNE_API_KEY",
       ],
     };
     const result: Record<string, Record<string, string>> = {};

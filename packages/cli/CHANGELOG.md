@@ -3,6 +3,20 @@
 All notable changes to `@hoox-sh/hoox-cli` are documented here.
 This project adheres loosely to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- **`hoox pyne` command group** for the Python pyne-worker isolate:
+  - `health` — probe `GET /health` (JSON/table)
+  - `run` — evaluate a `.pine` script via `POST /run`
+  - `scripts list|get|deploy|delete` — R2 script registry
+  - `cron jobs|run`, `feed refresh` — bar-close scheduler helpers
+  - `ingest` — wrap `scripts/fetch_and_ingest.py`
+  - `sync-vendor` / `deploy` — vendor pynescript then `wrangler deploy`
+- **pyne-worker** in deploy order, env catalog (`API_KEY`, `ALERT_WEBHOOK_URL`, `PYNE_API_KEY`, `PYNE_WORKER_URL`), worker manifest registry, interactive menu Tools, and shell completions.
+- **TUI**: dashboard PYNE health section via `cliBridge.pyneHealthCheck()`; worker-settings loads `pyne-worker` dashboard.jsonc.
+
 ## [0.10.1] — 2026-07-26
 
 ### Added

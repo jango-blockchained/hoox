@@ -104,7 +104,7 @@ const MAIN_CATEGORIES = [
   {
     value: "tools",
     label: "Tools",
-    hint: "TUI, clone, dashboard, WAF, agent",
+    hint: "TUI, clone, dashboard, WAF, agent, pyne",
   },
   { value: "develop", label: "Develop", hint: "dev server, start project" },
   { value: "__exit", label: "Exit" },
@@ -540,6 +540,21 @@ async function showToolsMenu(
           value: "agent health",
           label: "Agent health",
           hint: "AI provider key check",
+        },
+        {
+          value: "pyne health",
+          label: "PYNE health",
+          hint: "pyne-worker GET /health",
+        },
+        {
+          value: "pyne sync-vendor",
+          label: "PYNE sync-vendor",
+          hint: "vendor pynescript for deploy",
+        },
+        {
+          value: "pyne deploy",
+          label: "PYNE deploy",
+          hint: "sync-vendor + wrangler deploy",
         },
         { value: "__back", label: "◀ Back to main menu" },
       ],

@@ -182,6 +182,8 @@ const DEPLOY_ORDER: string[] = [
   "web3-wallet-worker",
   "email-worker",
   "trade-worker",
+  "pyne-worker",
+  "report-worker",
   "agent-worker",
   "hoox",
   "dashboard",

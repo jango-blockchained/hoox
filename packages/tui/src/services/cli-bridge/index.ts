@@ -36,6 +36,7 @@ import type {
   KvKeySnapshot,
   ModelHealth,
   AgentHealthResult,
+  PyneHealthResult,
 } from "./types";
 import { validateReadOnlySql } from "./standalone";
 import { tuiDevLog } from "../dev-log";
@@ -1310,6 +1311,37 @@ class CliBridgeImpl {
       };
     });
   }
+
+  /**
+   * Probe pyne-worker via `hoox pyne health --json`.
+   *
+   * Used by the TUI dashboard to show PYNE edge evaluate availability
+   * without requiring a separate view.
+   */
+  pyneHealthCheck(): Promise<CliResult<PyneHealthResult>> {
+    return this.exec(["pyne", "health"], {
+      json: true,
+      timeout: 15_000,
+      tag: "pyne:health",
+    }).then((result) => {
+      if (!result.success) {
+        return {
+          ...result,
+          data: {
+            worker: "pyne-worker",
+            url: "",
+            status: "down" as const,
+            error: result.stderr || result.stdout || "probe failed",
+            timestamp: new Date().toISOString(),
+          },
+        };
+      }
+      return {
+        ...result,
+        data: parsePyneHealth(result.stdout),
+      };
+    });
+  }
 }
 
 /**
@@ -1322,6 +1354,53 @@ class CliBridgeImpl {
  *   { "providers": [ { "name": "...", "model": "...", "status": "online",
  *                      "latencyMs": 45, "dailyRequests": 1234 } ] }
  */
+/**
+ * Parse `hoox pyne health --json` stdout into {@link PyneHealthResult}.
+ */
+function parsePyneHealth(stdout: string): PyneHealthResult {
+  const timestamp = new Date().toISOString();
+  const cleaned = stdout.trim();
+  if (!cleaned) {
+    return {
+      worker: "pyne-worker",
+      url: "",
+      status: "down",
+      error: "empty response",
+      timestamp,
+    };
+  }
+  try {
+    const parsed = JSON.parse(cleaned) as Record<string, unknown>;
+    const statusRaw = parsed.status;
+    const status: PyneHealthResult["status"] =
+      statusRaw === "healthy" ||
+      statusRaw === "degraded" ||
+      statusRaw === "down"
+        ? statusRaw
+        : "down";
+    return {
+      worker: typeof parsed.worker === "string" ? parsed.worker : "pyne-worker",
+      url: typeof parsed.url === "string" ? parsed.url : "",
+      status,
+      httpStatus:
+        typeof parsed.httpStatus === "number" ? parsed.httpStatus : undefined,
+      latencyMs:
+        typeof parsed.latencyMs === "number" ? parsed.latencyMs : undefined,
+      body: parsed.body,
+      error: typeof parsed.error === "string" ? parsed.error : undefined,
+      timestamp,
+    };
+  } catch {
+    return {
+      worker: "pyne-worker",
+      url: "",
+      status: "down",
+      error: "invalid JSON from hoox pyne health",
+      timestamp,
+    };
+  }
+}
+
 function parseAgentHealth(stdout: string): AgentHealthResult {
   const timestamp = new Date().toISOString();
   const cleaned = stdout.trim();
@@ -1415,6 +1494,7 @@ export type {
   KvKeySnapshot,
   ModelHealth,
   AgentHealthResult,
+  PyneHealthResult,
   ChatMessage,
   AiModelOption,
   AgentChatStreamResult,

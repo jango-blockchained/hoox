@@ -156,6 +156,11 @@ const WORKSPACE_COLORS: Record<
     border: "#795548",
     font: "#3e2723",
   },
+  "workers/pyne-worker": {
+    fill: "#e0f7fa",
+    border: "#00ACC1",
+    font: "#006064",
+  },
   "workers/dashboard": { fill: "#ffebee", border: "#F44336", font: "#b71c1c" },
   "pages/docs": { fill: "#fff8e1", border: "#FFB300", font: "#4a3c00" },
 };

@@ -39,7 +39,7 @@ export const PRESETS: WorkerPreset[] = [
   {
     name: "full",
     label: "Full",
-    description: "All workers + AI agent + DeFi + email",
+    description: "All workers + AI agent + DeFi + email + PYNE",
     workers: [
       "hoox",
       "d1-worker",
@@ -49,8 +49,17 @@ export const PRESETS: WorkerPreset[] = [
       "analytics-worker",
       "email-worker",
       "web3-wallet-worker",
+      "pyne-worker",
     ],
-    integrations: ["binance", "bybit", "mexc", "telegram", "openai", "wallet"],
+    integrations: [
+      "binance",
+      "bybit",
+      "mexc",
+      "telegram",
+      "openai",
+      "wallet",
+      "pyne",
+    ],
   },
 ];
 
@@ -66,6 +75,7 @@ export const WORKER_DEPENDENCIES: Record<string, string[]> = {
   "email-worker": ["d1-worker"],
   "analytics-worker": ["d1-worker"],
   "web3-wallet-worker": ["d1-worker", "hoox"],
+  "pyne-worker": ["trade-worker"],
 };
 
 /**
@@ -186,6 +196,15 @@ export const INTEGRATIONS: IntegratedService[] = [
       HA_TOKEN_BINDING: "Home Assistant Token",
     },
   },
+  {
+    key: "pyne",
+    label: "PYNE (Pine Script edge evaluate)",
+    workerName: "pyne-worker",
+    secrets: {
+      API_KEY: "PYNE evaluate API key (X-API-Key)",
+      ALERT_WEBHOOK_URL: "Default alert() webhook URL (optional)",
+    },
+  },
 ];
 
 // ─── Base Workers ─────────────────────────────────────────────────────
@@ -204,6 +223,11 @@ export const BASE_WORKERS: Record<
   "analytics-worker": {
     enabled: true,
     path: "workers/analytics-worker",
+    vars: {},
+  },
+  "pyne-worker": {
+    enabled: true,
+    path: "workers/pyne-worker",
     vars: {},
   },
 };

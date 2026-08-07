@@ -88,4 +88,10 @@ export const DEFAULT_WORKER_LIST: readonly WorkerListEntry[] = [
     defaultPrefix: "cron:",
     enabled: true,
   },
+  {
+    name: "pyne-worker",
+    displayName: "PYNE Worker",
+    defaultPrefix: "pyne:",
+    enabled: true,
+  },
 ];

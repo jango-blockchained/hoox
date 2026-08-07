@@ -11,10 +11,11 @@ import {
 } from "../../src/schemas/registry.js";
 
 describe("Worker Registry", () => {
-  it("should have all 10 workers", () => {
-    expect(WORKER_NAMES).toHaveLength(10);
+  it("should have all 11 workers including pyne-worker", () => {
+    expect(WORKER_NAMES).toHaveLength(11);
     expect(WORKER_NAMES).toContain("hoox");
     expect(WORKER_NAMES).toContain("dashboard");
+    expect(WORKER_NAMES).toContain("pyne-worker");
   });
 
   it("each worker should have a name and path", () => {

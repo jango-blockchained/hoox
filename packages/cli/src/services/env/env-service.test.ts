@@ -10,8 +10,10 @@ describe("EnvService", () => {
   describe("getDefinitions", () => {
     it("returns all known env var definitions", () => {
       const defs = EnvService.getDefinitions();
-      expect(defs.length).toBe(27);
+      expect(defs.length).toBe(31);
       expect(defs.some((d) => d.name === "CLOUDFLARE_API_TOKEN")).toBe(true);
+      expect(defs.some((d) => d.name === "API_KEY")).toBe(true);
+      expect(defs.some((d) => d.name === "PYNE_API_KEY")).toBe(true);
     });
 
     it("each definition has required fields", () => {
@@ -118,6 +120,9 @@ describe("EnvService", () => {
         DASHBOARD_PASS: "pass",
         SESSION_SECRET: "secret-32-char-min-for-session",
         TELEGRAM_INTERNAL_KEY_BINDING: "tg-int-key",
+        API_KEY: "pyne-api-key",
+        ALERT_WEBHOOK_URL: "https://hooks.example/alert",
+        PYNE_API_KEY: "pyne-api-key",
       };
       const result = EnvService.getWorkerDevVars(vars);
       expect(result["workers/agent-worker"]).toBeDefined();
@@ -127,6 +132,12 @@ describe("EnvService", () => {
       expect(result["workers/dashboard"].DASHBOARD_PASS).toBe("pass");
       expect(result["workers/dashboard"].TELEGRAM_INTERNAL_KEY_BINDING).toBe(
         "tg-int-key"
+      );
+      expect(result["workers/dashboard"].PYNE_API_KEY).toBe("pyne-api-key");
+      expect(result["workers/pyne-worker"]).toBeDefined();
+      expect(result["workers/pyne-worker"].API_KEY).toBe("pyne-api-key");
+      expect(result["workers/pyne-worker"].ALERT_WEBHOOK_URL).toBe(
+        "https://hooks.example/alert"
       );
       expect(result["workers/hoox-worker"].HA_TOKEN_BINDING).toBe("ha-token");
       expect(result["workers/trade-worker"].API_SERVICE_KEY_BINDING).toBe(

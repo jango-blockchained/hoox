@@ -213,9 +213,10 @@ Ten specialized V8 isolates communicate over Cloudflare Service Bindings — dir
 | `analytics-worker`   | Analytics Engine fan-in (trades, signals, latency, heartbeats)                              | [analytics-worker](https://github.com/hoox-sh/analytics-worker)     |
 | `report-worker`      | Browser Rendering PDFs → R2, telegram delivery                                              | [report-worker](https://github.com/hoox-sh/report-worker)           |
 | `web3-wallet-worker` | On-chain wallet identity (ethers.js / Secrets Store)                                        | [web3-wallet-worker](https://github.com/hoox-sh/web3-wallet-worker) |
+| `pyne-worker`        | Python PYNE edge evaluate — Pine `/run`, bar-close cron, R2 OHLCV, alert webhooks           | [pyne-worker](https://github.com/hoox-sh/pyne-worker)               |
 | `dashboard`          | Next.js ops console (OpenNext, public)                                                      | [workers/dashboard](workers/dashboard)                              |
 
-Only the gateway and dashboard are public. Every other worker is a private isolate, reachable only via Cloudflare Service Bindings. Each worker is a **git submodule** with its own README and GitHub description; see [docs → Workers](https://docs.hoox.sh/docs/devops/workers) for operator isolate profiles.
+Only the gateway and dashboard are public. Every other worker is a private isolate, reachable only via Cloudflare Service Bindings (except tooling auth such as pyne-worker `API_KEY`). Each worker is a **git submodule** with its own README and GitHub description; see [docs → Workers](https://docs.hoox.sh/docs/devops/workers) for operator isolate profiles.
 
 ```mermaid
 graph LR

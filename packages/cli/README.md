@@ -103,6 +103,7 @@ hoox perf fastpath run --n 50
 | `hoox doctor`     | Check paths, TUI entry, and operator security hygiene                |
 | `hoox tunnel`     | Private operator ingress helpers (cloudflared + Access)              |
 | `hoox agent`      | AI agent ops (`health`, optional `--probe` live checks)              |
+| `hoox pyne`       | PYNE edge evaluate (`health`, `run`, `scripts`, `deploy`, …)         |
 | `hoox trace`      | Query Cloudflare Workers Observability (events, metrics, traces)     |
 | `hoox perf`       | Performance measurement tools (`fastpath` probe-based latency)       |
 | `hoox disclaimer` | Display legal disclaimer                                             |

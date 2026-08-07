@@ -74,6 +74,7 @@ export const DASHBOARD_WORKER_PREFIX: Record<string, string> = {
   "web3-wallet-worker": "wallet:",
   "analytics-worker": "ai:",
   "report-worker": "report:",
+  "pyne-worker": "pyne:",
 };
 
 /** Section id → CONFIG_KV prefix (must stay in sync with web SECTION_PREFIX_MAP). */
@@ -103,6 +104,8 @@ export const DASHBOARD_SECTION_PREFIX: Record<string, string> = {
   models: "agent:",
   ai: "ai:",
   report: "report:",
+  pyne: "pyne:",
+  pyne_alerts: "pyne:",
 };
 
 /**
@@ -389,6 +392,7 @@ export const DASHBOARD_WORKER_IDS = [
   "web3-wallet-worker",
   "analytics-worker",
   "report-worker",
+  "pyne-worker",
 ] as const;
 
 export type DashboardWorkerId = (typeof DASHBOARD_WORKER_IDS)[number];

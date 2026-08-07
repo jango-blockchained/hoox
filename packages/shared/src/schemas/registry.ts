@@ -348,6 +348,45 @@ const manifests: Record<string, WorkerManifest> = {
     cron: ["0 8 * * *", "0 18 * * *"],
   },
 
+  "pyne-worker": {
+    name: "pyne-worker",
+    path: "workers/pyne-worker",
+    vars: {
+      API_KEY: {
+        type: "secret",
+        description: "X-API-Key for /run and management endpoints",
+      },
+      ALERT_WEBHOOK_URL: {
+        type: "secret",
+        description: "Default HTTPS webhook for alert()/alertcondition()",
+      },
+      TRADE_WORKER_NAME: {
+        type: "plaintext",
+        description: "Trade worker service name",
+        default: "trade-worker",
+      },
+    },
+    services: [
+      {
+        binding: "TRADE_SERVICE",
+        service: "trade-worker",
+        description: "Forward strategy trade events",
+      },
+    ],
+    infrastructure: {
+      r2: [
+        {
+          binding: "OHLCV_DATA",
+          bucket: "pyne-worker-ohlcv",
+          description: "OHLCV klines + script registry",
+        },
+      ],
+    },
+    // Python isolate — auth is X-API-Key, not mesh INTERNAL_KEY middleware
+    middleware: [],
+    cron: ["* * * * *"],
+  },
+
   dashboard: {
     name: "dashboard",
     path: "workers/dashboard",
@@ -361,6 +400,10 @@ const manifests: Record<string, WorkerManifest> = {
         description: "Dashboard admin password",
       },
       SESSION_SECRET: { type: "secret", description: "Session encryption key" },
+      PYNE_API_KEY: {
+        type: "secret",
+        description: "Dashboard → pyne-worker X-API-Key (match API_KEY)",
+      },
     },
     services: [
       {
@@ -372,6 +415,11 @@ const manifests: Record<string, WorkerManifest> = {
         binding: "AGENT_SERVICE",
         service: "agent-worker",
         description: "AI risk data",
+      },
+      {
+        binding: "PYNE_SERVICE",
+        service: "pyne-worker",
+        description: "PYNE edge evaluate",
       },
     ],
     infrastructure: {

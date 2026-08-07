@@ -36,6 +36,7 @@ import {
   AlertTriangle,
   CircleDot,
   Clock,
+  Code2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DEFAULT_WORKER_LIST } from "@/lib/settings/workers";
@@ -121,6 +122,11 @@ const WORKER_META: Record<string, Omit<WorkerMeta, "name" | "displayName">> = {
     description: "Scheduled reports",
     icon: FileText,
     services: ["R2", "KV", "Service Binding"],
+  },
+  "pyne-worker": {
+    description: "Pine Script edge eval",
+    icon: Code2,
+    services: ["R2", "Service Binding"],
   },
 };
 

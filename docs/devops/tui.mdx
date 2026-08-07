@@ -69,7 +69,7 @@ Installed once from `packages/tui/src/test-setup.ts` (preload):
 
 | Double | Module | Control |
 | ------ | ------ | ------- |
-| CLI | `cli-bridge-test-double.ts` | `cliBridgeDouble` / `resetCliBridgeDouble()` |
+| CLI | `cli-bridge-test-double.ts` | `cliBridgeDouble` / `resetCliBridgeDouble()` (includes `pyneHealthCheck`) |
 | HTTP + SSE | `network-test-double.ts` | `setMockApiData` / `setMockApiFailure` / `emitSseEvent` |
 
 View tests must **not** call `mock.module` for `cli-bridge`, shared stores, `api-client`, or `sse`. Override methods on the doubles instead. Edge topology fixtures use `HOOX_GRAPH_METADATA_PATH` (temp file) rather than mocking `fs`.

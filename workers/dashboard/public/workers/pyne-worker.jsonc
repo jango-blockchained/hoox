@@ -1,0 +1,48 @@
+{
+  "display_name": "PYNE Worker",
+  "description": "Python edge host for PYNE Pine Script evaluation — /run, script registry, bar-close cron, R2 OHLCV, alert webhooks, trade-worker forwarding",
+  "sections": {
+    "pyne": {
+      "title": "Authentication & Runtime",
+      "description": "HTTP auth (X-API-Key), bar-close scheduler, and trade event forwarding",
+      "icon": "key",
+      "priority": 10,
+      "fields": {
+        "api_key": "Requires CLI Setup",
+        "cron_enabled": true,
+        "trade_forwarding": true,
+        "trade_worker_name": "trade-worker"
+      },
+      "descriptions": {
+        "api_key": "Worker secret API_KEY. Dashboard callers use the same value as PYNE_API_KEY. Run: hoox secrets set pyne-worker API_KEY",
+        "cron_enabled": "Document whether the 1m bar-close cron trigger is enabled (wrangler triggers.crons). Actual enablement is wrangler, not KV.",
+        "trade_forwarding": "Forward strategy trade events to trade-worker via TRADE_SERVICE binding.",
+        "trade_worker_name": "Logical name of the trade service binding target (default trade-worker)."
+      },
+      "secrets": {
+        "api_key": true
+      },
+      "secret_commands": {
+        "api_key": "hoox secrets set pyne-worker API_KEY"
+      }
+    },
+    "pyne_alerts": {
+      "title": "Alerts",
+      "description": "L2 webhook delivery for alert() / alertcondition()",
+      "icon": "bell",
+      "priority": 20,
+      "fields": {
+        "alert_webhook_url": "Requires CLI Setup"
+      },
+      "descriptions": {
+        "alert_webhook_url": "Default HTTPS destination for alert firings (Worker secret ALERT_WEBHOOK_URL). Per-job webhook_url overrides this."
+      },
+      "secrets": {
+        "alert_webhook_url": true
+      },
+      "secret_commands": {
+        "alert_webhook_url": "hoox secrets set pyne-worker ALERT_WEBHOOK_URL"
+      }
+    }
+  }
+}

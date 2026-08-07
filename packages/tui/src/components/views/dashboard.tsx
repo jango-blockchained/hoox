@@ -33,6 +33,7 @@ import {
   RepairState,
 } from "./dashboard/auto-repair-panel";
 import { ModelHealthSection } from "./dashboard/model-health-section";
+import { PyneHealthSection } from "./dashboard/pyne-health-section";
 import { AlertsPanel } from "./dashboard/alerts-panel";
 import { useUIStore } from "@hoox-sh/hoox-shared";
 
@@ -578,6 +579,11 @@ export function DashboardView({ dialog }: DashboardViewProps = {}) {
         {/* 6. AI model health section */}
         <box>
           <ModelHealthSection />
+        </box>
+
+        {/* 7. PYNE edge evaluate health */}
+        <box>
+          <PyneHealthSection />
         </box>
       </box>
     </ErrorBoundary>

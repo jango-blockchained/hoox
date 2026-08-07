@@ -242,6 +242,30 @@ export const REQUIRED_SECRETS: RequiredSecret[] = [
     kind: "user",
     priority: "optional",
   },
+  {
+    group: "Integrations",
+    worker: "pyne-worker",
+    secret: "API_KEY",
+    desc: "PYNE edge evaluate auth (X-API-Key on /run and management APIs)",
+    kind: "user",
+    priority: "recommended",
+  },
+  {
+    group: "Integrations",
+    worker: "pyne-worker",
+    secret: "ALERT_WEBHOOK_URL",
+    desc: "Default HTTPS webhook for alert() / alertcondition() firings",
+    kind: "user",
+    priority: "optional",
+  },
+  {
+    group: "Integrations",
+    worker: "dashboard",
+    secret: "PYNE_API_KEY",
+    desc: "Dashboard → pyne-worker auth (same value as pyne-worker API_KEY)",
+    kind: "user",
+    priority: "optional",
+  },
 ];
 
 // --- Wizard Steps ---

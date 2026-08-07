@@ -16,6 +16,7 @@ const requiredWorkerDirs = [
   "workers/email-worker",
   "workers/analytics-worker",
   "workers/report-worker",
+  "workers/pyne-worker",
 ];
 
 const missing = requiredWorkerDirs.filter(

@@ -21,7 +21,7 @@ const BASH_SCRIPT = `_hoox_completion() {
   local cur prev opts
   COMPREPLY=()
   cur="\${COMP_WORDS[COMP_CWORD]}"
-  opts="--help --version --json --quiet --yes init onboard bootstrap quickstart setup clone dev deploy infra config secrets keys check db monitor repair logs test waf dashboard schema update tui disclaimer agent workers trace perf doctor tunnel"
+  opts="--help --version --json --quiet --yes init onboard bootstrap quickstart setup clone dev deploy infra config secrets keys check db monitor repair logs test waf dashboard schema update tui disclaimer agent pyne workers trace perf doctor tunnel"
   COMPREPLY=( $(compgen -W "\${opts}" -- \${cur}) )
   return 0
 }
@@ -58,6 +58,7 @@ _hoox() {
     'trace:Query and manage Workers traces'
     'perf:Performance measurement tools'
     'agent:AI agent operations'
+    'pyne:PYNE edge evaluate worker'
   )
   _describe 'hoox' opts
 }
@@ -101,10 +102,21 @@ complete -c hoox -n '__fish_use_subcommand' -a update -d 'Update CLI / platform'
 complete -c hoox -n '__fish_use_subcommand' -a tui -d 'Interactive terminal UI'
 complete -c hoox -n '__fish_use_subcommand' -a disclaimer -d 'Show legal disclaimer'
 complete -c hoox -n '__fish_use_subcommand' -a agent -d 'AI agent operations'
+complete -c hoox -n '__fish_use_subcommand' -a pyne -d 'PYNE edge evaluate worker'
 complete -c hoox -n '__fish_use_subcommand' -a workers -d 'Worker operations'
 complete -c hoox -n '__fish_use_subcommand' -a trace -d 'Query and manage Workers traces'
 complete -c hoox -n '__fish_use_subcommand' -a perf -d 'Performance measurement tools'
 complete -c hoox -n '__fish_use_subcommand' -a completion -d 'Generate shell completion script'
+
+# pyne
+complete -c hoox -n '__fish_seen_subcommand_from pyne' -a health -d 'Probe GET /health'
+complete -c hoox -n '__fish_seen_subcommand_from pyne' -a run -d 'Evaluate a Pine script'
+complete -c hoox -n '__fish_seen_subcommand_from pyne' -a scripts -d 'Manage deployed scripts'
+complete -c hoox -n '__fish_seen_subcommand_from pyne' -a cron -d 'Bar-close cron jobs'
+complete -c hoox -n '__fish_seen_subcommand_from pyne' -a feed -d 'Market feed helpers'
+complete -c hoox -n '__fish_seen_subcommand_from pyne' -a ingest -d 'Fetch OHLCV data'
+complete -c hoox -n '__fish_seen_subcommand_from pyne' -a sync-vendor -d 'Sync pynescript for deploy'
+complete -c hoox -n '__fish_seen_subcommand_from pyne' -a deploy -d 'Deploy pyne-worker'
 
 # secrets
 complete -c hoox -n '__fish_seen_subcommand_from secrets' -a list -d 'List secrets for a worker'

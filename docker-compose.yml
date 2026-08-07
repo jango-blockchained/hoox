@@ -186,6 +186,20 @@ services:
       - workers
       - full
 
+  # Python Workers runtime — prefer host `wrangler dev` if the image lacks
+  # Python Workers support. Included for compose topology parity.
+  pyne-worker:
+    <<: *worker-base
+    command: bunx wrangler dev -c workers/pyne-worker/wrangler.jsonc --local --ip 0.0.0.0 --port 8799
+    volumes:
+      - ./workers/pyne-worker:/app/workers/pyne-worker
+    depends_on:
+      - hoox
+      - trade-worker
+    profiles:
+      - workers
+      - full
+
 networks:
   hoox-net:
     driver: bridge

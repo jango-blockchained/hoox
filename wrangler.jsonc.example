@@ -116,6 +116,18 @@
         "INTERNAL_KEY_BINDING"
       ]
     },
+    "pyne-worker": {
+      "enabled": true,
+      "path": "workers/pyne-worker",
+      "vars": {},
+      // Tooling isolate (outside mesh INTERNAL_KEY graph).
+      // API_KEY: X-API-Key for /run and management endpoints.
+      // ALERT_WEBHOOK_URL: optional default L2 alert destination.
+      "secrets": [
+        "API_KEY",
+        "ALERT_WEBHOOK_URL"
+      ]
+    },
     "dashboard": {
       "enabled": true,
       "path": "workers/dashboard",
@@ -125,7 +137,7 @@
       //   used when calling other workers (INTERNAL_KEY_BINDING,
       //   TRADE_INTERNAL_KEY, TELEGRAM_INTERNAL_KEY_BINDING,
       //   API_SERVICE_KEY_BINDING — SYSTEM_SECRET_NAMES).
-      // Integration: basic-auth credentials
+      // Integration: basic-auth credentials; PYNE_API_KEY matches pyne-worker API_KEY.
       "secrets": [
         "DASHBOARD_USER",
         "DASHBOARD_PASS",
@@ -134,7 +146,8 @@
         "INTERNAL_KEY_BINDING",
         "TRADE_INTERNAL_KEY",
         "TELEGRAM_INTERNAL_KEY_BINDING",
-        "API_SERVICE_KEY_BINDING"
+        "API_SERVICE_KEY_BINDING",
+        "PYNE_API_KEY"
       ]
     }
   },

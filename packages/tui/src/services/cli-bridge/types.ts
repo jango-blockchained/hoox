@@ -254,6 +254,20 @@ export interface AgentHealthResult {
   timestamp: string;
 }
 
+/**
+ * Result of `hoox pyne health --json` — PYNE edge evaluate worker probe.
+ */
+export interface PyneHealthResult {
+  worker: string;
+  url: string;
+  status: "healthy" | "degraded" | "down";
+  httpStatus?: number;
+  latencyMs?: number;
+  body?: unknown;
+  error?: string;
+  timestamp: string;
+}
+
 /** Local AI chat message shape. */
 export interface ChatMessage {
   role: "user" | "assistant";

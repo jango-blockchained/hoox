@@ -71,6 +71,7 @@ PORT ASSIGNMENTS:
   d1-worker          → 8789
   telegram-worker    → 8790
   web3-wallet-worker → 8792
+  pyne-worker        → 8799 (Python Workers; prefer host wrangler)
   (other workers)    → 8800+
 
 OPTIONS:
