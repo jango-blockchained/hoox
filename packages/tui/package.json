@@ -35,7 +35,7 @@
     "@hoox-sh/hoox-shared": "workspace:*",
     "@opentui-ui/dialog": "^0.1.2",
     "@opentui-ui/toast": "^0.0.5",
-    "@opentui/core": "^0.4.1",
+    "@opentui/core": "^0.5.1",
     "@opentui/react": "^0.4.1",
     "immer": "^11.1.8",
     "react": "^19.2.6",
